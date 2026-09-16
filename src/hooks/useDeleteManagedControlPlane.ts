@@ -1,28 +1,50 @@
-import { useCallback } from 'react';
-import { useApolloClient } from '@apollo/client/react';
-import { useApiResourceMutation } from '../lib/api/useApiResource';
+import { useCallback, useContext } from 'react';
+import { useApolloClient, useMutation } from '@apollo/client/react';
 import { useToast } from '../context/ToastContext';
 import { useTranslation } from 'react-i18next';
-import {
-  DeleteMCPResource,
-  DeleteMCPType,
-  PatchMCPResourceForDeletion,
-  PatchMCPResourceForDeletionBody,
-} from '../lib/api/types/crate/deleteMCP.ts';
+import { graphql } from '../types/__generated__/graphql';
+import { ApiConfigContext } from '../components/Shared/k8s/index.ts';
+import { fetchApiServerJson } from '../lib/api/fetch.ts';
+
+const DeleteManagedControlPlaneMutation = graphql(`
+  mutation DeleteManagedControlPlane($name: String!, $namespace: String!, $dryRun: Boolean) {
+    core_openmcp_cloud {
+      v1alpha1 {
+        deleteManagedControlPlane(name: $name, namespace: $namespace, dryRun: $dryRun)
+      }
+    }
+  }
+`);
+
+const deletionConfirmationPatchBody = JSON.stringify({
+  metadata: { annotations: { 'confirmation.openmcp.cloud/deletion': 'true' } },
+});
 
 export function useDeleteManagedControlPlane(namespace: string, name: string) {
   const apolloClient = useApolloClient();
-  const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(PatchMCPResourceForDeletion(namespace, name));
-  const { trigger: deleteTrigger } = useApiResourceMutation<DeleteMCPType>(DeleteMCPResource(namespace, name));
+  const [deleteManagedControlPlaneMutation] = useMutation(DeleteManagedControlPlaneMutation);
   const { t } = useTranslation();
   const toast = useToast();
+  const apiConfig = useContext(ApiConfigContext);
 
   const deleteManagedControlPlane = useCallback(async (): Promise<void> => {
-    await patchTrigger(PatchMCPResourceForDeletionBody);
-    await deleteTrigger();
-    void apolloClient.refetchQueries({ include: ['GetMCPsList'] });
-    toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
-  }, [apolloClient, deleteTrigger, patchTrigger, t, toast]);
+    try {
+      await fetchApiServerJson(
+        `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${name}`,
+        apiConfig,
+        undefined,
+        'PATCH',
+        deletionConfirmationPatchBody,
+      );
+      await deleteManagedControlPlaneMutation({ variables: { name, namespace } });
+      void apolloClient.refetchQueries({ include: ['GetMCPsList'] });
+      toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.show(message);
+      throw error;
+    }
+  }, [apiConfig, apolloClient, deleteManagedControlPlaneMutation, name, namespace, t, toast]);
 
   return {
     deleteManagedControlPlane,

@@ -35,6 +35,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
+import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -187,7 +188,7 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : `${baseSrc}/ocp/overview`);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -463,6 +464,8 @@ export default function ControlPlanePageV2() {
           name: controlPlaneName,
         }}
         isV2
+        preloadedAccess={mcp.status?.access}
+        preloadedNamespace={mcp.metadata?.namespace}
       >
         <AuthProviderMcp>
           <WithinManagedControlPlane>
@@ -488,6 +491,8 @@ export default function ControlPlanePageV2() {
         name: controlPlaneName,
       }}
       isV2
+      preloadedAccess={mcp.status?.access}
+      preloadedNamespace={mcp.metadata?.namespace}
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
@@ -513,6 +518,7 @@ export default function ControlPlanePageV2() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        isEditDisabled={!!mcp?.metadata?.deletionTimestamp}
                       />
                       <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
@@ -531,12 +537,16 @@ export default function ControlPlanePageV2() {
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection
-                      mcpStatus={mcp?.status}
+                      mcpStatus={
+                        mcp?.metadata?.deletionTimestamp
+                          ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                          : mcp?.status
+                      }
                       projectName={projectName}
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
+                    <McpMembersAvatarView roleBindings={roleBindings} />
                   </FlexBox>
                 </ObjectPageHeader>
               }

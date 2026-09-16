@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
 import { load } from 'js-yaml';
 import { z } from 'zod';
+import { telemetry } from '../../../lib/telemetry/telemetry.ts';
 
 const KubeContextSchema = z.object({
   name: z.string(),
@@ -47,7 +47,10 @@ export function buildConnectOptions(
     const parsedYaml = load(kubeconfigYaml);
     const result = KubeConfigSchema.safeParse(parsedYaml);
     if (!result.success) {
-      console.error('Invalid Kubeconfig structure:', result.error);
+      telemetry().report(result.error, {
+        message: 'Invalid Kubeconfig structure',
+        context: { item: parsedYaml, issues: z.treeifyError(result.error) },
+      });
       return [];
     }
 
@@ -75,19 +78,10 @@ export function buildConnectOptions(
       })),
     ];
   } catch (e) {
-    console.error('Failed to parse kubeconfig', e);
+    telemetry().report(e, {
+      message: 'Failed to parse kubeconfig',
+      context: { item: kubeconfigYaml },
+    });
     return [];
   }
-}
-
-export function useConnectOptions(
-  kubeconfigYaml: string | undefined,
-  projectName: string,
-  workspaceName: string,
-  controlPlaneName: string,
-): ConnectOption[] {
-  return useMemo(
-    () => buildConnectOptions(kubeconfigYaml, projectName, workspaceName, controlPlaneName),
-    [kubeconfigYaml, projectName, workspaceName, controlPlaneName],
-  );
 }

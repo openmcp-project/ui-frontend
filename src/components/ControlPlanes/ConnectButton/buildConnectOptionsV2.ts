@@ -1,7 +1,7 @@
 import { generatePath } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 import type { ControlPlaneStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import type { ConnectOption } from './useConnectOptions.ts';
+import type { ConnectOption } from './buildConnectOptions.ts';
 
 const OIDC_PREFIX = 'oidc_';
 const SYSTEM_IDP_KEY = 'oidc_openmcp';

@@ -106,8 +106,8 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane",
-    "createNewControlPlane": "Create Control Plane",
+    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
+    "createNewControlPlane": "Create Control Plane (v2)",
     "defaultBadge": "Default",
     "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
@@ -115,7 +115,10 @@
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "permissionErrorMessageSubtitle": "You need workspace membership to see control planes here.",
+    "askAdminButton": "Request access",
+    "accessRequestSubject": "Access request: workspace {{workspaceName}} in project {{projectName}}",
+    "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
@@ -150,7 +153,9 @@
     "buttonText": "View",
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
-    "downloadKubeconfig": "Download Kubeconfig"
+    "downloadKubeconfig": "Download Kubeconfig",
+    "noContextsError": "No connection context found in kubeconfig",
+    "noAccessTitle": "No connection configured"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -244,8 +249,8 @@
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
-    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
-    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
+    "deleteMessage": "You are about to delete the resource",
+    "typeToConfirm": "Type the name to confirm"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -581,7 +586,6 @@
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
-    "panelTitle": "YAML",
     "applySuccess2": "The control plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",
@@ -596,7 +600,9 @@
     "dialogTitleControlPlane": "Create Control Plane",
     "titleText": "Control Plane Created Successfully!",
     "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
-    "copySuffix": "-copy"
+    "copySuffix": "-copy",
+    "creating": "Creating Managed Control Plane...",
+    "creatingControlPlane": "Creating Control Plane..."
   },
   "editMCP": {
     "dialogTitle": "Edit Control Plane",
@@ -604,7 +610,16 @@
     "subtitleText": "Your control plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
     "editComponents": "Edit components",
     "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
-    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
+    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>",
+    "updating": "Updating Managed Control Plane...",
+    "updatingControlPlane": "Updating Control Plane...",
+    "loadingServices": "Loading installed services..."
+  },
+  "discardChangesDialog": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. If you close now, they will be lost.",
+    "confirmButton": "Discard changes",
+    "cancelButton": "Keep editing"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",

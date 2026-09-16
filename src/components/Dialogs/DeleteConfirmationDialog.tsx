@@ -80,7 +80,6 @@ export function DeleteConfirmationDialog({
           resourceName={resourceName}
           confirmationText={confirmationText}
           deleteMessageKey="DeleteConfirmationDialog.deleteMessage"
-          deleteConfirmationLabel={t('DeleteConfirmationDialog.deleteConfirmation', { resourceName })}
           onConfirmationInputChange={onConfirmationInputChange}
         />
       </Dialog>

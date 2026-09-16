@@ -15,6 +15,11 @@ vi.mock('../../../context/FeatureToggleContext', () => ({
   useFeatureToggle: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 const useSubscriptionMock = vi.mocked(useSubscription);
 const useFeatureToggleMock = vi.mocked(useFeatureToggle);
@@ -31,6 +36,7 @@ describe('useMcpsQuery', () => {
     useQueryMock.mockReset();
     useSubscriptionMock.mockReset();
     useSubscriptionMock.mockReturnValue({} as ReturnType<typeof useSubscription>);
+    reportMock.mockReset();
     useFeatureToggleMock.mockReturnValue({
       enableMcpV2: false,
       markMcpV1asDeprecated: false,
@@ -277,8 +283,7 @@ describe('useMcpsQuery', () => {
     expect(result.current.data.map((mcp) => mcp.metadata.name)).toEqual(['mcp-v1', 'mcp-v2']);
   });
 
-  it('filters out and warns about malformed items', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('filters out and reports malformed items to telemetry', () => {
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
@@ -305,8 +310,7 @@ describe('useMcpsQuery', () => {
 
     expect(result.current.data).toHaveLength(1);
     expect(result.current.data[0].metadata.name).toBe('valid');
-    expect(warnSpy).toHaveBeenCalledWith('Invalid control plane data:', expect.anything(), expect.anything());
-    warnSpy.mockRestore();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 
   it('passes through the Apollo error directly', () => {

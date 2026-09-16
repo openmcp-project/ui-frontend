@@ -176,7 +176,7 @@ export function CrossplaneInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'
@@ -185,8 +185,7 @@ export function CrossplaneInstallDialog({
         );
         onSuccess?.(mode);
         handleClose();
-      } catch (error) {
-        console.error('Crossplane mutation failed', error);
+      } catch {
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.errorMessageEdit', { component: 'Crossplane' })

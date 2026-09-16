@@ -67,7 +67,7 @@ export function ComponentHealthPopoverButton({
       // Prefer explicit button ref as opener (works reliably); fall back to event.target
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
       setOpen((prev) => {
-        if (!prev) telemetry.track({ name: 'component.status-viewed', componentName });
+        if (!prev) telemetry.track({ category: 'component', action: 'status-viewed', componentName });
         return !prev;
       });
     }

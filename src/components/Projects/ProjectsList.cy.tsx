@@ -11,7 +11,7 @@ const projects = ['alpha-project', 'beta-project', 'gamma-project'];
 
 const fakeUseProjectsQuery: typeof _useProjectsQuery = () => ({
   data: projects,
-  isLoading: false,
+  isPending: false,
   error: null,
   refetch: () => Promise.resolve([] as string[]),
 });

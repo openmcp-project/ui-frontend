@@ -25,6 +25,7 @@ import {
   GetExternalSecretsOperatorDocument,
   GetOcmDocument,
   GetKroDocument,
+  GetMetricsOperatorDocument,
 } from '../../../types/__generated__/graphql/graphql.ts';
 import { CreateControlPlaneV2WizardContainer } from './CreateControlPlaneV2WizardContainer.tsx';
 
@@ -34,6 +35,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   const mockMutationResult = (input: McpV2Input) => ({
     metadata: {
+      uid: null,
       name: input.name,
       namespace: input.namespace,
     },
@@ -162,7 +164,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
   const kpiVariables = { name: existingMcp.metadata.name, namespace: existingMcp.metadata.namespace };
 
   // Not-installed responses for the KPI status queries the wizard always fires in edit mode —
-  // every edit-mode test needs all four mocked (installed or not) or Apollo has no matching mock to resolve.
+  // every edit-mode test needs all seven mocked (installed or not) or Apollo has no matching mock to resolve.
   const notInstalledCrossplaneMock: MockedResponse = {
     request: { query: GetCrossplaneDocument, variables: kpiVariables },
     result: { data: { crossplane_services_open_control_plane_io: { v1alpha1: { Crossplane: null } } } },
@@ -188,6 +190,10 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
   const notInstalledKroMock: MockedResponse = {
     request: { query: GetKroDocument, variables: kpiVariables },
     result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
+  };
+  const notInstalledMetricsOperatorMock: MockedResponse = {
+    request: { query: GetMetricsOperatorDocument, variables: kpiVariables },
+    result: { data: { metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperator: null } } } },
   };
 
   const installedCrossplaneMock = (version: string, providers: { name: string; version: string }[] = []) =>
@@ -289,6 +295,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('#name').should('have.value', 'existing-mcp');
@@ -302,6 +309,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     // navigate to members step
@@ -319,6 +327,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click(); // metadata → members
@@ -344,6 +353,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click();
@@ -372,6 +382,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
         notInstalledEsoMock,
         notInstalledOcmMock,
         notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
       ],
     );
 
@@ -465,6 +476,10 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       request: { query: GetKroDocument, variables: idpKpiVariables },
       result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
     },
+    {
+      request: { query: GetMetricsOperatorDocument, variables: idpKpiVariables },
+      result: { data: { metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperator: null } } } },
+    },
   ];
 
   it('pre-fills extra-provider members from initialData in edit mode (regression: previously dropped)', () => {
@@ -556,6 +571,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ];
 
     it('shows Update button instead of Create on the summarize step', () => {
@@ -582,6 +598,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -748,6 +765,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -784,6 +802,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -820,6 +839,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -857,6 +877,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -896,6 +917,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           installedOcmMock('v0.3.0'),
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -932,6 +954,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -965,6 +988,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           installedKroMock('v0.3.0'),
+          notInstalledMetricsOperatorMock,
         ],
       );
 

@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
@@ -21,6 +22,7 @@ interface Props {
   useAuthOnboardingHook?: typeof useAuthOnboarding;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
 }
 
 export default function ControlPlaneListAllWorkspaces({
@@ -32,11 +34,22 @@ export default function ControlPlaneListAllWorkspaces({
   useAuthOnboardingHook = useAuthOnboarding,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
   const { workspaceCreationGuide } = useLink();
   const { t } = useTranslation();
 
   const query = search.trim().toLowerCase();
+
+  // Remembers the last non-empty list so a transient empty response from a subscription-driven
+  // refetch (see useWorkspacesQuery) can't swap every tile out for the empty-state illustration —
+  // that would unmount any open create/edit wizard along with it. Adjusted during render (not an
+  // effect) to avoid an extra render pass, mirroring the pattern in ControlPlaneListWorkspaceGridTile.
+  const [lastNonEmptyWorkspaces, setLastNonEmptyWorkspaces] = useState<Workspace[]>(workspaces);
+  if (workspaces.length > 0 && workspaces !== lastNonEmptyWorkspaces) {
+    setLastNonEmptyWorkspaces(workspaces);
+  }
+  const displayWorkspaces = workspaces.length > 0 ? workspaces : lastNonEmptyWorkspaces;
 
   const [visibilityState, setVisibilityState] = useState<{ query: string; map: Record<string, boolean> }>({
     query: '',
@@ -67,7 +80,7 @@ export default function ControlPlaneListAllWorkspaces({
     });
   }, []);
 
-  if (workspaces.length === 0) {
+  if (displayWorkspaces.length === 0) {
     return (
       <FlexBox direction="Column" alignItems="Center">
         <IllustratedMessage
@@ -98,8 +111,8 @@ export default function ControlPlaneListAllWorkspaces({
         </FlexBox>
       )}
       {[
-        ...workspaces.filter((ws) => !forbiddenWorkspaces.has(ws.metadata.name)),
-        ...workspaces.filter((ws) => forbiddenWorkspaces.has(ws.metadata.name)),
+        ...displayWorkspaces.filter((ws) => !forbiddenWorkspaces.has(ws.metadata.name)),
+        ...displayWorkspaces.filter((ws) => forbiddenWorkspaces.has(ws.metadata.name)),
       ].map((workspace) => (
         <ControlPlaneListWorkspaceGridTile
           key={`${projectName}-${workspace.metadata.name}`}
@@ -110,6 +123,7 @@ export default function ControlPlaneListAllWorkspaces({
           useAuthOnboardingHook={useAuthOnboardingHook}
           useMcpsQuery={useMcpsQuery}
           useDeleteWorkspace={useDeleteWorkspace}
+          useMcpV2ComponentsListQuery={useMcpV2ComponentsListQuery}
           onForbiddenDetected={() => handleForbiddenDetected(workspace.metadata.name)}
           onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
           onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}

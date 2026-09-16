@@ -70,9 +70,7 @@ describe('ConnectButton', () => {
     );
 
     cy.get('ui5-button').should('not.have.attr', 'disabled');
-    cy.wait(200).then(() => {
-      expect(requestCount).to.equal(0);
-    });
+    cy.then(() => expect(requestCount).to.equal(0));
   });
 
   it('navigates directly when only the system IdP exists', () => {
@@ -146,6 +144,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').invoke('resetHistory');
 
     cy.get('ui5-button').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.get('ui5-menu-item').eq(1).click();
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
@@ -168,7 +167,7 @@ describe('ConnectButton', () => {
 
   describe('telemetry', () => {
     const mockUseTelemetryWith = (trackSpy: Cypress.Agent<sinon.SinonStub>): typeof useTelemetry => {
-      return () => ({ track: trackSpy, report: cy.stub(), identify: cy.stub() });
+      return () => ({ track: trackSpy, report: cy.stub(), breadcrumb: cy.stub(), identify: cy.stub() });
     };
 
     it('tracks controlplane.connected with idp=system when connecting via system IdP', () => {
@@ -190,7 +189,11 @@ describe('ConnectButton', () => {
       cy.get('ui5-button').click();
 
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'system',
+      });
     });
 
     it('tracks controlplane.connected with idp=custom when connecting via custom IdP', () => {
@@ -212,7 +215,11 @@ describe('ConnectButton', () => {
       cy.get('ui5-button').click();
 
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'custom',
+      });
     });
 
     it('tracks the selected idp when picking from the menu with multiple IdPs', () => {
@@ -232,14 +239,24 @@ describe('ConnectButton', () => {
       );
 
       cy.get('ui5-button').click();
+      cy.get('ui5-menu[open]').should('exist');
       cy.get('ui5-menu-item').eq(0).click();
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'system',
+      });
 
       cy.get('ui5-button').click();
+      cy.get('ui5-menu[open]').should('exist');
       cy.get('ui5-menu-item').eq(1).click();
       cy.get('@trackSpy').should('have.been.calledTwice');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'custom',
+      });
     });
   });
 });

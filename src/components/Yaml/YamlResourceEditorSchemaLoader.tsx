@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC } from 'react';
 
 import { YamlViewer, YamlViewerProps } from './YamlViewer.tsx';
 import Loading from '../Shared/Loading.tsx';
@@ -21,20 +21,11 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
 
   kind,
 }) => {
-  const hasShownErrorRef = useRef(false);
-
-  const { schema, isLoading, error } = useCustomResourceDefinitionQuery({
+  const { schema, isLoading } = useCustomResourceDefinitionQuery({
     kind,
     apiGroupName,
     apiVersion,
   });
-
-  useEffect(() => {
-    if (!hasShownErrorRef.current && error) {
-      console.warn('Cannot load schema for this resource', { apiGroupName, apiVersion, kind, error });
-      hasShownErrorRef.current = true;
-    }
-  }, [error, apiGroupName, apiVersion, kind]);
 
   if (kind && isLoading) {
     return <Loading />;
