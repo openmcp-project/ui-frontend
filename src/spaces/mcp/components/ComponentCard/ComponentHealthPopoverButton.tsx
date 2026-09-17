@@ -1,7 +1,7 @@
+import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/message-warning';
 import '@ui5/webcomponents-icons/dist/pending';
-import '@ui5/webcomponents-icons/dist/sys-enter-2';
+import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize';
 import { ButtonDomRef, Icon, PopoverDomRef, ResponsivePopover } from '@ui5/webcomponents-react';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
@@ -50,11 +50,11 @@ export function ComponentHealthPopoverButton({
   // `phase` itself is intentionally left untranslated: it's an open backend-reported string (see
   // InstancePhase's `(string & {})` comment in ComponentCardV2.tsx), not a bounded set we can
   // i18n - mirrors MCPHealthPopoverButton's existing behavior for the same reason.
-  const displayPhase = hasError
+  const displayPhase = hasError || !phase
     ? t('ComponentHealthPopoverButton.unknownStatus')
     : isLoading
       ? t('ComponentHealthPopoverButton.pendingStatus')
-      : (phase ?? InstancePhase.Ready);
+      : phase;
   const visual = hasError
     ? UNRECOGNIZED_PHASE_VISUAL
     : isLoading

@@ -12,12 +12,14 @@ describe('getServiceLifecycle', () => {
     expect(getServiceLifecycle('Ready')).toBe('ready');
   });
 
-  it('treats every pre-Ready phase as installing', () => {
-    expect(getServiceLifecycle('Requested')).toBe('installing');
-    expect(getServiceLifecycle('Initializing')).toBe('installing');
+  it('maps Progressing to installing', () => {
     expect(getServiceLifecycle('Progressing')).toBe('installing');
-    // Unknown/future phases lean towards "in progress" rather than silently hiding.
-    expect(getServiceLifecycle('SomethingNew')).toBe('installing');
+  });
+
+  it('maps unrecognized phase strings to unknown', () => {
+    expect(getServiceLifecycle('Requested')).toBe('unknown');
+    expect(getServiceLifecycle('Initializing')).toBe('unknown');
+    expect(getServiceLifecycle('SomethingNew')).toBe('unknown');
   });
 
   it('maps Terminating to deleting', () => {

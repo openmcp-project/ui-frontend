@@ -231,7 +231,7 @@ export const ControlPlaneCard = ({
                         }}
                       >
                         <img src={component.logo} alt={component.name} className={styles.componentLogo} />
-                        {lifecycle && (
+                        {(lifecycle === 'installing' || lifecycle === 'deleting') && (
                           <Icon
                             name={SERVICE_LIFECYCLE_ICON[lifecycle]}
                             className={`${styles.statusBadge} ${
