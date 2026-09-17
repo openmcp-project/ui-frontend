@@ -32,5 +32,20 @@ kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/opencontrolplane/package.json"
 echo "✓ ocp plugin deployed"
 
+KRO_PLUGIN_DIR="${ROOT_DIR}/../headlamp-k8s-plugins/kro"
+if [[ ! -d "$KRO_PLUGIN_DIR" ]]; then
+  echo "→ cloning headlamp-k8s/plugins..."
+  git clone --depth 1 https://github.com/headlamp-k8s/plugins.git "${ROOT_DIR}/../headlamp-k8s-plugins"
+fi
+
+echo "→ building kro plugin..."
+(cd "$KRO_PLUGIN_DIR" && npm install --silent && npm run build 2>&1 | tail -3)
+
+echo "→ syncing to pod ${POD}:/headlamp/plugins/kro/ ..."
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/kro
+kubectl --context "$CONTEXT" cp "${KRO_PLUGIN_DIR}/dist/main.js" "${NAMESPACE}/${POD}:/headlamp/plugins/kro/main.js"
+kubectl --context "$CONTEXT" cp "${KRO_PLUGIN_DIR}/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/kro/package.json"
+echo "✓ kro plugin deployed"
+
 echo ""
 echo "✓ Plugins synced. Hard-refresh the browser to pick up changes."
