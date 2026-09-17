@@ -157,6 +157,18 @@
   --sapContent_IconColor: var(--sapNegativeColor, #f53232);
 }
 
+/* Positive (green) — service is fully ready. */
+.statusBadgeReady {
+  color: var(--sapPositiveColor, #188918);
+  --sapContent_IconColor: var(--sapPositiveColor, #188918);
+}
+
+/* Neutral (gray) — phase is unknown or not yet reported. */
+.statusBadgeUnknown {
+  color: var(--sapNeutralColor, #788fa6);
+  --sapContent_IconColor: var(--sapNeutralColor, #788fa6);
+}
+
 .addComponentPlaceholder {
   box-sizing: border-box;
   appearance: none;

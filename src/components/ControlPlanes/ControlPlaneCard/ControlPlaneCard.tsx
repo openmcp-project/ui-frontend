@@ -1,6 +1,8 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
+import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
 import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
@@ -233,13 +235,23 @@ export const ControlPlaneCard = ({
                           <Icon
                             name={SERVICE_LIFECYCLE_ICON[lifecycle]}
                             className={`${styles.statusBadge} ${
-                              lifecycle === 'installing' ? styles.statusBadgeInstalling : styles.statusBadgeDeleting
+                              lifecycle === 'installing'
+                                ? styles.statusBadgeInstalling
+                                : lifecycle === 'deleting'
+                                  ? styles.statusBadgeDeleting
+                                  : lifecycle === 'ready'
+                                    ? styles.statusBadgeReady
+                                    : styles.statusBadgeUnknown
                             }`}
                             data-testid={`service-status-${component.name}`}
                             accessibleName={t(
                               lifecycle === 'installing'
                                 ? 'ControlPlaneCard.serviceInstalling'
-                                : 'ControlPlaneCard.serviceDeleting',
+                                : lifecycle === 'deleting'
+                                  ? 'ControlPlaneCard.serviceDeleting'
+                                  : lifecycle === 'ready'
+                                    ? 'ControlPlaneCard.serviceReady'
+                                    : 'ControlPlaneCard.serviceUnknown',
                             )}
                             showTooltip
                           />

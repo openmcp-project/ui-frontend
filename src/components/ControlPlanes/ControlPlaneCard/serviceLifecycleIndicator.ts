@@ -3,16 +3,17 @@
  *
  * Vocabulary mirrors the openmcp control-plane lifecycle (see the opencontrolplane-headlamp-plugin
  * `resolveTimeline`/`InstancePhase`): every phase before `Ready` (`Requested` / `Initializing` /
- * `Progressing`, …) counts as in-progress, and `Terminating` means the service is being deleted.
- * `Ready`, an unknown/empty phase → no indicator (returns `null`).
+ * `Progressing`, …) counts as in-progress, `Terminating` means the service is being deleted, and
+ * `Ready` shows a positive checkmark. An unknown/empty phase → no indicator (returns `null`).
  */
-export type ServiceLifecycle = 'installing' | 'deleting';
+export type ServiceLifecycle = 'installing' | 'deleting' | 'ready' | 'unknown';
 
 const READY_PHASE = 'Ready';
 const TERMINATING_PHASE = 'Terminating';
 
-export function getServiceLifecycle(phase?: string | null): ServiceLifecycle | null {
-  if (!phase || phase === READY_PHASE) return null;
+export function getServiceLifecycle(phase?: string | null): ServiceLifecycle {
+  if (phase == null || phase === '') return 'unknown';
+  if (phase === READY_PHASE) return 'ready';
   if (phase === TERMINATING_PHASE) return 'deleting';
   return 'installing';
 }
@@ -21,4 +22,6 @@ export function getServiceLifecycle(phase?: string | null): ServiceLifecycle | n
 export const SERVICE_LIFECYCLE_ICON: Record<ServiceLifecycle, string> = {
   installing: 'synchronize',
   deleting: 'delete',
+  ready: 'accept',
+  unknown: 'question-mark',
 };

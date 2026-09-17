@@ -128,7 +128,9 @@
     "deleteMCP": "Delete",
     "installComponents": "Install components",
     "serviceInstalling": "Installing",
-    "serviceDeleting": "Deleting"
+    "serviceDeleting": "Deleting",
+    "serviceReady": "Ready",
+    "serviceUnknown": "Unknown"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
