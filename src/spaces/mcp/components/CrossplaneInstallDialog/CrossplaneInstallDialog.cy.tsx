@@ -1,7 +1,7 @@
 import { CrossplaneInstallDialog } from './CrossplaneInstallDialog.tsx';
 import { useCreateCrossplane } from '../../hooks/useCreateCrossplane.ts';
 import { useUpdateCrossplane } from '../../hooks/useUpdateCrossplane.ts';
-import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../../../hooks/useManagedServicesQuery.ts';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 
 type CreateVariables = { namespace: string; name: string; object: unknown };
@@ -30,7 +30,6 @@ describe('CrossplaneInstallDialog', () => {
   });
 
   const fakeUseManagedServicesQuery: typeof useManagedServicesQuery = (() => ({
-    managedServicesData: null,
     isLoading: false,
     error: null,
     services: [
@@ -50,7 +49,6 @@ describe('CrossplaneInstallDialog', () => {
   })) as () => UseManagedServicesQueryResult;
 
   const fakeUseManagedServicesQueryNoVersions: typeof useManagedServicesQuery = (() => ({
-    managedServicesData: null,
     isLoading: false,
     error: null,
     services: [

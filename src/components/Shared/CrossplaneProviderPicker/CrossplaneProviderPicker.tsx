@@ -1,6 +1,6 @@
 import { CheckBox, FlexBox, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
-import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import type { CrossplaneProvider } from '../../../hooks/useManagedServicesQuery.ts';
 import styles from './CrossplaneProviderPicker.module.css';
 
 export interface ProviderRowState {
