@@ -40,6 +40,16 @@ export const getHighestVersion = (versions: string[]): string | undefined => {
   return versions[highestIndex];
 };
 
+// Returns the highest catalog version if it's strictly newer than `current`, otherwise undefined.
+// Normalises the optional leading "v" so "1.3.0" and "v1.3.0" are treated as equal.
+export const latestAvailableVersion = (current: string, available: string[]): string | undefined => {
+  if (!current || available.length === 0) return undefined;
+  const normalize = (v: string) => (v.startsWith('v') ? v : `v${v}`);
+  const normalizedCurrent = normalize(current);
+  const highest = getHighestVersion([normalizedCurrent, ...available.map(normalize)]);
+  return highest && highest !== normalizedCurrent ? highest : undefined;
+};
+
 // Function to sort version strings by major, minor, patch (latest version first)
 export const sortVersions = (versions: string[]): string[] => {
   return versions.slice().sort((a, b) => {

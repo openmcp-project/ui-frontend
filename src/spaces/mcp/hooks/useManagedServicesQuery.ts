@@ -101,15 +101,50 @@ const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
     ],
     crossplaneProviders: [
       { name: 'provider-argocd', versions: [{ version: 'v0.9.1' }] },
-      { name: 'provider-btp', versions: [{ version: 'v1.3.0' }] },
-      { name: 'provider-cloudfoundry', versions: [{ version: 'v0.3.2' }] },
-      { name: 'provider-gardener-auth', versions: [{ version: 'v0.0.6' }] },
-      { name: 'provider-helm', versions: [{ version: 'v1.0.1' }] },
-      { name: 'provider-ias', versions: [{ version: 'v0.3.0' }] },
-      { name: 'provider-kubernetes', versions: [{ version: 'v0.15.0' }] },
-      { name: 'provider-opentofu', versions: [{ version: 'v0.2.7' }] },
+      {
+        name: 'provider-btp',
+        versions: [
+          { version: 'v1.3.0' },
+          { version: 'v1.9.0' },
+          { version: 'v1.10.0' },
+          { version: 'v1.11.0' },
+          { version: 'v1.13.0' },
+          { version: 'v2.0.0' },
+        ],
+      },
+      {
+        name: 'provider-cloudfoundry',
+        versions: [{ version: 'v0.3.2' }, { version: 'v1.0.0' }, { version: 'v1.2.0' }],
+      },
+      { name: 'provider-gardener-auth', versions: [{ version: 'v0.1.0' }] },
+      {
+        name: 'provider-helm',
+        versions: [{ version: 'v1.0.1' }, { version: 'v1.3.0' }, { version: 'v1.4.0' }],
+      },
+      { name: 'provider-ias', versions: [{ version: 'v0.4.0' }] },
+      {
+        name: 'provider-kubernetes',
+        versions: [
+          { version: 'v0.15.0' },
+          { version: 'v0.18.0' },
+          { version: 'v1.2.0' },
+          { version: 'v1.2.1' },
+        ],
+      },
+      {
+        name: 'provider-opentofu',
+        versions: [{ version: 'v0.2.7' }, { version: 'v1.0.4' }, { version: 'v1.1.2' }],
+      },
       { name: 'provider-terraform', versions: [{ version: 'v0.16.0' }] },
-      { name: 'provider-vault', versions: [{ version: 'v2.2.1' }] },
+      {
+        name: 'provider-vault',
+        versions: [
+          { version: 'v2.2.1' },
+          { version: 'v2.2.2' },
+          { version: 'v3.0.1' },
+          { version: 'v4.0.0' },
+        ],
+      },
     ],
   },
 };

@@ -7,7 +7,7 @@ import {
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
-import { getHighestVersion } from '../../../utils/componentsVersions.ts';
+import { getHighestVersion, latestAvailableVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -160,6 +160,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
             currentVersion && !versions.some((v) => v.version === currentVersion)
               ? [{ version: currentVersion }, ...versions]
               : versions;
+          const newerVersion = latestAvailableVersion(currentVersion, versions.map((v) => v.version));
           return (
             <div key={key} className={styles.row}>
               <FlexBox alignItems="Center" gap={12}>
@@ -190,6 +191,14 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
                       </Option>
                     ))}
                   </Select>
+                  {newerVersion && (
+                    <span
+                      className={styles.updateHint}
+                      title={t('ServiceSelectionStep.updateAvailableTooltip', { version: newerVersion })}
+                    >
+                      ↑ {newerVersion}
+                    </span>
+                  )}
                 </FlexBox>
               )}
               {key === 'crossplane' && selected && (
