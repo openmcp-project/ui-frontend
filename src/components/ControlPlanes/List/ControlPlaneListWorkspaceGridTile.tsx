@@ -26,7 +26,6 @@ import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
-import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
@@ -63,9 +62,7 @@ export function ControlPlaneListWorkspaceGridTile({
   useMcpsQuery = _useMcpsQuery,
   useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
-  const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
-  const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
@@ -313,8 +310,6 @@ export function ControlPlaneListWorkspaceGridTile({
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
-                setInitialTemplateName={setInitialTemplateName}
                 setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 disabled={isForbidden}
               />
@@ -344,30 +339,17 @@ export function ControlPlaneListWorkspaceGridTile({
                     buttonText: t('IllustratedBanner.helpButton'),
                   }}
                   button={
-                    <>
+                    enableMcpV2 ? (
                       <Button
                         className={styles.createButton}
                         icon={'add'}
-                        design={'Emphasized'}
                         onClick={() => {
-                          setIsCreateManagedControlPlaneWizardOpen(true);
+                          setIsCreateManagedControlPlaneWizardOpenV2(true);
                         }}
                       >
-                        {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+                        {t('ControlPlaneListToolbar.createNewControlPlane')}
                       </Button>
-
-                      {enableMcpV2 && (
-                        <Button
-                          className={styles.createButton}
-                          icon={'add'}
-                          onClick={() => {
-                            setIsCreateManagedControlPlaneWizardOpenV2(true);
-                          }}
-                        >
-                          {t('ControlPlaneListToolbar.createNewControlPlane')}
-                        </Button>
-                      )}
-                    </>
+                    ) : undefined
                   }
                 />
               ) : (
@@ -428,22 +410,12 @@ export function ControlPlaneListWorkspaceGridTile({
           transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizards
           unconditionally would run their hooks (auth, GetManagedComponents query) on every tile even
           while closed. */}
-      {isCreateManagedControlPlaneWizardOpen ? (
-        <CreateManagedControlPlaneWizardContainer
-          isOpen={isCreateManagedControlPlaneWizardOpen}
-          setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
-          projectName={projectNamespace}
-          workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
-        />
-      ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
         <CreateControlPlaneV2WizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpenV2}
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
         />
       ) : null}
     </div>
