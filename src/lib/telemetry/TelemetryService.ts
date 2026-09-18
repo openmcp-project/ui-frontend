@@ -12,11 +12,15 @@ export class TelemetryService implements Telemetry {
     this.dispatch('report', (a) => a.report(error, options));
   }
 
+  breadcrumb(message: string, options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }): void {
+    this.dispatch('breadcrumb', (a) => a.breadcrumb(message, options));
+  }
+
   identify(user: TelemetryUser | null): void {
     this.dispatch('identify', (a) => a.identify(user));
   }
 
-  private dispatch(method: 'track' | 'report' | 'identify', call: (adapter: Telemetry) => void): void {
+  private dispatch(method: 'track' | 'report' | 'breadcrumb' | 'identify', call: (adapter: Telemetry) => void): void {
     for (const adapter of this.adapters) {
       try {
         call(adapter);

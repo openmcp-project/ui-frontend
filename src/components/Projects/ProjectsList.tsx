@@ -8,7 +8,7 @@ import {
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
@@ -77,13 +77,18 @@ interface Props {
   onProjectSelect?: (projectName: string) => void;
 }
 
-export default function ProjectsList({
-  useProjectsQuery = _useProjectsQuery,
-  useProjectMembers = _useProjectMembers,
-  onProjectSelect,
-}: Props = {}) {
+export interface ProjectsListHandle {
+  refetch: () => Promise<string[]>;
+}
+
+const ProjectsList = forwardRef<ProjectsListHandle, Props>(function ProjectsList(
+  { useProjectsQuery = _useProjectsQuery, useProjectMembers = _useProjectMembers, onProjectSelect }: Props = {},
+  ref,
+) {
   const navigate = useLuigiNavigate();
-  const { data, error, isLoading } = useProjectsQuery();
+  const { data, error, isPending, refetch } = useProjectsQuery();
+
+  useImperativeHandle(ref, () => ({ refetch }), [refetch]);
   const timestampsRef = useRef<Map<string, string>>(new Map());
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
@@ -103,7 +108,7 @@ export default function ProjectsList({
       if (value === '' && hasFiredSearchedRef.current) {
         hasFiredSearchedRef.current = false;
       } else if (value !== '' && !hasFiredSearchedRef.current) {
-        telemetry.track({ name: 'project-list.searched' });
+        telemetry.track({ category: 'project-list', action: 'searched' });
         hasFiredSearchedRef.current = true;
       }
       setSearch(value);
@@ -148,13 +153,13 @@ export default function ProjectsList({
       if (rows.length === 1) {
         const { projectName } = rows[0];
         if (setAsDefaultRef.current) {
-          telemetry.track({ name: 'project-list.set-as-default', trigger: 'keyboard' });
+          telemetry.track({ category: 'project-list', action: 'set-as-default', trigger: 'keyboard' });
           setRememberedProject(projectName);
         }
         onProjectSelect?.(projectName);
         navigate(`/projects/${projectName}`);
       } else if (rows.length > 1) {
-        telemetry.track({ name: 'project-list.search-enter-pressed' });
+        telemetry.track({ category: 'project-list', action: 'search-enter-pressed' });
         tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
       }
     },
@@ -176,10 +181,10 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
-                    telemetry.track({ name: 'project.remembered', source: 'list' });
-                    telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
+                    telemetry.track({ category: 'project', action: 'remembered', source: 'list' });
+                    telemetry.track({ category: 'project-list', action: 'set-as-default', trigger: 'click' });
                   }
-                  telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
+                  telemetry.track({ category: 'project-list', action: 'navigated', trigger: 'click' });
                   onProjectSelect?.(projectName);
                   navigate(`/projects/${projectName}`);
                 }}
@@ -227,7 +232,9 @@ export default function ProjectsList({
         width: 220,
         disableFilters: true,
         disableSortBy: true,
-        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
+        Cell: (instance) => (
+          <ProjectMembersCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />
+        ),
       },
       {
         Header: t('yaml.YAML'),
@@ -259,7 +266,7 @@ export default function ProjectsList({
     [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
-  if (isLoading) {
+  if (isPending) {
     return <Loading />;
   }
   if (error) {
@@ -268,7 +275,7 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      {data.length > 0 && (
+      {!isPending && data.length > 0 && (
         <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       )}
       <div ref={tableContainerRef}>
@@ -284,6 +291,7 @@ export default function ProjectsList({
           className={styles.table}
           columns={columns}
           data={rows}
+          loading={isPending}
           minRows={10}
         />
       </div>
@@ -303,4 +311,6 @@ export default function ProjectsList({
       </div>
     </FadeIn>
   );
-}
+});
+
+export default ProjectsList;

@@ -1,5 +1,11 @@
 import fp from 'fastify-plugin';
-import { AuthenticationError } from '../plugins/auth-utils.js';
+import {
+  AuthConfigurationError,
+  AuthUpstreamError,
+  ExpectedAuthError,
+  createMcpConfigurationFetchError,
+  isExpiredSessionError,
+} from '../auth/errors.js';
 
 const stateSessionKey = 'oauthStateMCP';
 
@@ -22,26 +28,88 @@ async function authPlugin(fastify) {
    * Helper function to fetch custom IdP configuration via internal proxy.
    */
   // @ts-ignore
-  const fetchCustomIdpConfig = async (req, namespace, mcpName, idpName) => {
-    const proxyResponse = await fastify.inject({
-      method: 'GET',
-      url: `/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}`,
-      headers: {
-        ...req.headers, // passing the original headers (cookies), so the proxy can read the session
-        'x-use-crate': 'true',
-      },
-    });
+  const fetchCustomIdpConfig = async (req, namespace, mcpName, idpName, version) => {
+    const isV2 = version === 'v2';
+    const url = isV2
+      ? `/api/onboarding/apis/core.open-control-plane.io/v2alpha1/namespaces/${namespace}/controlplanes/${mcpName}`
+      : `/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}`;
 
-    if (proxyResponse.statusCode !== 200) {
-      req.log.error(`Failed to fetch MCP details: ${proxyResponse.statusCode}`);
-      throw new Error('Could not fetch MCP configuration');
+    let proxyResponse;
+    try {
+      proxyResponse = await fastify.inject({
+        method: 'GET',
+        url,
+        headers: {
+          ...req.headers, // passing the original headers (cookies), so the proxy can read the session
+          'x-use-crate': 'true',
+        },
+      });
+    } catch (cause) {
+      throw new AuthUpstreamError('MCP configuration request failed.', {
+        code: 'mcp_configuration_request_failed',
+        statusCode: 503,
+        publicMessage: 'Unable to load MCP configuration.',
+        cause,
+      });
     }
 
-    const mcpDetails = proxyResponse.json();
+    if (proxyResponse.statusCode !== 200) {
+      throw createMcpConfigurationFetchError(proxyResponse.statusCode);
+    }
+
+    let mcpDetails;
+    try {
+      mcpDetails = proxyResponse.json();
+    } catch (cause) {
+      throw new AuthUpstreamError('MCP configuration response contained invalid JSON.', {
+        code: 'invalid_mcp_configuration_response',
+        publicMessage: 'Unable to load MCP configuration.',
+        context: { upstreamStatus: proxyResponse.statusCode },
+        cause,
+      });
+    }
+
+    if (isV2) {
+      // @ts-ignore
+      const idpConfig = mcpDetails.spec?.iam?.oidc?.extraProviders?.find((config) => config.name === idpName);
+      if (!idpConfig) {
+        throw new ExpectedAuthError(`Identity provider '${idpName}' was not found in MCP configuration.`, {
+          code: 'identity_provider_not_found',
+          statusCode: 404,
+          publicMessage: 'Identity provider not found.',
+          context: { idpName },
+        });
+      }
+      if (!idpConfig.issuer || !idpConfig.clientID) {
+        throw new AuthConfigurationError(`Identity provider '${idpName}' is incompletely configured.`, {
+          code: 'incomplete_identity_provider_configuration',
+          context: { idpName },
+        });
+      }
+      const issuerConfiguration = await fastify.discoverIssuerConfiguration(idpConfig.issuer);
+
+      return {
+        clientId: idpConfig.clientID,
+        extraScopes: idpConfig.extraScopes ?? [],
+        issuerConfiguration,
+      };
+    }
+
     // @ts-ignore
     const idpConfig = mcpDetails.spec.authentication.identityProviders?.find((config) => config.name === idpName);
     if (!idpConfig) {
-      throw new Error(`Identity Provider '${idpName}' not found in MCP configuration`);
+      throw new ExpectedAuthError(`Identity provider '${idpName}' was not found in MCP configuration.`, {
+        code: 'identity_provider_not_found',
+        statusCode: 404,
+        publicMessage: 'Identity provider not found.',
+        context: { idpName },
+      });
+    }
+    if (!idpConfig.issuerURL || !idpConfig.clientID) {
+      throw new AuthConfigurationError(`Identity provider '${idpName}' is incompletely configured.`, {
+        code: 'incomplete_identity_provider_configuration',
+        context: { idpName },
+      });
     }
     const issuerConfiguration = await fastify.discoverIssuerConfiguration(idpConfig.issuerURL);
 
@@ -56,10 +124,10 @@ async function authPlugin(fastify) {
    * Resolves the IdP configuration (system IdP or a custom IdP).
    */
   // @ts-ignore
-  const resolveIdpConfig = async (req, { namespace, mcpName, idpName }) => {
+  const resolveIdpConfig = async (req, { namespace, mcpName, idpName, version }) => {
     const isCustomIdp = !isSystemIdpRequest(idpName);
     if (isCustomIdp) {
-      const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName);
+      const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName, version);
 
       // Merge default scopes with any extra scopes from custom IdP config
       const defaultScopes = OIDC_SCOPES.split(' ');
@@ -86,92 +154,77 @@ async function authPlugin(fastify) {
       timeWindow: '1 minute',
       // @ts-ignore
       keyGenerator: (req) =>
-        req.encryptedSession?.get('mcp_accessToken') ??
-        req.encryptedSession?.get('onboarding_accessToken') ??
-        req.ip,
+        req.encryptedSession?.get('mcp_accessToken') ?? req.encryptedSession?.get('onboarding_accessToken') ?? req.ip,
     },
   };
 
   // @ts-ignore
   fastify.get('/auth/mcp/login', { config: authRateLimit }, async function (req, reply) {
-    try {
-      const { namespace, mcp: mcpName, idp: idpName } = req.query;
+    const { namespace, mcp: mcpName, idp: idpName, version } = req.query;
 
-      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+    const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
+      namespace,
+      mcpName,
+      idpName,
+      version,
+    });
 
-      const redirectUri = await fastify.prepareOidcLoginRedirect(
-        req,
-        {
-          clientId: clientId,
-          redirectUri: OIDC_REDIRECT_URI,
-          scopes,
-        },
-        issuerConfiguration.authorizationEndpoint,
-        stateSessionKey,
-      );
+    const redirectUri = await fastify.prepareOidcLoginRedirect(
+      req,
+      {
+        clientId: clientId,
+        redirectUri: OIDC_REDIRECT_URI,
+        scopes,
+      },
+      issuerConfiguration.authorizationEndpoint,
+      stateSessionKey,
+    );
 
-      return reply.redirect(redirectUri);
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        req.log.error(`Login failed: ${error?.message}`);
-        return reply.badRequest(`Login failed: ${error?.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return reply.redirect(redirectUri);
   });
 
   // @ts-ignore
   fastify.get('/auth/mcp/callback', { config: authRateLimit }, async function (req, reply) {
-    const { namespace, mcp: mcpName, idp: idpName } = req.query;
+    const { namespace, mcp: mcpName, idp: idpName, version } = req.query;
 
-    try {
-      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+    const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName, version });
 
-      const callbackResult = await fastify.handleOidcCallback(
-        req,
-        {
-          clientId: clientId,
-          redirectUri: OIDC_REDIRECT_URI,
-        },
-        issuerConfiguration.tokenEndpoint,
-        stateSessionKey,
-      );
+    const callbackResult = await fastify.handleOidcCallback(
+      req,
+      {
+        clientId: clientId,
+        redirectUri: OIDC_REDIRECT_URI,
+      },
+      issuerConfiguration.tokenEndpoint,
+      stateSessionKey,
+    );
 
-      // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
-      await req.encryptedSession.regenerate();
+    // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
+    await req.encryptedSession.regenerate();
 
-      await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
-      await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
+    await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
+    await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
 
-      // Ensure session keys are deleted if values are undefined (system IdP flow).
-      // This prevents stale custom IdP values from remaining in the session.
-      const updateSessionKey = async (key: string, value: string | undefined) => {
-        if (value) {
-          await req.encryptedSession.set(key, value);
-        } else {
-          await req.encryptedSession.delete(key);
-        }
-      };
-      await updateSessionKey('mcp_namespace', namespace);
-      await updateSessionKey('mcp_name', mcpName);
-      await updateSessionKey('mcp_idp', idpName);
-
-      if (callbackResult.expiresAt) {
-        await req.encryptedSession.set('mcp_tokenExpiresAt', callbackResult.expiresAt);
+    // Ensure session keys are deleted if values are undefined (system IdP flow).
+    // This prevents stale custom IdP values from remaining in the session.
+    const updateSessionKey = async (key: string, value: string | undefined) => {
+      if (value) {
+        await req.encryptedSession.set(key, value);
       } else {
-        await req.encryptedSession.delete('mcp_tokenExpiresAt');
+        await req.encryptedSession.delete(key);
       }
+    };
+    await updateSessionKey('mcp_namespace', namespace);
+    await updateSessionKey('mcp_name', mcpName);
+    await updateSessionKey('mcp_idp', idpName);
 
-      return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        req.log.error('AuthenticationError during OIDC callback: %s', error);
-        return reply.serviceUnavailable('Error during OIDC callback.');
-      } else {
-        throw error;
-      }
+    if (callbackResult.expiresAt) {
+      await req.encryptedSession.set('mcp_tokenExpiresAt', callbackResult.expiresAt);
+    } else {
+      await req.encryptedSession.delete('mcp_tokenExpiresAt');
     }
+
+    return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
@@ -195,11 +248,10 @@ async function authPlugin(fastify) {
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.post('/auth/mcp/refresh', { config: authRateLimit }, async function (req, reply) {
-    const { namespace, mcp, idp } = req.query;
+    const { namespace, mcp, idp, version } = req.query;
 
     const refreshToken = req.encryptedSession.get('mcp_refreshToken');
     if (!refreshToken) {
-      req.log.error('Missing refresh token; deleting encryptedSession.');
       await req.encryptedSession.clear();
       return reply.unauthorized('Session expired without token refresh capability.');
     }
@@ -211,14 +263,16 @@ async function authPlugin(fastify) {
 
     req.log.info({ namespace, mcp, idp }, 'Attempting MCP token refresh');
 
-    try {
-      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
-        namespace,
-        mcpName: mcp,
-        idpName: idp,
-      });
+    const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
+      namespace,
+      mcpName: mcp,
+      idpName: idp,
+      version,
+    });
 
-      const refreshedTokenData = await fastify.refreshAuthTokens(
+    let refreshedTokenData;
+    try {
+      refreshedTokenData = await fastify.refreshAuthTokens(
         refreshToken,
         {
           clientId,
@@ -226,36 +280,29 @@ async function authPlugin(fastify) {
         },
         issuerConfiguration.tokenEndpoint,
       );
-      if (!refreshedTokenData || !refreshedTokenData.accessToken) {
-        req.log.error('Token refresh failed (no access token); deleting session.');
-        await req.encryptedSession.clear();
-        return reply.unauthorized('Session expired and token refresh failed.');
-      }
-
-      req.log.info('Token refresh successful; updating the session.');
-
-      await req.encryptedSession.set('mcp_accessToken', refreshedTokenData.accessToken);
-      if (refreshedTokenData.refreshToken) {
-        await req.encryptedSession.set('mcp_refreshToken', refreshedTokenData.refreshToken);
-      } else {
-        await req.encryptedSession.delete('mcp_refreshToken');
-      }
-      if (refreshedTokenData.expiresIn) {
-        const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
-        await req.encryptedSession.set('mcp_tokenExpiresAt', newExpiresAt);
-      } else {
-        await req.encryptedSession.delete('mcp_tokenExpiresAt');
-      }
-
-      req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
     } catch (error) {
-      if (error instanceof AuthenticationError) {
-        req.log.error('AuthenticationError during token refresh: %s', error);
-        return reply.unauthorized('Error during token refresh.');
-      } else {
-        throw error;
+      if (isExpiredSessionError(error)) {
+        await req.encryptedSession.clear();
       }
+      throw error;
     }
+
+    req.log.info('Token refresh successful; updating the session.');
+
+    await req.encryptedSession.set('mcp_accessToken', refreshedTokenData.accessToken);
+    if (refreshedTokenData.refreshToken) {
+      await req.encryptedSession.set('mcp_refreshToken', refreshedTokenData.refreshToken);
+    } else {
+      await req.encryptedSession.delete('mcp_refreshToken');
+    }
+    if (refreshedTokenData.expiresIn) {
+      const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
+      await req.encryptedSession.set('mcp_tokenExpiresAt', newExpiresAt);
+    } else {
+      await req.encryptedSession.delete('mcp_tokenExpiresAt');
+    }
+
+    req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
 
     return reply.send({ success: true });
   });

@@ -1,5 +1,4 @@
 import { APIError } from './error';
-import { telemetry } from '../telemetry/telemetry';
 import { ApiConfig } from './types/apiConfig';
 import { redirectToLogin } from '../../common/auth/redirectToLogin';
 import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
@@ -10,6 +9,7 @@ const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
 const mcpVersionHeader = 'X-mcp-version';
+const mcpIdpHeader = 'X-mcp-idp';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
@@ -76,26 +76,18 @@ export const fetchApiServer = async (
     if (config.mcpConfig.isV2) {
       headers[mcpVersionHeader] = 'v2';
     }
+    if (config.mcpConfig.idp) {
+      headers[mcpIdpHeader] = config.mcpConfig.idp;
+    }
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
 
-  let res: Response;
-  try {
-    res = await fetch(`/api/onboarding${path}`, {
-      headers,
-      method: httpMethod,
-      body,
-    });
-  } catch (error) {
-    telemetry().report(error, {
-      context: {
-        method: httpMethod,
-        path: `/api/onboarding${path}`,
-      },
-    });
-    throw error;
-  }
+  let res = await fetch(`/api/onboarding${path}`, {
+    headers,
+    method: httpMethod,
+    body,
+  });
 
   // The client thought the token was valid but the server rejected it (clock
   // skew, backgrounded tab, revoked session). Force a refresh and retry once
@@ -103,21 +95,11 @@ export const fetchApiServer = async (
   if (res.status === 401) {
     const refreshed = isMcpRequest ? await refreshMcpToken(true) : await refreshOnboardingToken(true);
     if (refreshed) {
-      try {
-        res = await fetch(`/api/onboarding${path}`, {
-          headers,
-          method: httpMethod,
-          body,
-        });
-      } catch (error) {
-        telemetry().report(error, {
-          context: {
-            method: httpMethod,
-            path: `/api/onboarding${path}`,
-          },
-        });
-        throw error;
-      }
+      res = await fetch(`/api/onboarding${path}`, {
+        headers,
+        method: httpMethod,
+        body,
+      });
     }
 
     if (res.status === 401) {
@@ -130,13 +112,6 @@ export const fetchApiServer = async (
   if (!res.ok) {
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
-
-    telemetry().report(error, {
-      context: {
-        method: httpMethod,
-        path: `/api/onboarding${path}`,
-      },
-    });
 
     throw error;
   }

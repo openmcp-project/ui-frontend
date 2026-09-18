@@ -20,6 +20,11 @@ Node `^24.0.0` and npm `^11.0.0` are required (`package.json` `engines`).
 - **Routing: `react-router-dom` v7** in HashRouter mode (`src/AppRouter.tsx`). Sentry-wrapped routes via `SentryRoutes` from `src/mount.ts`.
 - **Two auth spaces.** `AuthContextOnboarding` (top level: projects/workspaces, GraphQL) and `AuthContextMcp` (drilled-in MCP page, REST). Each has its own `tokenRefresh.ts`; the shared `SWRConfigWithTokenRefresh` wires both refreshers into SWR's error handling. There are V1 (`McpPage`) and V2 (`McpPageV2`, GraphQL-driven) MCP pages — both routes exist; V2 is the migration target.
 - **Observability.** Sentry on client + server (source maps uploaded via `@sentry/vite-plugin` — `build.sourcemap: true` is required). OpenTelemetry must be the **first import** in `server.ts` (`./server/opentelemetry-init.js`) or instrumentation breaks.
+  - **Telemetry axes — do not conflate:**
+    1. **Programming errors / crashes → `telemetry().report()`** fans out to Sentry (`captureException`) + Dynatrace (`dtrum.reportError`). Use for things a dev must act on.
+    2. **Network errors (4xx/5xx) → do NOT call `report()`**. Dynatrace picks them up automatically via the injected RUM script; Sentry records them as breadcrumbs (not errors) via its injected script. A routine failed `fetch` must not call `report()`.
+    4. **Backend/runtime states (neither a dev bug nor user action) → `telemetry().breadcrumb(message, { level?, context? })`** (default level `info`). Fan-out: Sentry `addBreadcrumb` with `category: 'diagnostic'`; Dynatrace no-op; Console `debug`.
+  - **Server-side (BFF) mirror.** The `telemetry()` facade above is **client-only** (its adapters bind to `window.*`). The BFF exposes its slim facade through Fastify: use `request.telemetry` inside a request to keep the `reqId` correlation and `fastify.telemetry` at boot or in background work. The Fastify plugin owns adapter construction; application code must not construct telemetry services. The facade exposes only the two axes that exist server-side — `report()` (axis 1 → `@sentry/node` `captureException` + logger `error`) and `breadcrumb()` (axis 3 → Sentry `addBreadcrumb`/`diagnostic` + logger `info`/`warn`). Axis 2 (routine 4xx/5xx) has no method: don't `report()` expected request failures. No Dynatrace/Matomo adapters (RUM/browser-only). Bootstrap `console.*` (no request context) stays as-is.
 - **Dynamic config.** `frontend-config.json` (backend URL etc.) is loaded at runtime. Locally that's `public/frontend-config.json` (gitignored); in prod NGINX writes it from the `BACKEND_CONFIG` env var. Read it via `FrontendConfigContext` — never hardcode URLs.
 
 ## Layout
@@ -124,6 +129,94 @@ Hooks are invoked as `node .claude/hooks/*.mjs` (cross-platform). But `/bin/sh` 
   If the user explicitly asks you to run it and provides the token via
   env var (`$env:GRAPHQL_TOKEN` on PowerShell, `$GRAPHQL_TOKEN` on bash),
   that is acceptable. Never echo the token value back, even partially.
+
+## Patterns
+
+### Injectable hooks — the testability convention
+
+Every component that calls a hook making a network request must accept it as an optional prop so tests can inject a fake:
+
+```tsx
+// real hook aliased with underscore prefix
+import { useMcpsQuery as _useMcpsQuery } from '…/useMcpsQuery';
+
+interface Props {
+  useMcpsQuery?: typeof _useMcpsQuery;   // optional, typed from the real hook
+}
+
+export function MyComponent({ useMcpsQuery = _useMcpsQuery }: Props) { … }
+```
+
+In tests pass a fake: `<MyComponent useMcpsQuery={fakeUseMcpsQuery} />`. See `ControlPlaneListWorkspaceGridTile.tsx` for a full example. Don't `vi.mock()` modules in Cypress tests — inject instead.
+
+### Forms: RHF + Zod + UI5 inputs
+
+UI5 web components don't fire native DOM `change` events that RHF listens for. The pattern:
+
+1. Always use `mode: 'onChange'` on `useForm` so `isValid` stays reactive.
+2. For `<Input>` / `<Select>` / `<ComboBox>`: use an `onInput` / `onChange` handler that calls `setValue(field, value, { shouldValidate: true, shouldDirty: true })` — do **not** spread `{...register()}` on a UI5 element.
+3. For programmatic `setValue` calls (e.g. populating a field from a side effect): always pass `{ shouldValidate: true }` or the field won't revalidate.
+4. Keep RHF registration alive via a hidden native input when the visible input is a UI5 component:
+   ```tsx
+   <input type="hidden" {...register('name')} value={currentValue} readOnly />
+   <Input value={currentValue} onInput={onNameInput} />
+   ```
+5. Define Zod schemas as functions that accept `t: TFunction` so validation messages are translated. Use `superRefine` for cross-field validation.
+
+See `src/components/Dialogs/MetadataForm.tsx` and `src/lib/api/validations/schemas.ts`.
+
+### Cypress component tests with UI5
+
+UI5 web components render in shadow DOM. Rules that prevent hours of debugging:
+
+- **Use `data-testid` on the React/UI5 element**, then query with `cy.get('[data-testid="…"]')`. Never traverse shadow DOM to find internal buttons or icons — class names change and visibility rules cause flakiness.
+- **Assert boolean web component state** with `invoke('prop', 'collapsed').should('equal', false)` — not `should('have.attr', 'collapsed')`. Boolean reflected attributes are unreliable.
+- **Trigger web component events** by dispatching a `CustomEvent` directly on the element instead of clicking inside shadow DOM:
+  ```ts
+  cy.get('[data-testid="my-panel"]').then(($el) =>
+    $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true }))
+  );
+  ```
+- **Always provide `FrontendConfigContext.Provider` explicitly** inside the `cy.mount` call — don't rely on the support file's outer wrapper. React 19's `use()` (used by `FeatureToggleProvider`) can lose context during re-renders otherwise. Mirror the pattern in `ControlPlaneListWorkspaceGridTile.cy.tsx`.
+- **Type into UI5 inputs** with `cy.get('ui5-input').typeIntoUi5Input('value')` from `@ui5/webcomponents-cypress-commands`.
+
+### Vitest unit tests for hooks
+
+```ts
+import { act, renderHook } from '@testing-library/react';
+
+it('shows toast and rethrows on failure', async () => {
+  mutateMock.mockRejectedValue(new Error('API Error'));
+  const { result } = renderHook(() => useDeleteProject('test'));
+  await act(async () => {
+    await expect(result.current.deleteProject()).rejects.toThrow('API Error');
+  });
+  expect(toastShowMock).toHaveBeenCalledWith('API Error');
+});
+```
+
+Hooks that show a toast on error **must also rethrow** so callers (dialogs) can stay open on failure. Test with `rejects.toThrow()`, not `resolves.toBeUndefined()`.
+
+### Error handling
+
+- Use `isForbiddenError(error)` / `isNotFoundError(error)` from `src/lib/api/error.ts` — don't compare status codes inline.
+- Mutations in hooks: catch, show toast, rethrow. The dialog/caller decides whether to close.
+- Use `<ErrorDialog ref={…} />` with `errorDialogRef.current?.showErrorDialog(message)` for errors that need a blocking dialog (not just a toast). See `CreateProjectDialogContainer.tsx`.
+
+### `javascript-time-ago` setup
+
+`TimeAgo.addDefaultLocale(en)` is initialised once in `src/utils/i18n/timeAgo.ts` — import that module before any component using `ReactTimeAgo` mounts. The call must appear **after all imports** in any file that hosts it (ESLint `import/first` rule).
+
+### CSS modules and theming
+
+Support both OS-level dark mode and SAP Horizon dark theme:
+
+```css
+@media (prefers-color-scheme: dark) { … }
+[data-ui5-theme*="dark"] .myClass { … }
+```
+
+Use `ThemingParameters` from `@ui5/webcomponents-react-base` for colours — never hardcode hex values that won't respond to theme changes.
 
 ## Commands cheatsheet
 

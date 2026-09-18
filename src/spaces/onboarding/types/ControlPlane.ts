@@ -21,13 +21,20 @@ const ConditionsSchema = z
   .default([])
   .transform((items) => (items ?? []).flatMap((item) => (item ? [item] : [])));
 
-const AccessSchema = z.object({
-  key: z.string().optional(),
-  name: z.string().optional(),
-  namespace: z.string().optional(),
-  kubeconfig: z.string().optional(),
-  oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
-});
+const AccessEntrySchema = z.object({ name: z.string().optional() });
+
+// `.catchall` captures dynamic `oidc_<providerName>` keys (V2). `.catch(undefined)` on the
+// catchall value tolerates non-object siblings (e.g. GraphQL `__typename`) instead of failing
+// the whole parse — otherwise every control plane carrying such a key would be dropped.
+const AccessSchema = z
+  .object({
+    key: z.string().optional(),
+    name: z.string().optional(),
+    namespace: z.string().optional(),
+    kubeconfig: z.string().optional(),
+    oidc_openmcp: AccessEntrySchema.optional(),
+  })
+  .catchall(AccessEntrySchema.optional().catch(undefined));
 
 const StatusSchema = z.object({
   status: z.string(),
@@ -37,15 +44,53 @@ const StatusSchema = z.object({
 });
 
 const MetadataSchema = z.object({
+  uid: z.string().optional(),
   name: z.string(),
   namespace: z.string(),
-  creationTimestamp: z.string(),
+  creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
 });
+
+const ComponentSchema = z.object({ __typename: z.string() }).nullish();
+
+const SpecComponentsSchema = z
+  .object({
+    crossplane: ComponentSchema,
+    flux: ComponentSchema,
+    landscaper: ComponentSchema,
+    kyverno: ComponentSchema,
+    externalSecretsOperator: ComponentSchema,
+    btpServiceOperator: ComponentSchema,
+  })
+  .nullish();
+
+// Simpler than the V2 IAM role binding shape (no roleRefs/apiGroup) — matches what the
+// list & detail V1 queries actually select for member-avatar display. `namespace` is optional
+// since the list/card-display queries don't select it (only the edit-wizard query does).
+const V1RoleBindingSchema = z.object({
+  role: z.string().nullish(),
+  subjects: z
+    .array(
+      z.object({ kind: z.string().nullish(), name: z.string().nullish(), namespace: z.string().nullish() }).nullable(),
+    )
+    .nullish(),
+});
+
+const SpecSchema = z
+  .object({
+    components: SpecComponentsSchema,
+    authorization: z
+      .object({
+        roleBindings: z.array(V1RoleBindingSchema.nullable()).nullish(),
+      })
+      .nullish(),
+  })
+  .nullish();
 
 const ControlPlaneV1Schema = z.object({
   version: z.literal('v1'),
   metadata: MetadataSchema,
+  spec: SpecSchema,
   status: StatusSchema.nullish(),
 });
 
@@ -72,6 +117,24 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
+// List items only query `name` and `roleBindings`; the rest is detail-page only.
+const ExtraOidcProviderListSchema = z.object({
+  name: z.string().nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
+const ExtraOidcProviderSchema = z.object({
+  name: z.string().nullish(),
+  issuer: z.string().nullish(),
+  clientID: z.string().nullish(),
+  usernameClaim: z.string().nullish(),
+  usernamePrefix: z.string().nullish(),
+  groupsClaim: z.string().nullish(),
+  groupsPrefix: z.string().nullish(),
+  extraScopes: z.array(z.string().nullable()).nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
 const ControlPlaneV2Schema = z.object({
   version: z.literal('v2'),
   metadata: MetadataSchema,
@@ -83,7 +146,7 @@ const ControlPlaneV2Schema = z.object({
           oidc: z
             .object({
               defaultProvider: OidcProviderSchema.nullish(),
-              extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+              extraProviders: z.array(ExtraOidcProviderListSchema.nullable()).nullish(),
             })
             .nullish(),
         })
@@ -100,13 +163,32 @@ export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
 export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
 export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
 
+/**
+ * Flattens a V1 control plane's `spec.authorization.roleBindings` into `McpMembersAvatarView`'s
+ * input shape. `namespace` is carried through per-subject when the query selected it (only the
+ * edit-wizard query does); other consumers can ignore the extra optional field.
+ */
+export function flattenV1RoleBindings(
+  roleBindings: (z.infer<typeof V1RoleBindingSchema> | null)[] | null | undefined,
+): { role: string; subjects: { kind: string; name: string; namespace?: string }[] }[] {
+  return (roleBindings ?? []).flatMap((rb) => {
+    if (!rb?.role) return [];
+    const subjects = (rb.subjects ?? []).flatMap((s) =>
+      s?.kind && s?.name ? [{ kind: s.kind, name: s.name, namespace: s.namespace ?? undefined }] : [],
+    );
+    return [{ role: rb.role, subjects }];
+  });
+}
+
 // ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
 
 const AccessV2Schema = z.preprocess(
   (val) => {
+    if (val == null) return undefined;
     if (typeof val === 'string') {
       try {
-        return JSON.parse(val);
+        const parsed = JSON.parse(val);
+        return parsed ?? undefined;
       } catch {
         return undefined;
       }
@@ -119,8 +201,9 @@ const AccessV2Schema = z.preprocess(
       name: z.string().optional(),
       namespace: z.string().optional(),
       kubeconfig: z.string().optional(),
-      oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
+      oidc_openmcp: AccessEntrySchema.optional(),
     })
+    .catchall(AccessEntrySchema.optional().catch(undefined))
     .optional(),
 );
 
@@ -136,7 +219,7 @@ const SpecV2Schema = z.object({
       oidc: z
         .object({
           defaultProvider: OidcProviderSchema.nullish(),
-          extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+          extraProviders: z.array(ExtraOidcProviderSchema.nullable()).nullish(),
         })
         .nullish(),
       tokens: z
@@ -179,6 +262,7 @@ const MetadataV2Schema = z.object({
   namespace: z.string().catch(''),
   creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
+  deletionTimestamp: z.string().nullish(),
 });
 
 export const ManagedControlPlaneV2Schema = z.object({
@@ -191,3 +275,4 @@ export type ManagedControlPlaneV2 = z.infer<typeof ManagedControlPlaneV2Schema>;
 export type ManagedControlPlaneV2Status = z.infer<typeof StatusV2Schema>;
 export type ManagedControlPlaneV2Condition = z.infer<typeof ConditionSchema>;
 export type IamRoleBinding = z.infer<typeof IamRoleBindingSchema>;
+export type ExtraOidcProvider = z.infer<typeof ExtraOidcProviderSchema>;

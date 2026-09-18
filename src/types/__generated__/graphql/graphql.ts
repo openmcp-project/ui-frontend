@@ -9,11 +9,11 @@ export type AuthorizationK8sIoV1SelfSubjectRulesReview_Input = {
   apiVersion?: string | null | undefined;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
   kind?: string | null | undefined;
-  /** Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  /** metadata is the standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
-  /** Spec holds information about the request being evaluated. */
+  /** spec holds information about the request being evaluated. */
   spec?: Io_K8s_Api_Authorization_V1_SelfSubjectRulesReviewSpecSpec_Input | null | undefined;
-  /** Status is filled in by the server and indicates the set of actions a user can perform. */
+  /** status is filled in by the server and indicates the set of actions a user can perform. */
   status?: Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input | null | undefined;
 };
 
@@ -394,6 +394,421 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlane_Input = {
   status?: CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input | null | undefined;
 };
 
+/**
+ * ClientSecret is a references to a secret containing the client secret.
+ * The client secret will be added to the generated kubeconfig with the "--oidc-client-secret" flag.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfigClientSecret_Input =
+  {
+    /** Key is the key inside the secret. */
+    key?: string | null | undefined;
+    /** Name is the secret name. */
+    name?: string | null | undefined;
+  };
+
+/** ClientAuthentication contains configuration for OIDC clients */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfig_Input = {
+  /**
+   * ClientSecret is a references to a secret containing the client secret.
+   * The client secret will be added to the generated kubeconfig with the "--oidc-client-secret" flag.
+   */
+  clientSecret?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfigClientSecret_Input
+    | null
+    | undefined;
+  /**
+   * ExtraConfig is added to the client configuration in the kubeconfig.
+   * Can either be a single string value, a list of string values or no value.
+   * Must not contain any of the following keys:
+   * - "client-id"
+   * - "client-secret"
+   * - "issuer-url"
+   */
+  extraConfig?: unknown;
+};
+
+/** IdentityProvider contains the configuration for an OpenID Connect identity provider */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProviders_Input = {
+  /**
+   * CABundle: When set, the OpenID server's certificate will be verified by one of the authorities in the bundle.
+   * Otherwise, the host's root CA set will be used.
+   */
+  caBundle?: string | null | undefined;
+  /** ClientAuthentication contains configuration for OIDC clients */
+  clientConfig?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfig_Input | null | undefined;
+  /** ClientID is the client ID of the identity provider. */
+  clientID?: string | null | undefined;
+  /** GroupsClaim is the claim that contains the groups. */
+  groupsClaim?: string | null | undefined;
+  /** IssuerURL is the issuer URL of the identity provider. */
+  issuerURL?: string | null | undefined;
+  /**
+   * Name is the name of the identity provider.
+   * The name must be unique among all identity providers.
+   * The name must only contain lowercase letters.
+   * The length must not exceed 63 characters.
+   */
+  name?: string | null | undefined;
+  /** RequiredClaims is a map of required claims. If set, the identity provider must provide these claims in the ID token. */
+  requiredClaims?: unknown;
+  /** SigningAlgs is the list of allowed JOSE asymmetric signing algorithms. */
+  signingAlgs?: Array<string | null | undefined> | null | undefined;
+  /** UsernameClaim is the claim that contains the username. */
+  usernameClaim?: string | null | undefined;
+};
+
+/** Authentication contains the configuration for the enabled OpenID Connect identity providers */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthentication_Input = {
+  enableSystemIdentityProvider?: boolean | null | undefined;
+  identityProviders?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProviders_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/**
+ * Subject describes an object that is assigned to a role and
+ * which can be used to authenticate against the control plane.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindingsSubjects_Input = {
+  /** APIGroup is the API group of the subject */
+  apiGroup?: string | null | undefined;
+  /** Kind is the kind of the subject */
+  kind?: string | null | undefined;
+  /** Name is the name of the subject */
+  name?: string | null | undefined;
+  /** Namespace is the namespace of the subject */
+  namespace?: string | null | undefined;
+};
+
+/** RoleBinding contains the role and the subjects assigned to the role */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindings_Input = {
+  /** Role is the name of the role */
+  role?: string | null | undefined;
+  /** Subjects is a list of subjects assigned to the role */
+  subjects?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindingsSubjects_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/** Authorization contains the configuration of the subjects assigned to control plane roles */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorization_Input = {
+  /** RoleBindings is a list of role bindings */
+  roleBindings?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindings_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/** PolicyRef is the reference to the policy containing the configuration for the audit log service. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogPolicyRef_Input = {
+  /**
+   * Name of the referent.
+   * This field is effectively required, but due to backwards compatibility is
+   * allowed to be empty. Instances of this type with an empty value here are
+   * almost certainly wrong.
+   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+   */
+  name?: string | null | undefined;
+};
+
+/** SecretRef is the reference to the secret containing the credentials for the audit log service. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogSecretRef_Input = {
+  /**
+   * Name of the referent.
+   * This field is effectively required, but due to backwards compatibility is
+   * allowed to be empty. Instances of this type with an empty value here are
+   * almost certainly wrong.
+   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+   */
+  name?: string | null | undefined;
+};
+
+/** AuditLogConfig defines the AuditLog configuration for the ManagedControlPlane cluster. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLog_Input = {
+  /** PolicyRef is the reference to the policy containing the configuration for the audit log service. */
+  policyRef?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogPolicyRef_Input
+    | null
+    | undefined;
+  /** SecretRef is the reference to the secret containing the credentials for the audit log service. */
+  secretRef?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogSecretRef_Input
+    | null
+    | undefined;
+  /** ServiceURL is the URL from the Service Keys. */
+  serviceURL?: string | null | undefined;
+  /** TenantID is the tenant ID of the BTP Subaccount. Can be seen in the BTP Cockpit dashboard. */
+  tenantID?: string | null | undefined;
+  /** Type is the type of the audit log. */
+  type?: string | null | undefined;
+};
+
+/** EncryptionConfig contains customizable encryption configuration of the API server. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerEncryptionConfig_Input = {
+  /**
+   * Resources contains the list of resources that shall be encrypted in addition to secrets.
+   * Each item is a Kubernetes resource name in plural (resource or resource.group) that should be encrypted.
+   * Example: ["configmaps", "statefulsets.apps", "flunders.emxample.com"]
+   */
+  resources?: Array<string | null | undefined> | null | undefined;
+};
+
+/** HighAvailabilityConfig specifies the HA configuration for the API server. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerHighAvailability_Input = {
+  /**
+   * FailureToleranceType specifies failure tolerance mode for the API server.
+   * Allowed values are: node, zone
+   * node: The API server is tolerant to node failures within a single zone.
+   * zone: The API server is tolerant to zone failures.
+   */
+  failureToleranceType?: string | null | undefined;
+};
+
+/**
+ * GardenerConfig contains configuration for a Gardener APIServer.
+ * Must be set if type is 'Gardener', is ignored otherwise.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardener_Input = {
+  /** AuditLogConfig defines the AuditLog configuration for the ManagedControlPlane cluster. */
+  auditLog?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLog_Input | null | undefined;
+  /** EncryptionConfig contains customizable encryption configuration of the API server. */
+  encryptionConfig?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerEncryptionConfig_Input | null | undefined;
+  /** HighAvailabilityConfig specifies the HA configuration for the API server. */
+  highAvailability?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerHighAvailability_Input | null | undefined;
+  /**
+   * Region is the region to be used for the Shoot cluster.
+   * This is usually derived from the ManagedControlPlane's common configuration, but can be overwritten here.
+   */
+  region?: string | null | undefined;
+};
+
+/** APIServerConfiguration contains the configuration which is required for setting up a k8s cluster to be used as APIServer. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServer_Input = {
+  /**
+   * GardenerConfig contains configuration for a Gardener APIServer.
+   * Must be set if type is 'Gardener', is ignored otherwise.
+   */
+  gardener?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardener_Input | null | undefined;
+  /**
+   * Type is the type of APIServer. This determines which other configuration fields need to be specified.
+   * Valid values are:
+   * - Gardener
+   * - GardenerDedicated
+   */
+  type?: string | null | undefined;
+};
+
+/** BTPServiceOperator defines the configuration for setting up the BTPServiceOperator component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator_Input = {
+  /** The Version of BTP Service Operator to install. */
+  version?: string | null | undefined;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplaneProviders_Input = {
+  /**
+   * Name of the provider.
+   * Using a well-known name will automatically configure the "package" field.
+   */
+  name?: string | null | undefined;
+  /** Version of the provider to install. */
+  version?: string | null | undefined;
+};
+
+/** Crossplane defines the configuration for setting up the Crossplane component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane_Input = {
+  providers?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplaneProviders_Input | null | undefined>
+    | null
+    | undefined;
+  /** The Version of Crossplane to install. */
+  version?: string | null | undefined;
+};
+
+/** ExternalSecretsOperator defines the configuration for setting up the ExternalSecretsOperator component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator_Input = {
+  /** The Version of External Secrets Operator to install. */
+  version?: string | null | undefined;
+};
+
+/** Flux defines the configuration for setting up the Flux component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux_Input = {
+  /** The Version of Flux to install. */
+  version?: string | null | undefined;
+};
+
+/** Kyverno defines the configuration for setting up the Kyverno component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno_Input = {
+  /** The Version of Kyverno to install. */
+  version?: string | null | undefined;
+};
+
+/** LandscaperConfiguration contains the configuration which is required for setting up a LaaS instance. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper_Input = {
+  /** Deployers is the list of deployers that should be installed. */
+  deployers?: Array<string | null | undefined> | null | undefined;
+};
+
+/** Components contains the configuration for Components like APIServer, Landscaper, CloudOrchestrator. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponents_Input = {
+  /** APIServerConfiguration contains the configuration which is required for setting up a k8s cluster to be used as APIServer. */
+  apiServer?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServer_Input | null | undefined;
+  /** BTPServiceOperator defines the configuration for setting up the BTPServiceOperator component in a ManagedControlPlane. */
+  btpServiceOperator?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator_Input | null | undefined;
+  /** Crossplane defines the configuration for setting up the Crossplane component in a ManagedControlPlane. */
+  crossplane?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane_Input | null | undefined;
+  /** ExternalSecretsOperator defines the configuration for setting up the ExternalSecretsOperator component in a ManagedControlPlane. */
+  externalSecretsOperator?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator_Input | null | undefined;
+  /** Flux defines the configuration for setting up the Flux component in a ManagedControlPlane. */
+  flux?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux_Input | null | undefined;
+  /** Kyverno defines the configuration for setting up the Kyverno component in a ManagedControlPlane. */
+  kyverno?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno_Input | null | undefined;
+  /** LandscaperConfiguration contains the configuration which is required for setting up a LaaS instance. */
+  landscaper?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper_Input | null | undefined;
+};
+
+/** DesiredRegion allows customers to specify a desired region proximity. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecDesiredRegion_Input = {
+  /** Direction is the direction within the region. */
+  direction?: string | null | undefined;
+  /** Name is the name of the region. */
+  name?: string | null | undefined;
+};
+
+/** ManagedControlPlaneSpec defines the desired state of ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpec_Input = {
+  /** Authentication contains the configuration for the enabled OpenID Connect identity providers */
+  authentication?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthentication_Input | null | undefined;
+  /** Authorization contains the configuration of the subjects assigned to control plane roles */
+  authorization?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorization_Input | null | undefined;
+  /** Components contains the configuration for Components like APIServer, Landscaper, CloudOrchestrator. */
+  components?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponents_Input | null | undefined;
+  /** DesiredRegion allows customers to specify a desired region proximity. */
+  desiredRegion?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecDesiredRegion_Input | null | undefined;
+  /**
+   * DisabledComponents contains a list of component types.
+   * The resources for these components will still be generated, but they will get the ignore operation annotation, so they should not be processed by their respective controllers.
+   */
+  disabledComponents?: Array<string | null | undefined> | null | undefined;
+};
+
+/**
+ * ExternalAPIServerStatus contains the status of the API server / ManagedControlPlane cluster. The Kuberenetes can act as an OIDC
+ * compatible provider in a sense that they serve OIDC issuer endpoint URL so that other system can validate tokens that have been
+ * issued by the external party.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsApiServer_Input = {
+  /** Endpoint represents the Kubernetes API server endpoint */
+  endpoint?: string | null | undefined;
+  /** ServiceAccountIssuer represents the OpenIDConnect issuer URL that can be used to verify service account tokens. */
+  serviceAccountIssuer?: string | null | undefined;
+};
+
+/**
+ * UserAccess reference the secret containing the kubeconfig
+ * for the APIServer which is to be used by the customer.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthenticationAccess_Input = {
+  /** Key is the key inside the secret. */
+  key?: string | null | undefined;
+  /** Name is the object's name. */
+  name?: string | null | undefined;
+  /** Namespace is the object's namespace. */
+  namespace?: string | null | undefined;
+};
+
+/** ExternalAuthenticationStatus contains the status of the  authentication component. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthentication_Input = {
+  /**
+   * UserAccess reference the secret containing the kubeconfig
+   * for the APIServer which is to be used by the customer.
+   */
+  access?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthenticationAccess_Input | null | undefined;
+};
+
+/** ManagedControlPlaneComponentsStatus contains the status of the components of a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponents_Input = {
+  /**
+   * ExternalAPIServerStatus contains the status of the API server / ManagedControlPlane cluster. The Kuberenetes can act as an OIDC
+   * compatible provider in a sense that they serve OIDC issuer endpoint URL so that other system can validate tokens that have been
+   * issued by the external party.
+   */
+  apiServer?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsApiServer_Input | null | undefined;
+  /** ExternalAuthenticationStatus contains the status of the  authentication component. */
+  authentication?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthentication_Input | null | undefined;
+  /** ExternalAuthorizationStatus contains the status of the external authorization component */
+  authorization?: unknown;
+  /** ExternalCloudOrchestratorStatus contains the status of the CloudOrchestrator component. */
+  cloudOrchestrator?: unknown;
+  /** ExternalLandscaperStatus contains the status of a LaaS instance. */
+  landscaper?: unknown;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusConditions_Input = {
+  /** LastTransitionTime specifies the time when this condition's status last changed. */
+  lastTransitionTime?: string | null | undefined;
+  /** ManagedBy contains the information which component manages this condition. */
+  managedBy?: string | null | undefined;
+  /**
+   * Message contains further details regarding the condition.
+   * It is meant for human users, Reason should be used for programmatic evaluation instead.
+   * It is optional, but should be filled at least when Status is not "True".
+   */
+  message?: string | null | undefined;
+  /**
+   * Reason is expected to contain a CamelCased string that provides further information regarding the condition.
+   * It should have a fixed value set (like an enum) to be machine-readable. The value set depends on the condition type.
+   * It is optional, but should be filled at least when Status is not "True".
+   */
+  reason?: string | null | undefined;
+  /** Status is the status of the condition. */
+  status?: string | null | undefined;
+  /**
+   * Type is the type of the condition.
+   * This is a unique identifier and each type of condition is expected to be managed by exactly one component controller.
+   */
+  type?: string | null | undefined;
+};
+
+/** ManagedControlPlaneStatus defines the observed state of ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatus_Input = {
+  /** ManagedControlPlaneComponentsStatus contains the status of the components of a ManagedControlPlane. */
+  components?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponents_Input | null | undefined;
+  /** Conditions collects the conditions of all components. */
+  conditions?:
+    Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusConditions_Input | null | undefined> | null | undefined;
+  /** Message contains an optional message. */
+  message?: string | null | undefined;
+  /** ObservedGeneration is the last generation of this resource that has successfully been reconciled. */
+  observedGeneration?: number | null | undefined;
+  /**
+   * Status is the current status of the ManagedControlPlane.
+   * It is "Deleting" if the ManagedControlPlane is being deleted.
+   * It is "Ready" if all conditions are true, and "Not Ready" otherwise.
+   */
+  status?: string | null | undefined;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** ManagedControlPlaneSpec defines the desired state of ManagedControlPlane. */
+  spec?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpec_Input | null | undefined;
+  /** ManagedControlPlaneStatus defines the observed state of ManagedControlPlane. */
+  status?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatus_Input | null | undefined;
+};
+
 export type CoreOpenmcpCloudV1alpha1ProjectSpecMembers_Input = {
   /** Kind of object being referenced. Can be "User", "Group", or "ServiceAccount". */
   kind?: string | null | undefined;
@@ -504,6 +919,14 @@ export type CoreOpenmcpCloudV1alpha1Workspace_Input = {
   status?: CoreOpenmcpCloudV1alpha1WorkspaceStatus_Input | null | undefined;
 };
 
+/** CrossplaneFunctionConfig represents configuration for Crossplane functions in a Crossplane instance. */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecFunctions_Input = {
+  /** Name of the function. */
+  name?: string | null | undefined;
+  /** Version of the function to install. */
+  version?: string | null | undefined;
+};
+
 /** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
 export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input = {
   /** Name of the provider. */
@@ -514,6 +937,11 @@ export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_
 
 /** spec defines the desired state of Crossplane */
 export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec_Input = {
+  /** List of Crossplane functions to be installed. */
+  functions?:
+    | Array<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecFunctions_Input | null | undefined>
+    | null
+    | undefined;
   /** List of Crossplane providers to be installed. */
   providers?:
     | Array<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input | null | undefined>
@@ -771,6 +1199,96 @@ export type FluxServicesOpenControlPlaneIoV1alpha1Flux_Input = {
   status?: FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input | null | undefined;
 };
 
+/** spec defines the desired state of Kro */
+export type KroServicesOpenControlPlaneIoV1alpha1KroSpec_Input = {
+  /** Version is the version of the controller to install */
+  version?: string | null | undefined;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions_Input = {
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: string | null | undefined;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: string | null | undefined;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: number | null | undefined;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: string | null | undefined;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: string | null | undefined;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: string | null | undefined;
+};
+
+/** ManagedResource defines a kubernetes object with its lifecycle phase. */
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusResources_Input = {
+  /**
+   * APIGroup is the group for the resource being referenced.
+   * If APIGroup is not specified, the specified Kind must be in the core API group.
+   * For any other third-party types, APIGroup is required.
+   */
+  apiGroup?: string | null | undefined;
+  /** Kind is the type of resource being referenced */
+  kind?: string | null | undefined;
+  /** ResourceLocation is a custom type representing the location of a resource. */
+  location?: string | null | undefined;
+  message?: string | null | undefined;
+  /** Name is the name of resource being referenced */
+  name?: string | null | undefined;
+  /**
+   * Namespace is the namespace of resource being referenced
+   * Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+   * (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+   */
+  namespace?: string | null | undefined;
+  /** InstancePhase is a custom type representing the phase of a service instance. */
+  phase?: string | null | undefined;
+};
+
+/** status defines the observed state of Kro */
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatus_Input = {
+  /** Conditions contains the conditions. */
+  conditions?:
+    Array<KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions_Input | null | undefined> | null | undefined;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: number | null | undefined;
+  /** Phase is the current phase of the resource. */
+  phase?: string | null | undefined;
+  /** Resources managed by this service provider Kro instance. */
+  resources?:
+    Array<KroServicesOpenControlPlaneIoV1alpha1KroStatusResources_Input | null | undefined> | null | undefined;
+};
+
+export type KroServicesOpenControlPlaneIoV1alpha1Kro_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** spec defines the desired state of Kro */
+  spec?: KroServicesOpenControlPlaneIoV1alpha1KroSpec_Input | null | undefined;
+  /** status defines the observed state of Kro */
+  status?: KroServicesOpenControlPlaneIoV1alpha1KroStatus_Input | null | undefined;
+};
+
 /**
  * ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance should use.
  * If not specified, the controller will use the default ProviderConfig in the cluster.
@@ -870,47 +1388,241 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input = {
   status?: LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input | null | undefined;
 };
 
+/** spec defines the desired state of MetricsOperator */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorSpec_Input = {
+  /** Version is the metrics-operator Helm chart version to install. */
+  version?: string | null | undefined;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusConditions_Input = {
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: string | null | undefined;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: string | null | undefined;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: number | null | undefined;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: string | null | undefined;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: string | null | undefined;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: string | null | undefined;
+};
+
+/** ManagedResource defines a kubernetes object with its lifecycle phase */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusResources_Input = {
+  /**
+   * APIGroup is the group for the resource being referenced.
+   * If APIGroup is not specified, the specified Kind must be in the core API group.
+   * For any other third-party types, APIGroup is required.
+   */
+  apiGroup?: string | null | undefined;
+  /** Kind is the type of resource being referenced */
+  kind?: string | null | undefined;
+  /** ResourceLocation is a custom type representing the location of a resource. */
+  location?: string | null | undefined;
+  message?: string | null | undefined;
+  /** Name is the name of resource being referenced */
+  name?: string | null | undefined;
+  /**
+   * Namespace is the namespace of resource being referenced
+   * Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+   * (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+   */
+  namespace?: string | null | undefined;
+  /** InstancePhase is a custom type representing the phase of a service instance. */
+  phase?: string | null | undefined;
+};
+
+/** status defines the observed state of MetricsOperator */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatus_Input = {
+  /** Conditions contains the conditions. */
+  conditions?:
+    | Array<MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusConditions_Input | null | undefined>
+    | null
+    | undefined;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: number | null | undefined;
+  /** Phase is the current phase of the resource. */
+  phase?: string | null | undefined;
+  /** Resources managed by this MetricsOperator instance */
+  resources?:
+    | Array<MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusResources_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** spec defines the desired state of MetricsOperator */
+  spec?: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorSpec_Input | null | undefined;
+  /** status defines the observed state of MetricsOperator */
+  status?: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatus_Input | null | undefined;
+};
+
+/** spec defines the desired state of OCM */
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmSpec_Input = {
+  /** Version is the version of the controller to install. */
+  version?: string | null | undefined;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions_Input = {
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: string | null | undefined;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: string | null | undefined;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: number | null | undefined;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: string | null | undefined;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: string | null | undefined;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: string | null | undefined;
+};
+
+/** ManagedResource defines a kubernetes object with its lifecycle phase. */
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources_Input = {
+  /**
+   * APIGroup is the group for the resource being referenced.
+   * If APIGroup is not specified, the specified Kind must be in the core API group.
+   * For any other third-party types, APIGroup is required.
+   */
+  apiGroup?: string | null | undefined;
+  /** Kind is the type of resource being referenced */
+  kind?: string | null | undefined;
+  /** ResourceLocation is a custom type representing the location of a resource. */
+  location?: string | null | undefined;
+  message?: string | null | undefined;
+  /** Name is the name of resource being referenced */
+  name?: string | null | undefined;
+  /**
+   * Namespace is the namespace of resource being referenced
+   * Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+   * (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+   */
+  namespace?: string | null | undefined;
+  /** InstancePhase is a custom type representing the phase of a service instance. */
+  phase?: string | null | undefined;
+};
+
+/** status defines the observed state of OCM */
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatus_Input = {
+  /**
+   * conditions represent the current state of the OCM resource.
+   * Each condition has a unique type and reflects the status of a specific aspect of the resource.
+   *
+   * Standard condition types include:
+   * - "Available": the resource is fully functional
+   * - "Progressing": the resource is being created or updated
+   * - "Degraded": the resource failed to reach or maintain its desired state
+   *
+   * The status of each condition is one of True, False, or Unknown.
+   */
+  conditions?:
+    Array<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions_Input | null | undefined> | null | undefined;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: number | null | undefined;
+  /** Phase is the current phase of the resource. */
+  phase?: string | null | undefined;
+  /** Resources managed by this OCM instance. */
+  resources?:
+    Array<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources_Input | null | undefined> | null | undefined;
+};
+
+export type OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** spec defines the desired state of OCM */
+  spec?: OcmServicesOpenControlPlaneIoV1alpha1OcmSpec_Input | null | undefined;
+  /** status defines the observed state of OCM */
+  status?: OcmServicesOpenControlPlaneIoV1alpha1OcmStatus_Input | null | undefined;
+};
+
 export type WatchEventType = 'ADDED' | 'DELETED' | 'MODIFIED';
 
 /** NonResourceRule holds information that describes a rule for the non-resource */
 export type Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input = {
-  /** NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path.  "*" means all. */
+  /** nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path.  "*" means all. */
   nonResourceURLs?: Array<string | null | undefined> | null | undefined;
-  /** Verb is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all. */
+  /** verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all. */
   verbs?: Array<string | null | undefined> | null | undefined;
 };
 
 /** ResourceRule is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
 export type Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input = {
-  /** APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.  "*" means all. */
+  /** apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.  "*" means all. */
   apiGroups?: Array<string | null | undefined> | null | undefined;
-  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all. */
+  /** resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all. */
   resourceNames?: Array<string | null | undefined> | null | undefined;
   /**
-   * Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
+   * resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
    *  "*\/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
    */
   resources?: Array<string | null | undefined> | null | undefined;
-  /** Verb is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all. */
+  /** verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all. */
   verbs?: Array<string | null | undefined> | null | undefined;
 };
 
 /** SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview. */
 export type Io_K8s_Api_Authorization_V1_SelfSubjectRulesReviewSpecSpec_Input = {
-  /** Namespace to evaluate rules for. Required. */
+  /** namespace to evaluate rules for. Required. */
   namespace?: string | null | undefined;
 };
 
 /** SubjectRulesReviewStatus contains the result of a rules check. This check can be incomplete depending on the set of authorizers the server is configured with and any errors experienced during evaluation. Because authorization rules are additive, if a rule appears in a list it's safe to assume the subject has that permission, even if that list is incomplete. */
 export type Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input = {
-  /** EvaluationError can appear in combination with Rules. It indicates an error occurred during rule evaluation, such as an authorizer that doesn't support rule evaluation, and that ResourceRules and/or NonResourceRules may be incomplete. */
+  /** evaluationError can appear in combination with Rules. It indicates an error occurred during rule evaluation, such as an authorizer that doesn't support rule evaluation, and that ResourceRules and/or NonResourceRules may be incomplete. */
   evaluationError?: string | null | undefined;
-  /** Incomplete is true when the rules returned by this call are incomplete. This is most commonly encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation. */
+  /** incomplete is true when the rules returned by this call are incomplete. This is most commonly encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation. */
   incomplete?: boolean | null | undefined;
-  /** NonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
+  /** nonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   nonResourceRules?:
     Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined> | null | undefined;
-  /** ResourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
+  /** resourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   resourceRules?:
     Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined> | null | undefined;
 };
@@ -1015,6 +1727,91 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_OwnerReferenceOwnerReferences_I
   uid?: string | null | undefined;
 };
 
+export type ProjectYamlQueryVariables = Exact<{
+  name: string;
+}>;
+
+export type ProjectYamlQuery = { core_openmcp_cloud: { v1alpha1: { ProjectYaml: string } | null } | null };
+
+export type WorkspaceYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type WorkspaceYamlQuery = { core_openmcp_cloud: { v1alpha1: { WorkspaceYaml: string } | null } | null };
+
+export type McpYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type McpYamlQuery = { core_openmcp_cloud: { v1alpha1: { ManagedControlPlaneYaml: string } | null } | null };
+
+export type ControlPlaneYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type ControlPlaneYamlQuery = {
+  core_open_control_plane_io: { v2alpha1: { ControlPlaneYaml: string } | null } | null;
+};
+
+export type GetManagedComponentsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetManagedComponentsQuery = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      ManagedComponents: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          status: { versions: Array<string | null> | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+};
+
+export type CreateManagedControlPlaneMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input;
+}>;
+
+export type CreateManagedControlPlaneMutation = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      createManagedControlPlane: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
+export type DeleteManagedControlPlaneMutationVariables = Exact<{
+  name: string;
+  namespace: string;
+  dryRun?: boolean | null | undefined;
+}>;
+
+export type DeleteManagedControlPlaneMutation = {
+  core_openmcp_cloud: { v1alpha1: { deleteManagedControlPlane: boolean | null } | null } | null;
+};
+
+export type UpdateManagedControlPlaneMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+  object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input;
+}>;
+
+export type UpdateManagedControlPlaneMutation = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      updateManagedControlPlane: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
 export type GetCrossplaneQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1091,6 +1888,30 @@ export type GetFluxQuery = {
   } | null;
 };
 
+export type GetKroQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetKroQuery = {
+  kro_services_open_control_plane_io: {
+    v1alpha1: {
+      Kro: {
+        metadata: { name: string | null; namespace: string | null } | null;
+        spec: { version: string | null } | null;
+        status: {
+          conditions: Array<{
+            type: string | null;
+            status: string | null;
+            reason: string | null;
+            message: string | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
 export type GetLandscaperQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1116,6 +1937,127 @@ export type GetLandscaperQuery = {
   } | null;
 };
 
+export type GetMcpV2ComponentsListQueryVariables = Exact<{
+  namespace?: string | null | undefined;
+}>;
+
+export type GetMcpV2ComponentsListQuery = {
+  crossplane_services_open_control_plane_io: {
+    v1alpha1: {
+      Crossplanes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+  flux_services_open_control_plane_io: {
+    v1alpha1: {
+      Fluxes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+  landscaper_services_open_control_plane_io: {
+    v1alpha2: {
+      Landscapers: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+  external_secrets_services_open_control_plane_io: {
+    v1alpha1: {
+      ExternalSecretsOperators: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+  ocm_services_open_control_plane_io: {
+    v1alpha1: {
+      OCMs: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+  kro_services_open_control_plane_io: {
+    v1alpha1: {
+      Kroes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+};
+
+export type GetMetricsOperatorQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetMetricsOperatorQuery = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      MetricsOperator: {
+        metadata: { name: string | null; namespace: string | null } | null;
+        spec: { version: string | null } | null;
+        status: {
+          conditions: Array<{
+            type: string | null;
+            status: string | null;
+            reason: string | null;
+            message: string | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
+export type GetOcmQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetOcmQuery = {
+  ocm_services_open_control_plane_io: {
+    v1alpha1: {
+      OCM: {
+        metadata: { name: string | null; namespace: string | null } | null;
+        spec: { version: string | null } | null;
+        status: {
+          conditions: Array<{
+            type: string | null;
+            status: string | null;
+            reason: string | null;
+            message: string | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
 export type CreateManagedControlPlaneV2MutationVariables = Exact<{
   namespace?: string | null | undefined;
   object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input;
@@ -1126,7 +2068,7 @@ export type CreateManagedControlPlaneV2Mutation = {
   core_open_control_plane_io: {
     v2alpha1: {
       createControlPlane: {
-        metadata: { name: string | null; namespace: string | null } | null;
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
         status: { phase: string | null } | null;
       } | null;
     } | null;
@@ -1154,7 +2096,7 @@ export type UpdateManagedControlPlaneV2Mutation = {
   core_open_control_plane_io: {
     v2alpha1: {
       updateControlPlane: {
-        metadata: { name: string | null; namespace: string | null } | null;
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
         status: { phase: string | null } | null;
       } | null;
     } | null;
@@ -1198,6 +2140,17 @@ export type CreateFluxMutation = {
   } | null;
 };
 
+export type CreateKroMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: KroServicesOpenControlPlaneIoV1alpha1Kro_Input;
+}>;
+
+export type CreateKroMutation = {
+  kro_services_open_control_plane_io: {
+    v1alpha1: { createKro: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+  } | null;
+};
+
 export type CreateLandscaperMutationVariables = Exact<{
   namespace?: string | null | undefined;
   object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input;
@@ -1208,6 +2161,30 @@ export type CreateLandscaperMutation = {
     v1alpha2: {
       createLandscaper: { metadata: { name: string | null; namespace: string | null } | null } | null;
     } | null;
+  } | null;
+};
+
+export type CreateMetricsOperatorMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input;
+}>;
+
+export type CreateMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      createMetricsOperator: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
+};
+
+export type CreateOcmMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input;
+}>;
+
+export type CreateOcmMutation = {
+  ocm_services_open_control_plane_io: {
+    v1alpha1: { createOCM: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
   } | null;
 };
 
@@ -1249,6 +2226,15 @@ export type DeleteFluxMutation = {
   flux_services_open_control_plane_io: { v1alpha1: { deleteFlux: boolean | null } | null } | null;
 };
 
+export type DeleteKroMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type DeleteKroMutation = {
+  kro_services_open_control_plane_io: { v1alpha1: { deleteKro: boolean | null } | null } | null;
+};
+
 export type DeleteLandscaperMutationVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1256,6 +2242,24 @@ export type DeleteLandscaperMutationVariables = Exact<{
 
 export type DeleteLandscaperMutation = {
   landscaper_services_open_control_plane_io: { v1alpha2: { deleteLandscaper: boolean | null } | null } | null;
+};
+
+export type DeleteMetricsOperatorMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type DeleteMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: { v1alpha1: { deleteMetricsOperator: boolean | null } | null } | null;
+};
+
+export type DeleteOcmMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type DeleteOcmMutation = {
+  ocm_services_open_control_plane_io: { v1alpha1: { deleteOCM: boolean | null } | null } | null;
 };
 
 export type GetEsoYamlQueryVariables = Exact<{
@@ -1276,6 +2280,13 @@ export type GetFluxYamlQuery = {
   flux_services_open_control_plane_io: { v1alpha1: { FluxYaml: string } | null } | null;
 };
 
+export type GetKroYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetKroYamlQuery = { kro_services_open_control_plane_io: { v1alpha1: { KroYaml: string } | null } | null };
+
 export type GetLandscaperYamlQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1284,6 +2295,22 @@ export type GetLandscaperYamlQueryVariables = Exact<{
 export type GetLandscaperYamlQuery = {
   landscaper_services_open_control_plane_io: { v1alpha2: { LandscaperYaml: string } | null } | null;
 };
+
+export type GetMetricsOperatorYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetMetricsOperatorYamlQuery = {
+  metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperatorYaml: string } | null } | null;
+};
+
+export type GetOcmYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetOcmYamlQuery = { ocm_services_open_control_plane_io: { v1alpha1: { OCMYaml: string } | null } | null };
 
 export type UpdateCrossplaneMutationVariables = Exact<{
   namespace?: string | null | undefined;
@@ -1325,6 +2352,18 @@ export type UpdateFluxMutation = {
   } | null;
 };
 
+export type UpdateKroMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  name: string;
+  object: KroServicesOpenControlPlaneIoV1alpha1Kro_Input;
+}>;
+
+export type UpdateKroMutation = {
+  kro_services_open_control_plane_io: {
+    v1alpha1: { updateKro: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+  } | null;
+};
+
 export type UpdateLandscaperMutationVariables = Exact<{
   namespace?: string | null | undefined;
   name: string;
@@ -1339,6 +2378,32 @@ export type UpdateLandscaperMutation = {
   } | null;
 };
 
+export type UpdateMetricsOperatorMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  name: string;
+  object: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input;
+}>;
+
+export type UpdateMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      updateMetricsOperator: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateOcmMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  name: string;
+  object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input;
+}>;
+
+export type UpdateOcmMutation = {
+  ocm_services_open_control_plane_io: {
+    v1alpha1: { updateOCM: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+  } | null;
+};
+
 export type GetMcPv2QueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1350,10 +2415,12 @@ export type GetMcPv2Query = {
       ControlPlane: {
         kind: string | null;
         metadata: {
+          uid: string | null;
           name: string | null;
           namespace: string | null;
           annotations: unknown;
           creationTimestamp: string | null;
+          deletionTimestamp: string | null;
         } | null;
         spec: {
           iam: {
@@ -1370,6 +2437,14 @@ export type GetMcPv2Query = {
                 } | null> | null;
               } | null;
               extraProviders: Array<{
+                name: string | null;
+                issuer: string | null;
+                clientID: string | null;
+                usernameClaim: string | null;
+                usernamePrefix: string | null;
+                groupsClaim: string | null;
+                groupsPrefix: string | null;
+                extraScopes: Array<string | null> | null;
                 roleBindings: Array<{
                   roleRefs: Array<{ kind: string | null; name: string | null; namespace: string | null } | null> | null;
                   subjects: Array<{
@@ -1418,7 +2493,7 @@ export type CreateProjectMutationVariables = Exact<{
 
 export type CreateProjectMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { createProject: { metadata: { name: string | null } | null } | null } | null;
+    v1alpha1: { createProject: { metadata: { uid: string | null; name: string | null } | null } | null } | null;
   } | null;
 };
 
@@ -1430,7 +2505,11 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { createWorkspace: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+    v1alpha1: {
+      createWorkspace: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
   } | null;
 };
 
@@ -1461,7 +2540,7 @@ export type GetProjectQuery = {
   core_openmcp_cloud: {
     v1alpha1: {
       Project: {
-        metadata: { name: string | null; annotations: unknown; labels: unknown } | null;
+        metadata: { uid: string | null; name: string | null; annotations: unknown; labels: unknown } | null;
         spec: {
           members: Array<{
             kind: string | null;
@@ -1484,7 +2563,13 @@ export type GetWorkspaceQuery = {
   core_openmcp_cloud: {
     v1alpha1: {
       Workspace: {
-        metadata: { name: string | null; namespace: string | null; annotations: unknown; labels: unknown } | null;
+        metadata: {
+          uid: string | null;
+          name: string | null;
+          namespace: string | null;
+          annotations: unknown;
+          labels: unknown;
+        } | null;
         spec: {
           members: Array<{
             kind: string | null;
@@ -1505,6 +2590,114 @@ export type GetKubeconfigQueryVariables = Exact<{
 
 export type GetKubeconfigQuery = { v1: { Secret: { data: unknown } } | null };
 
+export type GetManagedControlPlaneForEditQueryVariables = Exact<{
+  name: string;
+  namespace: string;
+}>;
+
+export type GetManagedControlPlaneForEditQuery = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      ManagedControlPlane: {
+        metadata: {
+          uid: string | null;
+          name: string | null;
+          namespace: string | null;
+          labels: unknown;
+          annotations: unknown;
+        } | null;
+        spec: {
+          authorization: {
+            roleBindings: Array<{
+              role: string | null;
+              subjects: Array<{ kind: string | null; name: string | null; namespace: string | null } | null> | null;
+            } | null> | null;
+          } | null;
+          components: {
+            apiServer: { type: string | null } | null;
+            crossplane: {
+              version: string | null;
+              providers: Array<{ name: string | null; version: string | null } | null> | null;
+            } | null;
+            flux: { version: string | null } | null;
+            externalSecretsOperator: { version: string | null } | null;
+            btpServiceOperator: { version: string | null } | null;
+            kyverno: { version: string | null } | null;
+            landscaper: { deployers: Array<string | null> | null } | null;
+          } | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
+export type GetManagedControlPlaneQueryVariables = Exact<{
+  name: string;
+  namespace: string;
+}>;
+
+export type GetManagedControlPlaneQuery = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      ManagedControlPlane: {
+        metadata: {
+          uid: string | null;
+          name: string | null;
+          namespace: string | null;
+          creationTimestamp: string | null;
+          annotations: unknown;
+        } | null;
+        spec: {
+          components: {
+            crossplane: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane';
+              version: string | null;
+            } | null;
+            flux: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux';
+              version: string | null;
+            } | null;
+            landscaper: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper' } | null;
+            kyverno: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno';
+              version: string | null;
+            } | null;
+            externalSecretsOperator: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator';
+              version: string | null;
+            } | null;
+            btpServiceOperator: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator';
+              version: string | null;
+            } | null;
+          } | null;
+          authorization: {
+            roleBindings: Array<{
+              role: string | null;
+              subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+            } | null> | null;
+          } | null;
+        } | null;
+        status: {
+          status: string | null;
+          conditions: Array<{
+            type: string | null;
+            status: string | null;
+            reason: string | null;
+            message: string | null;
+            lastTransitionTime: string | null;
+          } | null> | null;
+          components: {
+            authentication: {
+              access: { key: string | null; name: string | null; namespace: string | null } | null;
+            } | null;
+          } | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
 export type GetMcPsListQueryVariables = Exact<{
   workspaceNamespace: string;
 }>;
@@ -1515,10 +2708,31 @@ export type GetMcPsListQuery = {
       ManagedControlPlanes: {
         items: Array<{
           metadata: {
+            uid: string | null;
             name: string | null;
             namespace: string | null;
             creationTimestamp: string | null;
             annotations: unknown;
+          } | null;
+          spec: {
+            components: {
+              crossplane: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane' } | null;
+              flux: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux' } | null;
+              landscaper: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper' } | null;
+              kyverno: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno' } | null;
+              externalSecretsOperator: {
+                __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator';
+              } | null;
+              btpServiceOperator: {
+                __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator';
+              } | null;
+            } | null;
+            authorization: {
+              roleBindings: Array<{
+                role: string | null;
+                subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+              } | null> | null;
+            } | null;
           } | null;
           status: {
             status: string | null;
@@ -1544,21 +2758,17 @@ export type GetMcPsListQuery = {
       ControlPlanes: {
         items: Array<{
           metadata: {
+            uid: string | null;
             name: string | null;
             namespace: string | null;
             creationTimestamp: string | null;
             annotations: unknown;
+            deletionTimestamp: string | null;
           } | null;
           status: {
             phase: string | null;
             access: unknown;
-            conditions: Array<{
-              type: string | null;
-              status: string | null;
-              reason: string | null;
-              message: string | null;
-              lastTransitionTime: string | null;
-            } | null> | null;
+            conditions: Array<{ type: string | null; status: string | null } | null> | null;
           } | null;
           spec: {
             iam: {
@@ -1570,6 +2780,7 @@ export type GetMcPsListQuery = {
                   } | null> | null;
                 } | null;
                 extraProviders: Array<{
+                  name: string | null;
                   roleBindings: Array<{
                     roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
                     subjects: Array<{ kind: string | null; name: string | null } | null> | null;
@@ -1584,6 +2795,43 @@ export type GetMcPsListQuery = {
   } | null;
 };
 
+export type GetMcPsNamesQueryVariables = Exact<{
+  workspaceNamespace: string;
+}>;
+
+export type GetMcPsNamesQuery = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      ManagedControlPlanes: {
+        items: Array<{ metadata: { name: string | null; namespace: string | null; annotations: unknown } | null }>;
+      };
+    } | null;
+  } | null;
+  core_open_control_plane_io: {
+    v2alpha1: {
+      ControlPlanes: {
+        items: Array<{ metadata: { name: string | null; namespace: string | null; annotations: unknown } | null }>;
+      };
+    } | null;
+  } | null;
+};
+
+export type McpV1SubscriptionSubscriptionVariables = Exact<{
+  namespace: string;
+}>;
+
+export type McpV1SubscriptionSubscription = {
+  core_openmcp_cloud_v1alpha1_managedcontrolplanes: { type: WatchEventType } | null;
+};
+
+export type McpV2SubscriptionSubscriptionVariables = Exact<{
+  namespace: string;
+}>;
+
+export type McpV2SubscriptionSubscription = {
+  core_open_control_plane_io_v2alpha1_controlplanes: { type: WatchEventType } | null;
+};
+
 export type GetProjectMembersQueryVariables = Exact<{
   name: string;
 }>;
@@ -1592,7 +2840,7 @@ export type GetProjectMembersQuery = {
   core_openmcp_cloud: {
     v1alpha1: {
       Project: {
-        metadata: { creationTimestamp: string | null; annotations: unknown } | null;
+        metadata: { uid: string | null; creationTimestamp: string | null; annotations: unknown } | null;
         spec: {
           members: Array<{
             kind: string | null;
@@ -1637,7 +2885,7 @@ export type UpdateProjectMutationVariables = Exact<{
 
 export type UpdateProjectMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { updateProject: { metadata: { name: string | null } | null } | null } | null;
+    v1alpha1: { updateProject: { metadata: { uid: string | null; name: string | null } | null } | null } | null;
   } | null;
 };
 
@@ -1650,7 +2898,11 @@ export type UpdateWorkspaceMutationVariables = Exact<{
 
 export type UpdateWorkspaceMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { updateWorkspace: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+    v1alpha1: {
+      updateWorkspace: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
   } | null;
 };
 
@@ -1665,7 +2917,7 @@ export type GetWorkspacesQuery = {
         items: Array<{
           apiVersion: string | null;
           kind: string | null;
-          metadata: { name: string | null; namespace: string | null; annotations: unknown } | null;
+          metadata: { uid: string | null; name: string | null; namespace: string | null; annotations: unknown } | null;
           spec: {
             members: Array<{
               kind: string | null;
@@ -1689,6 +2941,556 @@ export type WorkspacesSubscriptionSubscription = {
   core_openmcp_cloud_v1alpha1_workspaces: { type: WatchEventType } | null;
 };
 
+export const ProjectYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ProjectYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ProjectYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProjectYamlQuery, ProjectYamlQueryVariables>;
+export const WorkspaceYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'WorkspaceYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'WorkspaceYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WorkspaceYamlQuery, WorkspaceYamlQueryVariables>;
+export const McpYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'McpYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedControlPlaneYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpYamlQuery, McpYamlQueryVariables>;
+export const ControlPlaneYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ControlPlaneYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v2alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ControlPlaneYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ControlPlaneYamlQuery, ControlPlaneYamlQueryVariables>;
+export const GetManagedComponentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetManagedComponents' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedComponents' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'versions' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedComponentsQuery, GetManagedComponentsQueryVariables>;
+export const CreateManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateManagedControlPlaneMutation, CreateManagedControlPlaneMutationVariables>;
+export const DeleteManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deleteManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'dryRun' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteManagedControlPlaneMutation, DeleteManagedControlPlaneMutationVariables>;
+export const UpdateManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateManagedControlPlaneMutation, UpdateManagedControlPlaneMutationVariables>;
 export const GetCrossplaneDocument = {
   kind: 'Document',
   definitions: [
@@ -2024,6 +3826,113 @@ export const GetFluxDocument = {
     },
   ],
 } as unknown as DocumentNode<GetFluxQuery, GetFluxQueryVariables>;
+export const GetKroDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetKRO' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Kro' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'conditions' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetKroQuery, GetKroQueryVariables>;
 export const GetLandscaperDocument = {
   kind: 'Document',
   definitions: [
@@ -2132,6 +4041,644 @@ export const GetLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperQuery, GetLandscaperQueryVariables>;
+export const GetMcpV2ComponentsListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMcpV2ComponentsList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Crossplanes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Fluxes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha2' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Landscapers' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ExternalSecretsOperators' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'OCMs' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Kroes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMcpV2ComponentsListQuery, GetMcpV2ComponentsListQueryVariables>;
+export const GetMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'MetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'conditions' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMetricsOperatorQuery, GetMetricsOperatorQueryVariables>;
+export const GetOcmDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetOCM' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'OCM' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'conditions' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetOcmQuery, GetOcmQueryVariables>;
 export const CreateManagedControlPlaneV2Document = {
   kind: 'Document',
   definitions: [
@@ -2206,6 +4753,7 @@ export const CreateManagedControlPlaneV2Document = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -2388,6 +4936,7 @@ export const UpdateManagedControlPlaneV2Document = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -2667,6 +5216,89 @@ export const CreateFluxDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateFluxMutation, CreateFluxMutationVariables>;
+export const CreateKroDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateKRO' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'KroServicesOpenControlPlaneIoV1alpha1Kro_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createKro' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateKroMutation, CreateKroMutationVariables>;
 export const CreateLandscaperDocument = {
   kind: 'Document',
   definitions: [
@@ -2750,6 +5382,172 @@ export const CreateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLandscaperMutation, CreateLandscaperMutationVariables>;
+export const CreateMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateMetricsOperatorMutation, CreateMetricsOperatorMutationVariables>;
+export const CreateOcmDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateOCM' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'OcmServicesOpenControlPlaneIoV1alpha1OCM_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createOCM' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateOcmMutation, CreateOcmMutationVariables>;
 export const GetCrossplaneYamlDocument = {
   kind: 'Document',
   definitions: [
@@ -2994,6 +5792,67 @@ export const DeleteFluxDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteFluxMutation, DeleteFluxMutationVariables>;
+export const DeleteKroDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteKRO' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deleteKro' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteKroMutation, DeleteKroMutationVariables>;
 export const DeleteLandscaperDocument = {
   kind: 'Document',
   definitions: [
@@ -3055,6 +5914,128 @@ export const DeleteLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLandscaperMutation, DeleteLandscaperMutationVariables>;
+export const DeleteMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deleteMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteMetricsOperatorMutation, DeleteMetricsOperatorMutationVariables>;
+export const DeleteOcmDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteOCM' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deleteOCM' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteOcmMutation, DeleteOcmMutationVariables>;
 export const GetEsoYamlDocument = {
   kind: 'Document',
   definitions: [
@@ -3177,6 +6158,67 @@ export const GetFluxYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetFluxYamlQuery, GetFluxYamlQueryVariables>;
+export const GetKroYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetKroYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'KroYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetKroYamlQuery, GetKroYamlQueryVariables>;
 export const GetLandscaperYamlDocument = {
   kind: 'Document',
   definitions: [
@@ -3238,6 +6280,128 @@ export const GetLandscaperYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperYamlQuery, GetLandscaperYamlQueryVariables>;
+export const GetMetricsOperatorYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMetricsOperatorYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'MetricsOperatorYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMetricsOperatorYamlQuery, GetMetricsOperatorYamlQueryVariables>;
+export const GetOcmYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetOcmYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'OCMYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetOcmYamlQuery, GetOcmYamlQueryVariables>;
 export const UpdateCrossplaneDocument = {
   kind: 'Document',
   definitions: [
@@ -3520,6 +6684,99 @@ export const UpdateFluxDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateFluxMutation, UpdateFluxMutationVariables>;
+export const UpdateKroDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateKRO' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'KroServicesOpenControlPlaneIoV1alpha1Kro_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateKro' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateKroMutation, UpdateKroMutationVariables>;
 export const UpdateLandscaperDocument = {
   kind: 'Document',
   definitions: [
@@ -3613,6 +6870,192 @@ export const UpdateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLandscaperMutation, UpdateLandscaperMutationVariables>;
+export const UpdateMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateMetricsOperatorMutation, UpdateMetricsOperatorMutationVariables>;
+export const UpdateOcmDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateOCM' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'OcmServicesOpenControlPlaneIoV1alpha1OCM_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateOCM' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateOcmMutation, UpdateOcmMutationVariables>;
 export const GetMcPv2Document = {
   kind: 'Document',
   definitions: [
@@ -3672,10 +7115,12 @@ export const GetMcPv2Document = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'deletionTimestamp' } },
                                 ],
                               },
                             },
@@ -3767,6 +7212,14 @@ export const GetMcPv2Document = {
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'issuer' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'clientID' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernameClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernamePrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsPrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'extraScopes' } },
                                                     {
                                                       kind: 'Field',
                                                       name: { kind: 'Name', value: 'roleBindings' },
@@ -3977,7 +7430,10 @@ export const CreateProjectDocument = {
                               name: { kind: 'Name', value: 'metadata' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
                               },
                             },
                           ],
@@ -4065,6 +7521,7 @@ export const CreateWorkspaceDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -4264,6 +7721,7 @@ export const GetProjectDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'labels' } },
@@ -4364,6 +7822,7 @@ export const GetWorkspaceDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
@@ -4463,6 +7922,451 @@ export const GetKubeconfigDocument = {
     },
   ],
 } as unknown as DocumentNode<GetKubeconfigQuery, GetKubeconfigQueryVariables>;
+export const GetManagedControlPlaneForEditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetManagedControlPlaneForEdit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'labels' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'authorization' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'roleBindings' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'subjects' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'components' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'apiServer' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'type' } }],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'crossplane' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'providers' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'flux' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'externalSecretsOperator' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'btpServiceOperator' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'kyverno' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'landscaper' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'deployers' } }],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedControlPlaneForEditQuery, GetManagedControlPlaneForEditQueryVariables>;
+export const GetManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'components' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'crossplane' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'flux' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'landscaper' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'kyverno' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'externalSecretsOperator' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'btpServiceOperator' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'authorization' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'roleBindings' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'subjects' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'conditions' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'components' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'authentication' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'access' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedControlPlaneQuery, GetManagedControlPlaneQueryVariables>;
 export const GetMcPsListDocument = {
   kind: 'Document',
   definitions: [
@@ -4517,10 +8421,119 @@ export const GetMcPsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'components' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'crossplane' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'flux' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'landscaper' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'kyverno' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'externalSecretsOperator' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'btpServiceOperator' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'authorization' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'roleBindings' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'subjects' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
                                       ],
                                     },
                                   },
@@ -4627,10 +8640,12 @@ export const GetMcPsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'deletionTimestamp' } },
                                       ],
                                     },
                                   },
@@ -4649,9 +8664,6 @@ export const GetMcPsListDocument = {
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                                               { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
                                             ],
                                           },
                                         },
@@ -4735,6 +8747,7 @@ export const GetMcPsListDocument = {
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
                                                             name: { kind: 'Name', value: 'roleBindings' },
@@ -4807,6 +8820,212 @@ export const GetMcPsListDocument = {
     },
   ],
 } as unknown as DocumentNode<GetMcPsListQuery, GetMcPsListQueryVariables>;
+export const GetMcPsNamesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMCPsNames' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceNamespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedControlPlanes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceNamespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v2alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ControlPlanes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceNamespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMcPsNamesQuery, GetMcPsNamesQueryVariables>;
+export const McpV1SubscriptionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'McpV1Subscription' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud_v1alpha1_managedcontrolplanes' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'namespace' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'type' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpV1SubscriptionSubscription, McpV1SubscriptionSubscriptionVariables>;
+export const McpV2SubscriptionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'McpV2Subscription' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io_v2alpha1_controlplanes' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'namespace' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'type' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpV2SubscriptionSubscription, McpV2SubscriptionSubscriptionVariables>;
 export const GetProjectMembersDocument = {
   kind: 'Document',
   definitions: [
@@ -4855,6 +9074,7 @@ export const GetProjectMembersDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
                                 ],
@@ -5052,7 +9272,10 @@ export const UpdateProjectDocument = {
                               name: { kind: 'Name', value: 'metadata' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
                               },
                             },
                           ],
@@ -5150,6 +9373,7 @@ export const UpdateWorkspaceDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -5225,6 +9449,7 @@ export const GetWorkspacesDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },

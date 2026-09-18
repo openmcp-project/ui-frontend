@@ -1,3 +1,4 @@
+import { MockedProvider } from '@apollo/client/testing/react';
 import { CreateWorkspaceDialogContainer } from './CreateWorkspaceDialogContainer';
 import { useCreateWorkspace, CreateWorkspaceParams } from '../../spaces/onboarding/hooks/useCreateWorkspace';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
@@ -23,14 +24,18 @@ describe('CreateWorkspaceDialogContainer', () => {
   });
 
   const mountWorkspace = (setIsOpen: ReturnType<typeof cy.stub>, useCreateWorkspace = fakeUseCreateWorkspace) => {
+    // MockedProvider satisfies the Apollo context that the Members step's ImportMembersDialog
+    // needs; its queries stay skipped (import dialog closed), so no mocks are required.
     cy.mount(
-      <CreateWorkspaceDialogContainer
-        useCreateWorkspace={useCreateWorkspace}
-        useAuthOnboarding={fakeUseAuthOnboarding}
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        project="test-project"
-      />,
+      <MockedProvider mocks={[]}>
+        <CreateWorkspaceDialogContainer
+          useCreateWorkspace={useCreateWorkspace}
+          useAuthOnboarding={fakeUseAuthOnboarding}
+          isOpen={true}
+          setIsOpen={setIsOpen}
+          project="test-project"
+        />
+      </MockedProvider>,
     );
   };
 

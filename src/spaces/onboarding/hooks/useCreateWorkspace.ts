@@ -51,6 +51,7 @@ const CreateWorkspaceMutation = graphql(`
       v1alpha1 {
         createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
             namespace
           }
@@ -63,7 +64,9 @@ const CreateWorkspaceMutation = graphql(`
 export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [createWorkspaceMutation, { loading }] = useMutation(CreateWorkspaceMutation);
+  const [createWorkspaceMutation, { loading }] = useMutation(CreateWorkspaceMutation, {
+    refetchQueries: ['GetWorkspaces'],
+  });
 
   const createWorkspace = useCallback(
     async (params: CreateWorkspaceParams): Promise<void> => {

@@ -1,6 +1,6 @@
-export function stripIdpPrefix(principal: string, idpPrefix?: string): string {
+export function stripIdpPrefix(principal: string, idpPrefix?: string, appendColon = true): string {
   const value = String(principal ?? '');
-  const expected = idpPrefix ? `${idpPrefix}:` : '';
+  const expected = idpPrefix ? (appendColon ? `${idpPrefix}:` : idpPrefix) : '';
 
   if (expected && value.startsWith(expected)) {
     return value.slice(expected.length);

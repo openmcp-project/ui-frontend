@@ -56,6 +56,7 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Delete project').click({ force: true });
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-project');
     cy.then(() => cy.wrap(deleteProjectCalled).should('equal', false));
@@ -67,6 +68,7 @@ describe('ProjectsListItemMenu', () => {
     mountMenu();
 
     cy.get('ui5-button[icon="overflow"]').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Edit project').click({ force: true });
 
     cy.get('ui5-dialog[open]').should('exist');
@@ -92,6 +94,7 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Edit project').click({ force: true });
 
     // Wait for the dialog form to be fully rendered (not in loading state)
@@ -129,11 +132,12 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Edit project').click({ force: true });
 
-    cy.get('[data-testid="add-member-button"]').first().click({ force: true });
+    cy.get('[data-testid="add-member-button"]').click({ force: true });
     cy.get('[data-testid="member-email-input"]').typeIntoUi5Input('new-user@example.com');
-    cy.get('[data-testid="add-member-button"]').last().click({ force: true });
+    cy.get('[data-testid="add-member-submit-button"]').click({ force: true });
 
     cy.get('ui5-button').contains('Save').click();
 

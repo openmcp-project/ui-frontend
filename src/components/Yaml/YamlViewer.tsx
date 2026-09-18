@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 
 import { YamlEditor } from '../YamlEditor/YamlEditor';
 
@@ -12,11 +12,15 @@ export interface YamlViewerProps {
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   schema?: JSONSchema4;
+  height?: string;
 }
 
-export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false, onApply, schema }) => {
+export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false, onApply, schema, height }) => {
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={height ? ({ '--yaml-viewer-height': height } as React.CSSProperties) : undefined}
+    >
       <YamlEditor
         value={yamlString}
         path={`${filename}.yaml`}

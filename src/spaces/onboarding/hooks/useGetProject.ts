@@ -13,6 +13,7 @@ const GetProjectQuery = graphql(`
       v1alpha1 {
         Project(name: $name) {
           metadata {
+            uid
             name
             annotations
             labels
@@ -43,7 +44,7 @@ export function useGetProject(projectName: string | undefined) {
   const { data, loading, error } = useQuery(GetProjectQuery, {
     variables: { name: projectName ?? '' },
     skip: !projectName,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
 
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
