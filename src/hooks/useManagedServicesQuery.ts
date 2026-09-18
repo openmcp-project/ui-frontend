@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client/react';
 import { gql, TypedDocumentNode } from '@apollo/client';
-import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useEffect, useMemo } from 'react';
 import { telemetry } from '../lib/telemetry/telemetry.ts';
 import {
@@ -123,10 +122,6 @@ const MOCK_CATALOG: ManagedServiceCatalog = {
 
 const EMPTY_CATALOG: ManagedServiceCatalog = { services: [], crossplaneProviders: [] };
 
-// GraphQL validation error meaning the ManagedService type is absent from the gateway schema.
-const isSchemaAbsenceError = (error: unknown): boolean =>
-  CombinedGraphQLErrors.is(error) && error.errors.some((e) => e.message.includes('Cannot query field'));
-
 export function useManagedServicesQuery(): UseManagedServicesQueryResult {
   const { data, error, loading } = useQuery(GetManagedServiceCatalogQuery, {
     variables: { name: 'catalog' },
@@ -136,8 +131,9 @@ export function useManagedServicesQuery(): UseManagedServicesQueryResult {
 
   // TODO(ntnn): The fallback to the mock data is intentional. Currently the ManagedService API is not implemented.
   // This allows filling the wizard with the served components on experimental deployments.
-  // Only when the type or CR is absent, transient errors surface as error with an empty catalog.
-  const catalogAbsent = (!loading && !error && !spec) || isSchemaAbsenceError(error);
+  // Fall back to mock whenever loading is done but no spec is available — this covers schema
+  // absence, missing CR, network errors, and auth failures equally.
+  const catalogAbsent = !loading && !spec;
 
   const catalog = useMemo<ManagedServiceCatalog>(() => {
     if (spec) {
