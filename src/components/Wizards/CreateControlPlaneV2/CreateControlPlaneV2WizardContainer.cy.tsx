@@ -1,6 +1,8 @@
 import '@ui5/webcomponents-cypress-commands';
 import type { MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
+import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useCreateControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -77,23 +79,39 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     updatePayload = null;
   });
 
+  const buildFrontendConfig = (showLandscaperCard: boolean) => ({
+    documentationBaseUrl: '',
+    githubBaseUrl: '',
+    featureToggles: {
+      markMcpV1asDeprecated: false,
+      enableMcpV2: false,
+      enableHeadlamp: false,
+      showLandscaperCard,
+    },
+  });
+
   const mountWizard = (
     props: Partial<React.ComponentProps<typeof CreateControlPlaneV2WizardContainer>> = {},
     mocks: readonly MockedResponse[] = [],
+    showLandscaperCard = false,
   ) => {
     cy.mount(
-      <MockedProvider mocks={mocks}>
-        <CreateControlPlaneV2WizardContainer
-          isOpen={true}
-          setIsOpen={() => {}}
-          projectName="my-project"
-          workspaceName="my-workspace"
-          useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
-          useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
-          useAuthOnboarding={fakeUseAuthOnboarding}
-          {...props}
-        />
-      </MockedProvider>,
+      <FrontendConfigContext.Provider value={buildFrontendConfig(showLandscaperCard)}>
+        <FeatureToggleProvider>
+          <MockedProvider mocks={mocks}>
+            <CreateControlPlaneV2WizardContainer
+              isOpen={true}
+              setIsOpen={() => {}}
+              projectName="my-project"
+              workspaceName="my-workspace"
+              useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+              useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+              useAuthOnboarding={fakeUseAuthOnboarding}
+              {...props}
+            />
+          </MockedProvider>
+        </FeatureToggleProvider>
+      </FrontendConfigContext.Provider>,
     );
   };
 
@@ -125,6 +143,28 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Create').click();
 
     cy.get('ui5-button').contains('Close').should('exist');
+  });
+
+  // ── Landscaper feature toggle ────────────────────────────────────────────
+
+  it('hides the Landscaper service option in create mode when the feature toggle is off', () => {
+    mountWizard({}, [], false);
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('not.exist');
+  });
+
+  it('shows the Landscaper service option in create mode when the feature toggle is on', () => {
+    mountWizard({}, [], true);
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('exist');
   });
 
   // ── Edit mode ─────────────────────────────────────────────────────────────
@@ -394,6 +434,50 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     // wizard should stay on summarize step and surface the backend error
     cy.contains('Network error').should('exist');
     cy.get('ui5-button').contains('Update').should('exist');
+  });
+
+  // ── Landscaper feature toggle in edit mode ──────────────────────────────
+
+  it('hides the Landscaper service option in edit mode when not installed and the feature toggle is off', () => {
+    mountWizard(
+      { isEditMode: true, initialData: existingMcp },
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        notInstalledLandscaperMock,
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
+      ],
+      false,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('not.exist');
+  });
+
+  it('shows an already-installed Landscaper in edit mode even when the feature toggle is off', () => {
+    mountWizard(
+      { isEditMode: true, initialData: existingMcp },
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        installedLandscaperMock('v1.0.5'),
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
+      ],
+      false,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('exist').should('have.attr', 'checked');
   });
 
   // ── Custom identity providers ────────────────────────────────────────────

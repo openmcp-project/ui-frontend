@@ -3,6 +3,7 @@ import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext, Landscape } from '../../../context/FrontendConfigContext.tsx';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
@@ -21,6 +22,15 @@ const frontendConfig = {
   },
 };
 
+const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
+  user: { sub: 'u0', email: 'test@example.com' },
+  isPending: false,
+  isAuthenticated: true,
+  error: null,
+  login: cy.stub() as never,
+  logout: cy.stub() as never,
+});
+
 const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   data: [],
   error: undefined,
@@ -34,7 +44,7 @@ const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
 
 const makeWorkspace = (name: string): Workspace => ({
   metadata: { name, namespace: `project-test--ws-${name}`, annotations: {} },
-  spec: { members: [] },
+  spec: { members: [{ kind: 'User', name: 'test@example.com', roles: ['admin'] }] },
   status: { namespace: `project-test--ws-${name}` },
 });
 
@@ -55,6 +65,7 @@ function mountAllWorkspaces(
                 projectName="test"
                 workspaces={ws}
                 expandedWorkspaces={expandedWorkspaces}
+                useAuthOnboardingHook={fakeUseAuthOnboarding}
                 useMcpsQuery={fakeUseMcpsQuery}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
                 onToggleWorkspace={onToggleWorkspace}

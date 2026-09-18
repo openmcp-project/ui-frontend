@@ -152,7 +152,12 @@ const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteControlPlaneV2G
 // V2 component-install status is passed into ControlPlaneCard as plain props now (pre-fetched by
 // the parent grid tile via useMcpV2ComponentsListQuery), not via an injected hook.
 const v2ComponentsEmpty: McpV2Components = {};
-const v2ComponentsWithData: McpV2Components = { crossplane: true, flux: true };
+const v2ComponentsWithData: McpV2Components = { crossplane: { phase: 'Ready' }, flux: { phase: 'Ready' } };
+// A control plane mid-provision (Crossplane still installing) and tearing down Flux.
+const v2ComponentsMixedLifecycle: McpV2Components = {
+  crossplane: { phase: 'Progressing' },
+  flux: { phase: 'Terminating' },
+};
 
 const mountCard = (controlPlane: ControlPlaneListItem) => {
   cy.mount(
@@ -497,6 +502,82 @@ describe('ControlPlaneCard', () => {
       cy.get('[data-testid="v1-wizard-open"]').should('not.exist');
       cy.get('[title="Crossplane"]').click();
       cy.get('[data-testid="v1-wizard-open"]').should('exist');
+    });
+  });
+
+  describe('per-service lifecycle badge (v2 only)', () => {
+    it('shows an installing badge for a Progressing service and a deleting badge for a Terminating one', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    v2Components={v2ComponentsMixedLifecycle}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[data-testid="service-status-Crossplane"]').should('have.attr', 'name', 'synchronize');
+      cy.get('[data-testid="service-status-Flux"]').should('have.attr', 'name', 'delete');
+    });
+
+    it('shows no badge when every installed service is Ready', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    v2Components={v2ComponentsWithData}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[data-testid^="service-status-"]').should('not.exist');
+    });
+
+    it('never shows lifecycle badges on a v1 card', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v1ControlPlaneWithComponents}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[data-testid^="service-status-"]').should('not.exist');
     });
   });
 

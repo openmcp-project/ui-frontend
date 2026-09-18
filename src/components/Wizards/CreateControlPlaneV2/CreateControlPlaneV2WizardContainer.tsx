@@ -11,8 +11,8 @@ import {
   BusyIndicator,
   Button,
   Dialog,
-  Icon,
   FlexBox,
+  Icon,
   Text,
   Ui5CustomEvent,
   Wizard,
@@ -22,6 +22,7 @@ import {
 
 import { Trans, useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
@@ -54,6 +55,7 @@ import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/c
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
+import { useRefreshMcpV2ComponentsList as _useRefreshMcpV2ComponentsList } from '../../../spaces/controlPlaneV2/hooks/useRefreshMcpV2ComponentsList.ts';
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
 import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
@@ -79,8 +81,8 @@ import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpda
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
-import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
@@ -97,6 +99,7 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   initialSection?: WizardStepType;
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
+  useRefreshMcpV2ComponentsList?: typeof _useRefreshMcpV2ComponentsList;
   useAuthOnboarding?: typeof _useAuthOnboarding;
   useCreateCrossplane?: typeof _useCreateCrossplane;
   useUpdateCrossplane?: typeof _useUpdateCrossplane;
@@ -137,6 +140,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   initialSection,
   useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
   useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
+  useRefreshMcpV2ComponentsList = _useRefreshMcpV2ComponentsList,
   useAuthOnboarding = _useAuthOnboarding,
   useCreateCrossplane = _useCreateCrossplane,
   useUpdateCrossplane = _useUpdateCrossplane,
@@ -162,7 +166,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 }) => {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
+  const refreshMcpV2ComponentsList = useRefreshMcpV2ComponentsList();
   const { user } = useAuthOnboarding();
+  const { showLandscaperCard } = useFeatureToggle();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
@@ -332,6 +338,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     skipKpi ? '' : editName,
     skipKpi ? '' : editNs,
   );
+
+  // Landscaper is toggle-gated for new installs, but an already-installed Landscaper must stay
+  // visible in edit mode so it can still be managed/removed even after the toggle is off.
+  const showLandscaper = showLandscaperCard || (isEditMode && !!landscaperData?.isInstalled);
 
   // Gates the Members → Components transition so it never reads stale "was this installed" data.
   const isKpiLoading =
@@ -694,6 +704,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         throw new Error(`Failed to apply changes for service(s): ${details}`);
       }
 
+      // Per-service mutations above each only refetch their own single-service KPI query (e.g.
+      // GET_CROSSPLANE_QUERY) — not the grid's combined list, so the ControlPlaneCard lifecycle
+      // badges would otherwise stay stale until an unrelated refetch happened to fire.
+      refreshMcpV2ComponentsList();
+
       telemetry.track({ category: 'controlplane', action: isEditMode ? 'edited' : 'created', source: 'v2' });
       setSelectedStep('success');
       return true;
@@ -712,6 +727,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     createMcp,
     rawInput,
     telemetry,
+    refreshMcpV2ComponentsList,
     services,
     crossplaneData,
     fluxData,
@@ -1046,7 +1062,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             {isEditMode && !skipKpi && isKpiLoading ? (
               <BusyIndicator active delay={0} text={t('editMCP.loadingServices')} />
             ) : (
-              <ServiceSelectionStep services={services} onServicesChange={setServices} />
+              <ServiceSelectionStep
+                services={services}
+                showLandscaper={showLandscaper}
+                onServicesChange={setServices}
+              />
             )}
           </WizardStep>
 
