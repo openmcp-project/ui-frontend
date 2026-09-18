@@ -30,7 +30,7 @@ describe('ComponentHealthPopoverButton', () => {
     cy.mount(wrapper, {});
 
     cy.contains('Ready').should('be.visible');
-    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://sys-enter-2');
+    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://accept');
 
     // Scoped to the toggle button specifically: once the popover is open, its content (e.g. the
     // condition's "Copy" toolbar button) also matches "ui5-button" within this same boundary.
@@ -67,7 +67,7 @@ describe('ComponentHealthPopoverButton', () => {
     mount({ componentName: 'Crossplane', phase: 'SomeFuturePhase', conditions: [] });
 
     cy.contains('SomeFuturePhase').should('be.visible');
-    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://message-warning');
+    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://question-mark');
   });
 
   it('renders a pending visual instead of Ready while the status query is loading', () => {
@@ -82,6 +82,6 @@ describe('ComponentHealthPopoverButton', () => {
 
     cy.contains('Ready').should('not.exist');
     cy.contains('Unknown').should('be.visible');
-    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://message-warning');
+    cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://question-mark');
   });
 });

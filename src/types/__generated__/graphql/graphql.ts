@@ -1945,37 +1945,67 @@ export type GetMcpV2ComponentsListQuery = {
   crossplane_services_open_control_plane_io: {
     v1alpha1: {
       Crossplanes: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   flux_services_open_control_plane_io: {
     v1alpha1: {
-      Fluxes: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      Fluxes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
   landscaper_services_open_control_plane_io: {
     v1alpha2: {
       Landscapers: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   external_secrets_services_open_control_plane_io: {
     v1alpha1: {
       ExternalSecretsOperators: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   ocm_services_open_control_plane_io: {
     v1alpha1: {
-      OCMs: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      OCMs: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
   kro_services_open_control_plane_io: {
     v1alpha1: {
-      Kroes: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      Kroes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
 };
@@ -4075,6 +4105,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4132,6 +4170,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],
@@ -4193,6 +4239,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4250,6 +4304,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],
@@ -4311,6 +4373,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4368,6 +4438,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],
