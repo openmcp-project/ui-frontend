@@ -731,5 +731,35 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "yamlApply": {
+    "overlayTitle": "Drop YAML to apply",
+    "overlayTargetCp": "Control Plane: {{name}}",
+    "overlayTargetOnboarding": "Onboarding API",
+    "overlayHint": "Release file to open apply dialog",
+    "dialogTitle": "Apply YAML Resource",
+    "targetLabel": "Target",
+    "targetBannerCp": "Applying to Control Plane: {{name}}",
+    "targetBannerOnboarding": "Applying to the Onboarding API",
+    "stepProgress": "{{current}} of {{total}}",
+    "fileTypeError": "Only .yaml and .yml files are supported",
+    "parseError": "Could not parse YAML file",
+    "structureError": "Missing required fields: apiVersion, kind, metadata.name",
+    "unknownKind": "Could not resolve resource type for kind '{{kind}}'",
+    "unsupportedKindTitle": "Unsupported resource type",
+    "unsupportedKindOnboarding": "Only Workspace and Project resources can be applied to the Onboarding API. Open a ControlPlane to apply other resource types.",
+    "projectExistsInfo": "Project '{{name}}' already exists. Projects are always created via this flow, so this request may fail.",
+    "overwriteWarning": "{{kind}}/{{name}} already exists. Applying will overwrite the existing resource.",
+    "overwriteHint": "Click 'Overwrite' in the footer to proceed, or 'Cancel' to abort.",
+    "createButton": "Create",
+    "overwriteButton": "Overwrite",
+    "skipButton": "Skip",
+    "cancelButton": "Cancel",
+    "closeButton": "Close",
+    "summaryTitle": "Apply complete",
+    "summaryCounts": "{{applied}} applied, {{failed}} failed, {{skipped}} skipped",
+    "applySuccess": "Resource applied successfully",
+    "applySuccessSubtitle": "{{kind}}/{{name}} has been applied to {{target}}",
+    "applyError": "Failed to apply resource"
   }
 }

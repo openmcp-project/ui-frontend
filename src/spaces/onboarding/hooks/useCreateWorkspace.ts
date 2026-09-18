@@ -45,7 +45,7 @@ function buildWorkspaceInput(namespace: string, params: CreateWorkspaceParams): 
   };
 }
 
-const CreateWorkspaceMutation = graphql(`
+export const CreateWorkspaceMutation = graphql(`
   mutation CreateWorkspace($namespace: String!, $object: CoreOpenmcpCloudV1alpha1Workspace_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {

@@ -18,8 +18,11 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
   onApply,
   apiGroupName,
   apiVersion,
-
   kind,
+  height,
+  hideToolbar,
+  onValidityChange,
+  onContentChange,
 }) => {
   const { schema, isLoading } = useCustomResourceDefinitionQuery({
     kind,
@@ -31,5 +34,17 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
     return <Loading />;
   }
 
-  return <YamlViewer schema={schema} yamlString={yamlString} filename={filename} isEdit={isEdit} onApply={onApply} />;
+  return (
+    <YamlViewer
+      schema={schema}
+      yamlString={yamlString}
+      filename={filename}
+      isEdit={isEdit}
+      height={height}
+      hideToolbar={hideToolbar}
+      onApply={onApply}
+      onValidityChange={onValidityChange}
+      onContentChange={onContentChange}
+    />
+  );
 };

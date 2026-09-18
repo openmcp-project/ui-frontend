@@ -13,9 +13,22 @@ export interface YamlViewerProps {
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   schema?: JSONSchema4;
   height?: string;
+  hideToolbar?: boolean;
+  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number }) => void;
+  onContentChange?: (yaml: string) => void;
 }
 
-export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false, onApply, schema, height }) => {
+export const YamlViewer: FC<YamlViewerProps> = ({
+  yamlString,
+  filename,
+  isEdit = false,
+  onApply,
+  schema,
+  height,
+  hideToolbar,
+  onValidityChange,
+  onContentChange,
+}) => {
   return (
     <div
       className={styles.container}
@@ -27,7 +40,10 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit =
         isEdit={isEdit}
         options={{ readOnly: !isEdit }}
         schema={schema}
+        hideToolbar={hideToolbar}
         onApply={onApply}
+        onValidityChange={onValidityChange}
+        onContentChange={onContentChange}
       />
     </div>
   );
