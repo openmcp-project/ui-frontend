@@ -80,6 +80,7 @@ import { useUpdateMetricsOperator as _useUpdateMetricsOperator } from '../../../
 import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpdateOcm.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
+import { useManagedServicesQuery } from '../../../hooks/useManagedServicesQuery.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
@@ -429,6 +430,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { create: createMetricsOperator } = useCreateMetricsOperator();
   const { update: updateMetricsOperator } = useUpdateMetricsOperator();
   const { deleteMetricsOperator } = useDeleteMetricsOperator();
+  const { isLoading: isServiceCatalogLoading } = useManagedServicesQuery();
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
@@ -1059,8 +1061,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'componentSelection'}
             data-step="componentSelection"
           >
-            {isEditMode && !skipKpi && isKpiLoading ? (
-              <BusyIndicator active delay={0} text={t('editMCP.loadingServices')} />
+            {(isEditMode && !skipKpi && isKpiLoading) || isServiceCatalogLoading ? (
+              <BusyIndicator
+                active
+                delay={0}
+                text={t(isServiceCatalogLoading ? 'ServiceSelectionStep.loading' : 'editMCP.loadingServices')}
+              />
             ) : (
               <ServiceSelectionStep
                 services={services}
