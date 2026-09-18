@@ -22,13 +22,17 @@ import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
+import { ControlPlaneAccessLockButton } from '../ConnectButton/ControlPlaneAccessLockButton.tsx';
+import { adminMemberEmails, isEmailAdmin, isEmailMember } from '../controlPlaneMembership.ts';
+import { convertRoleBindingsToMembers } from '../../../utils/convertRoleBindingsToMembers.ts';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -50,6 +54,7 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
+  useAuthOnboardingHook?: typeof _useAuthOnboarding;
   /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
    * `undefined` while that fetch is still loading. */
   v2Components?: McpV2Components;
@@ -73,6 +78,7 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
+  useAuthOnboardingHook = _useAuthOnboarding,
   v2Components,
   isLoadingV2Components = false,
 }: Props) => {
@@ -120,6 +126,23 @@ export const ControlPlaneCard = ({
     if (!isV2) return undefined;
     return flattenOidcRoleBindings(controlPlane.spec?.iam?.oidc);
   }, [isV2, controlPlane]);
+
+  // Membership lock: a user absent from this CP's roleBindings can't connect (the handed-over
+  // kubeconfig/IdP would reject them), so we show a locked, non-primary "No access" instead.
+  const { user, isPending: authPending } = useAuthOnboardingHook();
+  const cpMembers = useMemo(
+    () => convertRoleBindingsToMembers(isV2 ? v2RoleBindings : v1RoleBindings),
+    [isV2, v2RoleBindings, v1RoleBindings],
+  );
+  const isMember: boolean | null = authPending || !user ? null : isEmailMember(cpMembers, user.email);
+  const isForbidden = isMember === false;
+  // A workspace admin can grant CP access directly (edit wizard); others email the workspace admins.
+  const workspaceMembers = useMemo(() => workspace.spec.members ?? [], [workspace.spec.members]);
+  const isWorkspaceAdmin = !!user && isEmailAdmin(workspaceMembers, user.email);
+  const workspaceAdminEmails = useMemo(
+    () => adminMemberEmails(workspaceMembers, workspace.metadata.annotations?.[CREATED_BY_ANNOTATION]),
+    [workspaceMembers, workspace.metadata.annotations],
+  );
 
   const components = useMemo<ComponentInfo[]>(() => {
     if (isV2) {
@@ -272,7 +295,18 @@ export const ControlPlaneCard = ({
           </div>
 
           <div className={styles.footerRight}>
-            {isV2 ? (
+            {isForbidden ? (
+              <ControlPlaneAccessLockButton
+                controlPlaneName={name}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                adminEmails={workspaceAdminEmails}
+                isWorkspaceAdmin={isWorkspaceAdmin}
+                onGrantAccess={() =>
+                  isV2 ? setIsEditV2WizardOpen(true) : handleIsManagedControlPlaneWizardOpen(true, 'edit')
+                }
+              />
+            ) : isV2 ? (
               <ConnectButtonV2
                 controlPlaneName={name}
                 projectName={projectName}
