@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
-import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../../hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
 import styles from './ComponentInstallDialog.module.css';
 import { createComponentInstallSchema, ComponentInstallFormValues } from './ComponentInstallDialog.schema.ts';

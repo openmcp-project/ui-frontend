@@ -1,5 +1,5 @@
 import { ComponentInstallDialog, UseCreateMutationResult, UseUpdateMutationResult } from './ComponentInstallDialog.tsx';
-import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../../../hooks/useManagedServicesQuery.ts';
 
 type CreateVariables = { namespace: string; name: string; object: unknown };
 type UpdateVariables = { namespace: string; name: string; object: unknown };
@@ -25,7 +25,6 @@ describe('ComponentInstallDialog', () => {
   });
 
   const fakeUseManagedServicesQuery: typeof useManagedServicesQuery = (() => ({
-    managedServicesData: null,
     isLoading: false,
     error: null,
     services: [
@@ -40,7 +39,6 @@ describe('ComponentInstallDialog', () => {
   })) as () => UseManagedServicesQueryResult;
 
   const fakeUseManagedServicesQueryNoVersions: typeof useManagedServicesQuery = (() => ({
-    managedServicesData: null,
     isLoading: false,
     error: null,
     services: [

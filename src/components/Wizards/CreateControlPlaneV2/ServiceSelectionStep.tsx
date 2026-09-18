@@ -6,7 +6,7 @@ import {
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery } from '../../../hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';

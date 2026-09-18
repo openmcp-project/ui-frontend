@@ -9,7 +9,7 @@ import { CrossplaneProviderPicker } from '../../../../components/Shared/Crosspla
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../hooks/useCreateCrossplane.ts';
-import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../../hooks/useManagedServicesQuery.ts';
 import { useUpdateCrossplane as _useUpdateCrossplane } from '../../hooks/useUpdateCrossplane.ts';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
