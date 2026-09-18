@@ -8,9 +8,8 @@ interface Props {
 }
 
 export const DragDropYamlProvider: FC<Props> = ({ children }) => {
-  const { activeMcp } = useYamlApply();
+  const { activeMcp, pendingFile, requestApplyFile, clearPendingFile } = useYamlApply();
   const [isDragging, setIsDragging] = useState(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const dragCounter = useRef(0);
 
   const handleDragEnter = useCallback((e: DragEvent) => {
@@ -33,15 +32,18 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
     e.preventDefault();
   }, []);
 
-  const handleDrop = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    dragCounter.current = 0;
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter.current = 0;
+      setIsDragging(false);
 
-    const files = e.dataTransfer?.files;
-    if (!files || files.length === 0) return;
-    setPendingFile(files[0]);
-  }, []);
+      const files = e.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+      requestApplyFile(files[0]);
+    },
+    [requestApplyFile],
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -73,10 +75,6 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
     setIsDragging(false);
   }, []);
 
-  const handleDialogClose = useCallback(() => {
-    setPendingFile(null);
-  }, []);
-
   return (
     <>
       {children}
@@ -86,7 +84,7 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
           file={pendingFile}
           targetApiConfig={activeMcp?.apiConfig ?? null}
           targetName={activeMcp?.name ?? 'Onboarding API'}
-          onClose={handleDialogClose}
+          onClose={clearPendingFile}
         />
       )}
     </>

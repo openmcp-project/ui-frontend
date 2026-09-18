@@ -35,6 +35,7 @@ import { Routes } from '../../Routes.ts';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
+import { useYamlApply } from '../../context/YamlApplyContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -42,6 +43,7 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
+import { YamlIcon } from '../Yaml/YamlIcon.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -106,6 +108,7 @@ export function ShellBarComponent({
               </div>
             )}
             <KubeconfigShellBarButton />
+            <UploadYamlShellBarButton />
             {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
               <div className={styles.switchWrapper}>
@@ -362,3 +365,29 @@ const ProfilePopover = ({
     </>
   );
 };
+
+function UploadYamlShellBarButton() {
+  const { requestApplyFile } = useYamlApply();
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".yaml,.yml"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) requestApplyFile(file);
+          e.target.value = '';
+        }}
+      />
+      <Button design="Transparent" tooltip={t('yamlApply.uploadButton')} onClick={() => inputRef.current?.click()}>
+        <YamlIcon className={styles.uploadYamlIcon} />
+        {t('yamlApply.uploadButtonShort')}
+      </Button>
+    </>
+  );
+}

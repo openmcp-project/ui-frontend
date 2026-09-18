@@ -1,7 +1,25 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/SuccessHighFive';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
+import '@ui5/webcomponents-icons/dist/accept';
+import '@ui5/webcomponents-icons/dist/error';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/document';
+import '@ui5/webcomponents-icons/dist/cloud';
+import '@ui5/webcomponents-icons/dist/org-chart';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import { Bar, BusyIndicator, Button, Dialog, MessageStrip } from '@ui5/webcomponents-react';
+import {
+  Bar,
+  BusyIndicator,
+  Button,
+  Dialog,
+  Icon,
+  List,
+  ListItemStandard,
+  MessageStrip,
+  ObjectStatus,
+  ProgressIndicator,
+  Text,
+} from '@ui5/webcomponents-react';
 import { useApolloClient } from '@apollo/client/react';
 import { parse, stringify } from 'yaml';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
@@ -25,7 +43,7 @@ import styles from './YamlApplyDialog.module.css';
 
 /** Whether the resource already exists on the target, plus per-item lifecycle state. */
 type ItemState = 'checking' | 'idle' | 'unsupported' | 'applying';
-type ItemStatus = 'pending' | 'applied' | 'failed' | 'skipped';
+type ItemStatus = 'pending' | 'applied' | 'failed';
 type Phase = 'parsing' | 'parse-error' | 'editing' | 'summary';
 
 interface Props {
@@ -71,7 +89,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const [itemState, setItemState] = useState<ItemState>('checking');
   const [resourceExists, setResourceExists] = useState(false);
   const [itemError, setItemError] = useState('');
-  const [currentYaml, setCurrentYaml] = useState('');
+  // Edited YAML per resource index; falls back to the parsed resource when untouched.
+  const [edits, setEdits] = useState<Record<number, string>>({});
   const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number }>({
     parseOk: true,
     schemaErrorCount: 0,
@@ -79,6 +98,20 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
 
   const isMultiDoc = resources.length > 1;
   const currentResource = resources[currentIndex] as ParsedResource | undefined;
+
+  // The YAML the editor should show for the current resource. Derived (not effect-set) so it is
+  // always correct at the moment the editor mounts — the editor reads `value` only once per mount.
+  const currentYaml = useMemo(
+    () => edits[currentIndex] ?? (currentResource ? stringify(currentResource) : ''),
+    [edits, currentIndex, currentResource],
+  );
+
+  const handleContentChange = useCallback(
+    (val: string) => {
+      setEdits((prev) => ({ ...prev, [currentIndex]: val }));
+    },
+    [currentIndex],
+  );
 
   // ── Parse the dropped file into a queue of resources ──────────────────────
   useEffect(() => {
@@ -103,13 +136,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     reader.readAsText(file);
   }, [file, t]);
 
-  // ── Prepare the current resource: reset editor + existence check ──────────
+  // ── Prepare the current resource: reset per-item state + existence check ──
   useEffect(() => {
     if (phase !== 'editing' || !currentResource) return;
     let cancelled = false;
 
     const run = async () => {
-      setCurrentYaml(stringify(currentResource));
       setValidity({ parseOk: true, schemaErrorCount: 0 });
       setItemError('');
       setResourceExists(false);
@@ -161,16 +193,22 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentIndex, resources]);
 
-  const advance = useCallback(() => {
-    setCurrentIndex((idx) => {
-      const next = idx + 1;
-      if (next >= resources.length) {
-        setPhase('summary');
-        return idx;
+  const advanceAfterApply = useCallback(
+    (doneIndex: number) => {
+      // Jump to the next still-pending resource; if none remain, show the summary.
+      const n = resources.length;
+      for (let off = 1; off <= n; off++) {
+        const i = (doneIndex + off) % n;
+        if (i === doneIndex) continue;
+        if (statuses[i] === 'pending') {
+          setCurrentIndex(i);
+          return;
+        }
       }
-      return next;
-    });
-  }, [resources.length]);
+      setPhase('summary');
+    },
+    [resources.length, statuses],
+  );
 
   const markStatus = useCallback((index: number, status: ItemStatus) => {
     setStatuses((prev) => {
@@ -212,7 +250,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
         }
       }
       markStatus(index, 'applied');
-      advance();
+      advanceAfterApply(index);
     } catch (err) {
       setItemError(err instanceof Error ? err.message : String(err));
       markStatus(index, 'failed');
@@ -229,39 +267,74 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     apolloClient,
     t,
     markStatus,
-    advance,
+    advanceAfterApply,
   ]);
-
-  const handleSkip = useCallback(() => {
-    markStatus(currentIndex, 'skipped');
-    advance();
-  }, [currentIndex, markStatus, advance]);
 
   // ── Presentation helpers ──────────────────────────────────────────────────
   const targetBanner = (
-    <MessageStrip design="Information" hideCloseButton className={styles.strip}>
-      {isCpTarget ? t('yamlApply.targetBannerCp', { name: targetName }) : t('yamlApply.targetBannerOnboarding')}
-    </MessageStrip>
+    <div className={styles.targetBar}>
+      <Text className={styles.targetLabel}>{t('yamlApply.targetLabel')}</Text>
+      <ObjectStatus
+        state={isCpTarget ? 'Positive' : 'Information'}
+        icon={<Icon name={isCpTarget ? 'cloud' : 'org-chart'} />}
+        inverted
+      >
+        {isCpTarget ? targetName : t('yamlApply.targetOnboarding')}
+      </ObjectStatus>
+    </div>
   );
 
-  const progressRail = isMultiDoc ? (
-    <ul className={styles.rail}>
-      <li className={styles.railHeader}>
-        {t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
-      </li>
-      {resources.map((r, i) => (
-        <li
-          key={i}
-          className={`${styles.railItem} ${i === currentIndex ? styles.railItemActive : ''}`}
-          data-status={statuses[i]}
-        >
-          <span className={styles.railDot} data-status={statuses[i]} />
-          <span className={styles.railName}>
-            {r.kind}/{r.metadata.name}
-          </span>
-        </li>
-      ))}
-    </ul>
+  const completedCount = statuses.filter((s) => s !== 'pending').length;
+  const progressValue = resources.length > 0 ? Math.round((completedCount / resources.length) * 100) : 0;
+  const progressState = statuses.some((s) => s === 'failed') ? 'Negative' : 'Information';
+
+  const itemVisual = (status: ItemStatus, isCurrent: boolean) => {
+    if (status === 'applied')
+      return { icon: 'accept', highlight: 'Positive' as const, text: t('yamlApply.statusApplied') };
+    if (status === 'failed')
+      return { icon: 'error', highlight: 'Negative' as const, text: t('yamlApply.statusFailed') };
+    if (isCurrent) return { icon: 'edit', highlight: 'Information' as const, text: '' };
+    return { icon: 'document', highlight: 'None' as const, text: '' };
+  };
+
+  const jumpToIndex = (idx: number) => {
+    if (itemState === 'applying' || Number.isNaN(idx) || idx === currentIndex) return;
+    setCurrentIndex(idx);
+  };
+
+  const progressPanel = isMultiDoc ? (
+    <div className={styles.progressPanel}>
+      <div className={styles.progressHeader}>
+        <Text className={styles.progressLabel}>
+          {t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
+        </Text>
+        <ProgressIndicator value={progressValue} valueState={progressState} hideValue />
+      </div>
+      <List
+        selectionMode="Single"
+        className={styles.progressList}
+        onSelectionChange={(e) => {
+          const item = e.detail.selectedItems[0] as HTMLElement | undefined;
+          jumpToIndex(Number(item?.dataset.index));
+        }}
+      >
+        {resources.map((r, i) => {
+          const v = itemVisual(statuses[i], i === currentIndex);
+          return (
+            <ListItemStandard
+              key={i}
+              data-index={i}
+              selected={i === currentIndex}
+              icon={v.icon}
+              highlight={v.highlight}
+              additionalText={v.text}
+            >
+              {r.kind}/{r.metadata.name}
+            </ListItemStandard>
+          );
+        })}
+      </List>
+    </div>
   ) : null;
 
   const applyDisabled =
@@ -285,11 +358,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
               {applyLabel}
             </Button>
           )}
-          {phase === 'editing' && isMultiDoc && itemState !== 'applying' && (
-            <Button design="Transparent" onClick={handleSkip}>
-              {t('yamlApply.skipButton')}
-            </Button>
-          )}
           {canClose && (
             <Button design="Transparent" onClick={onClose}>
               {phase === 'summary' ? t('yamlApply.closeButton') : t('yamlApply.cancelButton')}
@@ -303,8 +371,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const summary = useMemo(() => {
     const applied = statuses.filter((s) => s === 'applied').length;
     const failed = statuses.filter((s) => s === 'failed').length;
-    const skipped = statuses.filter((s) => s === 'skipped').length;
-    return { applied, failed, skipped };
+    return { applied, failed };
   }, [statuses]);
 
   return (
@@ -332,52 +399,55 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
         )}
 
         {phase === 'editing' && currentResource && (
-          <div className={styles.editLayout}>
-            {progressRail}
-            <div className={styles.editMain}>
-              {targetBanner}
+          <div className={styles.editingContainer}>
+            {targetBanner}
 
-              {itemState === 'unsupported' && (
-                <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
-                  {itemError}
-                </MessageStrip>
-              )}
+            <div className={styles.editLayout}>
+              {progressPanel}
 
-              {itemState !== 'unsupported' && showOverwrite && (
-                <MessageStrip design="Critical" hideCloseButton className={styles.strip}>
-                  {t('yamlApply.overwriteWarning', {
-                    kind: currentResource.kind,
-                    name: currentResource.metadata.name,
-                  })}
-                </MessageStrip>
-              )}
+              <div className={styles.editMain}>
+                {itemState === 'unsupported' && (
+                  <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
+                    {itemError}
+                  </MessageStrip>
+                )}
 
-              {itemState !== 'unsupported' && isProject && resourceExists && (
-                <MessageStrip design="Information" hideCloseButton className={styles.strip}>
-                  {t('yamlApply.projectExistsInfo', { name: currentResource.metadata.name })}
-                </MessageStrip>
-              )}
+                {itemState !== 'unsupported' && showOverwrite && (
+                  <MessageStrip design="Critical" hideCloseButton className={styles.strip}>
+                    {t('yamlApply.overwriteWarning', {
+                      kind: currentResource.kind,
+                      name: currentResource.metadata.name,
+                    })}
+                  </MessageStrip>
+                )}
 
-              {itemError && itemState === 'idle' && (
-                <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
-                  {itemError}
-                </MessageStrip>
-              )}
+                {itemState !== 'unsupported' && isProject && resourceExists && (
+                  <MessageStrip design="Information" hideCloseButton className={styles.strip}>
+                    {t('yamlApply.projectExistsInfo', { name: currentResource.metadata.name })}
+                  </MessageStrip>
+                )}
 
-              <div className={styles.editorWrapper}>
-                <YamlResourceEditorSchemaLoader
-                  key={currentIndex}
-                  yamlString={currentYaml}
-                  filename={`${currentResource.kind}-${currentResource.metadata.name}`}
-                  apiGroupName={splitApiVersion(currentResource.apiVersion).group}
-                  apiVersion={splitApiVersion(currentResource.apiVersion).version}
-                  kind={currentResource.kind}
-                  isEdit
-                  hideToolbar
-                  height="100%"
-                  onContentChange={setCurrentYaml}
-                  onValidityChange={setValidity}
-                />
+                {itemError && itemState === 'idle' && (
+                  <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
+                    {itemError}
+                  </MessageStrip>
+                )}
+
+                <div className={styles.editorWrapper}>
+                  <YamlResourceEditorSchemaLoader
+                    key={currentIndex}
+                    yamlString={currentYaml}
+                    filename={`${currentResource.kind}-${currentResource.metadata.name}`}
+                    apiGroupName={splitApiVersion(currentResource.apiVersion).group}
+                    apiVersion={splitApiVersion(currentResource.apiVersion).version}
+                    kind={currentResource.kind}
+                    isEdit
+                    hideToolbar
+                    height="100%"
+                    onContentChange={handleContentChange}
+                    onValidityChange={setValidity}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -393,7 +463,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
               subtitle={t('yamlApply.summaryCounts', {
                 applied: summary.applied,
                 failed: summary.failed,
-                skipped: summary.skipped,
               })}
             />
           </div>

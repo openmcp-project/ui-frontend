@@ -18,7 +18,7 @@ const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 function AppRouter() {
   return (
-    <>
+    <YamlApplyContextProvider>
       <SearchParamToggleVisibility
         shouldBeVisible={(params) => {
           if (params === undefined) return true;
@@ -30,75 +30,73 @@ function AppRouter() {
       </SearchParamToggleVisibility>
 
       <SplitterProvider>
-        <YamlApplyContextProvider>
-          <DragDropYamlProvider>
-            <SplitterLayout>
-              <Router>
-                <SentryRoutes>
-                  <Route element={<GlobalProviderOutlet />}>
-                    <Route path="projects" element={<ProjectListView />} />
-                    <Route path="projects/:projectName" element={<ProjectPage />} />
-                    <Route
-                      path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName"
-                      element={<ControlPlanePageV2 />}
-                    />
-                    <Route
-                      path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName/headlamp"
-                      element={<HeadlampPage />}
-                    />
-                    <Route
-                      path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
-                      element={<ManagedControlPlanePage />}
-                    />
-                  </Route>
+        <DragDropYamlProvider>
+          <SplitterLayout>
+            <Router>
+              <SentryRoutes>
+                <Route element={<GlobalProviderOutlet />}>
+                  <Route path="projects" element={<ProjectListView />} />
+                  <Route path="projects/:projectName" element={<ProjectPage />} />
+                  <Route
+                    path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName"
+                    element={<ControlPlanePageV2 />}
+                  />
+                  <Route
+                    path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName/headlamp"
+                    element={<HeadlampPage />}
+                  />
+                  <Route
+                    path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
+                    element={<ManagedControlPlanePage />}
+                  />
+                </Route>
 
-                  {/* backward-compat: /mcp prefix + old segment names */}
-                  <Route path="/mcp" element={<Navigate to="/projects" replace />} />
-                  <Route path="/mcp/projects" element={<Navigate to="/projects" replace />} />
-                  <Route
-                    path="/mcp/projects/:projectName"
-                    element={<ParamRedirect to={({ projectName }) => `/projects/${projectName}`} />}
-                  />
-                  <Route
-                    path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
-                    element={
-                      <ParamRedirect
-                        to={({ projectName, workspaceName, controlPlaneName }) =>
-                          `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}`
-                        }
-                      />
-                    }
-                  />
-                  <Route
-                    path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName/headlamp"
-                    element={
-                      <ParamRedirect
-                        to={({ projectName, workspaceName, controlPlaneName }) =>
-                          `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}/headlamp`
-                        }
-                      />
-                    }
-                  />
-                  <Route
-                    path="/mcp/projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
-                    element={
-                      <ParamRedirect
-                        to={({ projectName, workspaceName, controlPlaneName }) =>
-                          `/projects/${projectName}/workspaces/${workspaceName}/managedcontrolplane/${controlPlaneName}`
-                        }
-                      />
-                    }
-                  />
+                {/* backward-compat: /mcp prefix + old segment names */}
+                <Route path="/mcp" element={<Navigate to="/projects" replace />} />
+                <Route path="/mcp/projects" element={<Navigate to="/projects" replace />} />
+                <Route
+                  path="/mcp/projects/:projectName"
+                  element={<ParamRedirect to={({ projectName }) => `/projects/${projectName}`} />}
+                />
+                <Route
+                  path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+                  element={
+                    <ParamRedirect
+                      to={({ projectName, workspaceName, controlPlaneName }) =>
+                        `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}`
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName/headlamp"
+                  element={
+                    <ParamRedirect
+                      to={({ projectName, workspaceName, controlPlaneName }) =>
+                        `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}/headlamp`
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/mcp/projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
+                  element={
+                    <ParamRedirect
+                      to={({ projectName, workspaceName, controlPlaneName }) =>
+                        `/projects/${projectName}/workspaces/${workspaceName}/managedcontrolplane/${controlPlaneName}`
+                      }
+                    />
+                  }
+                />
 
-                  <Route path="/" element={<Navigate to="/projects" replace />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </SentryRoutes>
-              </Router>
-            </SplitterLayout>
-          </DragDropYamlProvider>
-        </YamlApplyContextProvider>
+                <Route path="/" element={<Navigate to="/projects" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </SentryRoutes>
+            </Router>
+          </SplitterLayout>
+        </DragDropYamlProvider>
       </SplitterProvider>
-    </>
+    </YamlApplyContextProvider>
   );
 }
 
