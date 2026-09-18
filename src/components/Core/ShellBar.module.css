@@ -43,3 +43,11 @@
   color: var(--sapTextColor);
   white-space: nowrap;
 }
+
+/* Upload YAML button: align the multi-path YAML badge with the text label */
+.uploadYamlIcon {
+  height: 0.75rem;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 0.375rem;
+}
