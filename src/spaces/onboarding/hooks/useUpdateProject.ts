@@ -4,10 +4,7 @@ import { useToast } from '../../../context/ToastContext';
 import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
-import {
-  buildProjectAnnotations,
-  CreateProjectParams,
-} from '../../../lib/api/types/shared/projectAnnotations';
+import { buildProjectAnnotations, CreateProjectParams } from '../../../lib/api/types/shared/projectAnnotations';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 

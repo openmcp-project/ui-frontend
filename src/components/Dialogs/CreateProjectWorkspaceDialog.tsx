@@ -11,6 +11,12 @@ import {
   WizardStep,
 } from '@ui5/webcomponents-react';
 
+import '@ui5/webcomponents-icons/dist/decline';
+import '@ui5/webcomponents-icons/dist/save';
+import '@ui5/webcomponents-icons/dist/navigation-right-arrow';
+import '@ui5/webcomponents-icons/dist/navigation-left-arrow';
+import '@ui5/webcomponents-icons/dist/add';
+
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
@@ -29,17 +35,15 @@ import { SupportInfoForm } from './SupportInfoForm.tsx';
 
 const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
-export type OnCreatePayload = {
-  name: string;
-  displayName?: string;
-  chargingTarget?: string;
-  chargingTargetType?: string;
-  members: Member[];
-  supportServiceIds?: string;
-  supportLandscape?: string;
-  supportSecurityContacts?: string;
-  supportOpsContacts?: string;
-};
+export type OnCreatePayload = Omit<CreateDialogProps, 'componentsList'>;
+
+interface FormHandles {
+  register: UseFormRegister<CreateDialogProps>;
+  errors: FieldErrors<CreateDialogProps>;
+  setValue: UseFormSetValue<CreateDialogProps>;
+  watch: UseFormWatch<CreateDialogProps>;
+  handleSubmit?: UseFormHandleSubmit<CreateDialogProps>;
+}
 
 export interface CreateProjectWorkspaceDialogProps {
   isOpen: boolean;
@@ -48,13 +52,9 @@ export interface CreateProjectWorkspaceDialogProps {
   onCreate: (e?: FormEvent<HTMLFormElement> | undefined) => void;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   members: Member[];
-  register: UseFormRegister<CreateDialogProps>;
-  errors: FieldErrors<CreateDialogProps>;
-  setValue: UseFormSetValue<CreateDialogProps>;
-  handleSubmit?: UseFormHandleSubmit<CreateDialogProps>;
+  form: FormHandles;
   projectName?: string;
   type: 'workspace' | 'project';
-  watch: UseFormWatch<CreateDialogProps>;
   isMetadataValid?: boolean;
   isLoading?: boolean;
   isEditMode?: boolean;
@@ -70,13 +70,9 @@ export function CreateProjectWorkspaceDialog({
   onCreate,
   errorDialogRef,
   members,
-  register,
-  errors,
-  setValue,
-  handleSubmit,
+  form: { register, errors, setValue, watch, handleSubmit },
   projectName,
   type,
-  watch,
   isMetadataValid = true,
   isLoading = false,
   isEditMode = false,
@@ -90,14 +86,25 @@ export function CreateProjectWorkspaceDialog({
   const setMembers = (members: Member[]) => setValue('members', members);
 
   const projectNamespace = projectName ? projectnameToNamespace(projectName) : undefined;
-  const name = watch('name') ?? '';
-  const displayName = watch('displayName') ?? '';
-  const chargingTarget = watch('chargingTarget') ?? '';
-  const chargingTargetType = watch('chargingTargetType') ?? '';
-  const supportLandscape = watch('supportLandscape') ?? '';
-  const supportServiceIds = watch('supportServiceIds') ?? '';
-  const supportSecurityContacts = watch('supportSecurityContacts') ?? '';
-  const supportOpsContacts = watch('supportOpsContacts') ?? '';
+  const [
+    name = '',
+    displayName = '',
+    chargingTarget = '',
+    chargingTargetType = '',
+    supportLandscape = '',
+    supportServiceIds = '',
+    supportSecurityContacts = '',
+    supportOpsContacts = '',
+  ] = watch([
+    'name',
+    'displayName',
+    'chargingTarget',
+    'chargingTargetType',
+    'supportLandscape',
+    'supportServiceIds',
+    'supportSecurityContacts',
+    'supportOpsContacts',
+  ]);
   const yamlString = useYamlPreview(
     {
       name,
@@ -138,31 +145,43 @@ export function CreateProjectWorkspaceDialog({
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Button design="Transparent" onClick={onClose}>
+                <Button design="Transparent" icon="decline" onClick={onClose}>
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
                 {isEditMode ? (
                   <>
                     <BusyIndicator active={isLoading} size="S" />
-                    <Button design="Emphasized" disabled={isLoading || !canSave} onClick={() => onCreate()}>
+                    <Button design="Emphasized" icon="save" disabled={isLoading || !canSave} onClick={() => onCreate()}>
                       {t('CreateProjectWorkspaceDialog.saveButton')}
                     </Button>
                   </>
                 ) : step === 'metadata' ? (
-                  <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
+                  <Button
+                    design="Emphasized"
+                    endIcon="navigation-right-arrow"
+                    disabled={!isMetadataValid}
+                    onClick={goToMembers}
+                  >
                     {t('buttons.next')}
                   </Button>
                 ) : step === 'members' ? (
                   <>
-                    <Button onClick={() => setStep('metadata')}>{t('buttons.back')}</Button>
+                    <Button icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
+                      {t('buttons.back')}
+                    </Button>
                     {type === 'project' ? (
-                      <Button design="Emphasized" disabled={members.length === 0} onClick={() => setStep('supportInfo')}>
+                      <Button
+                        design="Emphasized"
+                        endIcon="navigation-right-arrow"
+                        disabled={members.length === 0}
+                        onClick={() => setStep('supportInfo')}
+                      >
                         {t('buttons.next')}
                       </Button>
                     ) : (
                       <>
                         <BusyIndicator active={isLoading} size="S" />
-                        <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                        <Button design="Emphasized" icon="add" disabled={isLoading} onClick={() => onCreate()}>
                           {t('CreateProjectWorkspaceDialog.createButton')}
                         </Button>
                       </>
@@ -170,9 +189,11 @@ export function CreateProjectWorkspaceDialog({
                   </>
                 ) : (
                   <>
-                    <Button onClick={() => setStep('members')}>{t('buttons.back')}</Button>
+                    <Button icon="navigation-left-arrow" onClick={() => setStep('members')}>
+                      {t('buttons.back')}
+                    </Button>
                     <BusyIndicator active={isLoading} size="S" />
-                    <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                    <Button design="Emphasized" icon="add" disabled={isLoading} onClick={() => onCreate()}>
                       {t('CreateProjectWorkspaceDialog.createButton')}
                     </Button>
                   </>
@@ -203,7 +224,7 @@ export function CreateProjectWorkspaceDialog({
               </WizardStep>
               <WizardStep
                 data-step="members"
-                disabled={!isEditMode && !isMetadataValid}
+                disabled={!isMetadataValid}
                 icon="user-edit"
                 selected={step === 'members'}
                 titleText={t('CreateProjectWorkspaceDialog.membersHeader')}

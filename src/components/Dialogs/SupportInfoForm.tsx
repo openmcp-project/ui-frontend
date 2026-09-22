@@ -1,7 +1,6 @@
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
 import { Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import { useEffect } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
@@ -31,16 +30,6 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
   const supportServiceIds = watch('supportServiceIds') ?? '';
   const supportSecurityContacts = watch('supportSecurityContacts') ?? '';
   const supportOpsContacts = watch('supportOpsContacts') ?? '';
-
-  // Keep RHF aware of the three list-shaped fields even though the
-  // TagListInput drives them via setValue rather than register spread.
-  // The wire format stays a comma-separated string, so callers (yaml
-  // preview, update mutation) don't change.
-  useEffect(() => {
-    register('supportServiceIds');
-    register('supportSecurityContacts');
-    register('supportOpsContacts');
-  }, [register]);
 
   const handleLandscapeChange = (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
     const value = (e.detail.selectedOption as HTMLElement).dataset.value ?? '';
@@ -72,6 +61,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
         <Field label={t('SupportInfo.serviceIds')} inputId="support-service-ids">
+          <input type="hidden" {...register('supportServiceIds')} value={supportServiceIds} readOnly />
           <TagListInput
             className={styles.input}
             id="support-service-ids"
@@ -84,6 +74,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
         <Field label={t('SupportInfo.securityContacts')} inputId="support-security-contacts">
+          <input type="hidden" {...register('supportSecurityContacts')} value={supportSecurityContacts} readOnly />
           <TagListInput
             className={styles.input}
             id="support-security-contacts"
@@ -94,6 +85,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
           />
         </Field>
         <Field label={t('SupportInfo.opsContacts')} inputId="support-ops-contacts">
+          <input type="hidden" {...register('supportOpsContacts')} value={supportOpsContacts} readOnly />
           <TagListInput
             className={styles.input}
             id="support-ops-contacts"

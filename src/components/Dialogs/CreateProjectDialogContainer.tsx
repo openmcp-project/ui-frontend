@@ -1,16 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { APIError } from '../../lib/api/error';
+import { extractErrorMessage } from '../../lib/api/error.ts';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
+import { useWatch } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { useProjectForm } from './useProjectForm.ts';
+
+const DEFAULT_VALUES: CreateDialogProps = {
+  name: '',
+  displayName: '',
+  chargingTarget: '',
+  chargingTargetType: 'btp',
+  members: [],
+};
 
 export function CreateProjectDialogContainer({
   isOpen,
@@ -27,26 +34,15 @@ export function CreateProjectDialogContainer({
 }) {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
-  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     watch,
     control,
     register,
     handleSubmit,
-    resetField,
+    reset,
     setValue,
-    formState: { errors, isValid },
-  } = useForm<CreateDialogProps>({
-    resolver: zodResolver(validationSchemaProjectWorkspace),
-    mode: 'onChange',
-    defaultValues: {
-      name: '',
-      displayName: '',
-      chargingTarget: '',
-      chargingTargetType: 'btp',
-      members: [],
-    },
-  });
+    formState: { errors },
+  } = useProjectForm(DEFAULT_VALUES);
   const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
 
@@ -54,75 +50,40 @@ export function CreateProjectDialogContainer({
   const { createProject, isLoading } = useCreateProject();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const clearForm = useCallback(() => {
-    resetField('name');
-    resetField('chargingTarget');
-    resetField('displayName');
-    resetField('chargingTargetType');
-    resetField('members');
-    resetField('supportServiceIds');
-    resetField('supportLandscape');
-    resetField('supportSecurityContacts');
-    resetField('supportOpsContacts');
-  }, [resetField]);
-
   useEffect(() => {
     if (username) {
       setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }], { shouldValidate: true });
     }
     if (!isOpen) {
-      clearForm();
+      reset();
     }
-  }, [resetField, setValue, username, isOpen, clearForm]);
+  }, [setValue, username, isOpen, reset]);
 
-  const handleProjectCreate = async ({
-    name,
-    chargingTarget,
-    displayName,
-    chargingTargetType,
-    members,
-    supportServiceIds,
-    supportLandscape,
-    supportSecurityContacts,
-    supportOpsContacts,
-  }: OnCreatePayload): Promise<boolean> => {
-    try {
-      await createProject({
-        name,
-        displayName,
-        chargingTarget,
-        chargingTargetType,
-        members,
-        supportServiceIds,
-        supportLandscape,
-        supportSecurityContacts,
-        supportOpsContacts,
-      });
-      telemetry.track({ category: 'project', action: 'created' });
-      setIsOpen(false);
-      onProjectCreated?.();
-      return true;
-    } catch (e) {
-      const message =
-        e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
-      errorDialogRef.current?.showErrorDialog(message);
-      return false;
-    }
-  };
+  const handleProjectCreate = useCallback(
+    async (payload: OnCreatePayload): Promise<boolean> => {
+      try {
+        await createProject(payload);
+        telemetry.track({ category: 'project', action: 'created' });
+        setIsOpen(false);
+        onProjectCreated?.();
+        return true;
+      } catch (e) {
+        errorDialogRef.current?.showErrorDialog(extractErrorMessage(e));
+        return false;
+      }
+    },
+    [createProject, setIsOpen, onProjectCreated, telemetry],
+  );
 
   return (
     <CreateProjectWorkspaceDialog
-      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
       titleText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       members={members}
-      register={register}
-      errors={errors}
-      setValue={setValue}
-      handleSubmit={handleSubmit}
-      isMetadataValid={isValid}
+      form={{ register, errors, setValue, watch, handleSubmit }}
+      isMetadataValid={!errors.name && !errors.chargingTarget}
       isLoading={isLoading}
       type={'project'}
       // eslint-disable-next-line react-hooks/refs

@@ -298,7 +298,9 @@ const ProjectsList = forwardRef<ProjectsListHandle, Props>(function ProjectsList
         width: 120,
         disableFilters: true,
         disableSortBy: true,
-        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />,
+        Cell: (instance) => (
+          <MetadataCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />
+        ),
       },
       {
         Header: t('yaml.YAML'),
