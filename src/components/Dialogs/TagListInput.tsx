@@ -15,6 +15,7 @@ export interface TagListInputProps {
   onChange: (next: string) => void;
   placeholder?: string;
   className?: string;
+  id?: string;
   /** Passed straight to the underlying MultiInput for cypress selectors. */
   'data-testid'?: string;
 }
@@ -27,7 +28,7 @@ const splitTags = (value: string): string[] =>
 
 const joinTags = (tags: string[]): string => tags.join(', ');
 
-export function TagListInput({ value, onChange, placeholder, className, ...rest }: TagListInputProps) {
+export function TagListInput({ value, onChange, placeholder, className, id, ...rest }: TagListInputProps) {
   const tags = splitTags(value);
 
   const handleAdd = (event: Ui5CustomEvent<MultiInputDomRef>) => {
@@ -44,6 +45,10 @@ export function TagListInput({ value, onChange, placeholder, className, ...rest 
         merged.push(addition);
       }
     }
+    if (merged.length === tags.length) {
+      target.value = '';
+      return;
+    }
     onChange(joinTags(merged));
     // MultiInput does not clear its editable input on Enter by default.
     target.value = '';
@@ -57,6 +62,7 @@ export function TagListInput({ value, onChange, placeholder, className, ...rest 
   return (
     <MultiInput
       className={className}
+      id={id}
       data-testid={rest['data-testid']}
       placeholder={placeholder}
       tokens={

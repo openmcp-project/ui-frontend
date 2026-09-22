@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import {
   SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_LANDSCAPE_VALUES,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
   SUPPORT_SERVICE_IDS_ANNOTATION,
@@ -40,7 +41,7 @@ export function purposeColorScheme(landscape?: string): string {
 }
 
 export function isKnownLandscape(value?: string): value is SupportLandscape {
-  return value === 'production' || value === 'validation' || value === 'testing';
+  return (SUPPORT_LANDSCAPE_VALUES as readonly string[]).includes(value ?? '');
 }
 
 /** Translated label for the landscape, or the "please set" placeholder. */

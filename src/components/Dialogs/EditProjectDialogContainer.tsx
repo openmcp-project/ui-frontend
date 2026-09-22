@@ -37,9 +37,11 @@ function EditProjectForm({
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
+    trigger,
+    formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
+    mode: 'onChange',
     defaultValues: {
       name: projectData.name,
       displayName: projectData.displayName,
@@ -54,6 +56,10 @@ function EditProjectForm({
   });
   const members = useWatch({ control, name: 'members' });
 
+  useEffect(() => {
+    void trigger();
+  }, [trigger]);
+
   return (
     <CreateProjectWorkspaceDialog
       watch={watch}
@@ -67,6 +73,7 @@ function EditProjectForm({
       setValue={setValue}
       type={'project'}
       isEditMode
+      isMetadataValid={isValid && members.length > 0}
       initialStep={initialStep}
       onCreate={handleSubmit(onUpdate)}
     />

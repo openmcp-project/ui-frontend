@@ -75,9 +75,15 @@ function ProjectDisplayNameCell({
   return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
 
-function MetadataCell({ projectName }: { projectName: string }) {
+function MetadataCell({
+  projectName,
+  useProjectMembers,
+}: {
+  projectName: string;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
   const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
-    _useProjectMembers(projectName);
+    useProjectMembers(projectName);
   const openerId = `metadata-${projectName}`;
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -292,7 +298,7 @@ const ProjectsList = forwardRef<ProjectsListHandle, Props>(function ProjectsList
         width: 120,
         disableFilters: true,
         disableSortBy: true,
-        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} />,
+        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />,
       },
       {
         Header: t('yaml.YAML'),

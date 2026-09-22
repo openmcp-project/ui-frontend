@@ -1,41 +1,17 @@
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
-import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
 import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-  SUPPORT_LANDSCAPE_ANNOTATION,
-  SUPPORT_OPS_CONTACTS_ANNOTATION,
-  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
-  SUPPORT_SERVICE_IDS_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames';
+  buildProjectAnnotations,
+  CreateProjectParams,
+} from '../../../lib/api/types/shared/projectAnnotations';
 import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
 
-export interface CreateProjectParams {
-  name: string;
-  displayName?: string;
-  chargingTarget?: string;
-  chargingTargetType?: string;
-  members: Member[];
-  supportServiceIds?: string;
-  supportLandscape?: string;
-  supportSecurityContacts?: string;
-  supportOpsContacts?: string;
-}
-
-export function buildProjectAnnotations(params: CreateProjectParams): Record<string, string> {
-  return {
-    [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-    [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds ?? '',
-    [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape ?? '',
-    [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts ?? '',
-    [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts ?? '',
-  };
-}
+export type { CreateProjectParams };
+export { buildProjectAnnotations };
 
 function buildProjectInput(params: CreateProjectParams): ProjectInput {
   return {

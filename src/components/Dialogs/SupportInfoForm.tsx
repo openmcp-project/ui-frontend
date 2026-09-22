@@ -16,10 +16,10 @@ interface SupportInfoFormProps {
   setValue: UseFormSetValue<CreateDialogProps>;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, inputId, children }: { label: string; inputId?: string; children: React.ReactNode }) {
   return (
     <div className={styles.field}>
-      <Label>{label}</Label>
+      <Label for={inputId}>{label}</Label>
       {children}
     </div>
   );
@@ -44,15 +44,16 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
   const handleLandscapeChange = (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
     const value = (e.detail.selectedOption as HTMLElement).dataset.value ?? '';
-    setValue('supportLandscape', value);
+    setValue('supportLandscape', value, { shouldDirty: true, shouldValidate: true });
   };
 
   return (
     <div className={styles.container}>
       <p className={styles.intro}>{t('SupportInfo.wizardIntro')}</p>
       <div className={styles.fields}>
-        <Field label={t('SupportInfo.purposeLabel')}>
+        <Field label={t('SupportInfo.purposeLabel')} inputId="support-landscape">
           <Select
+            id="support-landscape"
             data-testid="support-landscape"
             value={supportLandscape}
             className={styles.input}
@@ -70,9 +71,10 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </Field>
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
-        <Field label={t('SupportInfo.serviceIds')}>
+        <Field label={t('SupportInfo.serviceIds')} inputId="support-service-ids">
           <TagListInput
             className={styles.input}
+            id="support-service-ids"
             data-testid="support-service-ids"
             placeholder={t('SupportInfo.serviceIdsPlaceholder')}
             value={supportServiceIds}
@@ -81,18 +83,20 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </Field>
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
-        <Field label={t('SupportInfo.securityContacts')}>
+        <Field label={t('SupportInfo.securityContacts')} inputId="support-security-contacts">
           <TagListInput
             className={styles.input}
+            id="support-security-contacts"
             data-testid="support-security-contacts"
             placeholder={t('SupportInfo.contactsPlaceholder')}
             value={supportSecurityContacts}
             onChange={(next) => setValue('supportSecurityContacts', next, { shouldDirty: true })}
           />
         </Field>
-        <Field label={t('SupportInfo.opsContacts')}>
+        <Field label={t('SupportInfo.opsContacts')} inputId="support-ops-contacts">
           <TagListInput
             className={styles.input}
+            id="support-ops-contacts"
             data-testid="support-ops-contacts"
             placeholder={t('SupportInfo.contactsPlaceholder')}
             value={supportOpsContacts}
