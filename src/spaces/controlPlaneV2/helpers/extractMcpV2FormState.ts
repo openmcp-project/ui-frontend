@@ -7,7 +7,6 @@ import { ExtraProviderMetadata } from '../../mcp/schemas/mcpV2Input.schema.ts';
 export interface McpV2FormState {
   members: Member[];
   extraProviders: ExtraProviderMetadata[];
-  isDefaultProviderEnabled: boolean;
 }
 
 function normalizeMcpV2Role(roleInput?: string | null): string {
@@ -78,6 +77,5 @@ export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2
   return {
     members: [...defaultMembers, ...extraMembers],
     extraProviders,
-    isDefaultProviderEnabled: defaultRoleBindings.length > 0,
   };
 }

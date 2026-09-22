@@ -12,24 +12,22 @@ import { redirectToLogin } from '../../../common/auth/redirectToLogin';
 
 const graphqlUrl = '/api/graphql';
 
-// SSE Link using graphql-sse library
+// SSE Link using graphql-sse library.
+// A single client is created per SSELink instance and reused across all
+// subscriptions so they multiplex over one persistent SSE connection.
 class SSELink extends ApolloLink {
-  private options: ClientOptions;
+  private client: ReturnType<typeof createClient>;
 
   constructor(options: ClientOptions) {
     super();
-    this.options = options;
+    this.client = createClient(options);
   }
 
   public override request(
     operation: Parameters<ApolloLink['request']>[0],
   ): Observable<ExecutionResult | FormattedExecutionResult> {
     return new Observable((sink) => {
-      const ctx = operation.getContext ? (operation.getContext() as { headers?: Record<string, string> }) : undefined;
-      const ctxHeaders = ctx?.headers ?? undefined;
-      const client = createClient({ ...this.options, headers: ctxHeaders ?? this.options.headers });
-
-      return client.subscribe(
+      return this.client.subscribe(
         { ...operation, query: print(operation.query) },
         {
           next: sink.next.bind(sink),
@@ -58,6 +56,7 @@ const authLink = new ApolloLink((operation, forward) => {
 
 const sseLink = new SSELink({
   url: graphqlUrl,
+  headers: { 'x-use-crate': 'true' },
 });
 
 // Split: SSE for subscriptions, HTTP for queries/mutations
@@ -74,10 +73,22 @@ const splitLink = authLink.concat(
   ),
 );
 
+const isSubscription = (operation: Parameters<ApolloLink['request']>[0]) => {
+  const definition = getMainDefinition(operation.query);
+  return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+};
+
 /**
  * Token refresh link that ensures valid token before each GraphQL request.
+ * Skipped for subscriptions — the SSE connection is same-origin (cookie-based)
+ * and does not need per-operation token validation. Checking the token for
+ * every subscription mount serialises them through pendingRefresh, blocking queries.
  */
 const tokenRefreshLink = new ApolloLink((operation, forward) => {
+  if (isSubscription(operation)) {
+    return forward(operation);
+  }
+
   return new Observable<ExecutionResult | FormattedExecutionResult>((observer) => {
     let subscription: { unsubscribe(): void } | null = null;
     let isUnsubscribed = false;
@@ -164,6 +175,9 @@ const errorLink = new ErrorLink(({ error, operation, forward }) => {
 
 const client = new ApolloClient({
   link: ApolloLink.from([errorLink, tokenRefreshLink, splitLink]),
+  // Explicit though it's the default: list views (e.g. ProjectsList) mount the same
+  // query+variables from sibling components, relying on Apollo to coalesce them into one call.
+  queryDeduplication: true,
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -176,6 +190,32 @@ const client = new ApolloClient({
       CoreOpenmcpCloudV1alpha1Query: { merge: true },
       CoreOpenControlPlaneIoQuery: { merge: true },
       CoreOpenControlPlaneIoV2alpha1Query: { merge: true },
+      V1Query: { merge: true },
+      // Normalize K8s entities by `metadata.uid` so the same object fetched via different queries
+      // shares one cache entry instead of a disconnected copy per query. Every query selecting one
+      // of these types must include `metadata { uid }`; omitting it degrades to a non-normalized
+      // write for that response (Apollo warns, doesn't throw).
+      //
+      // `metadata` uses merge:true so that two queries selecting different subsets of metadata
+      // fields (e.g. one selects creationTimestamp, another selects labels) accumulate into one
+      // complete object instead of replacing each other — which would cause cache thrash and a
+      // re-fetch loop when both queries are active simultaneously (e.g. MCP page + edit wizard).
+      CoreOpenmcpCloudV1alpha1ManagedControlPlane: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenmcpCloudV1alpha1Project: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenmcpCloudV1alpha1Workspace: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenControlPlaneIoV2alpha1ControlPlane: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
     },
   }),
 });

@@ -2,8 +2,7 @@ import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react'
 import '@ui5/webcomponents-icons/dist/download';
 import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
-import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useKubeconfigQuery } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -31,11 +30,10 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const { t } = useTranslation();
   const telemetry = useTelemetry();
   const hasAccessInfo = !!(secretKey && secretName && namespace);
-  const { data: kubeconfigResource } = useApiResource(
-    GetKubeconfig(secretKey, secretName, namespace),
-    undefined,
-    undefined,
-    !hasAccessInfo,
+  const { kubeconfigDecoded: kubeconfigResource, isPending: isKubeconfigLoading } = useKubeconfigQuery(
+    hasAccessInfo && menuIsOpen ? secretName : undefined,
+    hasAccessInfo && menuIsOpen ? namespace : undefined,
+    secretKey,
   );
 
   const handleOpenerClick = () => {
@@ -68,7 +66,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           }
           if (action === 'downloadKubeconfig') {
             DownloadKubeconfig(kubeconfigResource, controlPlaneName);
-            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
+            telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-card' });
           }
 
           setMenuIsOpen(false);
@@ -91,7 +89,12 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           text={t('ControlPlaneCard.editMCP')}
         />
         <MenuSeparator />
-        <MenuItem data-action="downloadKubeconfig" icon="download" text={t('ConnectButton.downloadKubeconfig')} />
+        <MenuItem
+          data-action="downloadKubeconfig"
+          disabled={!kubeconfigResource}
+          icon={isKubeconfigLoading ? 'pending' : 'download'}
+          text={t('ConnectButton.downloadKubeconfig')}
+        />
       </Menu>
     </>
   );

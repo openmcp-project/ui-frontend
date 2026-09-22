@@ -10,6 +10,7 @@ const GetProjectMembersQuery = graphql(`
       v1alpha1 {
         Project(name: $name) {
           metadata {
+            uid
             creationTimestamp
             annotations
           }

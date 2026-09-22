@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
+import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
@@ -49,7 +49,17 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     () => allowedAccountTypes.includes('Group') && !allowedAccountTypes.includes('ServiceAccount'),
     [allowedAccountTypes],
   );
-  const effectiveRoleOptions = roleOptions ?? memberRolesOptions;
+  const effectiveRoleOptions = useMemo((): RadioButtonsSelectOption[] => {
+    const base = roleOptions ?? memberRolesOptions;
+    if (!memberToEdit) return base;
+    const editedRole = memberToEdit.roles?.[0];
+    if (!editedRole || base.some((o) => o.value === editedRole)) return base;
+    // The member has a role that is no longer offered in the picker (e.g. 'viewer'
+    // is currently disabled). Append it as a read-only-looking option so the form
+    // pre-fills correctly instead of showing a blank selection.
+    const existing = MemberRolesDetailed[editedRole];
+    return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
+  }, [roleOptions, memberToEdit]);
   const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
@@ -154,8 +164,31 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     ? t(usesUserGroupAccountTypes ? 'EditMembers.editHeaderUserGroup' : 'EditMembers.editHeader')
     : t(usesUserGroupAccountTypes ? 'EditMembers.addHeaderUserGroup' : 'EditMembers.addHeader');
 
+  const footer = (
+    <Bar
+      design="Footer"
+      endContent={
+        <>
+          <Button design="Transparent" onClick={onClose}>
+            {t('buttons.cancel')}
+          </Button>
+          <Button
+            data-testid={withTestId('add-member-submit-button')}
+            design="Emphasized"
+            icon={'sap-icon://add-employee'}
+            onClick={() => handleSubmit(onFormSubmit)()}
+          >
+            {memberToEdit
+              ? t('EditMembers.saveButton')
+              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
+          </Button>
+        </>
+      }
+    />
+  );
+
   return (
-    <Dialog open={open} headerText={dialogHeader} onClose={onClose}>
+    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={onClose}>
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
@@ -225,23 +258,6 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               </div>
             </Activity>
           </div>
-
-          <Button
-            className={styles.addButton}
-            data-testid={withTestId('add-member-button')}
-            design={'Emphasized'}
-            icon={'sap-icon://add-employee'}
-            onClick={() => {
-              handleSubmit(onFormSubmit)();
-            }}
-          >
-            {memberToEdit
-              ? t('EditMembers.saveButton')
-              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
-          </Button>
-          <Button className={styles.wrapper} onClick={onClose}>
-            {t('buttons.cancel')}
-          </Button>
         </FlexBox>
       </div>
     </Dialog>

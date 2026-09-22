@@ -8,6 +8,11 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 
 const baseQueryResult = {
@@ -74,6 +79,7 @@ describe('useMcpV2Query', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useQueryMock.mockReturnValue(baseQueryResult);
+    reportMock.mockReset();
   });
 
   it('skips the query when name is undefined', () => {
@@ -177,6 +183,7 @@ describe('useMcpV2Query', () => {
     const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data).toBeUndefined();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the Apollo error from the query result', () => {

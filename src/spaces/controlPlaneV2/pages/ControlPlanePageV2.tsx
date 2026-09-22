@@ -34,6 +34,8 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
+import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -53,6 +55,7 @@ import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
 import { useOcmQuery } from '../components/Kpi/useOcmQuery.ts';
 import { useKroQuery } from '../components/Kpi/useKroQuery.ts';
+import { useMetricsOperatorQuery } from '../components/Kpi/useMetricsOperatorQuery.ts';
 import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -185,7 +188,7 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : `${baseSrc}/ocp/overview`);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -373,7 +376,7 @@ export default function ControlPlanePageV2() {
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -385,6 +388,29 @@ export default function ControlPlanePageV2() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
+
+  // Sync ?view param with mode: read on mount to restore shared deeplinks, write on change.
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set('view', 'open-source');
+        } else {
+          next.delete('view');
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
   const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
@@ -392,6 +418,7 @@ export default function ControlPlanePageV2() {
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
   const { ocmData } = useOcmQuery(controlPlaneName, namespace);
   const { kroData } = useKroQuery(controlPlaneName, namespace);
+  const { metricsOperatorData } = useMetricsOperatorQuery(controlPlaneName, namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
   // Hold graph mount until the cards' 0.3s height transition (index.css) has
   // settled — otherwise the graph layout fights with concurrent card animations.
@@ -416,19 +443,7 @@ export default function ControlPlanePageV2() {
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
 
-  const roleBindings = useMemo(() => {
-    const oidc = mcp?.spec?.iam?.oidc;
-    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
-    return allProviders.flatMap((provider) =>
-      (provider?.roleBindings ?? []).flatMap((binding) => {
-        if (!binding) return [];
-        const subjects = (binding.subjects ?? []).flatMap((subject) =>
-          subject?.kind && subject?.name ? [{ kind: subject.kind, name: subject.name }] : [],
-        );
-        return (binding.roleRefs ?? []).flatMap((roleRef) => (roleRef?.name ? [{ role: roleRef.name, subjects }] : []));
-      }),
-    );
-  }, [mcp?.spec?.iam?.oidc]);
+  const roleBindings = useMemo(() => flattenOidcRoleBindings(mcp?.spec?.iam?.oidc), [mcp?.spec?.iam?.oidc]);
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
@@ -472,6 +487,8 @@ export default function ControlPlanePageV2() {
           name: controlPlaneName,
         }}
         isV2
+        preloadedAccess={mcp.status?.access}
+        preloadedNamespace={mcp.metadata?.namespace}
       >
         <AuthProviderMcp>
           <WithinManagedControlPlane>
@@ -497,6 +514,8 @@ export default function ControlPlanePageV2() {
         name: controlPlaneName,
       }}
       isV2
+      preloadedAccess={mcp.status?.access}
+      preloadedNamespace={mcp.metadata?.namespace}
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
@@ -522,6 +541,7 @@ export default function ControlPlanePageV2() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        isEditDisabled={!!mcp?.metadata?.deletionTimestamp}
                       />
                       <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
@@ -540,12 +560,16 @@ export default function ControlPlanePageV2() {
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection
-                      mcpStatus={mcp?.status}
+                      mcpStatus={
+                        mcp?.metadata?.deletionTimestamp
+                          ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                          : mcp?.status
+                      }
                       projectName={projectName}
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
+                    <McpMembersAvatarView roleBindings={roleBindings} />
                   </FlexBox>
                 </ObjectPageHeader>
               }
@@ -560,6 +584,7 @@ export default function ControlPlanePageV2() {
                     esoData={esoData}
                     ocmData={ocmData}
                     kroData={kroData}
+                    metricsOperatorData={metricsOperatorData}
                     mcpName={controlPlaneName ?? ''}
                     mcpNamespace={namespace ?? ''}
                     onNavigateToMcpSection={setTabFromSection}

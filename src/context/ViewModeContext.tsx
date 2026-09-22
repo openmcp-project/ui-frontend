@@ -19,7 +19,10 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
 
   const [mode, setModeState] = useState<ViewMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === 'open-source' && headlampAvailable ? 'open-source' : 'beginner';
+    if (!headlampAvailable) return 'beginner';
+    // Default to open-source when headlamp is available and no explicit choice was stored
+    if (stored === 'beginner') return 'beginner';
+    return 'open-source';
   });
 
   const setMode = (newMode: ViewMode) => {

@@ -14,6 +14,7 @@ const UpdateProjectMutation = graphql(`
       v1alpha1 {
         updateProject(name: $name, object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
           }
         }
@@ -48,7 +49,9 @@ function buildUpdateProjectInput(params: CreateProjectParams): ProjectInput {
 export function useUpdateProject() {
   const { t } = useTranslation();
   const toast = useToast();
-  const [updateProjectMutation] = useMutation(UpdateProjectMutation);
+  const [updateProjectMutation] = useMutation(UpdateProjectMutation, {
+    refetchQueries: ['GetProjectMembers', 'GetProject'],
+  });
 
   const updateProject = useCallback(
     async (params: CreateProjectParams): Promise<void> => {

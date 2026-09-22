@@ -8,9 +8,11 @@ import { useForm, useWatch } from 'react-hook-form';
 
 import {
   Bar,
+  BusyIndicator,
   Button,
   Dialog,
   FlexBox,
+  Icon,
   Text,
   Ui5CustomEvent,
   Wizard,
@@ -19,6 +21,8 @@ import {
 } from '@ui5/webcomponents-react';
 
 import { Trans, useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
@@ -41,37 +45,44 @@ import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEs
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useKroQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useKroQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
+import { useMetricsOperatorQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery.ts';
 import {
   buildRoleBindingsForProviderMembers,
   normalizeMcpV2Role,
 } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
+import { useRefreshMcpV2ComponentsList as _useRefreshMcpV2ComponentsList } from '../../../spaces/controlPlaneV2/hooks/useRefreshMcpV2ComponentsList.ts';
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
 import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
 import { useCreateFlux as _useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
 import { useCreateKro as _useCreateKro } from '../../../spaces/mcp/hooks/useCreateKro.ts';
 import { useCreateLandscaper as _useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
+import { useCreateMetricsOperator as _useCreateMetricsOperator } from '../../../spaces/mcp/hooks/useCreateMetricsOperator.ts';
 import { useCreateOcm as _useCreateOcm } from '../../../spaces/mcp/hooks/useCreateOcm.ts';
 import { useDeleteCrossplane as _useDeleteCrossplane } from '../../../spaces/mcp/hooks/useDeleteCrossplane.ts';
 import { useDeleteEso as _useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
 import { useDeleteFlux as _useDeleteFlux } from '../../../spaces/mcp/hooks/useDeleteFlux.ts';
 import { useDeleteKro as _useDeleteKro } from '../../../spaces/mcp/hooks/useDeleteKro.ts';
 import { useDeleteLandscaper as _useDeleteLandscaper } from '../../../spaces/mcp/hooks/useDeleteLandscaper.ts';
+import { useDeleteMetricsOperator as _useDeleteMetricsOperator } from '../../../spaces/mcp/hooks/useDeleteMetricsOperator.ts';
 import { useDeleteOcm as _useDeleteOcm } from '../../../spaces/mcp/hooks/useDeleteOcm.ts';
 import { useUpdateCrossplane as _useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
 import { useUpdateEso as _useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
 import { useUpdateFlux as _useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
 import { useUpdateKro as _useUpdateKro } from '../../../spaces/mcp/hooks/useUpdateKro.ts';
 import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
+import { useUpdateMetricsOperator as _useUpdateMetricsOperator } from '../../../spaces/mcp/hooks/useUpdateMetricsOperator.ts';
 import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpdateOcm.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
@@ -88,6 +99,7 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   initialSection?: WizardStepType;
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
+  useRefreshMcpV2ComponentsList?: typeof _useRefreshMcpV2ComponentsList;
   useAuthOnboarding?: typeof _useAuthOnboarding;
   useCreateCrossplane?: typeof _useCreateCrossplane;
   useUpdateCrossplane?: typeof _useUpdateCrossplane;
@@ -107,6 +119,9 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useCreateKro?: typeof _useCreateKro;
   useUpdateKro?: typeof _useUpdateKro;
   useDeleteKro?: typeof _useDeleteKro;
+  useCreateMetricsOperator?: typeof _useCreateMetricsOperator;
+  useUpdateMetricsOperator?: typeof _useUpdateMetricsOperator;
+  useDeleteMetricsOperator?: typeof _useDeleteMetricsOperator;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -125,6 +140,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   initialSection,
   useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
   useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
+  useRefreshMcpV2ComponentsList = _useRefreshMcpV2ComponentsList,
   useAuthOnboarding = _useAuthOnboarding,
   useCreateCrossplane = _useCreateCrossplane,
   useUpdateCrossplane = _useUpdateCrossplane,
@@ -144,15 +160,19 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useCreateKro = _useCreateKro,
   useUpdateKro = _useUpdateKro,
   useDeleteKro = _useDeleteKro,
+  useCreateMetricsOperator = _useCreateMetricsOperator,
+  useUpdateMetricsOperator = _useUpdateMetricsOperator,
+  useDeleteMetricsOperator = _useDeleteMetricsOperator,
 }) => {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
+  const refreshMcpV2ComponentsList = useRefreshMcpV2ComponentsList();
   const { user } = useAuthOnboarding();
+  const { showLandscaperCard } = useFeatureToggle();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
   const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
-  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(true);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -201,7 +221,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     getValues,
     control,
 
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
@@ -215,21 +235,25 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     mode: 'onChange',
   });
 
+  // Only reacts to the template *selection actually changing* (tracked via a ref, since re-entering
+  // the metadata step via Back/Next must not remount the form or touch the charging-target fields).
+  const appliedTemplateRef = useRef<ManagedControlPlaneTemplate | undefined>(undefined);
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
+    if (appliedTemplateRef.current === selectedTemplate) return;
+    appliedTemplateRef.current = selectedTemplate;
 
     if (selectedTemplate) {
-      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+      // `shouldValidate` only on the second call: setValue always writes the field immediately,
+      // so by the time validation runs both fields are already set — no transient invalid window
+      // where `chargingTargetType` is set but `chargingTarget` is still empty.
+      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, { shouldDirty: true });
       setValue('chargingTargetType', normalizeChargingTargetType(selectedTemplate.spec.meta.chargingTarget.type), {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 
@@ -250,6 +274,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     setIsOpen(false);
   }, [reset, setIsOpen]);
 
+  // Escape/backdrop and the footer Close buttons all route through here so an accidental close
+  // can't silently discard an in-progress edit — only resetFormAndClose() actually tears down state.
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+  const requestClose = useCallback(() => {
+    if (isDirty) {
+      setIsDiscardConfirmOpen(true);
+      return;
+    }
+    resetFormAndClose();
+  }, [isDirty, resetFormAndClose]);
+  const confirmDiscardAndClose = useCallback(() => {
+    setIsDiscardConfirmOpen(false);
+    resetFormAndClose();
+  }, [resetFormAndClose]);
+
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -257,17 +296,19 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     resetField('displayName');
   }, [resetField]);
 
+  // Seed a fresh create-mode form with the current user as the sole member.
   useEffect(() => {
-    if (!isEditMode && user?.email && isOpen) {
-      setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setExtraProviders([]);
-      setIsDefaultProviderEnabled(true);
-    }
-    if (!isOpen) {
-      clearFormFields();
-    }
-  }, [user?.email, isOpen, isEditMode, setValue, clearFormFields]);
+    if (isEditMode || !user?.email || !isOpen) return;
+    setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExtraProviders([]);
+  }, [isEditMode, user?.email, isOpen, setValue]);
+
+  // Clear transient metadata fields on close so a reopen starts blank.
+  useEffect(() => {
+    if (isOpen) return;
+    clearFormFields();
+  }, [isOpen, clearFormFields]);
 
   const { createMcp, loading: isCreatingMcp } = useCreateManagedControlPlaneV2GraphQL();
   const { updateMcp, loading: isUpdatingMcp } = useUpdateManagedControlPlaneV2GraphQL();
@@ -293,8 +334,16 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { esoData, isLoading: isEsoKpiLoading } = useEsoQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
   const { ocmData, isLoading: isOcmKpiLoading } = useOcmQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
   const { kroData, isLoading: isKroKpiLoading } = useKroQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { metricsOperatorData, isLoading: isMetricsOperatorKpiLoading } = useMetricsOperatorQuery(
+    skipKpi ? '' : editName,
+    skipKpi ? '' : editNs,
+  );
 
-  // Gates submission so it never reads stale "was this installed" data.
+  // Landscaper is toggle-gated for new installs, but an already-installed Landscaper must stay
+  // visible in edit mode so it can still be managed/removed even after the toggle is off.
+  const showLandscaper = showLandscaperCard || (isEditMode && !!landscaperData?.isInstalled);
+
+  // Gates the Members → Components transition so it never reads stale "was this installed" data.
   const isKpiLoading =
     !skipKpi &&
     (isCrossplaneKpiLoading ||
@@ -302,13 +351,26 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       isLandscaperKpiLoading ||
       isEsoKpiLoading ||
       isOcmKpiLoading ||
-      isKroKpiLoading);
+      isKroKpiLoading ||
+      isMetricsOperatorKpiLoading);
 
-  // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward nav.
-  const hasPrefilledServicesRef = useRef(false);
+  // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward
+  // nav — and, being real state rather than a ref, a later background KPI refetch (e.g. triggered by an
+  // unrelated mutation elsewhere) can't re-block navigation once Components has already been seeded once.
+  const [hasPrefilledServices, setHasPrefilledServices] = useState(false);
+  // Reset when the wizard closes (or is reused for a different resource) so a fresh edit session
+  // re-seeds from live data instead of silently reusing the previous session's snapshot.
   useEffect(() => {
-    if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServicesRef.current) return;
-    hasPrefilledServicesRef.current = true;
+    if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasPrefilledServices(false);
+      setServices({});
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServices) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHasPrefilledServices(true);
 
     setServices({
       crossplane: crossplaneData
@@ -327,8 +389,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       externalSecretsOperator: esoData ? { selected: esoData.isInstalled, version: esoData.version ?? '' } : undefined,
       ocm: ocmData ? { selected: ocmData.isInstalled, version: ocmData.version ?? '' } : undefined,
       kro: kroData ? { selected: kroData.isInstalled, version: kroData.version ?? '' } : undefined,
+      metricsOperator: metricsOperatorData
+        ? { selected: metricsOperatorData.isInstalled, version: metricsOperatorData.version ?? '' }
+        : undefined,
     });
-  }, [isEditMode, skipKpi, isKpiLoading, crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData]);
+  }, [
+    isEditMode,
+    skipKpi,
+    isKpiLoading,
+    hasPrefilledServices,
+    crossplaneData,
+    fluxData,
+    landscaperData,
+    esoData,
+    ocmData,
+    kroData,
+    metricsOperatorData,
+  ]);
 
   // Service create/update/delete hooks (always called per rules of hooks)
   const { create: createCrossplane } = useCreateCrossplane();
@@ -349,19 +426,22 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { deleteEso } = useDeleteEso();
   const { deleteOcm } = useDeleteOcm();
   const { deleteKro } = useDeleteKro();
+  const { create: createMetricsOperator } = useCreateMetricsOperator();
+  const { update: updateMetricsOperator } = useUpdateMetricsOperator();
+  const { deleteMetricsOperator } = useDeleteMetricsOperator();
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
 
   const hasNoAssignedMembers = useMemo(
-    () => !hasAssignedIamMember(members ?? [], extraProviders, isDefaultProviderEnabled),
-    [members, extraProviders, isDefaultProviderEnabled],
+    () => !hasAssignedIamMember(members ?? [], extraProviders),
+    [members, extraProviders],
   );
 
   const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
-    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const roleBindings = buildRoleBindingsForProviderMembers(defaultProviderMembers);
     const extraProvidersInput = extraProviders.map((p) => ({
       ...p,
       roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
@@ -372,16 +452,44 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       roleBindings,
       extraProviders: extraProvidersInput,
     };
-  }, [
-    name,
-    displayName,
-    templateAffixes,
-    projectName,
-    workspaceName,
-    members,
-    extraProviders,
-    isDefaultProviderEnabled,
-  ]);
+  }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
+
+  const originalYamlString = useMemo(() => {
+    if (!isEditMode || !initialData) return '';
+    const { members: initMembers, extraProviders: initExtraProviders } = extractMcpV2FormState(initialData);
+    const initDefaultMembers = initMembers.filter((m) => !m.provider);
+    const originalInput: McpV2Input = {
+      name: initialData.metadata.name,
+      namespace: initialData.metadata.namespace,
+      roleBindings: buildRoleBindingsForProviderMembers(initDefaultMembers),
+      extraProviders: initExtraProviders.map((p) => ({
+        ...p,
+        roleBindings: buildRoleBindingsForProviderMembers(initMembers.filter((m) => m.provider === p.name)),
+      })),
+    };
+    return stringify(buildMcpV2GraphQLInput(originalInput));
+  }, [isEditMode, initialData]);
+
+  const initialServices = useMemo(
+    () => ({
+      crossplane: !!crossplaneData?.isInstalled,
+      flux: !!fluxData?.isInstalled,
+      landscaper: !!landscaperData?.isInstalled,
+      externalSecretsOperator: !!esoData?.isInstalled,
+      ocm: !!ocmData?.isInstalled,
+      kro: !!kroData?.isInstalled,
+      metricsOperator: !!metricsOperatorData?.isInstalled,
+    }),
+    [crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData, metricsOperatorData],
+  );
+
+  const initialCrossplaneProviders = useMemo(
+    () =>
+      (crossplaneData?.providers ?? [])
+        .filter((p): p is { name: string; version: string | null } => !!p.name)
+        .map((p) => ({ name: p.name, version: p.version ?? null })),
+    [crossplaneData],
+  );
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -441,7 +549,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         };
         servicePromises.push({
           name: 'Crossplane',
-          promise: crossplaneAction === 'update' ? updateCrossplane({ ...vars, name: cpName }) : createCrossplane(vars),
+          promise:
+            crossplaneAction === 'update'
+              ? updateCrossplane({ ...vars, name: cpName })
+              : createCrossplane({ ...vars, name: cpName }),
         });
       } else if (crossplaneAction === 'delete') {
         servicePromises.push({
@@ -461,7 +572,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'Flux',
-          promise: fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux(vars),
+          promise:
+            fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux({ ...vars, name: cpName }),
         });
       } else if (fluxAction === 'delete') {
         servicePromises.push({ name: 'Flux', promise: deleteFlux({ name: cpName, namespace: cpNamespace }) });
@@ -482,7 +594,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'Landscaper',
-          promise: landscaperAction === 'update' ? updateLandscaper({ ...vars, name: cpName }) : createLandscaper(vars),
+          promise:
+            landscaperAction === 'update'
+              ? updateLandscaper({ ...vars, name: cpName })
+              : createLandscaper({ ...vars, name: cpName }),
         });
       } else if (landscaperAction === 'delete') {
         servicePromises.push({
@@ -506,7 +621,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'ExternalSecretsOperator',
-          promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso(vars),
+          promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso({ ...vars, name: cpName }),
         });
       } else if (esoAction === 'delete') {
         servicePromises.push({
@@ -526,7 +641,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'OCM',
-          promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm(vars),
+          promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm({ ...vars, name: cpName }),
         });
       } else if (ocmAction === 'delete') {
         servicePromises.push({ name: 'OCM', promise: deleteOcm({ name: cpName, namespace: cpNamespace }) });
@@ -543,10 +658,37 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'KRO',
-          promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro(vars),
+          promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro({ ...vars, name: cpName }),
         });
       } else if (kroAction === 'delete') {
         servicePromises.push({ name: 'KRO', promise: deleteKro({ name: cpName, namespace: cpNamespace }) });
+      }
+
+      const metricsOperatorAction = resolveServiceMutationAction(
+        isEditMode,
+        !!metricsOperatorData?.isInstalled,
+        !!services.metricsOperator?.selected,
+      );
+      if (metricsOperatorAction === 'create' || metricsOperatorAction === 'update') {
+        const vars = makeServiceObject(
+          cpName,
+          services.metricsOperator?.version ?? '',
+          cpNamespace,
+          'metrics.services.open-control-plane.io/v1alpha1',
+          'MetricsOperator',
+        );
+        servicePromises.push({
+          name: 'MetricsOperator',
+          promise:
+            metricsOperatorAction === 'update'
+              ? updateMetricsOperator({ ...vars, name: cpName })
+              : createMetricsOperator({ ...vars, name: cpName }),
+        });
+      } else if (metricsOperatorAction === 'delete') {
+        servicePromises.push({
+          name: 'MetricsOperator',
+          promise: deleteMetricsOperator({ name: cpName, namespace: cpNamespace }),
+        });
       }
 
       const settledServices = await Promise.allSettled(servicePromises.map((s) => s.promise));
@@ -562,7 +704,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         throw new Error(`Failed to apply changes for service(s): ${details}`);
       }
 
-      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
+      // Per-service mutations above each only refetch their own single-service KPI query (e.g.
+      // GET_CROSSPLANE_QUERY) — not the grid's combined list, so the ControlPlaneCard lifecycle
+      // badges would otherwise stay stale until an unrelated refetch happened to fire.
+      refreshMcpV2ComponentsList();
+
+      telemetry.track({ category: 'controlplane', action: isEditMode ? 'edited' : 'created', source: 'v2' });
       setSelectedStep('success');
       return true;
     } catch (e) {
@@ -571,7 +718,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       if (errorDialogRef.current) {
         errorDialogRef.current.showErrorDialog(message);
       }
-      console.error(e);
       return false;
     }
   }, [
@@ -581,6 +727,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     createMcp,
     rawInput,
     telemetry,
+    refreshMcpV2ComponentsList,
     services,
     crossplaneData,
     fluxData,
@@ -606,6 +753,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     deleteEso,
     deleteOcm,
     deleteKro,
+    metricsOperatorData,
+    createMetricsOperator,
+    updateMetricsOperator,
+    deleteMetricsOperator,
   ]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
@@ -614,11 +765,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   }, []);
 
   const onNextClick = useCallback(() => {
-    // Block all forward navigation in edit mode until the KPI queries resolve, so the Services
-    // step can never be reached (or left) before it's been prefilled with the real installed
-    // state — otherwise a late-arriving prefill can silently re-select a service the user meant
-    // to leave unchecked, and it never gets deleted.
-    if (isEditMode && isKpiLoading) return;
     // Mirrors the Next button's disabled state: no RBAC subject may end up assigned nowhere.
     if (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers) return;
     switch (selectedStep) {
@@ -644,8 +790,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         break;
     }
   }, [
-    isEditMode,
-    isKpiLoading,
     selectedStep,
     hasNoAssignedMembers,
     handleSubmit,
@@ -700,14 +844,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     }
   }, [selectedStep]);
 
-  // Prefill form when editing
+  // Prefill form when editing. Keyed off the resource's identity rather than its object
+  // reference, and reset when closed, so: (a) a background refetch of the *same* resource
+  // (new `initialData` object, same name+namespace) can't clobber in-progress edits, but
+  // (b) a genuine reopen — even for the same resource — always re-prefills from live data.
+  const editResourceKey = initialData ? `${initialData.metadata.namespace}/${initialData.metadata.name}` : undefined;
+  const prefilledResourceRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (!isOpen || !initialData) return;
-    const {
-      members,
-      extraProviders: prefilledProviders,
-      isDefaultProviderEnabled: prefilledEnabled,
-    } = extractMcpV2FormState(initialData);
+    if (!isOpen || !initialData) {
+      prefilledResourceRef.current = undefined;
+      return;
+    }
+    if (prefilledResourceRef.current === editResourceKey) return;
+    prefilledResourceRef.current = editResourceKey;
+
+    const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
     reset({
@@ -718,11 +869,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       members,
       componentsList: [],
     });
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setExtraProviders(prefilledProviders);
-    setIsDefaultProviderEnabled(prefilledEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode]);
+  }, [isOpen, editResourceKey]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'group' ? 'Group' : 'User';
@@ -794,14 +944,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             design="Footer"
             endContent={
               <div className={styles.footer}>
-                {selectedStep !== 'metadata' && isEditMode && (
-                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                {selectedStep !== 'metadata' && selectedStep !== 'success' && isEditMode && (
+                  <Button disabled={isSubmitting} onClick={requestClose}>
                     {t('buttons.close')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                    <Button disabled={isSubmitting} onClick={requestClose}>
                       {t('buttons.close')}
                     </Button>
                   ) : (
@@ -813,7 +963,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   design="Emphasized"
                   disabled={
                     isSubmitting ||
-                    (isEditMode && isKpiLoading) ||
+                    (isEditMode && selectedStep === 'componentSelection' && !skipKpi && !hasPrefilledServices) ||
                     (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
                   }
                   onClick={onNextClick}
@@ -825,9 +975,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           />
         }
         data-testid="create-mcp-dialog"
-        onClose={resetFormAndClose}
+        onClose={requestClose}
       >
         <ErrorDialog ref={errorDialogRef} />
+        <DiscardChangesConfirmationDialog
+          open={isDiscardConfirmOpen}
+          onCancel={() => setIsDiscardConfirmOpen(false)}
+          onConfirm={confirmDiscardAndClose}
+        />
+        <Dialog open={isSubmitting} onClose={() => undefined}>
+          <div className={styles.loadingModal}>
+            <Icon name={isEditMode ? 'request' : 'create-entry-time'} className={styles.loadingModalIcon} />
+            <BusyIndicator
+              active
+              text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
+            />
+          </div>
+        </Dialog>
         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
           <WizardStep
             icon="create-form"
@@ -880,13 +1044,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             <IdentityProvidersStep
               members={members}
               providers={extraProviders}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
-              onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
             />
           </WizardStep>
 
@@ -897,7 +1059,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'componentSelection'}
             data-step="componentSelection"
           >
-            <ServiceSelectionStep services={services} onServicesChange={setServices} />
+            {isEditMode && !skipKpi && isKpiLoading ? (
+              <BusyIndicator active delay={0} text={t('editMCP.loadingServices')} />
+            ) : (
+              <ServiceSelectionStep
+                services={services}
+                showLandscaper={showLandscaper}
+                onServicesChange={setServices}
+              />
+            )}
           </WizardStep>
 
           <WizardStep
@@ -909,8 +1079,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           >
             <SummarizeStepV2
               rawInput={rawInput}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
               services={services}
+              isEditMode={isEditMode}
+              originalYamlString={originalYamlString}
+              initialServices={isEditMode ? initialServices : undefined}
+              initialCrossplaneProviders={isEditMode ? initialCrossplaneProviders : undefined}
             />
           </WizardStep>
           <WizardStep

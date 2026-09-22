@@ -22,10 +22,9 @@ import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
+import { useManagedControlPlaneQuery } from '../../../spaces/onboarding/hooks/useManagedControlPlaneQuery.ts';
 
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
@@ -256,7 +255,7 @@ export default function ManagedControlPlanePage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -269,6 +268,28 @@ export default function ManagedControlPlanePage() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
 
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set('view', 'open-source');
+        } else {
+          next.delete('view');
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
+
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -279,11 +300,7 @@ export default function ManagedControlPlanePage() {
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
-  const {
-    data: mcp,
-    error,
-    isLoading,
-  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  const { data: mcp, error, isLoading } = useManagedControlPlaneQuery(projectName, workspaceName, controlPlaneName);
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
@@ -449,11 +466,7 @@ export default function ManagedControlPlanePage() {
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView
-                      roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
+                    <McpMembersAvatarView roleBindings={mcp.spec?.authorization?.roleBindings} />
                     {markMcpV1asDeprecated && (
                       <span className={styles.deprecatedWrapper}>
                         <DeprecatedLabel />

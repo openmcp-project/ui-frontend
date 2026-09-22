@@ -1,6 +1,8 @@
 import '@ui5/webcomponents-cypress-commands';
 import type { MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
+import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useCreateControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -25,6 +27,7 @@ import {
   GetExternalSecretsOperatorDocument,
   GetOcmDocument,
   GetKroDocument,
+  GetMetricsOperatorDocument,
 } from '../../../types/__generated__/graphql/graphql.ts';
 import { CreateControlPlaneV2WizardContainer } from './CreateControlPlaneV2WizardContainer.tsx';
 
@@ -34,6 +37,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   const mockMutationResult = (input: McpV2Input) => ({
     metadata: {
+      uid: null,
       name: input.name,
       namespace: input.namespace,
     },
@@ -75,23 +79,39 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     updatePayload = null;
   });
 
+  const buildFrontendConfig = (showLandscaperCard: boolean) => ({
+    documentationBaseUrl: '',
+    githubBaseUrl: '',
+    featureToggles: {
+      markMcpV1asDeprecated: false,
+      enableMcpV2: false,
+      enableHeadlamp: false,
+      showLandscaperCard,
+    },
+  });
+
   const mountWizard = (
     props: Partial<React.ComponentProps<typeof CreateControlPlaneV2WizardContainer>> = {},
     mocks: readonly MockedResponse[] = [],
+    showLandscaperCard = false,
   ) => {
     cy.mount(
-      <MockedProvider mocks={mocks}>
-        <CreateControlPlaneV2WizardContainer
-          isOpen={true}
-          setIsOpen={() => {}}
-          projectName="my-project"
-          workspaceName="my-workspace"
-          useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
-          useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
-          useAuthOnboarding={fakeUseAuthOnboarding}
-          {...props}
-        />
-      </MockedProvider>,
+      <FrontendConfigContext.Provider value={buildFrontendConfig(showLandscaperCard)}>
+        <FeatureToggleProvider>
+          <MockedProvider mocks={mocks}>
+            <CreateControlPlaneV2WizardContainer
+              isOpen={true}
+              setIsOpen={() => {}}
+              projectName="my-project"
+              workspaceName="my-workspace"
+              useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+              useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+              useAuthOnboarding={fakeUseAuthOnboarding}
+              {...props}
+            />
+          </MockedProvider>
+        </FeatureToggleProvider>
+      </FrontendConfigContext.Provider>,
     );
   };
 
@@ -123,6 +143,28 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Create').click();
 
     cy.get('ui5-button').contains('Close').should('exist');
+  });
+
+  // ── Landscaper feature toggle ────────────────────────────────────────────
+
+  it('hides the Landscaper service option in create mode when the feature toggle is off', () => {
+    mountWizard({}, [], false);
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('not.exist');
+  });
+
+  it('shows the Landscaper service option in create mode when the feature toggle is on', () => {
+    mountWizard({}, [], true);
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('exist');
   });
 
   // ── Edit mode ─────────────────────────────────────────────────────────────
@@ -162,7 +204,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
   const kpiVariables = { name: existingMcp.metadata.name, namespace: existingMcp.metadata.namespace };
 
   // Not-installed responses for the KPI status queries the wizard always fires in edit mode —
-  // every edit-mode test needs all four mocked (installed or not) or Apollo has no matching mock to resolve.
+  // every edit-mode test needs all seven mocked (installed or not) or Apollo has no matching mock to resolve.
   const notInstalledCrossplaneMock: MockedResponse = {
     request: { query: GetCrossplaneDocument, variables: kpiVariables },
     result: { data: { crossplane_services_open_control_plane_io: { v1alpha1: { Crossplane: null } } } },
@@ -188,6 +230,10 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
   const notInstalledKroMock: MockedResponse = {
     request: { query: GetKroDocument, variables: kpiVariables },
     result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
+  };
+  const notInstalledMetricsOperatorMock: MockedResponse = {
+    request: { query: GetMetricsOperatorDocument, variables: kpiVariables },
+    result: { data: { metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperator: null } } } },
   };
 
   const installedCrossplaneMock = (version: string, providers: { name: string; version: string }[] = []) =>
@@ -289,6 +335,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('#name').should('have.value', 'existing-mcp');
@@ -302,6 +349,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     // navigate to members step
@@ -319,6 +367,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click(); // metadata → members
@@ -344,6 +393,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledEsoMock,
       notInstalledOcmMock,
       notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click();
@@ -372,6 +422,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
         notInstalledEsoMock,
         notInstalledOcmMock,
         notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
       ],
     );
 
@@ -383,6 +434,50 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     // wizard should stay on summarize step and surface the backend error
     cy.contains('Network error').should('exist');
     cy.get('ui5-button').contains('Update').should('exist');
+  });
+
+  // ── Landscaper feature toggle in edit mode ──────────────────────────────
+
+  it('hides the Landscaper service option in edit mode when not installed and the feature toggle is off', () => {
+    mountWizard(
+      { isEditMode: true, initialData: existingMcp },
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        notInstalledLandscaperMock,
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
+      ],
+      false,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('not.exist');
+  });
+
+  it('shows an already-installed Landscaper in edit mode even when the feature toggle is off', () => {
+    mountWizard(
+      { isEditMode: true, initialData: existingMcp },
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        installedLandscaperMock('v1.0.5'),
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
+      ],
+      false,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+    cy.get('[data-testid="service-landscaper-checkbox"]').should('exist').should('have.attr', 'checked');
   });
 
   // ── Custom identity providers ────────────────────────────────────────────
@@ -457,6 +552,18 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
         data: { external_secrets_services_open_control_plane_io: { v1alpha1: { ExternalSecretsOperator: null } } },
       },
     },
+    {
+      request: { query: GetOcmDocument, variables: idpKpiVariables },
+      result: { data: { ocm_services_open_control_plane_io: { v1alpha1: { OCM: null } } } },
+    },
+    {
+      request: { query: GetKroDocument, variables: idpKpiVariables },
+      result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
+    },
+    {
+      request: { query: GetMetricsOperatorDocument, variables: idpKpiVariables },
+      result: { data: { metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperator: null } } } },
+    },
   ];
 
   it('pre-fills extra-provider members from initialData in edit mode (regression: previously dropped)', () => {
@@ -485,33 +592,6 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       // subject names round-trip unprefixed — the CRD adds the username prefix automatically
       cy.wrap(updatePayload!.extraProviders[0].roleBindings[0].subjects[0].name).should('eq', 'bob@example.com');
     });
-  });
-
-  it('default-provider checkbox is locked (disabled) when there are zero extra providers', () => {
-    mountWizard();
-
-    cy.get('#name').typeIntoUi5Input('my-new-mcp');
-    cy.get('ui5-button').contains('Next').click(); // metadata → members
-
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
-  });
-
-  it('blocks Next when the default provider is disabled and no extra provider has a member (regression: zero-member submission)', () => {
-    mountWizard();
-
-    cy.get('#name').typeIntoUi5Input('my-new-mcp');
-    cy.get('ui5-button').contains('Next').click(); // metadata → members
-
-    cy.get('[data-testid="add-provider-button"]').click();
-    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
-    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
-    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
-    cy.get('[data-testid="save-provider-button"]').click();
-
-    // Disabling the default provider drops the auto-added creator member; "custom" has none of its own.
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
-    cy.get('[data-testid="no-members-error"]').should('exist');
-    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
   });
 
   it('adding a new identity provider via the wizard includes it in the create payload', () => {
@@ -556,6 +636,68 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
     cy.contains('bob@example.com').should('not.exist');
+  });
+
+  // ── Edit mode summarize step ────────────────────────────────────────────────
+
+  describe('summarize step in edit mode', () => {
+    const navigateToSummarize = (mocks: readonly MockedResponse[]) => {
+      mountWizard({ isEditMode: true, initialData: existingMcp }, mocks);
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    };
+
+    const allNotInstalled = [
+      notInstalledCrossplaneMock,
+      notInstalledFluxMock,
+      notInstalledLandscaperMock,
+      notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
+    ];
+
+    it('shows Update button instead of Create on the summarize step', () => {
+      navigateToSummarize(allNotInstalled);
+      cy.get('ui5-button').contains('Update').should('exist');
+      cy.get('ui5-button').contains('Create').should('not.exist');
+    });
+
+    it('shows a removed provider in the providers section when it was deselected in edit mode', () => {
+      mountWizard(
+        {
+          isEditMode: true,
+          initialData: existingMcp,
+          useUpdateCrossplane: (() => ({
+            update: async () => ({ data: undefined }),
+            loading: false,
+            error: undefined,
+          })) as typeof useUpdateCrossplane,
+        },
+        [
+          installedCrossplaneMock('v1.20.1-1', [{ name: 'provider-btp', version: '1.3.0' }]),
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
+        ],
+      );
+
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+      // Deselect provider-btp so it becomes a removal
+      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+
+      // Removed provider should appear with its installed version
+      cy.contains('provider-btp').should('exist');
+      cy.contains('1.3.0').should('exist');
+    });
   });
 
   // ── Edit mode — per-service create/update/delete mutations ─────────────────
@@ -707,6 +849,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -743,6 +886,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -779,6 +923,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -816,6 +961,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -855,6 +1001,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           installedOcmMock('v0.3.0'),
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -891,6 +1038,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           notInstalledKroMock,
+          notInstalledMetricsOperatorMock,
         ],
       );
 
@@ -924,6 +1072,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledEsoMock,
           notInstalledOcmMock,
           installedKroMock('v0.3.0'),
+          notInstalledMetricsOperatorMock,
         ],
       );
 

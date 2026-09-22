@@ -1,5 +1,5 @@
 import { BusyIndicator, Button } from '@ui5/webcomponents-react';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useControlPlaneV2Query } from '../../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
@@ -34,16 +34,24 @@ export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2Wiz
   initialSection,
 }) => {
   const { t } = useTranslation();
-  const { isPending, data, error } = useControlPlaneV2Query(
-    isOpen ? resourceName : undefined,
-    isOpen ? namespace : undefined,
-  );
+  const { data, error } = useControlPlaneV2Query(isOpen ? resourceName : undefined, isOpen ? namespace : undefined);
+
+  // Preserve the last successfully loaded data across background re-fetches, Apollo query
+  // restarts, and React StrictMode double-mounts so the wizard stays mounted and retains
+  // its form state. The wizard's own `prefilledResourceRef` logic prevents stale data from
+  // clobbering in-progress edits. Cleared on close so the next open re-seeds from live data.
+  // Adjusted during render (not an effect) to avoid an extra render pass — mirrors the
+  // pattern in ControlPlaneListAllWorkspaces.tsx.
+  const [cachedData, setCachedData] = useState<ManagedControlPlaneV2 | undefined>(undefined);
+  if (data && (data as ManagedControlPlaneV2) !== cachedData) setCachedData(data as ManagedControlPlaneV2);
+  if (!isOpen && cachedData !== undefined) setCachedData(undefined);
+  const stableData = data ? (data as ManagedControlPlaneV2) : cachedData;
 
   if (!isOpen) {
     return null;
   }
 
-  if (error) {
+  if (error && !stableData) {
     return (
       <div className={styles.absolute} role="alert" aria-live="assertive">
         <p>{t('common.cannotLoadData')}</p>
@@ -52,7 +60,7 @@ export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2Wiz
     );
   }
 
-  if (isPending || !data) {
+  if (!stableData) {
     return (
       <div className={styles.absolute}>
         <BusyIndicator active />
@@ -69,7 +77,7 @@ export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2Wiz
       projectName={projectName}
       workspaceName={workspaceName}
       isEditMode
-      initialData={data as ManagedControlPlaneV2}
+      initialData={stableData}
       initialSection={initialSection}
     />
   );

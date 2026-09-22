@@ -30,6 +30,7 @@ export function ResourceSearchBar({ className, focusOnMount, onChange, onKeyDown
       <Input
         ref={inputRef}
         className={styles.input}
+        data-testid="resource-search-input"
         icon={<Icon name="search" />}
         placeholder={t('ResourceSearchBar.placeholder')}
         showClearIcon

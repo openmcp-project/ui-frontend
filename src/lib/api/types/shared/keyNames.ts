@@ -4,6 +4,7 @@ export const CHARGING_TARGET_TYPE_LABEL: string = 'openmcp.cloud.sap/charging-ta
 export const PROJECT_NAME_LABEL: string = 'openmcp.cloud/mcp-project';
 export const WORKSPACE_LABEL: string = 'openmcp.cloud/mcp-workspace';
 export const LAST_APPLIED_CONFIGURATION_ANNOTATION = 'kubectl.kubernetes.io/last-applied-configuration';
+export const CREATED_BY_ANNOTATION = 'core.openmcp.cloud/created-by';
 
 export const SUPPORT_SERVICE_IDS_ANNOTATION = 'meta.orchestrate.cloud.sap/service-ids';
 export const SUPPORT_LANDSCAPE_ANNOTATION = 'meta.orchestrate.cloud.sap/landscape';

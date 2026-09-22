@@ -2,12 +2,11 @@ import {
   CheckBox,
   FlexBox,
   Panel,
-  Title,
   Toolbar,
   ToolbarButton,
-  ToolbarSeparator,
   ToolbarSpacer,
   Button,
+  Title,
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +21,6 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
-
-export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
 export interface YamlSidePanelProps {
   resource: Resource;
@@ -50,11 +47,10 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
     [isEdit, resource, showOnlyImportantData],
   );
   const yamlStringToDisplay = useMemo(() => editedYaml ?? originalYaml, [editedYaml, originalYaml]);
-  const yamlStringToCopy = useMemo(() => originalYaml, [originalYaml]);
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
-    const blob = new Blob([yamlStringToCopy], { type: 'text/yaml' });
+    const blob = new Blob([originalYaml], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -85,93 +81,96 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
 
   return (
-    <Panel
-      className={styles.panel}
-      fixed
-      header={
-        <Toolbar>
-          {toolbarContent ?? <Title>{t('yaml.panelTitle')}</Title>}
-          <ToolbarSpacer />
-          <FlexBox>
-            {!isEdit && (
-              <CheckBox
-                text={t('yaml.showOnlyImportant')}
-                checked={showOnlyImportantData}
-                onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
-              />
-            )}
-          </FlexBox>
-          <ToolbarButton
-            design="Transparent"
-            icon="copy"
-            text={t('buttons.copy')}
-            onClick={() => copyToClipboard(yamlStringToDisplay)}
-          />
-          {SHOW_DOWNLOAD_BUTTON ? (
+    <div className={styles.panelWrapper}>
+      <Panel
+        className={styles.panel}
+        fixed
+        header={
+          <Toolbar>
+            {toolbarContent}
+            <ToolbarSpacer />
+            <FlexBox>
+              {!isEdit && (
+                <CheckBox
+                  text={t('yaml.showOnlyImportant')}
+                  checked={showOnlyImportantData}
+                  onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
+                />
+              )}
+            </FlexBox>
             <ToolbarButton
+              overflowPriority="NeverOverflow"
               design="Transparent"
-              icon="download"
-              text={t('buttons.download')}
-              onClick={handleDownloadClick}
+              icon="decline"
+              data-testid="yaml-close-button"
+              onClick={closeAside}
             />
-          ) : null}
-          <ToolbarSeparator />
-          <ToolbarButton
-            overflowPriority="NeverOverflow"
-            design="Transparent"
-            icon="sap-icon://navigation-right-arrow"
-            data-testid="yaml-close-button"
-            onClick={closeAside}
-          />
-        </Toolbar>
-      }
-    >
-      <div className={styles.content}>
-        {mode === 'success' && (
-          <FlexBox direction="Column" className={styles.successContainer}>
-            <IllustratedBanner
-              illustrationName={IllustrationMessageType.SuccessScreen}
-              title={t('yaml.applySuccess')}
-              subtitle={t('yaml.applySuccess2')}
-            />
-            <Button design="Emphasized" data-testid="yaml-success-close-button" onClick={closeAside}>
-              {t('common.close')}
-            </Button>
-          </FlexBox>
-        )}
-        {mode === 'review' && (
-          <FlexBox direction="Column" className={styles.reviewContainer}>
-            <div className={styles.stickyHeader}>
-              <div className={styles.stickyHeaderInner}>
-                <Title level="H5">{t('yaml.diffConfirmTitle')}</Title>
-                <p className={styles.diffConfirmMessage}>{t('yaml.diffConfirmMessage')}</p>
+          </Toolbar>
+        }
+      >
+        <div className={styles.content}>
+          {mode === 'success' && (
+            <FlexBox direction="Column" className={styles.successContainer}>
+              <IllustratedBanner
+                illustrationName={IllustrationMessageType.SuccessScreen}
+                title={t('yaml.applySuccess')}
+                subtitle={t('yaml.applySuccess2')}
+              />
+              <Button design="Emphasized" data-testid="yaml-success-close-button" onClick={closeAside}>
+                {t('common.close')}
+              </Button>
+            </FlexBox>
+          )}
+          {mode === 'review' && (
+            <FlexBox direction="Column" className={styles.reviewContainer}>
+              <div className={styles.stickyHeader}>
+                <div className={styles.stickyHeaderInner}>
+                  <Title level="H5">{t('yaml.diffConfirmTitle')}</Title>
+                  <p className={styles.diffConfirmMessage}>{t('yaml.diffConfirmMessage')}</p>
+                </div>
+                <FlexBox className={styles.reviewButtons}>
+                  <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
+                    {t('yaml.diffNo')}
+                  </Button>
+                  <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
+                    {t('yaml.diffYes', 'Yes')}
+                  </Button>
+                </FlexBox>
               </div>
-              <FlexBox className={styles.reviewButtons}>
-                <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
-                  {t('yaml.diffNo')}
-                </Button>
-                <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
-                  {t('yaml.diffYes', 'Yes')}
-                </Button>
-              </FlexBox>
-            </div>
-            <div>
-              <YamlDiff originalYaml={originalYaml} modifiedYaml={editedYaml ?? originalYaml} />
-            </div>
-          </FlexBox>
-        )}
-        {mode === 'edit' && (
-          <YamlResourceEditorSchemaLoader
-            yamlString={yamlStringToDisplay}
-            filename={filename}
-            isEdit={isEdit}
-            apiGroupName={apiGroupName}
-            apiVersion={apiVersion}
-            kind={kind}
-            onApply={handleApplyFromEditor}
-          />
-        )}
+              <div>
+                <YamlDiff originalYaml={originalYaml} modifiedYaml={editedYaml ?? originalYaml} />
+              </div>
+            </FlexBox>
+          )}
+          {mode === 'edit' && (
+            <YamlResourceEditorSchemaLoader
+              yamlString={yamlStringToDisplay}
+              filename={filename}
+              isEdit={isEdit}
+              apiGroupName={apiGroupName}
+              apiVersion={apiVersion}
+              kind={kind}
+              onApply={handleApplyFromEditor}
+            />
+          )}
+        </div>
+      </Panel>
+      <div className={styles.floatingActions}>
+        <ToolbarButton
+          design="Transparent"
+          icon="copy"
+          tooltip={t('buttons.copy')}
+          data-testid="yaml-copy-button"
+          onClick={() => copyToClipboard(yamlStringToDisplay)}
+        />
+        <ToolbarButton
+          design="Transparent"
+          icon="download"
+          tooltip={t('buttons.download')}
+          data-testid="yaml-download-button"
+          onClick={handleDownloadClick}
+        />
       </div>
-    </Panel>
+    </div>
   );
 }

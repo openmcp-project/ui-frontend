@@ -10,7 +10,7 @@ function makeControlPlane(spec: ManagedControlPlaneV2['spec']): ManagedControlPl
 }
 
 describe('extractMcpV2FormState', () => {
-  it('extracts default-provider members and marks it enabled when roleBindings are present', () => {
+  it('extracts default-provider members when roleBindings are present', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({
         iam: {
@@ -28,24 +28,22 @@ describe('extractMcpV2FormState', () => {
         },
       }),
     );
-    expect(state.isDefaultProviderEnabled).toBe(true);
     expect(state.members).toEqual([{ kind: 'User', name: 'alice', roles: ['cluster-admin'] }]);
     expect(state.extraProviders).toEqual([]);
   });
 
-  it('marks the default provider disabled when roleBindings are absent', () => {
+  it('returns empty members when defaultProvider is absent', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({ iam: { oidc: { defaultProvider: null, extraProviders: [] } } }),
     );
-    expect(state.isDefaultProviderEnabled).toBe(false);
     expect(state.members).toEqual([]);
   });
 
-  it('marks the default provider disabled when roleBindings is an empty array', () => {
+  it('returns empty members when roleBindings is an empty array', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({ iam: { oidc: { defaultProvider: { roleBindings: [] }, extraProviders: [] } } }),
     );
-    expect(state.isDefaultProviderEnabled).toBe(false);
+    expect(state.members).toEqual([]);
   });
 
   it('extracts an extra provider, reading subject names verbatim (the CRD adds the prefix automatically, not stored in spec)', () => {
@@ -160,6 +158,6 @@ describe('extractMcpV2FormState', () => {
 
   it('handles a control plane with no iam/oidc spec at all', () => {
     const state = extractMcpV2FormState(makeControlPlane(undefined));
-    expect(state).toEqual({ members: [], extraProviders: [], isDefaultProviderEnabled: false });
+    expect(state).toEqual({ members: [], extraProviders: [] });
   });
 });

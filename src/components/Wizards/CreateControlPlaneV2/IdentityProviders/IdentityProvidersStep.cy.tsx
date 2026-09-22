@@ -4,29 +4,22 @@ import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { ExtraProviderMetadata } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { IdentityProvidersStep } from './IdentityProvidersStep.tsx';
 
-// A thin stateful wrapper so the component behaves like it does inside the real wizard,
-// where the container owns members/providers state and passes down setters.
 function StatefulIdentityProvidersStep({
   initialMembers = [],
   initialProviders = [],
-  initialDefaultProviderEnabled = true,
 }: {
   initialMembers?: Member[];
   initialProviders?: ExtraProviderMetadata[];
-  initialDefaultProviderEnabled?: boolean;
 }) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [providers, setProviders] = useState<ExtraProviderMetadata[]>(initialProviders);
-  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(initialDefaultProviderEnabled);
 
   return (
     <IdentityProvidersStep
       members={members}
       providers={providers}
-      isDefaultProviderEnabled={isDefaultProviderEnabled}
       onMembersChange={setMembers}
       onProvidersChange={setProviders}
-      onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
     />
   );
 }
@@ -43,11 +36,6 @@ describe('IdentityProvidersStep', () => {
     cy.contains('Default identity provider').should('exist');
   });
 
-  it('locks the default-provider checkbox when there are no extra providers', () => {
-    cy.mount(<StatefulIdentityProvidersStep />);
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
-  });
-
   it('adds a new provider group after saving the Add Identity Provider dialog', () => {
     cy.mount(<StatefulIdentityProvidersStep />);
 
@@ -59,7 +47,6 @@ describe('IdentityProvidersStep', () => {
     cy.get('ui5-dialog[open]').contains('ui5-button', 'Add Identity Provider').click();
 
     cy.contains('custom').should('exist');
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('not.have.attr', 'disabled');
   });
 
   it('deleting a provider removes its group and its members', () => {
@@ -77,20 +64,6 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
     cy.contains('bob@example.com').should('not.exist');
-  });
-
-  it('re-enables the default provider when the last remaining provider is deleted while it was disabled', () => {
-    const providers: ExtraProviderMetadata[] = [
-      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
-    ];
-
-    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialDefaultProviderEnabled={false} />);
-
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('not.have.attr', 'checked');
-    cy.get('[data-testid="delete-provider-custom"]').click();
-    cy.get('[data-testid="confirm-delete-provider-button"]').click();
-
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'checked');
   });
 
   it('adding a member from inside a custom provider panel keeps it scoped to that provider (regression)', () => {
@@ -130,52 +103,10 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="no-members-error"]').should('exist');
 
-    cy.get('[data-testid="default-provider-add-member-button"]').first().click();
+    cy.get('[data-testid="default-provider-add-member-button"]').click();
     cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
     cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
 
     cy.get('[data-testid="no-members-error"]').should('not.exist');
-  });
-
-  it('shows the validation error again after disabling the default provider drops its only members', () => {
-    const providers: ExtraProviderMetadata[] = [
-      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
-    ];
-    const members: Member[] = [{ kind: 'User', name: 'alice@example.com', roles: ['cluster-admin'] }];
-
-    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialMembers={members} />);
-
-    cy.get('[data-testid="no-members-error"]').should('not.exist');
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
-    cy.get('[data-testid="no-members-error"]').should('exist');
-  });
-
-  it('hides the default-provider members table when it is disabled', () => {
-    const providers: ExtraProviderMetadata[] = [
-      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
-    ];
-    const members: Member[] = [{ kind: 'User', name: 'alice@example.com', roles: ['cluster-admin'] }];
-
-    cy.mount(
-      <StatefulIdentityProvidersStep
-        initialProviders={providers}
-        initialMembers={members}
-        initialDefaultProviderEnabled={false}
-      />,
-    );
-
-    cy.contains('alice@example.com').should('not.exist');
-    cy.contains("Its members are kept here for now, but won't be saved").should('exist');
-  });
-
-  it('shows a plain disabled hint (no confusing "kept members" text) when the default provider never had members', () => {
-    const providers: ExtraProviderMetadata[] = [
-      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
-    ];
-
-    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialDefaultProviderEnabled={false} />);
-
-    cy.contains('The default identity provider is disabled').should('exist');
-    cy.contains('Its members are kept here for now').should('not.exist');
   });
 });

@@ -1,9 +1,16 @@
 import { act, renderHook } from '@testing-library/react';
-import { useCreateManagedControlPlane } from './useCreateManagedControlPlane.ts';
-import { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { describe, it, expect, vi, afterEach, Mock } from 'vitest';
-import { assertNonNullish, assertString } from '../utils/test/vitest-utils.ts';
+import { useCreateManagedControlPlane } from './useCreateManagedControlPlane.ts';
+import type { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
+
+const { mockCreateMutation } = vi.hoisted(() => ({
+  mockCreateMutation: vi.fn().mockResolvedValue({ data: {} }),
+}));
+
+vi.mock('@apollo/client/react', () => ({
+  useMutation: () => [mockCreateMutation, {}],
+}));
 
 describe('useCreateManagedControlPlane', () => {
   afterEach(() => {
@@ -72,14 +79,6 @@ describe('useCreateManagedControlPlane', () => {
       },
     };
 
-    const fetchMock: Mock<typeof fetch> = vi.fn();
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: vi.fn().mockResolvedValue({}),
-    } as unknown as Response);
-    global.fetch = fetchMock;
-
     // ACT
     const renderHookResult = renderHook(() => useCreateManagedControlPlane('projectName', 'workspaceName'));
     const { mutate: create } = renderHookResult.result.current;
@@ -89,27 +88,12 @@ describe('useCreateManagedControlPlane', () => {
     });
 
     // ASSERT
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const call = fetchMock.mock.calls[0];
-    const [url, init] = call;
-    assertNonNullish(init);
-    const { method, headers, body } = init;
-
-    expect(url).toContain(
-      '/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/projectName--ws-workspaceName/managedcontrolplanes',
-    );
-
-    expect(method).toBe('POST');
-
-    expect(headers).toEqual(
-      expect.objectContaining({
-        'Content-Type': 'application/json',
-        'X-use-crate': 'true',
-      }),
-    );
-
-    assertString(body);
-    const parsedBody = JSON.parse(body);
-    expect(parsedBody).toEqual(mockData);
+    expect(mockCreateMutation).toHaveBeenCalledTimes(1);
+    expect(mockCreateMutation).toHaveBeenCalledWith({
+      variables: {
+        namespace: 'projectName--ws-workspaceName',
+        object: mockData,
+      },
+    });
   });
 });

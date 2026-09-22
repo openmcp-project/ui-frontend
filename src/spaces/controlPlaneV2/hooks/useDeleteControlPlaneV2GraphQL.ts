@@ -7,7 +7,9 @@ import { DeleteManagedControlPlaneV2Mutation } from './useDeleteControlPlaneV2Mu
 export function useDeleteControlPlaneV2GraphQL(namespace: string, name: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [deleteMutation] = useMutation(DeleteManagedControlPlaneV2Mutation);
+  const [deleteMutation] = useMutation(DeleteManagedControlPlaneV2Mutation, {
+    refetchQueries: ['GetMCPsList'],
+  });
 
   const deleteManagedControlPlaneV2 = useCallback(async (): Promise<void> => {
     try {

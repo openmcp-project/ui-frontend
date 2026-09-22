@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import { viteFastify } from '@fastify/vite/plugin';
 import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { monacoWorkerAlias, monacoOptimizeDepsExclude } from './vite.monaco.js';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -31,17 +32,12 @@ export default defineConfig({
   ],
 
   resolve: {
-    alias: {
-      path: 'path-browserify',
-      // Replace monaco-worker-manager's worker shim with a Monaco 0.55-compatible version.
-      // The original uses the old initialize() API that deadlocks with Monaco 0.55's
-      // two-message protocol (-please-ignore- then $initialize). See monaco-worker-manager-compat.ts.
-      'monaco-worker-manager/worker': resolve(import.meta.dirname, 'src/lib/monaco-worker-manager-compat.ts'),
-    },
+    alias: [{ find: 'path', replacement: 'path-browserify' }, monacoWorkerAlias],
   },
 
   optimizeDeps: {
     include: ['path-browserify'],
+    exclude: monacoOptimizeDepsExclude,
     rolldownOptions: {
       define: {
         global: 'globalThis',

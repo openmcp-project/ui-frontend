@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
+import { GET_KRO_QUERY } from '../../controlPlaneV2/components/Kpi/useKroQuery.ts';
 
 const DeleteKroMutation = graphql(`
   mutation DeleteKRO($name: String!, $namespace: String) {
@@ -13,13 +14,14 @@ const DeleteKroMutation = graphql(`
 `);
 
 export function useDeleteKro() {
-  const [deleteMutation, { loading, error }] = useMutation(DeleteKroMutation, {
-    refetchQueries: ['GetKRO'],
-  });
+  const [deleteMutation, { loading, error }] = useMutation(DeleteKroMutation);
 
   const deleteKro = useCallback(
     async (variables: { namespace: string; name: string }) => {
-      return deleteMutation({ variables });
+      return deleteMutation({
+        variables,
+        refetchQueries: [{ query: GET_KRO_QUERY, variables: { name: variables.name, namespace: variables.namespace } }],
+      });
     },
     [deleteMutation],
   );
