@@ -24,6 +24,7 @@ import Loading from '../Shared/Loading.tsx';
 import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
+import { HoverRevealTag } from '../Ui/HoverRevealTag/HoverRevealTag.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
@@ -89,6 +90,30 @@ function MetadataCell({
   const [editOpen, setEditOpen] = useState(false);
 
   if (isLoading) return <BusyIndicator active size="S" />;
+
+  if (!supportLandscape) {
+    return (
+      <FadeIn>
+        <HoverRevealTag
+          className={styles.metadataTag}
+          colorScheme={purposeColorScheme(undefined)}
+          copy={t('SupportInfo.addButton')}
+          design="Set2"
+          id={openerId}
+          onClick={() => setEditOpen(true)}
+        />
+        {editOpen && (
+          <EditProjectDialogContainer
+            isOpen={editOpen}
+            setIsOpen={setEditOpen}
+            projectName={projectName}
+            initialStep="supportInfo"
+            source="support-cta"
+          />
+        )}
+      </FadeIn>
+    );
+  }
 
   return (
     <FadeIn>

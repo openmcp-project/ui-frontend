@@ -33,8 +33,14 @@ export function purposeColorScheme(landscape?: string): string {
       return '8';
     case 'validation':
       return '6';
+    case 'staging':
+      return '3';
     case 'testing':
       return '5';
+    case 'development':
+      return '4';
+    case 'experimental':
+      return '7';
     default:
       return '10';
   }
@@ -46,5 +52,7 @@ export function isKnownLandscape(value?: string): value is SupportLandscape {
 
 /** Translated label for the landscape, or the "please set" placeholder. */
 export function purposeLabel(t: TFunction, landscape?: string): string {
-  return landscape ? t(`SupportInfo.landscape.${landscape}`, { defaultValue: landscape }) : t('SupportInfo.pleaseSet');
+  if (!landscape) return t('SupportInfo.pleaseSet');
+  const fallback = landscape.charAt(0).toUpperCase() + landscape.slice(1);
+  return t(`SupportInfo.landscape.${landscape}`, { defaultValue: fallback });
 }

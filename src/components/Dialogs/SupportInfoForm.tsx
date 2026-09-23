@@ -4,6 +4,7 @@ import { Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcom
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
+import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import styles from './SupportInfoForm.module.css';
@@ -38,7 +39,9 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
   return (
     <div className={styles.container}>
-      <p className={styles.intro}>{t('SupportInfo.wizardIntro')}</p>
+      <Infobox variant={'success'} size="sm">
+        {t('SupportInfo.wizardIntro')}
+      </Infobox>
       <div className={styles.fields}>
         <Field label={t('SupportInfo.purposeLabel')} inputId="support-landscape">
           <Select
@@ -79,7 +82,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             className={styles.input}
             id="support-security-contacts"
             data-testid="support-security-contacts"
-            placeholder={t('SupportInfo.contactsPlaceholder')}
+            placeholder={t('SupportInfo.securityContactsPlaceholder')}
             value={supportSecurityContacts}
             onChange={(next) => setValue('supportSecurityContacts', next, { shouldDirty: true })}
           />
@@ -90,7 +93,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             className={styles.input}
             id="support-ops-contacts"
             data-testid="support-ops-contacts"
-            placeholder={t('SupportInfo.contactsPlaceholder')}
+            placeholder={t('SupportInfo.opsContactsPlaceholder')}
             value={supportOpsContacts}
             onChange={(next) => setValue('supportOpsContacts', next, { shouldDirty: true })}
           />
