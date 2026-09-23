@@ -45,10 +45,6 @@ export function TagListInput({ value, onChange, placeholder, className, id, ...r
         merged.push(addition);
       }
     }
-    if (merged.length === tags.length) {
-      target.value = '';
-      return;
-    }
     onChange(joinTags(merged));
     // MultiInput does not clear its editable input on Enter by default.
     target.value = '';

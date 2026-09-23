@@ -20,13 +20,11 @@ export interface CreateProjectParams {
 }
 
 export function buildProjectAnnotations(params: CreateProjectParams): Record<string, string> {
-  const annotations: Record<string, string> = {
+  return {
     [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
+    [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape ?? '',
+    [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds ?? '',
+    [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts ?? '',
+    [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts ?? '',
   };
-  if (params.supportLandscape) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = params.supportLandscape;
-  if (params.supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = params.supportServiceIds;
-  if (params.supportSecurityContacts)
-    annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = params.supportSecurityContacts;
-  if (params.supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = params.supportOpsContacts;
-  return annotations;
 }
