@@ -95,6 +95,7 @@ function MetadataCell({
     return (
       <FadeIn>
         <HoverRevealTag
+          delay={50}
           className={styles.metadataTag}
           colorScheme={purposeColorScheme(undefined)}
           copy={t('SupportInfo.addButton')}

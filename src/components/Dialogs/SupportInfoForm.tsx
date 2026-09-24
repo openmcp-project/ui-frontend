@@ -5,6 +5,7 @@ import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
+import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import styles from './SupportInfoForm.module.css';
@@ -16,10 +17,23 @@ interface SupportInfoFormProps {
   setValue: UseFormSetValue<CreateDialogProps>;
 }
 
-function Field({ label, inputId, children }: { label: string; inputId?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  inputId,
+  tooltip,
+  children,
+}: {
+  label: string;
+  inputId?: string;
+  tooltip?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className={styles.field}>
-      <Label for={inputId}>{label}</Label>
+      <div className={styles.fieldLabel}>
+        <Label for={inputId}>{label}</Label>
+        {tooltip && <Tooltip text={tooltip} />}
+      </div>
       {children}
     </div>
   );
@@ -63,7 +77,11 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </Field>
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
-        <Field label={t('SupportInfo.serviceIds')} inputId="support-service-ids">
+        <Field
+          label={t('SupportInfo.serviceIds')}
+          inputId="support-service-ids"
+          tooltip={t('SupportInfo.serviceIdsTooltip')}
+        >
           <input type="hidden" {...register('supportServiceIds')} value={supportServiceIds} readOnly />
           <TagListInput
             className={styles.input}
@@ -76,7 +94,11 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </Field>
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
-        <Field label={t('SupportInfo.securityContacts')} inputId="support-security-contacts">
+        <Field
+          label={t('SupportInfo.securityContacts')}
+          inputId="support-security-contacts"
+          tooltip={t('SupportInfo.securityContactsTooltip')}
+        >
           <input type="hidden" {...register('supportSecurityContacts')} value={supportSecurityContacts} readOnly />
           <TagListInput
             className={styles.input}
@@ -87,7 +109,11 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             onChange={(next) => setValue('supportSecurityContacts', next, { shouldDirty: true })}
           />
         </Field>
-        <Field label={t('SupportInfo.opsContacts')} inputId="support-ops-contacts">
+        <Field
+          label={t('SupportInfo.opsContacts')}
+          inputId="support-ops-contacts"
+          tooltip={t('SupportInfo.opsContactsTooltip')}
+        >
           <input type="hidden" {...register('supportOpsContacts')} value={supportOpsContacts} readOnly />
           <TagListInput
             className={styles.input}

@@ -90,6 +90,10 @@ describe('EditProjectDialogContainer', () => {
         chargingTarget: '12345678-1234-1234-1234-123456789abc',
         chargingTargetType: 'btp',
         members: [{ name: 'admin@example.com', kind: 'User', roles: ['admin'] }],
+        supportServiceIds: '',
+        supportLandscape: '',
+        supportSecurityContacts: '',
+        supportOpsContacts: '',
       });
     });
   });
@@ -229,8 +233,8 @@ describe('EditProjectDialogContainer', () => {
     });
 
     // Editing from a clean project must let the user set every support
-    // field. The wizard's third step is only reachable via the button that
-    // advances past Metadata + Members, so we navigate there first.
+    // field. Open the dialog directly on the Support Info step so we can
+    // interact with it without relying on wizard navigation in edit mode.
     it('writes newly-entered support fields on save', () => {
       let updatePayload: Parameters<ReturnType<typeof useUpdateProject>['updateProject']>[0] | null = null;
       cy.mount(
@@ -239,6 +243,7 @@ describe('EditProjectDialogContainer', () => {
           setIsOpen={cy.stub()}
           projectName="existing-project"
           source="metadata-popover"
+          initialStep="supportInfo"
           useGetProject={fakeUseGetProject}
           useUpdateProject={() => ({
             updateProject: async (params) => {
@@ -247,11 +252,6 @@ describe('EditProjectDialogContainer', () => {
           })}
         />,
       );
-
-      // Navigate to Support Info step. Two "Next" buttons appear in
-      // sequence — one on the Metadata step and one on the Members step.
-      cy.contains('ui5-button', 'Next').click();
-      cy.contains('ui5-button', 'Next').click();
 
       // MultiInput commits its editable value into a Token on Enter,
       // which fires the wrapped `change` event our TagListInput listens to.

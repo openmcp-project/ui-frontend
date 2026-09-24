@@ -41,7 +41,7 @@ export function CreateProjectDialogContainer({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useProjectForm(DEFAULT_VALUES);
   const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
@@ -83,7 +83,7 @@ export function CreateProjectDialogContainer({
       titleText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       members={members}
       form={{ register, errors, setValue, watch, handleSubmit }}
-      isMetadataValid={!errors.name && !errors.chargingTarget}
+      isMetadataValid={isValid}
       isLoading={isLoading}
       type={'project'}
       // eslint-disable-next-line react-hooks/refs

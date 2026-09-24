@@ -562,7 +562,8 @@
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
     "deprecated": "Deprecated",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "helpButtonLabel": "Help"
   },
   "deprecated": {
     "deprecatedPopoverMessage": "There is a new version of control plane available."
@@ -757,10 +758,13 @@
       "experimental": "Experimental"
     },
     "serviceIds": "Service Reference",
-    "serviceIdsPlaceholder": "e.g. payment-service, billing-app",
+    "serviceIdsPlaceholder": "Services, apps, or landscapes backed by this project",
+    "serviceIdsTooltip": "BTP service IDs, Crossplane provider names, or Landscaper app identifiers managed by this project. Helps support engineers triage incidents by linking them to the owning project.",
     "contacts": "Contacts",
-    "securityContactsPlaceholder": "e.g. security@example.com",
-    "opsContactsPlaceholder": "e.g. ops-team@example.com",
+    "securityContactsPlaceholder": "Security team email or oncall alias",
+    "securityContactsTooltip": "Emails of security engineers or oncall contacts responsible for incidents in this project.",
+    "opsContactsPlaceholder": "SRE email or ops team alias",
+    "opsContactsTooltip": "Emails of SRE engineers or ops oncall contacts. Used as an escalation path for production incidents.",
     "contextSection": "Region & Service",
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",

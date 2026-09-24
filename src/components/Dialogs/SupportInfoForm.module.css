@@ -17,6 +17,14 @@
   gap: 0.25rem;
 }
 
+.fieldLabel {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+}
+
+
+
 .input {
   width: 100%;
 }
