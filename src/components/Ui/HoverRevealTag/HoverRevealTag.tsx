@@ -1,7 +1,7 @@
 import '@ui5/webcomponents-icons/dist/question-mark';
 import { Icon, Tag } from '@ui5/webcomponents-react';
 import type { ComponentProps } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface HoverRevealTagProps {
   copy: string;
@@ -38,6 +38,14 @@ export function HoverRevealTag({
   const handleLeave = () => {
     leaveTimeoutRef.current = setTimeout(() => setIsHinted(false), delay);
   };
+
+  useEffect(() => {
+    return () => {
+      if (leaveTimeoutRef.current !== null) {
+        clearTimeout(leaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Tag

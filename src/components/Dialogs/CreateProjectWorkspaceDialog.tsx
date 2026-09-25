@@ -131,7 +131,7 @@ export function CreateProjectWorkspaceDialog({
     setIsOpen(false);
   };
 
-  const goToMembers = () => handleSubmit?.(() => setStep('members'))();
+  const goToMembers = () => handleSubmit?.(() => setStep('members'))?.();
 
   return (
     <>

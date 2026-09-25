@@ -89,7 +89,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             data-testid="support-service-ids"
             placeholder={t('SupportInfo.serviceIdsPlaceholder')}
             value={supportServiceIds}
-            onChange={(next) => setValue('supportServiceIds', next, { shouldDirty: true })}
+            onChange={(next) => setValue('supportServiceIds', next, { shouldDirty: true, shouldValidate: true })}
           />
         </Field>
 
@@ -106,7 +106,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             data-testid="support-security-contacts"
             placeholder={t('SupportInfo.securityContactsPlaceholder')}
             value={supportSecurityContacts}
-            onChange={(next) => setValue('supportSecurityContacts', next, { shouldDirty: true })}
+            onChange={(next) => setValue('supportSecurityContacts', next, { shouldDirty: true, shouldValidate: true })}
           />
         </Field>
         <Field
@@ -121,7 +121,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
             data-testid="support-ops-contacts"
             placeholder={t('SupportInfo.opsContactsPlaceholder')}
             value={supportOpsContacts}
-            onChange={(next) => setValue('supportOpsContacts', next, { shouldDirty: true })}
+            onChange={(next) => setValue('supportOpsContacts', next, { shouldDirty: true, shouldValidate: true })}
           />
         </Field>
       </div>

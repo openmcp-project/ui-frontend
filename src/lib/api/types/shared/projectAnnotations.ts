@@ -22,9 +22,11 @@ export interface CreateProjectParams {
 export function buildProjectAnnotations(params: CreateProjectParams): Record<string, string> {
   return {
     [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-    [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape ?? '',
-    [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds ?? '',
-    [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts ?? '',
-    [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts ?? '',
+    ...(params.supportLandscape ? { [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape } : {}),
+    ...(params.supportServiceIds ? { [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds } : {}),
+    ...(params.supportSecurityContacts
+      ? { [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts }
+      : {}),
+    ...(params.supportOpsContacts ? { [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts } : {}),
   };
 }

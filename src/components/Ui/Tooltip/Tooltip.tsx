@@ -12,7 +12,7 @@ interface TooltipProps {
 export function Tooltip({ text }: TooltipProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const triggerId = `tooltip-${useId().replace(/:/g, '')}`;
 
   const handleOpen = () => {
