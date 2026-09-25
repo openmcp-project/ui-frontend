@@ -75,6 +75,8 @@ import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
 import { useCrossplaneYamlQuery } from '../../mcp/hooks/useCrossplaneYamlQuery.ts';
 import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
 import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
+import { useOcmYamlQuery } from '../../mcp/hooks/useOcmYamlQuery.ts';
+import { useKroYamlQuery } from '../../mcp/hooks/useKroYamlQuery.ts';
 import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
 
 type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
@@ -117,12 +119,18 @@ function OpenSourceHeadlamp({
   const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
   const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
+  const ocmYaml = useOcmYamlQuery(mcpName, mcpNamespace);
+  const kroYaml = useKroYamlQuery(mcpName, mcpNamespace);
   const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
   const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
   const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
+  const { status: ocmStatus } = useComponentCardStatus(true, ocmYaml);
+  const { status: kroStatus } = useComponentCardStatus(true, kroYaml);
   const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
   const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
   const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
+  const ocmPhase = ocmStatus.kind === 'installed' ? ocmStatus.phase : null;
+  const kroPhase = kroStatus.kind === 'installed' ? kroStatus.phase : null;
 
   // Optimistic 'Initializing' shown right after a successful install, before the real
   // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
@@ -131,6 +139,8 @@ function OpenSourceHeadlamp({
     crossplane: crossplanePhase ?? optimistic.crossplane ?? null,
     flux: fluxPhase ?? optimistic.flux ?? null,
     externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
+    ocm: ocmPhase ?? null,
+    kro: kroPhase ?? null,
   };
 
   const markInitializing = useCallback((component: InstallTarget) => {
@@ -146,8 +156,16 @@ function OpenSourceHeadlamp({
       crossplane: effectivePhases.crossplane,
       flux: effectivePhases.flux,
       externalSecretsOperator: effectivePhases.externalSecretsOperator,
+      ocm: effectivePhases.ocm,
+      kro: effectivePhases.kro,
     };
-  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator]);
+  }, [
+    effectivePhases.crossplane,
+    effectivePhases.flux,
+    effectivePhases.externalSecretsOperator,
+    effectivePhases.ocm,
+    effectivePhases.kro,
+  ]);
   const pushStatuses = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
