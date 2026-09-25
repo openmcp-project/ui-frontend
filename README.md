@@ -76,7 +76,7 @@ kubectl oidc-login get-token
 ## Support & Contributing
 
 Issues and feature requests: [GitHub Issues](https://github.com/openmcp-project/ui-frontend/issues)  
-Contribution guidelines: [CONTRIBUTING.md](CONTRIBUTING.md) — DCO required, open an issue first.  
+Contribution guidelines: [CONTRIBUTING.md](https://github.com/openmcp-project/.github/blob/main/CONTRIBUTING.md) — DCO required, open an issue first.  
 Security vulnerabilities: [Security Policy](https://github.com/openmcp-project/ui-frontend/security/policy) — do not open a public issue.
 
 ## Code of Conduct
