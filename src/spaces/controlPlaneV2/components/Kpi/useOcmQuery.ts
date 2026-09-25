@@ -53,7 +53,9 @@ export function useOcmQuery(name?: string, namespace?: string) {
       return null;
     }
     const version = result.data.spec?.version ?? null;
-    return { isInstalled: !!version, version };
+    const conditions = result.data.status?.conditions ?? [];
+    const hasActiveCondition = conditions.some((c) => c?.status === 'True');
+    return { isInstalled: !!version || hasActiveCondition, version };
   }, [rawOcm, telemetry]);
 
   return { ocmData, isLoading: queryResult.loading, error: queryResult.error };
