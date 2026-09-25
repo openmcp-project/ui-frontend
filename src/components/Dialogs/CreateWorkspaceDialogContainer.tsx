@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import { projectnameToNamespace } from '../../utils';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
+import { useWatch } from 'react-hook-form';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { extractErrorMessage } from '../../lib/api/error.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { useProjectForm } from './useProjectForm.ts';
 
 export type CreateDialogProps = {
   name: string;
@@ -19,6 +19,18 @@ export type CreateDialogProps = {
   chargingTargetType?: string;
   members: Member[];
   componentsList?: ComponentsListItem[];
+  supportServiceIds?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
+};
+
+const DEFAULT_VALUES: CreateDialogProps = {
+  name: '',
+  displayName: '',
+  chargingTarget: '',
+  members: [],
+  chargingTargetType: '',
 };
 
 export function CreateWorkspaceDialogContainer({
@@ -36,26 +48,15 @@ export function CreateWorkspaceDialogContainer({
 }) {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
-  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     register,
     handleSubmit,
-    resetField,
+    reset,
     setValue,
     formState: { errors, isValid },
     watch,
     control,
-  } = useForm<CreateDialogProps>({
-    resolver: zodResolver(validationSchemaProjectWorkspace),
-    mode: 'onChange',
-    defaultValues: {
-      name: '',
-      displayName: '',
-      chargingTarget: '',
-      members: [],
-      chargingTargetType: '',
-    },
-  });
+  } = useProjectForm(DEFAULT_VALUES);
   const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
 
@@ -65,60 +66,38 @@ export function CreateWorkspaceDialogContainer({
   const { createWorkspace, isLoading } = useCreateWorkspace(namespace);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const clearForm = useCallback(() => {
-    resetField('name');
-    resetField('chargingTarget');
-    resetField('displayName');
-    resetField('chargingTargetType');
-    resetField('members');
-  }, [resetField]);
-
   useEffect(() => {
     if (username) {
       setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }], { shouldValidate: true });
     }
     if (!isOpen) {
-      clearForm();
+      reset();
     }
-  }, [resetField, setValue, username, isOpen, clearForm]);
+  }, [setValue, username, isOpen, reset]);
 
-  const handleWorkspaceCreate = async ({
-    name,
-    displayName,
-    chargingTarget,
-    chargingTargetType,
-    members,
-  }: OnCreatePayload): Promise<boolean> => {
-    try {
-      await createWorkspace({
-        name,
-        displayName,
-        chargingTarget,
-        chargingTargetType,
-        members,
-      });
-      telemetry.track({ category: 'workspace', action: 'created' });
-      setIsOpen(false);
-      return true;
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      errorDialogRef.current?.showErrorDialog(message);
-      return false;
-    }
-  };
+  const handleWorkspaceCreate = useCallback(
+    async (payload: OnCreatePayload): Promise<boolean> => {
+      try {
+        await createWorkspace(payload);
+        telemetry.track({ category: 'workspace', action: 'created' });
+        setIsOpen(false);
+        return true;
+      } catch (e) {
+        errorDialogRef.current?.showErrorDialog(extractErrorMessage(e));
+        return false;
+      }
+    },
+    [createWorkspace, setIsOpen, telemetry],
+  );
 
   return (
     <CreateProjectWorkspaceDialog
-      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
       titleText={t('CreateProjectWorkspaceDialog.createWorkspaceTitle')}
       members={members}
-      register={register}
-      errors={errors}
-      setValue={setValue}
-      handleSubmit={handleSubmit}
+      form={{ register, errors, setValue, watch, handleSubmit }}
       isMetadataValid={isValid}
       isLoading={isLoading}
       type={'workspace'}
