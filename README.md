@@ -2,131 +2,62 @@
 
 # ui-frontend
 
-## About This Project
+The Control Plane UI for the [OpenControlPlane project](https://github.com/openmcp-project). Manage Projects, Workspaces, and Managed Control Planes — and explore the Kubernetes resources running inside them — without installing any additional tooling.
 
-This repository contains code relevant for the frontend component required in the Control Plane UI (MCP UI), which is part of the @openmcp-project, more info [here](https://github.com/openmcp-project).
+→ **[Full Documentation](docs/index.md)**
 
-The Control Plane UI empowers endusers to create  and manage `Projects`, `Workspaces` and `ControlPlanes`, without installing any additional tools. 
+| I am a… | Start here |
+|---|---|
+| **End User** — exploring what the UI can do | [End User Guide](docs/end-user/index.md) |
+| **Operator** — deploying this in my org | [Operator Guide](docs/operator/index.md) |
+| **Contributor** — extending or improving the codebase | [Contributor Guide](docs/contributor/index.md) |
 
-It allows users to observe and edit managed resources of the Onboarding API, as well as the control planes it creates. 
+---
 
-Our goal is to provide quick access, simple overview, and encourage users to create cloud landscapes using Kubernetes Ressource Model.
-
-
-## Getting Started
-
-### Development Setup
-
-#### Install Dependencies
+## Quick Start (Development)
 
 ```bash
 npm i
+cp frontend-config.json public/frontend-config.json   # edit backendUrl
+cp .env.template .env                                  # fill OIDC values
+npm run dev                                            # http://localhost:5173
 ```
 
-#### Configure Frontend
+See the [Contributor Guide](docs/contributor/index.md) for full setup, build, and testing instructions.
 
-- Copy `frontend-config.json` to `public/frontend-config.json` and adapt the `backendUrl` according to your setup (see section Dynamic Frontend Config).
-- Copy `.env.template` to `.env` and fill in the missing values.
-
-#### Run the Application
+## Generating GraphQL Types
 
 ```bash
-npm run dev
+npm run generate-graphql-types -- <token>
 ```
 
-The UI will be served on http://localhost:5173.
+Types are generated from the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway) schema. The token is prefixed with `Bearer` automatically. See [Which access token](docs/contributor/new-api-request.md#graphql--apollo-onboarding-space) for how to obtain one.
 
-#### Headlamp (local dev cluster)
+### Which access token
 
-The UI embeds [Headlamp](https://headlamp.dev) to visualize any Kubernetes resource running inside of `ControlPlane`. 
+The schema is fetched from the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway). Getting the required access token depends on how you [deploy your platform](docs/operator/index.md). For OIDC setups, use [kubelogin](https://github.com/int128/kubelogin) (`kubectl oidc-login`) to obtain the token — this is an example of an IDP-centered setup. More guidance coming soon.
 
-For local development a kind cluster is used.
-
-**Prerequisites:** `kind`, `kubectl`, `helm`, `task` ([Taskfile](https://taskfile.dev))
-
-**One-time setup** — creates the kind cluster, installs Headlamp with the latest plugin releases from ArtifactHub, and port-forwards to `http://localhost:8090`:
-
-```bash
-task headlamp:dev
+```
+kubectl oidc-login get-token \
+  --oidc-issuer-url=<according to your setup> \
+  --oidc-client-id=<according to your setup> \
+  --oidc-extra-scope=offline_access \
+  --oidc-extra-scope=email \
+  --oidc-extra-scope=profile \
+  --oidc-use-pkce \
+  --grant-type=auto | jq .status.token -r
 ```
 
-Then set `HEADLAMP_UPSTREAM_URL=http://localhost:8090` in your `.env` and start the app:
+## Safari Support
 
-```bash
-npm run dev
-```
+The frontend is currently incompatible with Safari on `localhost`. To develop locally with Safari:
 
-**Develop a plugin** — if you have [`crossplane-headlamp-plugin`](https://github.com/openmcp-project/crossplane-headlamp-plugin) or [`kiosk-headlamp-plugin`](https://github.com/openmcp-project/kiosk-headlamp-plugin) checked out as in the same dicrectory next to this repo, build and hot-sync them into the running pod (no restart needed):
+1. In [`server/encrypted-session.ts`](server/encrypted-session.ts), set `secure: false` in both cookie occurrences.
+2. In [`server.ts`](server.ts), comment out the `helmet` registration.
 
-```bash
-task headlamp:update
-```
+Do not commit these changes.
 
-Then hard-refresh the browser (`Cmd+Shift+R`).
-
-#### Safari Support
-
-**Note:** The frontend is currently incompatible with Safari when running locally on `localhost`.
-
-To enable local development with Safari, follow these steps on your local machine:
-
-1. **Update Cookie Settings:**  
-   In [`server/encrypted-session.js`](server/encrypted-session.ts), set the `secure` property to `false` in both occurrences.
-
-2. **Disable Helmet Registration:**  
-   In [`server.js`](server.ts), comment out or remove the registration of `helmet`.
-
-
-### Build & Production
-
-#### Build the Application
-
-```bash
-npm run build
-```
-
-#### Serve the Production Build Locally
-
-```bash
-npm run preview
-```
-
-#### Production Deployment
-
-Use the docker image which uses nginx for best performance and small bundle size.
-
-```bash
-docker build -t my-label .
-```
-
-#### Coming Soon: Deploy on Open Control Plane {#deploy-platform-service}
-
-We plan to ship this component as a [PlatformService](https://open-control-plane.io/users/concepts/providers#platform-services) of Open Control Plane.
-
-### Dynamic FrontendConfig
-
-The frontend loads a `frontend-config.json` file from the root folder containing dynamic config like the backend url. For development, the file `frontend-config.json` can be copied to `public/frontend-config.json`. For production, NGINX will serve the content from the environment variable `BACKEND_CONFIG`.
-
-An example docker run command would be 
-```
-docker run -p 5001:80 -e BACKEND_CONFIG="$(cat frontend-config.json)"  -t ui-test
-```
-
-### Generating GraphQL Types
-
-GraphQL types can be generated from the remote schema using the `generate-graphql-types` script. Pass your access token as a positional argument directly after the script name:
-
-```bash
-npm run generate-graphql-types -- myaccesstokenhere
-```
-
-To run in watch mode (re-generates on file changes):
-
-```bash
-npm run generate-graphql-types:watch -- myaccesstokenhere
-```
-
-The token is automatically prefixed with `Bearer` and passed as the `Authorization` header when fetching the remote GraphQL schema.
+---
 
 #### Which access token
 
@@ -144,18 +75,17 @@ kubectl oidc-login get-token
 
 ## Support & Contributing
 
-This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/openmcp-project/ui-frontend/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
-
-## Security & Disclosure
-If you find any bug that may be a security problem, please follow our instructions at [in our security policy](https://github.com/openmcp-project/ui-frontend/security/policy) on how to report it. Please do not create GitHub issues for security-related doubts or problems.
+Issues and feature requests: [GitHub Issues](https://github.com/openmcp-project/ui-frontend/issues)  
+Contribution guidelines: [CONTRIBUTING.md](CONTRIBUTING.md) — DCO required, open an issue first.  
+Security vulnerabilities: [Security Policy](https://github.com/openmcp-project/ui-frontend/security/policy) — do not open a public issue.
 
 ## Code of Conduct
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](https://github.com/openmcp-project/.github/blob/main/CODE_OF_CONDUCT.md) at all times.
+By participating in this project you agree to the [Code of Conduct](https://github.com/openmcp-project/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## Licensing
 
-Copyright OpenControlPlane contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/openmcp-project/ui-frontend).
+Copyright OpenControlPlane contributors. [LICENSE](LICENSE). Detailed third-party information: [REUSE tool](https://api.reuse.software/info/github.com/openmcp-project/ui-frontend).
 
 ---
 
