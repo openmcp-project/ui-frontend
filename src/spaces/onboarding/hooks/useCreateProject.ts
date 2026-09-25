@@ -44,7 +44,7 @@ function buildProjectInput(params: CreateProjectParams): ProjectInput {
   };
 }
 
-const CreateProjectMutation = graphql(`
+export const CreateProjectMutation = graphql(`
   mutation CreateProject($object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {

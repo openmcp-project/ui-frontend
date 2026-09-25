@@ -1,0 +1,96 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 2rem;
+}
+
+/* Editing phase: target banner (full width) on top, then rail + editor row */
+.editingContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editLayout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editMain {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editorWrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.strip {
+  margin: 0.75rem 1rem 0.5rem 1rem;
+}
+
+/* Target row: a native subheader-style band with a colored ObjectStatus chip */
+.targetBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--sapObjectHeader_Background);
+  border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+}
+
+.targetLabel {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+/* Multi-document progress panel (native UI5 progress bar + list) */
+.progressPanel {
+  display: flex;
+  flex-direction: column;
+  width: 18rem;
+  flex-shrink: 0;
+  min-height: 0;
+  border-right: 1px solid var(--sapGroup_ContentBorderColor);
+}
+
+.progressHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+}
+
+.progressLabel {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.progressList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

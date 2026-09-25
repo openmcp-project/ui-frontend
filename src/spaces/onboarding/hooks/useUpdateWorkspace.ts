@@ -12,7 +12,7 @@ import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
 import { CreateWorkspaceParams } from './useCreateWorkspace';
 
-const UpdateWorkspaceMutation = graphql(`
+export const UpdateWorkspaceMutation = graphql(`
   mutation UpdateWorkspace(
     $name: String!
     $namespace: String!

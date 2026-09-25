@@ -12,7 +12,7 @@ import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { CreateProjectParams } from './useCreateProject';
 
-const UpdateProjectMutation = graphql(`
+export const UpdateProjectMutation = graphql(`
   mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
