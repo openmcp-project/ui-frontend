@@ -5,7 +5,8 @@ import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/source-code';
+import '@ui5/webcomponents-icons/dist/bell';
+import { useNotificationsFeature } from '../../context/NotificationsFeatureContext.tsx';
 import {
   Avatar,
   Button,
@@ -261,6 +262,7 @@ const ProfilePopover = ({
   const { rememberedProject, clearRememberedProject } = useRememberedProject();
   const hasRememberedProject = rememberedProject !== null;
   const toast = useToast();
+  const { enabled: notificationsEnabled } = useNotificationsFeature();
 
   const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
     const newValue = event.target.value;
@@ -324,6 +326,17 @@ const ProfilePopover = ({
           <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
             {t('ShellBar.feedbackButtonInfo')}
           </ListItemStandard>
+          {notificationsEnabled && (
+            <ListItemStandard
+              icon="bell"
+              onClick={() => {
+                setOpen(false);
+                window.location.hash = Routes.Notifications;
+              }}
+            >
+              {t('ShellBar.notificationPreferences')}
+            </ListItemStandard>
+          )}
           {hasRememberedProject && (
             <ListItemStandard
               icon="bookmark"

@@ -1,4 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { fetchApiServer } from '../../../lib/api/fetch.ts';
+import { generateCrateAPIConfig } from '../../../lib/api/types/apiConfig.ts';
 
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
@@ -163,6 +165,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { t } = useTranslation();
   const telemetry = useTelemetry();
   const { user } = useAuthOnboarding();
+  const userEmail = user?.email ?? '';
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
@@ -310,6 +313,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
   // Services state — selected + optional version per service
   const [services, setServices] = useState<ServiceSelection>({});
+  const [notifyVersionUpdates, setNotifyVersionUpdates] = useState(true);
 
   // Edit-mode: query existing service state to pre-populate the step.
   // Hooks are always called (rules of hooks) but skipped when not relevant.
@@ -695,6 +699,30 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       }
 
       telemetry.track({ category: 'controlplane', action: isEditMode ? 'edited' : 'created', source: 'v2' });
+
+      // Silently create a UserNotificationOptOut when the user unchecked version notifications.
+      // Failure must never block CP creation reaching the success screen.
+      if (!isEditMode && !notifyVersionUpdates && userEmail) {
+        const ns = cpNamespace;
+        const body = JSON.stringify({
+          apiVersion: 'notifications.platform.open-control-plane.io/v1alpha1',
+          kind: 'UserNotificationOptOut',
+          metadata: { generateName: 'optout-', namespace: ns },
+          spec: {
+            subject: { kind: 'User', name: userEmail },
+            target: { kind: 'ControlPlane', name: cpName },
+            categories: ['NewServiceVersion'],
+          },
+        });
+        fetchApiServer(
+          `/apis/notifications.platform.open-control-plane.io/v1alpha1/namespaces/${ns}/usernotificationoptouts`,
+          generateCrateAPIConfig(),
+          undefined,
+          'POST',
+          body,
+        ).catch(() => { /* intentionally silent */ });
+      }
+
       setSelectedStep('success');
       return true;
     } catch (e) {
@@ -1046,7 +1074,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             {isEditMode && !skipKpi && isKpiLoading ? (
               <BusyIndicator active delay={0} text={t('editMCP.loadingServices')} />
             ) : (
-              <ServiceSelectionStep services={services} onServicesChange={setServices} />
+              <ServiceSelectionStep
+                services={services}
+                onServicesChange={setServices}
+                notifyVersionUpdates={notifyVersionUpdates}
+                onNotifyVersionUpdatesChange={setNotifyVersionUpdates}
+              />
             )}
           </WizardStep>
 

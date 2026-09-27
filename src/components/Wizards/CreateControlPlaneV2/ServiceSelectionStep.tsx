@@ -8,6 +8,7 @@ import {
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
+import { useNotificationsFeature } from '../../../context/NotificationsFeatureContext.tsx';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -49,12 +50,15 @@ const SERVICES: ServiceDef[] = [
 interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
+  notifyVersionUpdates: boolean;
+  onNotifyVersionUpdatesChange: (value: boolean) => void;
 }
 
-export function ServiceSelectionStep({ services, onServicesChange }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({ services, onServicesChange, notifyVersionUpdates, onNotifyVersionUpdatesChange }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
+  const { enabled: notificationsEnabled } = useNotificationsFeature();
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -208,6 +212,19 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
           );
         })}
       </div>
+      {notificationsEnabled && (
+        <div className={styles.row} style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--sapGroup_TitleBorderColor)' }}>
+          <CheckBox
+            checked={notifyVersionUpdates}
+            text={t('ServiceSelectionStep.notifyVersionUpdates')}
+            data-testid="notify-version-updates-checkbox"
+            onChange={(e) => onNotifyVersionUpdatesChange(e.target.checked)}
+          />
+          <p style={{ margin: '4px 0 0 26px', fontSize: '12px', color: 'var(--sapContent_LabelColor)' }}>
+            {t('ServiceSelectionStep.notifyVersionUpdatesHint')}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

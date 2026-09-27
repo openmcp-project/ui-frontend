@@ -139,7 +139,9 @@
     "externalSecretsOperator": "External Secrets Operator",
     "ocm": "OCM",
     "kro": "KRO",
-    "metricsOperator": "Metrics Operator"
+    "metricsOperator": "Metrics Operator",
+    "notifyVersionUpdates": "Notify me about new service versions",
+    "notifyVersionUpdatesHint": "Receive an email when a new version of an installed service becomes available for this control plane."
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -229,7 +231,8 @@
     "backButton": "Back",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
-    "overflowViewYaml": "View YAML"
+    "overflowViewYaml": "View YAML",
+    "notificationPreferences": "Notification preferences"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -731,5 +734,29 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "Notifications": {
+    "pageTitle": "Notification Preferences",
+    "addOptOut": "Add opt-out",
+    "myOptOuts": "My opt-outs",
+    "noOptOuts": "You have no notification opt-outs. You will receive all notifications.",
+    "colTarget": "Resource",
+    "colScope": "Type",
+    "colCategories": "Muted categories",
+    "categoriesAll": "All categories",
+    "delete": "Delete opt-out",
+    "addOptOutTitle": "Mute notifications",
+    "targetKind": "Resource type",
+    "targetName": "Resource name",
+    "targetNamePlaceholder": "e.g. my-project",
+    "categories": "Categories to mute",
+    "categoriesHint": "Leave unchecked to mute all categories.",
+    "category_MembershipAdded": "Membership changes",
+    "category_NewServiceVersion": "New service versions",
+    "kindProject": "Project",
+    "kindWorkspace": "Workspace",
+    "kindControlPlane": "Control Plane",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

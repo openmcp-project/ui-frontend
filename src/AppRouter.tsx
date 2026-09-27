@@ -6,9 +6,11 @@ import { ShellBarComponent } from './components/Core/ShellBar.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
+import { NotificationsFeatureProvider } from './context/NotificationsFeatureContext.tsx';
 import HeadlampPage from './spaces/mcp/pages/HeadlampPage.tsx';
 import ManagedControlPlanePage from './spaces/mcp/pages/ManagedControlPlanePage.tsx';
 import ControlPlanePageV2 from './spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx';
+import { NotificationPreferencesPage } from './spaces/notifications/NotificationPreferencesPage.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
 
@@ -16,7 +18,7 @@ const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 function AppRouter() {
   return (
-    <>
+    <NotificationsFeatureProvider>
       <SearchParamToggleVisibility
         shouldBeVisible={(params) => {
           if (params === undefined) return true;
@@ -46,6 +48,7 @@ function AppRouter() {
                   path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
                   element={<ManagedControlPlanePage />}
                 />
+                <Route path="notifications" element={<NotificationPreferencesPage />} />
               </Route>
 
               {/* backward-compat: /mcp prefix + old segment names */}
@@ -92,7 +95,7 @@ function AppRouter() {
           </Router>
         </SplitterLayout>
       </SplitterProvider>
-    </>
+    </NotificationsFeatureProvider>
   );
 }
 
