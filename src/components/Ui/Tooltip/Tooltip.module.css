@@ -1,0 +1,18 @@
+.trigger {
+  cursor: help;
+  display: flex;
+  outline: none;
+}
+
+.trigger:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--sapContent_FocusColor);
+  outline-offset: 2px;
+}
+
+.content {
+  overflow-wrap: break-word;
+  padding: 0.5rem;
+  white-space: normal;
+  width: 20rem;
+}

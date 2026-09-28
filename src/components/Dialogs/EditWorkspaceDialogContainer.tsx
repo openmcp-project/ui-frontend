@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { BusyIndicator, Dialog } from '@ui5/webcomponents-react';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { extractErrorMessage } from '../../lib/api/error.ts';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
+import { useWatch } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useUpdateWorkspace as _useUpdateWorkspace } from '../../spaces/onboarding/hooks/useUpdateWorkspace.ts';
 import { useGetWorkspace as _useGetWorkspace, WorkspaceData } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { useProjectForm } from './useProjectForm.ts';
 
 function EditWorkspaceForm({
   workspaceData,
@@ -27,7 +27,6 @@ function EditWorkspaceForm({
   projectName?: string;
 }) {
   const { t } = useTranslation();
-  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     watch,
     control,
@@ -35,31 +34,26 @@ function EditWorkspaceForm({
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<CreateDialogProps>({
-    resolver: zodResolver(validationSchemaProjectWorkspace),
-    defaultValues: {
-      name: workspaceData.name,
-      displayName: workspaceData.displayName,
-      chargingTarget: workspaceData.chargingTarget,
-      chargingTargetType: workspaceData.chargingTargetType?.toLowerCase() || '',
-      members: workspaceData.members,
-    },
-  });
+  } = useProjectForm({
+    name: workspaceData.name,
+    displayName: workspaceData.displayName,
+    chargingTarget: workspaceData.chargingTarget,
+    chargingTargetType: workspaceData.chargingTargetType?.toLowerCase() || '',
+    members: workspaceData.members,
+  } as CreateDialogProps);
   const members = useWatch({ control, name: 'members' });
 
   return (
     <CreateProjectWorkspaceDialog
-      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
       titleText={t('EditWorkspaceDialog.title')}
       members={members}
-      register={register}
-      errors={errors}
-      setValue={setValue}
+      form={{ register, errors, setValue, watch, handleSubmit }}
       type={'workspace'}
       isEditMode
+      isMetadataValid={!errors.name && !errors.chargingTarget}
       projectName={projectName}
       onCreate={handleSubmit(onUpdate)}
     />
@@ -94,33 +88,24 @@ export function EditWorkspaceDialogContainer({
 
   useEffect(() => {
     if (fetchError) {
-      errorDialogRef.current?.showErrorDialog(fetchError instanceof Error ? fetchError.message : String(fetchError));
+      errorDialogRef.current?.showErrorDialog(extractErrorMessage(fetchError));
     }
   }, [fetchError]);
 
-  const handleWorkspaceUpdate = async ({
-    name,
-    chargingTarget,
-    displayName,
-    chargingTargetType,
-    members,
-  }: OnCreatePayload): Promise<boolean> => {
-    try {
-      await updateWorkspace(namespace, {
-        name,
-        displayName,
-        chargingTarget,
-        chargingTargetType,
-        members,
-      });
-      telemetry.track({ category: 'workspace', action: 'edited' });
-      setIsOpen(false);
-      return true;
-    } catch (e) {
-      errorDialogRef.current?.showErrorDialog(e instanceof Error ? e.message : String(e));
-      return false;
-    }
-  };
+  const handleWorkspaceUpdate = useCallback(
+    async ({ name, chargingTarget, displayName, chargingTargetType, members }: OnCreatePayload): Promise<boolean> => {
+      try {
+        await updateWorkspace(namespace, { name, displayName, chargingTarget, chargingTargetType, members });
+        telemetry.track({ category: 'workspace', action: 'edited' });
+        setIsOpen(false);
+        return true;
+      } catch (e) {
+        errorDialogRef.current?.showErrorDialog(extractErrorMessage(e));
+        return false;
+      }
+    },
+    [updateWorkspace, namespace, setIsOpen, telemetry],
+  );
 
   const showBusy = isOpen && isLoading && !fetchError;
   const showForm = isOpen && !isLoading && !fetchError && !!workspaceData;

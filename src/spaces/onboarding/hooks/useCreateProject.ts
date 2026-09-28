@@ -1,23 +1,14 @@
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
-import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
+import { buildProjectAnnotations, CreateProjectParams } from '../../../lib/api/types/shared/projectAnnotations';
 import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
 
-export interface CreateProjectParams {
-  name: string;
-  displayName?: string;
-  chargingTarget?: string;
-  chargingTargetType?: string;
-  members: Member[];
-}
+export type { CreateProjectParams };
+export { buildProjectAnnotations };
 
 function buildProjectInput(params: CreateProjectParams): ProjectInput {
   return {
@@ -25,9 +16,7 @@ function buildProjectInput(params: CreateProjectParams): ProjectInput {
     kind: 'Project',
     metadata: {
       name: params.name,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',

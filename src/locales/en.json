@@ -359,7 +359,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -561,7 +562,8 @@
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
     "deprecated": "Deprecated",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "helpButtonLabel": "Help"
   },
   "deprecated": {
     "deprecatedPopoverMessage": "There is a new version of control plane available."
@@ -735,5 +737,37 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "addButton": "Add info",
+    "addButtonTooltip": "This metadata helps support engineers triage issues faster. No runtime impact.",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "staging": "Staging",
+      "testing": "Testing",
+      "development": "Development",
+      "experimental": "Experimental"
+    },
+    "serviceIds": "Service Reference",
+    "serviceIdsPlaceholder": "Services, apps, or landscapes backed by this project",
+    "serviceIdsTooltip": "BTP service IDs, Crossplane provider names, or Landscaper app identifiers managed by this project. Helps support engineers triage incidents by linking them to the owning project.",
+    "contacts": "Contacts",
+    "securityContactsPlaceholder": "Security team email or oncall alias",
+    "securityContactsTooltip": "Emails of security engineers or oncall contacts responsible for incidents in this project.",
+    "opsContactsPlaceholder": "SRE email or ops team alias",
+    "opsContactsTooltip": "Emails of SRE engineers or ops oncall contacts. Used as an escalation path for production incidents.",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit"
   }
 }

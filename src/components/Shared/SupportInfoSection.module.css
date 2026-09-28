@@ -1,0 +1,45 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: var(--sapContent_LabelColor);
+  font-size: 0.8125rem;
+}
+
+.headerIcon {
+  font-size: 0.9rem;
+}
+
+.field,
+.fieldIndent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.fieldIndent {
+  padding-left: 1.1rem;
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  color: var(--sapContent_LabelColor);
+  font-weight: 600;
+}
+
+.fieldValue {
+  font-size: 0.875rem;
+}
+
+.fieldEmpty {
+  font-size: 0.875rem;
+  color: var(--sapContent_NonInteractiveIconColor);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}

@@ -4,6 +4,7 @@ import {
   BusyIndicator,
   CheckBox,
   Link,
+  Tag,
 } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
@@ -13,18 +14,22 @@ import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
+import { EditProjectDialogContainer } from '../Dialogs/EditProjectDialogContainer.tsx';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
 import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
+import { HoverRevealTag } from '../Ui/HoverRevealTag/HoverRevealTag.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { ProjectSupportInfoPopover } from './ProjectSupportInfoPopover.tsx';
 
 type ProjectListRow = {
   projectName: string;
@@ -69,6 +74,83 @@ function ProjectDisplayNameCell({
   }, [isLoading, displayName, projectName, onDisplayName]);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
+}
+
+function MetadataCell({
+  projectName,
+  useProjectMembers,
+}: {
+  projectName: string;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
+  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
+    useProjectMembers(projectName);
+  const openerId = `metadata-${projectName}`;
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  if (isLoading) return <BusyIndicator active size="S" />;
+
+  if (!supportLandscape) {
+    return (
+      <FadeIn>
+        <HoverRevealTag
+          delay={50}
+          className={styles.metadataTag}
+          colorScheme={purposeColorScheme(undefined)}
+          copy={t('SupportInfo.addButton')}
+          design="Set2"
+          id={openerId}
+          onClick={() => setEditOpen(true)}
+        />
+        {editOpen && (
+          <EditProjectDialogContainer
+            isOpen={editOpen}
+            setIsOpen={setEditOpen}
+            projectName={projectName}
+            initialStep="supportInfo"
+            source="support-cta"
+          />
+        )}
+      </FadeIn>
+    );
+  }
+
+  return (
+    <FadeIn>
+      <Tag
+        id={openerId}
+        interactive
+        design="Set2"
+        colorScheme={purposeColorScheme(supportLandscape)}
+        className={styles.metadataTag}
+        onClick={() => setPopoverOpen(true)}
+      >
+        {purposeLabel(t, supportLandscape)}
+      </Tag>
+      {popoverOpen && (
+        <ProjectSupportInfoPopover
+          opener={openerId}
+          open={popoverOpen}
+          supportLandscape={supportLandscape}
+          supportServiceIds={supportServiceIds}
+          supportSecurityContacts={supportSecurityContacts}
+          supportOpsContacts={supportOpsContacts}
+          onClose={() => setPopoverOpen(false)}
+          onEditClick={() => setEditOpen(true)}
+        />
+      )}
+      {editOpen && (
+        <EditProjectDialogContainer
+          isOpen={editOpen}
+          setIsOpen={setEditOpen}
+          projectName={projectName}
+          initialStep="supportInfo"
+          source="metadata-popover"
+        />
+      )}
+    </FadeIn>
+  );
 }
 
 interface Props {
@@ -234,6 +316,16 @@ const ProjectsList = forwardRef<ProjectsListHandle, Props>(function ProjectsList
         disableSortBy: true,
         Cell: (instance) => (
           <ProjectMembersCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />
+        ),
+      },
+      {
+        Header: t('ProjectsListView.metadataHeader'),
+        accessor: 'metadata',
+        width: 120,
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: (instance) => (
+          <MetadataCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />
         ),
       },
       {
