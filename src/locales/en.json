@@ -158,6 +158,7 @@
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig",
+    "downloadKubeconfigError": "Could not download the kubeconfig. Please try again.",
     "noContextsError": "No connection context found in kubeconfig",
     "noAccessTitle": "No connection configured"
   },
