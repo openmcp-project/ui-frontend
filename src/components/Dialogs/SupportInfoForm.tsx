@@ -1,9 +1,21 @@
+import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import { Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import {
+  Button,
+  Label,
+  MessageBox,
+  MessageBoxType,
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
+import { useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
@@ -15,6 +27,65 @@ interface SupportInfoFormProps {
   register: UseFormRegister<CreateDialogProps>;
   watch: UseFormWatch<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
+  copyFromProjectName?: string;
+  useProjectMembers?: typeof _useProjectMembers;
+}
+
+function CopySupportInfoFromProjectButton({
+  projectName,
+  setValue,
+  useProjectMembers = _useProjectMembers,
+}: {
+  projectName: string;
+  setValue: UseFormSetValue<CreateDialogProps>;
+  useProjectMembers?: typeof _useProjectMembers;
+}) {
+  const { t } = useTranslation();
+  // We only need the parent project's support annotations here; useProjectMembers
+  // is the existing query that already exposes them (its members payload is unused).
+  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
+    useProjectMembers(projectName);
+  const [noDataOpen, setNoDataOpen] = useState(false);
+
+  const handleCopy = () => {
+    const values = {
+      supportLandscape: supportLandscape ?? '',
+      supportServiceIds: supportServiceIds ?? '',
+      supportSecurityContacts: supportSecurityContacts ?? '',
+      supportOpsContacts: supportOpsContacts ?? '',
+    } as const;
+
+    if (!Object.values(values).some((v) => v.trim() !== '')) {
+      setNoDataOpen(true);
+      return;
+    }
+
+    (Object.entries(values) as [keyof typeof values, string][]).forEach(([field, value]) =>
+      setValue(field, value, { shouldDirty: true, shouldValidate: true }),
+    );
+  };
+
+  return (
+    <div className={styles.copyRow}>
+      <Button
+        data-testid="copy-support-info-from-project"
+        design="Transparent"
+        disabled={isLoading}
+        icon="copy"
+        onClick={handleCopy}
+      >
+        {t('SupportInfo.copyFromProject')}
+      </Button>
+      <MessageBox
+        open={noDataOpen}
+        titleText={t('SupportInfo.copyFromProject')}
+        type={MessageBoxType.Information}
+        onClose={() => setNoDataOpen(false)}
+      >
+        {t('SupportInfo.copyFromProjectNoData')}
+      </MessageBox>
+    </div>
+  );
 }
 
 function Field({
@@ -39,7 +110,13 @@ function Field({
   );
 }
 
-export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormProps) {
+export function SupportInfoForm({
+  register,
+  watch,
+  setValue,
+  copyFromProjectName,
+  useProjectMembers,
+}: SupportInfoFormProps) {
   const { t } = useTranslation();
   const supportLandscape = watch('supportLandscape') ?? '';
   const supportServiceIds = watch('supportServiceIds') ?? '';
@@ -53,6 +130,13 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
   return (
     <div className={styles.container}>
+      {copyFromProjectName && (
+        <CopySupportInfoFromProjectButton
+          projectName={copyFromProjectName}
+          setValue={setValue}
+          useProjectMembers={useProjectMembers}
+        />
+      )}
       <Infobox variant={'success'} size="sm">
         {t('SupportInfo.wizardIntro')}
       </Infobox>

@@ -4,6 +4,12 @@
   text-align: left;
 }
 
+.copyRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
 .fields {
   display: flex;
   flex-direction: column;

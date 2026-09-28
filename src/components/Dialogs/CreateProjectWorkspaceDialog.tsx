@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FieldErrors, UseFormHandleSubmit, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from './MetadataForm.tsx';
@@ -59,6 +60,7 @@ export interface CreateProjectWorkspaceDialogProps {
   isLoading?: boolean;
   isEditMode?: boolean;
   initialStep?: Step;
+  useProjectMembers?: typeof _useProjectMembers;
 }
 
 export type Step = 'metadata' | 'members' | 'supportInfo';
@@ -77,6 +79,7 @@ export function CreateProjectWorkspaceDialog({
   isLoading = false,
   isEditMode = false,
   initialStep = 'metadata',
+  useProjectMembers,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>(initialStep);
@@ -150,10 +153,16 @@ export function CreateProjectWorkspaceDialog({
                 </Button>
                 {isEditMode ? (
                   <>
-                    <BusyIndicator active={isLoading} size="S" />
-                    <Button design="Emphasized" icon="save" disabled={isLoading || !canSave} onClick={() => onCreate()}>
-                      {t('CreateProjectWorkspaceDialog.saveButton')}
-                    </Button>
+                    <BusyIndicator active={isLoading} size="S">
+                      <Button
+                        design="Emphasized"
+                        icon="save"
+                        disabled={isLoading || !canSave}
+                        onClick={() => onCreate()}
+                      >
+                        {t('CreateProjectWorkspaceDialog.saveButton')}
+                      </Button>
+                    </BusyIndicator>
                   </>
                 ) : step === 'metadata' ? (
                   <Button
@@ -169,33 +178,25 @@ export function CreateProjectWorkspaceDialog({
                     <Button icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
                       {t('buttons.back')}
                     </Button>
-                    {type === 'project' ? (
-                      <Button
-                        design="Emphasized"
-                        endIcon="navigation-right-arrow"
-                        disabled={members.length === 0}
-                        onClick={() => setStep('supportInfo')}
-                      >
-                        {t('buttons.next')}
-                      </Button>
-                    ) : (
-                      <>
-                        <BusyIndicator active={isLoading} size="S" />
-                        <Button design="Emphasized" icon="add" disabled={isLoading} onClick={() => onCreate()}>
-                          {t('CreateProjectWorkspaceDialog.createButton')}
-                        </Button>
-                      </>
-                    )}
+                    <Button
+                      design="Emphasized"
+                      endIcon="navigation-right-arrow"
+                      disabled={members.length === 0}
+                      onClick={() => setStep('supportInfo')}
+                    >
+                      {t('buttons.next')}
+                    </Button>
                   </>
                 ) : (
                   <>
                     <Button icon="navigation-left-arrow" onClick={() => setStep('members')}>
                       {t('buttons.back')}
                     </Button>
-                    <BusyIndicator active={isLoading} size="S" />
-                    <Button design="Emphasized" icon="add" disabled={isLoading} onClick={() => onCreate()}>
-                      {t('CreateProjectWorkspaceDialog.createButton')}
-                    </Button>
+                    <BusyIndicator active={isLoading} size="S">
+                      <Button design="Emphasized" icon="add" disabled={isLoading} onClick={() => onCreate()}>
+                        {t('CreateProjectWorkspaceDialog.createButton')}
+                      </Button>
+                    </BusyIndicator>
                   </>
                 )}
               </div>
@@ -239,17 +240,21 @@ export function CreateProjectWorkspaceDialog({
                   />
                 </FormGroup>
               </WizardStep>
-              {type === 'project' && (
-                <WizardStep
-                  data-step="supportInfo"
-                  disabled={!canSave}
-                  icon="activities"
-                  selected={step === 'supportInfo'}
-                  titleText={t('SupportInfo.wizardStepTitle')}
-                >
-                  <SupportInfoForm register={register} watch={watch} setValue={setValue} />
-                </WizardStep>
-              )}
+              <WizardStep
+                data-step="supportInfo"
+                disabled={!canSave}
+                icon="activities"
+                selected={step === 'supportInfo'}
+                titleText={t('SupportInfo.wizardStepTitle')}
+              >
+                <SupportInfoForm
+                  register={register}
+                  watch={watch}
+                  setValue={setValue}
+                  copyFromProjectName={type === 'workspace' ? projectName : undefined}
+                  useProjectMembers={useProjectMembers}
+                />
+              </WizardStep>
             </Wizard>
           </SplitterElement>
 

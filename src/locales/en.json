@@ -768,6 +768,8 @@
     "contextSection": "Region & Service",
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
-    "editButton": "Edit"
+    "editButton": "Edit",
+    "copyFromProject": "Copy Support Info from the Project",
+    "copyFromProjectNoData": "The parent project has no support info to copy."
   }
 }

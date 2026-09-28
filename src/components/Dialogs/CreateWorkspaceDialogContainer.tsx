@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useWatch } from 'react-hook-form';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { extractErrorMessage } from '../../lib/api/error.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -39,12 +40,14 @@ export function CreateWorkspaceDialogContainer({
   project = '',
   useCreateWorkspace = _useCreateWorkspace,
   useAuthOnboarding = _useAuthOnboarding,
+  useProjectMembers = _useProjectMembers,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   project?: string;
   useCreateWorkspace?: typeof _useCreateWorkspace;
   useAuthOnboarding?: typeof _useAuthOnboarding;
+  useProjectMembers?: typeof _useProjectMembers;
 }) {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
@@ -102,6 +105,7 @@ export function CreateWorkspaceDialogContainer({
       isLoading={isLoading}
       type={'workspace'}
       projectName={project}
+      useProjectMembers={useProjectMembers}
       // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleWorkspaceCreate)}
     />
