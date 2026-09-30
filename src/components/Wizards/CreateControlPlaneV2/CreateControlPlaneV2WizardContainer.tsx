@@ -31,6 +31,8 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboard
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
+import { SupportInfoForm } from '../../Dialogs/SupportInfoForm.tsx';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
@@ -124,9 +126,16 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useDeleteMetricsOperator?: typeof _useDeleteMetricsOperator;
 };
 
-export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
+export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'supportInfo' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
+const wizardStepOrder: WizardStepType[] = [
+  'metadata',
+  'members',
+  'componentSelection',
+  'supportInfo',
+  'summarize',
+  'success',
+];
 
 export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
@@ -231,6 +240,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       chargingTargetType: '',
       members: [],
       componentsList: [],
+      supportLandscape: '',
+      supportServiceIds: '',
+      supportSecurityContacts: '',
+      supportOpsContacts: '',
     },
     mode: 'onChange',
   });
@@ -262,6 +275,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       metadata: t('buttons.next'),
       members: t('buttons.next'),
       componentSelection: t('buttons.next'),
+      supportInfo: t('buttons.next'),
       summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
       success: t('buttons.close'),
     }),
@@ -432,6 +446,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
+  const supportLandscape = useWatch({ control, name: 'supportLandscape' });
+  const supportServiceIds = useWatch({ control, name: 'supportServiceIds' });
+  const supportSecurityContacts = useWatch({ control, name: 'supportSecurityContacts' });
+  const supportOpsContacts = useWatch({ control, name: 'supportOpsContacts' });
 
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members ?? [], extraProviders),
@@ -451,13 +469,30 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       namespace: `${projectName}--ws-${workspaceName}`,
       roleBindings,
       extraProviders: extraProvidersInput,
+      supportLandscape,
+      supportServiceIds,
+      supportSecurityContacts,
+      supportOpsContacts,
     };
-  }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
+  }, [
+    name,
+    displayName,
+    templateAffixes,
+    projectName,
+    workspaceName,
+    members,
+    extraProviders,
+    supportLandscape,
+    supportServiceIds,
+    supportSecurityContacts,
+    supportOpsContacts,
+  ]);
 
   const originalYamlString = useMemo(() => {
     if (!isEditMode || !initialData) return '';
     const { members: initMembers, extraProviders: initExtraProviders } = extractMcpV2FormState(initialData);
     const initDefaultMembers = initMembers.filter((m) => !m.provider);
+    const initSupport = extractSupportInfo(initialData.metadata.annotations);
     const originalInput: McpV2Input = {
       name: initialData.metadata.name,
       namespace: initialData.metadata.namespace,
@@ -466,6 +501,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         ...p,
         roleBindings: buildRoleBindingsForProviderMembers(initMembers.filter((m) => m.provider === p.name)),
       })),
+      supportLandscape: initSupport.supportLandscape,
+      supportServiceIds: initSupport.supportServiceIds,
+      supportSecurityContacts: initSupport.supportSecurityContacts,
+      supportOpsContacts: initSupport.supportOpsContacts,
     };
     return stringify(buildMcpV2GraphQLInput(originalInput));
   }, [isEditMode, initialData]);
@@ -502,6 +541,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           namespace: cpNamespace,
           roleBindings: rawInput.roleBindings,
           extraProviders: rawInput.extraProviders,
+          supportLandscape: rawInput.supportLandscape,
+          supportServiceIds: rawInput.supportServiceIds,
+          supportSecurityContacts: rawInput.supportSecurityContacts,
+          supportOpsContacts: rawInput.supportOpsContacts,
         });
       } else {
         await createMcp(rawInput);
@@ -775,6 +818,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         setSelectedStep('componentSelection');
         break;
       case 'componentSelection':
+        setSelectedStep('supportInfo');
+        break;
+      case 'supportInfo':
         setSelectedStep('summarize');
         break;
       case 'summarize':
@@ -821,9 +867,19 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             !isValid ||
             hasNoAssignedMembers
           );
-        case 'summarize':
+        case 'supportInfo':
           return (
             ((selectedStep === 'metadata' || selectedStep === 'members' || selectedStep === 'componentSelection') &&
+              !isEditMode) ||
+            !isValid ||
+            hasNoAssignedMembers
+          );
+        case 'summarize':
+          return (
+            ((selectedStep === 'metadata' ||
+              selectedStep === 'members' ||
+              selectedStep === 'componentSelection' ||
+              selectedStep === 'supportInfo') &&
               !isEditMode) ||
             !isValid ||
             hasNoAssignedMembers
@@ -861,6 +917,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
+    const support = extractSupportInfo(annotations);
     reset({
       name,
       displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
@@ -868,6 +925,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       chargingTargetType: '',
       members,
       componentsList: [],
+      supportLandscape: support.supportLandscape ?? '',
+      supportServiceIds: support.supportServiceIds ?? '',
+      supportSecurityContacts: support.supportSecurityContacts ?? '',
+      supportOpsContacts: support.supportOpsContacts ?? '',
     });
 
     setExtraProviders(prefilledProviders);
@@ -1068,6 +1129,16 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                 onServicesChange={setServices}
               />
             )}
+          </WizardStep>
+
+          <WizardStep
+            data-step="supportInfo"
+            disabled={isStepDisabled('supportInfo')}
+            icon="activities"
+            selected={selectedStep === 'supportInfo'}
+            titleText={t('SupportInfo.wizardStepTitle')}
+          >
+            <SupportInfoForm register={register} watch={watch} setValue={setValue} />
           </WizardStep>
 
           <WizardStep

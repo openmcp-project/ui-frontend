@@ -123,7 +123,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('#name').typeIntoUi5Input('my-new-mcp');
     cy.get('ui5-button').contains('Next').click(); // metadata → members
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
-    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
     cy.get('ui5-button').contains('Create').click();
 
     cy.then(() => {
@@ -137,6 +138,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     mountWizard();
 
     cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
@@ -372,7 +374,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     cy.get('ui5-button').contains('Next').click(); // metadata → members
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
-    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
     cy.get('ui5-button').contains('Update').click();
 
     cy.then(() => {
@@ -396,6 +399,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledMetricsOperatorMock,
     ]);
 
+    cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
@@ -426,6 +430,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       ],
     );
 
+    cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
@@ -581,7 +586,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     cy.get('ui5-button').contains('Next').click(); // metadata → members
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
-    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
     cy.get('ui5-button').contains('Update').click();
 
     cy.then(() => {
@@ -610,7 +616,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.contains('custom').should('exist');
 
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
-    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
     cy.get('ui5-button').contains('Create').click();
 
     cy.then(() => {
@@ -645,7 +652,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       mountWizard({ isEditMode: true, initialData: existingMcp }, mocks);
       cy.get('ui5-button').contains('Next').click(); // metadata → members
       cy.get('ui5-button').contains('Next').click(); // members → componentSelection
-      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+      cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
     };
 
     const allNotInstalled = [
@@ -692,7 +700,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       // Deselect provider-btp so it becomes a removal
       cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
 
-      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+      cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
 
       // Removed provider should appear with its installed version
       cy.contains('provider-btp').should('exist');
@@ -860,7 +869,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('[data-testid="service-flux-checkbox"]').should('have.attr', 'checked');
       cy.get('[data-testid="service-flux-checkbox"]').toggleUi5Checkbox();
 
-      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+      cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
       cy.get('ui5-button').contains('Update').click();
 
       cy.then(() => {
@@ -900,6 +910,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       );
 
       cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Update').click();
 
       cy.then(() => {
@@ -934,6 +945,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.contains('provider-btp').should('exist');
       cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
 
+      cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Update').click();
 
@@ -971,6 +983,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('[data-testid="service-externalSecretsOperator-checkbox"]').should('not.have.attr', 'checked');
       cy.get('[data-testid="service-externalSecretsOperator-checkbox"]').toggleUi5Checkbox();
 
+      cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Update').click();
 
@@ -1012,7 +1025,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('[data-testid="service-ocm-checkbox"]').should('have.attr', 'checked');
       cy.get('[data-testid="service-ocm-checkbox"]').toggleUi5Checkbox();
 
-      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+      cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
       cy.get('ui5-button').contains('Update').click();
 
       cy.then(() => {
@@ -1049,6 +1063,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('[data-testid="service-kro-checkbox"]').toggleUi5Checkbox();
 
       cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Update').click();
 
       cy.then(() => {
@@ -1082,6 +1097,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       // KRO comes back pre-selected because it was reported as installed.
       cy.get('[data-testid="service-kro-checkbox"]').should('have.attr', 'checked');
 
+      cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Update').click();
 
