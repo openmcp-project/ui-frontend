@@ -1,36 +1,12 @@
-import { useMemo } from 'react';
+import { useApiResource } from '../../../lib/api/useApiResource';
+import {
+  CrossplaneProvider,
+  ManagedService,
+  ManagedServiceRequest,
+  ManagedServiceResource,
+} from '../../../lib/api/types/open-control-plane/managedServices';
 
-export interface ManagedServiceVersion {
-  version: string;
-}
-
-export interface ManagedService {
-  name: string;
-  kind: string;
-  apiVersion: string;
-  versions: ManagedServiceVersion[];
-}
-
-export interface CrossplaneProvider {
-  name: string;
-  versions: ManagedServiceVersion[];
-}
-
-export interface ManagedServiceStatus {
-  services: ManagedService[];
-  crossplaneProviders: CrossplaneProvider[];
-}
-
-export interface ManagedServiceResource {
-  apiVersion: string;
-  kind: string;
-  metadata: {
-    name: string;
-    namespace: string;
-  };
-  spec: Record<string, never>;
-  status: ManagedServiceStatus;
-}
+export type { ManagedService, ManagedServiceResource, CrossplaneProvider };
 
 export interface UseManagedServicesQueryResult {
   managedServicesData: ManagedServiceResource | null;
@@ -38,17 +14,17 @@ export interface UseManagedServicesQueryResult {
   crossplaneProviders: CrossplaneProvider[];
   isLoading: boolean;
   error: unknown | null;
+  usedMockInstead?: boolean;
 }
-// TODO: This mock data should be replaced with Custom Resource Definition (CRD) data fetched from the backend
+
 const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
-  apiVersion: 'sap.openmcp.io/v1',
+  apiVersion: 'open-control-plane.io/v1',
   kind: 'ManagedService',
   metadata: {
     name: 'catalog',
-    namespace: 'default',
+    namespace: '',
   },
-  spec: {},
-  status: {
+  spec: {
     services: [
       {
         name: 'crossplane',
@@ -115,13 +91,26 @@ const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
 };
 
 export function useManagedServicesQuery(): UseManagedServicesQueryResult {
-  const managedServicesData = useMemo(() => MOCK_MANAGED_SERVICE, []);
+  const { data, error, isLoading } = useApiResource(ManagedServiceRequest);
+
+  const usedMockInstead = !!error;
+
+  if (usedMockInstead) {
+    return {
+      managedServicesData: MOCK_MANAGED_SERVICE,
+      services: MOCK_MANAGED_SERVICE.spec.services,
+      crossplaneProviders: MOCK_MANAGED_SERVICE.spec.crossplaneProviders,
+      isLoading: false,
+      error,
+      usedMockInstead: true,
+    };
+  }
 
   return {
-    managedServicesData,
-    services: managedServicesData.status.services,
-    crossplaneProviders: managedServicesData.status.crossplaneProviders,
-    isLoading: false,
+    managedServicesData: data ?? null,
+    services: data?.spec.services ?? [],
+    crossplaneProviders: data?.spec.crossplaneProviders ?? [],
+    isLoading,
     error: null,
   };
 }
