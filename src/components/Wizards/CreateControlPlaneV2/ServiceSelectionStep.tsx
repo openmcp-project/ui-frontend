@@ -1,4 +1,13 @@
-import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import {
+  BusyIndicator,
+  CheckBox,
+  FlexBox,
+  Label,
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -54,7 +63,7 @@ interface ServiceSelectionStepProps {
 
 export function ServiceSelectionStep({ services, onServicesChange, showLandscaper }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
-  const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
+  const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
   const visibleServices = useMemo(
     () => (showLandscaper ? SERVICES : SERVICES.filter((s) => s.key !== 'landscaper')),
@@ -153,66 +162,68 @@ export function ServiceSelectionStep({ services, onServicesChange, showLandscape
   }, [services, crossplaneProviders, onServicesChange]);
 
   return (
-    <div className={styles.container}>
-      <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
-      <div className={styles.grid}>
-        {visibleServices.map(({ key, labelKey, logo, serviceName }) => {
-          const entry = services[key];
-          const selected = entry?.selected ?? false;
-          const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
-          const currentVersion = entry?.version ?? '';
-          const versionOptions =
-            currentVersion && !versions.some((v) => v.version === currentVersion)
-              ? [{ version: currentVersion }, ...versions]
-              : versions;
-          return (
-            <div key={key} className={styles.row}>
-              <FlexBox alignItems="Center" gap={12}>
-                <img src={logo} alt={t(labelKey)} className={styles.logo} />
-                <CheckBox
-                  checked={selected}
-                  text={t(labelKey)}
-                  data-testid={`service-${key}-checkbox`}
-                  onChange={(e) => toggle(key, e.target.checked)}
-                />
-              </FlexBox>
-              {selected && (
-                <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
-                  <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
-                  <Select
-                    id={`service-${key}-version`}
-                    data-testid={`service-${key}-version`}
-                    accessibleName={t('ServiceSelectionStep.versionLabel')}
-                    value={entry?.version ?? ''}
-                    className={styles.versionSelect}
-                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
-                      setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
-                    }
-                  >
-                    {versionOptions.map(({ version: v }) => (
-                      <Option key={v} value={v}>
-                        {v}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
-              )}
-              {key === 'crossplane' && selected && (
-                <div className={styles.providersSection}>
-                  <Label>{t('ComponentInstallDialog.providers')}</Label>
-                  <CrossplaneProviderPicker
-                    providers={crossplaneProviderStates}
-                    catalog={crossplaneProviders}
-                    disabled={!entry?.version}
-                    onToggle={toggleCrossplaneProvider}
-                    onVersionChange={setCrossplaneProviderVersion}
+    <BusyIndicator active={isLoading} className={styles.container}>
+      <div className={styles.container}>
+        <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
+        <div className={styles.grid}>
+          {visibleServices.map(({ key, labelKey, logo, serviceName }) => {
+            const entry = services[key];
+            const selected = entry?.selected ?? false;
+            const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+            const currentVersion = entry?.version ?? '';
+            const versionOptions =
+              currentVersion && !versions.some((v) => v.version === currentVersion)
+                ? [{ version: currentVersion }, ...versions]
+                : versions;
+            return (
+              <div key={key} className={styles.row}>
+                <FlexBox alignItems="Center" gap={12}>
+                  <img src={logo} alt={t(labelKey)} className={styles.logo} />
+                  <CheckBox
+                    checked={selected}
+                    text={t(labelKey)}
+                    data-testid={`service-${key}-checkbox`}
+                    onChange={(e) => toggle(key, e.target.checked)}
                   />
-                </div>
-              )}
-            </div>
-          );
-        })}
+                </FlexBox>
+                {selected && (
+                  <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
+                    <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
+                    <Select
+                      id={`service-${key}-version`}
+                      data-testid={`service-${key}-version`}
+                      accessibleName={t('ServiceSelectionStep.versionLabel')}
+                      value={entry?.version ?? ''}
+                      className={styles.versionSelect}
+                      onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                        setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
+                      }
+                    >
+                      {versionOptions.map(({ version: v }) => (
+                        <Option key={v} value={v}>
+                          {v}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FlexBox>
+                )}
+                {key === 'crossplane' && selected && (
+                  <div className={styles.providersSection}>
+                    <Label>{t('ComponentInstallDialog.providers')}</Label>
+                    <CrossplaneProviderPicker
+                      providers={crossplaneProviderStates}
+                      catalog={crossplaneProviders}
+                      disabled={!entry?.version}
+                      onToggle={toggleCrossplaneProvider}
+                      onVersionChange={setCrossplaneProviderVersion}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </BusyIndicator>
   );
 }
