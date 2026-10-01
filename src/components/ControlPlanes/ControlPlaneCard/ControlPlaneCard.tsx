@@ -323,7 +323,7 @@ export const ControlPlaneCard = ({
                 setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
                 controlPlaneName={name}
                 mcpNamespace={controlPlane.metadata.namespace}
-                oidcOpenmcpSecretName={controlPlane.status?.access?.oidc_openmcp?.name}
+                access={controlPlane.status?.access}
               />
             )}
             <YamlViewButton
