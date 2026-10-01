@@ -78,6 +78,7 @@ import { useUpdateKro as _useUpdateKro } from '../../../spaces/mcp/hooks/useUpda
 import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
 import { useUpdateMetricsOperator as _useUpdateMetricsOperator } from '../../../spaces/mcp/hooks/useUpdateMetricsOperator.ts';
 import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpdateOcm.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
@@ -122,6 +123,7 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useCreateMetricsOperator?: typeof _useCreateMetricsOperator;
   useUpdateMetricsOperator?: typeof _useUpdateMetricsOperator;
   useDeleteMetricsOperator?: typeof _useDeleteMetricsOperator;
+  useManagedServicesQuery?: typeof _useManagedServicesQuery;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -163,6 +165,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useCreateMetricsOperator = _useCreateMetricsOperator,
   useUpdateMetricsOperator = _useUpdateMetricsOperator,
   useDeleteMetricsOperator = _useDeleteMetricsOperator,
+  useManagedServicesQuery = _useManagedServicesQuery,
 }) => {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
@@ -1065,6 +1068,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               <ServiceSelectionStep
                 services={services}
                 showLandscaper={showLandscaper}
+                useManagedServicesQuery={useManagedServicesQuery}
                 onServicesChange={setServices}
               />
             )}

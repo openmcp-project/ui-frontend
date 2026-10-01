@@ -20,6 +20,7 @@ import { useDeleteOcm } from '../../../spaces/mcp/hooks/useDeleteOcm.ts';
 import { useCreateKro } from '../../../spaces/mcp/hooks/useCreateKro.ts';
 import { useUpdateKro } from '../../../spaces/mcp/hooks/useUpdateKro.ts';
 import { useDeleteKro } from '../../../spaces/mcp/hooks/useDeleteKro.ts';
+import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import {
   GetCrossplaneDocument,
   GetFluxDocument,
@@ -68,6 +69,61 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     error: undefined,
   });
 
+  const fakeUseManagedServicesQuery: typeof useManagedServicesQuery = () => ({
+    managedServicesData: null,
+    services: [
+      {
+        name: 'crossplane',
+        kind: 'Crossplane',
+        apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: 'v1.20.1-1' }, { version: 'v2.0.8' }],
+      },
+      {
+        name: 'flux',
+        kind: 'Flux',
+        apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: '2.8.3' }, { version: 'v2.18.2' }],
+      },
+      {
+        name: 'landscaper',
+        kind: 'Landscaper',
+        apiVersion: 'landscaper.services.open-control-plane.io/v1alpha2',
+        versions: [{ version: 'v1.0.5' }, { version: 'v1.2.0' }, { version: 'v1.2.2' }, { version: 'v1.4.0' }],
+      },
+      {
+        name: 'external-secrets-operator',
+        kind: 'ExternalSecretsOperator',
+        apiVersion: 'external-secrets.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: 'v1.3.2' }, { version: 'v2.4.1' }],
+      },
+      {
+        name: 'ocm',
+        kind: 'OCM',
+        apiVersion: 'ocm.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: 'v0.6.0' }, { version: 'v0.16.0' }],
+      },
+      {
+        name: 'kro',
+        kind: 'KRO',
+        apiVersion: 'kro.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: 'v0.9.0' }, { version: 'v0.9.4' }],
+      },
+      {
+        name: 'metrics-operator',
+        kind: 'MetricsOperator',
+        apiVersion: 'metrics.services.open-control-plane.io/v1alpha1',
+        versions: [],
+      },
+    ],
+    crossplaneProviders: [
+      { name: 'provider-btp', versions: [{ version: 'v1.3.0' }, { version: 'v2.2.0' }] },
+      { name: 'provider-helm', versions: [{ version: 'v1.0.1' }, { version: 'v1.4.0' }] },
+      { name: 'provider-kubernetes', versions: [{ version: 'v0.15.0' }, { version: 'v1.2.1' }] },
+    ],
+    isLoading: false,
+    error: null,
+  });
+
   before(() => {
     cy.on('uncaught:exception', (err) => {
       if (err.message.includes('module is not defined')) return false;
@@ -104,6 +160,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
               setIsOpen={() => {}}
               projectName="my-project"
               workspaceName="my-workspace"
+              useManagedServicesQuery={fakeUseManagedServicesQuery}
               useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
               useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
               useAuthOnboarding={fakeUseAuthOnboarding}

@@ -6,7 +6,7 @@ import {
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
@@ -51,9 +51,15 @@ interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
   showLandscaper: boolean;
+  useManagedServicesQuery?: typeof _useManagedServicesQuery;
 }
 
-export function ServiceSelectionStep({ services, onServicesChange, showLandscaper }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({
+  services,
+  onServicesChange,
+  showLandscaper,
+  useManagedServicesQuery = _useManagedServicesQuery,
+}: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
