@@ -12,6 +12,7 @@ import {
   Button,
   Dialog,
   FlexBox,
+  Grid,
   Icon,
   Text,
   Ui5CustomEvent,
@@ -38,6 +39,8 @@ import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
+import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
+import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
@@ -84,6 +87,9 @@ import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../sp
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import summarizeStyles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import { YamlDiff } from '../CreateManagedControlPlane/YamlDiff.tsx';
+import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
@@ -179,6 +185,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { user } = useAuthOnboarding();
   const { showLandscaperCard } = useFeatureToggle();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  // projectName uses the "project-<name>" namespace prefix convention; strip it for GraphQL queries
+  const bareProjectName = projectName.startsWith('project-') ? projectName.slice('project-'.length) : projectName;
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
   const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
@@ -508,6 +516,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     };
     return stringify(buildMcpV2GraphQLInput(originalInput));
   }, [isEditMode, initialData]);
+
+  const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
+    const res = buildMcpV2GraphQLInput(rawInput);
+    return {
+      yamlString: stringify(res),
+      ...parseResourceApiInfo(res as unknown as Resource),
+    };
+  }, [rawInput]);
 
   const initialServices = useMemo(
     () => ({
@@ -1138,7 +1154,33 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'supportInfo'}
             titleText={t('SupportInfo.wizardStepTitle')}
           >
-            <SupportInfoForm register={register} watch={watch} setValue={setValue} />
+            <div className={summarizeStyles.wrapper}>
+              <Grid defaultSpan="XL6 L6 M6 S6">
+                <div>
+                  <SupportInfoForm
+                    register={register}
+                    watch={watch}
+                    setValue={setValue}
+                    copyFromProjectName={bareProjectName}
+                    copyFromWorkspaceName={workspaceName}
+                    copyFromWorkspaceNamespace={projectName}
+                    introText={t('SupportInfo.wizardIntroControlPlane')}
+                  />
+                </div>
+                <div>
+                  {isEditMode ? (
+                    <YamlDiff originalYaml={originalYamlString} modifiedYaml={yamlString} absolutePosition />
+                  ) : (
+                    <YamlSummarize
+                      yamlString={yamlString}
+                      filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
+                      apiVersion={apiVersion}
+                      apiGroupName={apiGroupName}
+                    />
+                  )}
+                </div>
+              </Grid>
+            </div>
           </WizardStep>
 
           <WizardStep
