@@ -39,20 +39,20 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider
  */
 export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects_Input = {
   /**
-   * APIGroup holds the API group of the referenced subject.
+   * apiGroup holds the API group of the referenced subject.
    * Defaults to "" for ServiceAccount subjects.
    * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
    */
   apiGroup?: string | null | undefined;
   /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
    * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
    */
   kind?: string | null | undefined;
-  /** Name of the object being referenced. */
+  /** name of the object being referenced. */
   name?: string | null | undefined;
   /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
    * the Authorizer should report an error.
    */
   namespace?: string | null | undefined;
@@ -120,20 +120,20 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersR
  */
 export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects_Input = {
   /**
-   * APIGroup holds the API group of the referenced subject.
+   * apiGroup holds the API group of the referenced subject.
    * Defaults to "" for ServiceAccount subjects.
    * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
    */
   apiGroup?: string | null | undefined;
   /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
    * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
    */
   kind?: string | null | undefined;
-  /** Name of the object being referenced. */
+  /** name of the object being referenced. */
   name?: string | null | undefined;
   /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
    * the Authorizer should report an error.
    */
   namespace?: string | null | undefined;
@@ -232,21 +232,21 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc_Input = {
  */
 export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules_Input = {
   /**
-   * APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+   * apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
    * the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
    */
   apiGroups?: Array<string | null | undefined> | null | undefined;
   /**
-   * NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+   * nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
    * Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
    * Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
    */
   nonResourceURLs?: Array<string | null | undefined> | null | undefined;
-  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+  /** resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
   resourceNames?: Array<string | null | undefined> | null | undefined;
-  /** Resources is a list of resources this rule applies to. '*' represents all resources. */
+  /** resources is a list of resources this rule applies to. '*' represents all resources. */
   resources?: Array<string | null | undefined> | null | undefined;
-  /** Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+  /** verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
   verbs?: Array<string | null | undefined> | null | undefined;
 };
 
@@ -2294,6 +2294,32 @@ export type GetLandscaperYamlQueryVariables = Exact<{
 
 export type GetLandscaperYamlQuery = {
   landscaper_services_open_control_plane_io: { v1alpha2: { LandscaperYaml: string } | null } | null;
+};
+
+export type GetManagedServicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetManagedServicesQuery = {
+  open_control_plane_io: {
+    v1: {
+      ManagedService: {
+        apiVersion: string | null;
+        kind: string | null;
+        metadata: { name: string | null; namespace: string | null } | null;
+        spec: {
+          services: Array<{
+            name: string | null;
+            kind: string | null;
+            apiVersion: string | null;
+            versions: Array<{ version: string | null } | null> | null;
+          } | null> | null;
+          crossplaneProviders: Array<{
+            name: string | null;
+            versions: Array<{ version: string | null } | null> | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
 };
 
 export type GetMetricsOperatorYamlQueryVariables = Exact<{
@@ -6280,6 +6306,115 @@ export const GetLandscaperYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperYamlQuery, GetLandscaperYamlQueryVariables>;
+export const GetManagedServicesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetManagedServices' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedService' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'StringValue', value: 'catalog', block: false },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'apiVersion' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'services' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'apiVersion' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'versions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'crossplaneProviders' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'versions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedServicesQuery, GetManagedServicesQueryVariables>;
 export const GetMetricsOperatorYamlDocument = {
   kind: 'Document',
   definitions: [

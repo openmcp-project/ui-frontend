@@ -6,7 +6,7 @@ import {
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
@@ -16,6 +16,7 @@ import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
 import LogoMetricsOperator from '../../../assets/images/logo-metrics.svg';
 import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
+import Loading from '../../Shared/Loading.tsx';
 
 type ServiceKey = keyof ServiceSelection;
 
@@ -50,11 +51,17 @@ interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
   showLandscaper: boolean;
+  useManagedServicesQuery?: typeof _useManagedServicesQuery;
 }
 
-export function ServiceSelectionStep({ services, onServicesChange, showLandscaper }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({
+  services,
+  onServicesChange,
+  showLandscaper,
+  useManagedServicesQuery = _useManagedServicesQuery,
+}: ServiceSelectionStepProps) {
   const { t } = useTranslation();
-  const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
+  const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
   const visibleServices = useMemo(
     () => (showLandscaper ? SERVICES : SERVICES.filter((s) => s.key !== 'landscaper')),
@@ -151,7 +158,12 @@ export function ServiceSelectionStep({ services, onServicesChange, showLandscape
       });
     }
   }, [services, crossplaneProviders, onServicesChange]);
-
+  if (isLoading)
+    return (
+      <div className={styles.container}>
+        <Loading />
+      </div>
+    );
   return (
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>

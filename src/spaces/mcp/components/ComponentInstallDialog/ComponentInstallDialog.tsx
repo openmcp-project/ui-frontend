@@ -55,10 +55,10 @@ export function ComponentInstallDialog({
   const { t } = useTranslation();
   const toast = useToast();
   const telemetry = useTelemetry();
-  const { services } = useManagedServicesQuery();
+  const { services, isLoading: isServicesLoading } = useManagedServicesQuery();
   const { create, loading: createLoading } = useCreateMutation();
   const { update, loading: updateLoading } = useUpdateMutation();
-  const isLoading = createLoading || updateLoading;
+  const isLoading = createLoading || updateLoading || isServicesLoading;
 
   const service = useMemo(() => services.find((s) => s.name === serviceName), [services, serviceName]);
   const versions = useMemo(() => service?.versions ?? [], [service]);
