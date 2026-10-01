@@ -2,6 +2,7 @@ import { Condition, ManagedResourceGroup, ManagedResourceItem, ProviderConfigs }
 import { Edge, Node, Position } from '@xyflow/react';
 import ELK, { ElkExtendedEdge, ElkNode } from 'elkjs/lib/elk.bundled.js';
 import { ColorBy, NodeData } from './types';
+import { versionRank } from '../../utils/managedResourceVersion';
 
 // Public types
 
@@ -201,15 +202,9 @@ export function discoverRefs(item: ManagedResourceItem): DiscoveredRef[] {
   return out;
 }
 
-export function versionRank(apiVersion: string): number {
-  const v = apiVersion.split('/')[1] ?? '';
-  if (/^v\d+$/.test(v)) return 1000 + parseInt(v.slice(1), 10);
-  const m = v.match(/^v(\d+)beta(\d+)$/);
-  if (m) return 500 + parseInt(m[1], 10) * 10 + parseInt(m[2], 10);
-  const a = v.match(/^v(\d+)alpha(\d+)$/);
-  if (a) return 100 + parseInt(a[1], 10) * 10 + parseInt(a[2], 10);
-  return 0;
-}
+// Re-exported from the shared module so the table dedup and the graph apply
+// the identical version ranking. See src/utils/managedResourceVersion.ts.
+export { versionRank };
 
 export function getStatusCondition(conditions?: Condition[]): Condition | undefined {
   if (!conditions || !Array.isArray(conditions)) return undefined;
