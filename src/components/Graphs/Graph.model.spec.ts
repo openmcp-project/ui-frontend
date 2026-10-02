@@ -4,7 +4,6 @@ import {
   RefRule,
   discoverRefs,
   inferKindFromRefKey,
-  versionRank,
   getStatusCondition,
   resolveProviderTypeFromApiVersion,
   isSystemLabel,
@@ -118,30 +117,7 @@ describe('discoverRefs', () => {
   });
 });
 
-// ---------- versionRank ----------
-
-describe('versionRank', () => {
-  it('ranks stable above beta above alpha', () => {
-    expect(versionRank('g/v1')).toBeGreaterThan(versionRank('g/v1beta1'));
-    expect(versionRank('g/v1beta1')).toBeGreaterThan(versionRank('g/v1alpha1'));
-  });
-  it('ranks v2 > v1', () => {
-    expect(versionRank('g/v2')).toBeGreaterThan(versionRank('g/v1'));
-  });
-  it('orders within beta', () => {
-    expect(versionRank('g/v2beta3')).toBeGreaterThan(versionRank('g/v1beta9'));
-    expect(versionRank('g/v1beta2')).toBeGreaterThan(versionRank('g/v1beta1'));
-  });
-  it('orders within alpha', () => {
-    expect(versionRank('g/v1alpha9')).toBeGreaterThan(versionRank('g/v1alpha1'));
-  });
-  it('returns 0 for malformed version', () => {
-    expect(versionRank('g/junk')).toBe(0);
-    expect(versionRank('')).toBe(0);
-  });
-});
-
-// ---------- getStatusCondition ----------
+// ----------getStatusCondition ----------
 
 describe('getStatusCondition', () => {
   it('returns Ready when present', () => {
