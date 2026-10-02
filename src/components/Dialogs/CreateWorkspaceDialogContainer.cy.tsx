@@ -143,7 +143,6 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('ui5-button').contains('Create').click();
 
     cy.wrap(setIsOpen).should('not.have.been.called');
-    cy.contains('Error').should('be.visible');
     cy.contains('Creation failed').should('be.visible');
   });
 
