@@ -4,6 +4,12 @@
   text-align: left;
 }
 
+.copyRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
 .fields {
   display: flex;
   flex-direction: column;
@@ -22,8 +28,6 @@
   display: flex;
   gap: 0.25rem;
 }
-
-
 
 .input {
   width: 100%;

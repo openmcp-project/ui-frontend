@@ -2,6 +2,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { CreateWorkspaceDialogContainer } from './CreateWorkspaceDialogContainer';
 import { useCreateWorkspace, CreateWorkspaceParams } from '../../spaces/onboarding/hooks/useCreateWorkspace';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
+import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 
 describe('CreateWorkspaceDialogContainer', () => {
   let createWorkspacePayload: CreateWorkspaceParams | null = null;
@@ -19,11 +20,26 @@ describe('CreateWorkspaceDialogContainer', () => {
     },
   })) as typeof useAuthOnboarding;
 
+  const fakeUseProjectMembers: typeof useProjectMembers = () => ({
+    members: [],
+    displayName: undefined,
+    creationTimestamp: undefined,
+    supportLandscape: undefined,
+    supportServiceIds: undefined,
+    supportSecurityContacts: undefined,
+    supportOpsContacts: undefined,
+    isLoading: false,
+  });
+
   beforeEach(() => {
     createWorkspacePayload = null;
   });
 
-  const mountWorkspace = (setIsOpen: ReturnType<typeof cy.stub>, useCreateWorkspace = fakeUseCreateWorkspace) => {
+  const mountWorkspace = (
+    setIsOpen: ReturnType<typeof cy.stub>,
+    useCreateWorkspace = fakeUseCreateWorkspace,
+    useProjectMembers = fakeUseProjectMembers,
+  ) => {
     // MockedProvider satisfies the Apollo context that the Members step's ImportMembersDialog
     // needs; its queries stay skipped (import dialog closed), so no mocks are required.
     cy.mount(
@@ -31,6 +47,7 @@ describe('CreateWorkspaceDialogContainer', () => {
         <CreateWorkspaceDialogContainer
           useCreateWorkspace={useCreateWorkspace}
           useAuthOnboarding={fakeUseAuthOnboarding}
+          useProjectMembers={useProjectMembers}
           isOpen={true}
           setIsOpen={setIsOpen}
           project="test-project"
@@ -39,7 +56,15 @@ describe('CreateWorkspaceDialogContainer', () => {
     );
   };
 
+  const fillMetadata = () => {
+    cy.get('#name').typeIntoUi5Input('test-workspace');
+    cy.get('#chargingTargetType').openDropDownByClick();
+    cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
+    cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
+  };
+
   const goToMembers = () => cy.get('ui5-button').contains('Next').click();
+  const goToSupportInfo = () => cy.get('ui5-button').contains('Next').click();
 
   it('creates a workspace with valid data', () => {
     const setIsOpen = cy.stub();
@@ -51,6 +76,9 @@ describe('CreateWorkspaceDialogContainer', () => {
       chargingTarget: '12345678-1234-1234-1234-123456789abc',
       chargingTargetType: 'btp',
       members: [{ name: 'name@domain.com', roles: ['admin'], kind: 'User' }],
+      supportServiceIds: '',
+      supportSecurityContacts: '',
+      supportOpsContacts: '',
     };
 
     cy.get('#name').typeIntoUi5Input('test-workspace');
@@ -60,6 +88,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
+    goToSupportInfo();
     cy.get('ui5-button').contains('Create').click();
 
     cy.then(() => cy.wrap(createWorkspacePayload).deepEqualJson(expectedPayload));
@@ -110,10 +139,49 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
+    goToSupportInfo();
     cy.get('ui5-button').contains('Create').click();
 
     cy.wrap(setIsOpen).should('not.have.been.called');
-    cy.contains('Error').should('be.visible');
     cy.contains('Creation failed').should('be.visible');
+  });
+
+  it('copies support info from the parent project when it has data', () => {
+    const useProjectMembersWithSupport: typeof useProjectMembers = () => ({
+      members: [],
+      displayName: undefined,
+      creationTimestamp: undefined,
+      supportLandscape: 'production',
+      supportServiceIds: 'ID-1, ID-2',
+      supportSecurityContacts: 'mail:sec@example.com',
+      supportOpsContacts: 'mail:ops@example.com',
+      isLoading: false,
+    });
+
+    const setIsOpen = cy.stub();
+    mountWorkspace(setIsOpen, fakeUseCreateWorkspace, useProjectMembersWithSupport);
+
+    fillMetadata();
+    goToMembers();
+    goToSupportInfo();
+
+    cy.get('[data-testid="copy-support-info-from-project"]').click();
+
+    cy.get('[data-testid="support-landscape"]').invoke('prop', 'value').should('eq', 'production');
+    cy.get('[data-testid="support-service-ids"] ui5-token[text="ID-1"]').should('exist');
+  });
+
+  it('shows an information popup when the parent project has no support info', () => {
+    const setIsOpen = cy.stub();
+    // default fakeUseProjectMembers returns no support fields
+    mountWorkspace(setIsOpen);
+
+    fillMetadata();
+    goToMembers();
+    goToSupportInfo();
+
+    cy.get('[data-testid="copy-support-info-from-project"]').click();
+
+    cy.contains('The parent project has no support info to copy.').should('be.visible');
   });
 });

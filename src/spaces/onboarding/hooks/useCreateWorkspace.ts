@@ -3,11 +3,8 @@ import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
 import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
+import { buildProjectAnnotations } from '../../../lib/api/types/shared/projectAnnotations';
 import { CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
 
@@ -17,6 +14,10 @@ export interface CreateWorkspaceParams {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  supportServiceIds?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
 }
 
 function buildWorkspaceInput(namespace: string, params: CreateWorkspaceParams): WorkspaceInput {
@@ -26,9 +27,7 @@ function buildWorkspaceInput(namespace: string, params: CreateWorkspaceParams): 
     metadata: {
       name: params.name,
       namespace,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',

@@ -12,6 +12,7 @@ import {
   Button,
   Dialog,
   FlexBox,
+  Grid,
   Icon,
   Text,
   Ui5CustomEvent,
@@ -31,11 +32,15 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboard
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
+import { SupportInfoForm } from '../../Dialogs/SupportInfoForm.tsx';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
+import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
+import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
@@ -83,6 +88,9 @@ import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../sp
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import summarizeStyles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import { YamlDiff } from '../CreateManagedControlPlane/YamlDiff.tsx';
+import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
@@ -126,9 +134,16 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useManagedServicesQuery?: typeof _useManagedServicesQuery;
 };
 
-export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
+export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'supportInfo' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
+const wizardStepOrder: WizardStepType[] = [
+  'metadata',
+  'members',
+  'componentSelection',
+  'supportInfo',
+  'summarize',
+  'success',
+];
 
 export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
@@ -173,6 +188,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { user } = useAuthOnboarding();
   const { showLandscaperCard } = useFeatureToggle();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  // projectName uses the "project-<name>" namespace prefix convention; strip it for GraphQL queries
+  const bareProjectName = projectName.startsWith('project-') ? projectName.slice('project-'.length) : projectName;
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
   const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
@@ -234,6 +251,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       chargingTargetType: '',
       members: [],
       componentsList: [],
+      supportLandscape: '',
+      supportServiceIds: '',
+      supportSecurityContacts: '',
+      supportOpsContacts: '',
     },
     mode: 'onChange',
   });
@@ -265,6 +286,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       metadata: t('buttons.next'),
       members: t('buttons.next'),
       componentSelection: t('buttons.next'),
+      supportInfo: t('buttons.next'),
       summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
       success: t('buttons.close'),
     }),
@@ -435,6 +457,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
+  const supportLandscape = useWatch({ control, name: 'supportLandscape' });
+  const supportServiceIds = useWatch({ control, name: 'supportServiceIds' });
+  const supportSecurityContacts = useWatch({ control, name: 'supportSecurityContacts' });
+  const supportOpsContacts = useWatch({ control, name: 'supportOpsContacts' });
 
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members ?? [], extraProviders),
@@ -454,13 +480,30 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       namespace: `${projectName}--ws-${workspaceName}`,
       roleBindings,
       extraProviders: extraProvidersInput,
+      supportLandscape,
+      supportServiceIds,
+      supportSecurityContacts,
+      supportOpsContacts,
     };
-  }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
+  }, [
+    name,
+    displayName,
+    templateAffixes,
+    projectName,
+    workspaceName,
+    members,
+    extraProviders,
+    supportLandscape,
+    supportServiceIds,
+    supportSecurityContacts,
+    supportOpsContacts,
+  ]);
 
   const originalYamlString = useMemo(() => {
     if (!isEditMode || !initialData) return '';
     const { members: initMembers, extraProviders: initExtraProviders } = extractMcpV2FormState(initialData);
     const initDefaultMembers = initMembers.filter((m) => !m.provider);
+    const initSupport = extractSupportInfo(initialData.metadata.annotations);
     const originalInput: McpV2Input = {
       name: initialData.metadata.name,
       namespace: initialData.metadata.namespace,
@@ -469,9 +512,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         ...p,
         roleBindings: buildRoleBindingsForProviderMembers(initMembers.filter((m) => m.provider === p.name)),
       })),
+      supportLandscape: initSupport.supportLandscape,
+      supportServiceIds: initSupport.supportServiceIds,
+      supportSecurityContacts: initSupport.supportSecurityContacts,
+      supportOpsContacts: initSupport.supportOpsContacts,
     };
     return stringify(buildMcpV2GraphQLInput(originalInput));
   }, [isEditMode, initialData]);
+
+  const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
+    const res = buildMcpV2GraphQLInput(rawInput);
+    return {
+      yamlString: stringify(res),
+      ...parseResourceApiInfo(res as unknown as Resource),
+    };
+  }, [rawInput]);
 
   const initialServices = useMemo(
     () => ({
@@ -505,6 +560,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           namespace: cpNamespace,
           roleBindings: rawInput.roleBindings,
           extraProviders: rawInput.extraProviders,
+          supportLandscape: rawInput.supportLandscape,
+          supportServiceIds: rawInput.supportServiceIds,
+          supportSecurityContacts: rawInput.supportSecurityContacts,
+          supportOpsContacts: rawInput.supportOpsContacts,
         });
       } else {
         await createMcp(rawInput);
@@ -778,6 +837,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         setSelectedStep('componentSelection');
         break;
       case 'componentSelection':
+        setSelectedStep('supportInfo');
+        break;
+      case 'supportInfo':
         setSelectedStep('summarize');
         break;
       case 'summarize':
@@ -824,9 +886,19 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             !isValid ||
             hasNoAssignedMembers
           );
-        case 'summarize':
+        case 'supportInfo':
           return (
             ((selectedStep === 'metadata' || selectedStep === 'members' || selectedStep === 'componentSelection') &&
+              !isEditMode) ||
+            !isValid ||
+            hasNoAssignedMembers
+          );
+        case 'summarize':
+          return (
+            ((selectedStep === 'metadata' ||
+              selectedStep === 'members' ||
+              selectedStep === 'componentSelection' ||
+              selectedStep === 'supportInfo') &&
               !isEditMode) ||
             !isValid ||
             hasNoAssignedMembers
@@ -864,6 +936,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
+    const support = extractSupportInfo(annotations);
     reset({
       name,
       displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
@@ -871,6 +944,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       chargingTargetType: '',
       members,
       componentsList: [],
+      supportLandscape: support.supportLandscape ?? '',
+      supportServiceIds: support.supportServiceIds ?? '',
+      supportSecurityContacts: support.supportSecurityContacts ?? '',
+      supportOpsContacts: support.supportOpsContacts ?? '',
     });
 
     setExtraProviders(prefilledProviders);
@@ -1072,6 +1149,42 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                 onServicesChange={setServices}
               />
             )}
+          </WizardStep>
+
+          <WizardStep
+            data-step="supportInfo"
+            disabled={isStepDisabled('supportInfo')}
+            icon="activities"
+            selected={selectedStep === 'supportInfo'}
+            titleText={t('SupportInfo.wizardStepTitle')}
+          >
+            <div className={summarizeStyles.wrapper}>
+              <Grid defaultSpan="XL6 L6 M6 S6">
+                <div>
+                  <SupportInfoForm
+                    register={register}
+                    watch={watch}
+                    setValue={setValue}
+                    copyFromProjectName={bareProjectName}
+                    copyFromWorkspaceName={workspaceName}
+                    copyFromWorkspaceNamespace={projectName}
+                    introText={t('SupportInfo.wizardIntroControlPlane')}
+                  />
+                </div>
+                <div>
+                  {isEditMode ? (
+                    <YamlDiff originalYaml={originalYamlString} modifiedYaml={yamlString} absolutePosition />
+                  ) : (
+                    <YamlSummarize
+                      yamlString={yamlString}
+                      filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
+                      apiVersion={apiVersion}
+                      apiGroupName={apiGroupName}
+                    />
+                  )}
+                </div>
+              </Grid>
+            </div>
           </WizardStep>
 
           <WizardStep
