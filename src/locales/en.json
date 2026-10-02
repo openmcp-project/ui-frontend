@@ -772,9 +772,9 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit",
-    "copyFromProject": "Copy Support Info from the parent Project",
+    "copyFromProject": "Copy Info from the parent Project",
     "copyFromProjectNoData": "The parent project has no support info to copy.",
-    "copyFromWorkspace": "Copy Support Info from the parent Workspace",
+    "copyFromWorkspace": "Copy Info from the parent Workspace",
     "copyFromWorkspaceNoData": "The parent workspace has no support info to copy."
   }
 }

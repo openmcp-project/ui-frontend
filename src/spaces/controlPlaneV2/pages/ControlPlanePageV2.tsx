@@ -9,6 +9,7 @@ import {
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
+  Text,
 } from '@ui5/webcomponents-react';
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
@@ -27,6 +28,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -588,6 +591,17 @@ export default function ControlPlanePageV2() {
                       mcpName={controlPlaneName}
                     />
                     <McpMembersAvatarView roleBindings={roleBindings} />
+
+                    <FlexBox direction="Column">
+                      <Text className={styles.supportInfoText}>Support Info:</Text>
+                      <McpSupportInfoTag
+                        namespace={mcp.metadata?.namespace ?? namespace ?? ''}
+                        resourceName={controlPlaneName}
+                        supportInfo={extractSupportInfo(
+                          mcp.metadata?.annotations as Record<string, string> | undefined,
+                        )}
+                      />
+                    </FlexBox>
                   </FlexBox>
                 </ObjectPageHeader>
               }

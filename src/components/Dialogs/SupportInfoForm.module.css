@@ -6,7 +6,7 @@
 
 .copyRow {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 0.5rem;
 }
 
@@ -28,8 +28,6 @@
   display: flex;
   gap: 0.25rem;
 }
-
-
 
 .input {
   width: 100%;
