@@ -593,7 +593,7 @@ export default function ControlPlanePageV2() {
                     <McpMembersAvatarView roleBindings={roleBindings} />
 
                     <FlexBox direction="Column">
-                      <Text className={styles.supportInfoText}>Support Info:</Text>
+                      <Text className={styles.supportInfoText}>{t('SupportInfo.sectionLabel')}</Text>
                       <McpSupportInfoTag
                         namespace={mcp.metadata?.namespace ?? namespace ?? ''}
                         resourceName={controlPlaneName}

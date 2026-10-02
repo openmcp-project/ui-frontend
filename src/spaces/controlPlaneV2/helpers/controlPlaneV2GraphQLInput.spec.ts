@@ -161,4 +161,14 @@ describe('buildMcpV2GraphQLInput', () => {
       'meta.orchestrate.cloud.sap/ops-contacts': 'mail:ops@example.com',
     });
   });
+
+  it('writes the landscape annotation as empty string when Purpose is set to Not Selected', () => {
+    const result = buildMcpV2GraphQLInput({
+      ...baseInput,
+      supportLandscape: '',
+    });
+    expect(result.metadata?.annotations).toEqual({
+      'meta.orchestrate.cloud.sap/landscape': '',
+    });
+  });
 });

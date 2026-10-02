@@ -743,6 +743,7 @@
     "popoverTitle": "Support Annotations",
     "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
     "wizardStepTitle": "Support Info",
+    "sectionLabel": "Support Info:",
     "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
     "wizardIntroWorkspace": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Project where available. No runtime impact.",
     "wizardIntroControlPlane": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Workspace or Project where available. No runtime impact.",

@@ -17,11 +17,12 @@ function toRoleBindingsInput(roleBindings: McpV2Input['roleBindings']) {
   }));
 }
 
-// Only non-empty support values are sent; the annotations key itself is omitted when there is
-// nothing to set, so the gateway leaves any existing (e.g. server-managed) annotations untouched.
+// The landscape annotation is always written (even as '') so that selecting "Not Selected"
+// explicitly clears any existing value. Other support annotations are omitted when empty so the
+// gateway leaves any existing (e.g. server-managed) values untouched.
 function buildSupportAnnotations(input: McpV2Input): Record<string, string> | undefined {
   const annotations: Record<string, string> = {};
-  if (input.supportLandscape) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = input.supportLandscape;
+  if (input.supportLandscape !== undefined) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = input.supportLandscape;
   if (input.supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = input.supportServiceIds;
   if (input.supportSecurityContacts) annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = input.supportSecurityContacts;
   if (input.supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = input.supportOpsContacts;
