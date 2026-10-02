@@ -202,10 +202,6 @@ export function discoverRefs(item: ManagedResourceItem): DiscoveredRef[] {
   return out;
 }
 
-// Re-exported from the shared module so the table dedup and the graph apply
-// the identical version ranking. See src/utils/managedResourceVersion.ts.
-export { versionRank };
-
 export function getStatusCondition(conditions?: Condition[]): Condition | undefined {
   if (!conditions || !Array.isArray(conditions)) return undefined;
   return conditions.find((c) => c.type === 'Ready' || c.type === 'Healthy');
