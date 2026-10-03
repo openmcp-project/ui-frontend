@@ -39,7 +39,7 @@ export type TelemetryFeature =
   | Feature<'workspace', 'edited'>
   // Control Planes
   | Feature<'controlplane', 'created', { source: 'v1' | 'v2' }>
-  | Feature<'controlplane', 'deleted', { source: 'v1-card' | 'v2-card' }>
+  | Feature<'controlplane', 'deleted', { source: 'v1-card' | 'v2-card' | 'v1-detail' | 'v2-detail' }>
   | Feature<'controlplane', 'edited', { source: 'v1' | 'v2' | 'v1-detail' | 'v2-detail' }>
   | Feature<'controlplane', 'duplicated'>
   // YAML
