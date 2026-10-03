@@ -34,7 +34,7 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
-import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
+import { flattenOidcRoleBindings, type MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
 import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
@@ -61,9 +61,12 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
-import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
+import { useShellBarMcpActions, type McpStatusInfo } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
 import { Routes } from '../../../Routes.ts';
+import { DeleteConfirmationDialog } from '../../../components/Dialogs/DeleteConfirmationDialog.tsx';
+import { useDeleteControlPlaneV2GraphQL } from '../hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
 import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
@@ -85,15 +88,28 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  mcpDisplayName,
+  roleBindings,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: McpStatusInfo | null;
+  mcpDisplayName?: string;
+  roleBindings?: MemberRoleBinding[];
+  onEditMcp?: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const { documentationBaseUrl } = useFrontendConfig();
   const [searchParams, setSearchParams] = useSearchParams();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -113,6 +129,10 @@ function OpenSourceHeadlamp({
   const [installTarget, setInstallTarget] = useState<InstallTarget>(null);
   const mcpName = mcp.name;
   const mcpNamespace = `project-${mcp.project}--ws-${mcp.workspace}`;
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { deleteManagedControlPlaneV2 } = useDeleteControlPlaneV2GraphQL(mcpNamespace, controlPlaneName);
+  const onDeleteMcp = useCallback(() => setDeleteDialogOpen(true), []);
 
   // status.phase lives on GraphQL-only CRs the plugin can't reach; fetch here and
   // push to the iframe. Query unconditionally — an absent CR just yields phase null.
@@ -179,9 +199,17 @@ function OpenSourceHeadlamp({
     setMcpActions({
       kubeconfig: mcp.kubeconfig,
       mcpName: mcp.name,
-      roleBindings: mcp.roleBindings,
+      mcpDisplayName,
+      mcpKind: 'ControlPlane',
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpNamespace: `project-${projectName}--ws-${workspaceName}`,
+      mcpStatus,
+      roleBindings,
       project: projectName,
       workspace: workspaceName,
+      onEditMcp,
+      onDeleteMcp,
       navigateBack: () => navigate(backPath),
     });
     return () => {
@@ -190,13 +218,19 @@ function OpenSourceHeadlamp({
   }, [
     mcp.kubeconfig,
     mcp.name,
-    mcp.roleBindings,
+    mcpDisplayName,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
+    roleBindings,
     projectName,
     workspaceName,
     backPath,
     navigate,
     setMcpActions,
     clearMcpActions,
+    onEditMcp,
+    onDeleteMcp,
   ]);
 
   useEffect(() => {
@@ -371,18 +405,52 @@ function OpenSourceHeadlamp({
     <>
       {body}
       {installDialogs}
+      <DeleteConfirmationDialog
+        resourceName={controlPlaneName}
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onDeletionConfirmed={async () => {
+          telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-detail' });
+          await deleteManagedControlPlaneV2();
+          navigate(backPath);
+        }}
+      />
     </>
   );
 }
 
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  mcpDisplayName,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: McpStatusInfo | null;
+  mcpDisplayName?: string;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      mcpDisplayName,
+      mcpKind: 'ControlPlane',
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpNamespace: `project-${projectName}--ws-${workspaceName}`,
+      mcpStatus,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, mcpDisplayName, mcpCreationTimestamp, mcpCreatedBy, mcpStatus, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -516,6 +584,19 @@ export default function ControlPlanePageV2() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+                mcpCreationTimestamp={mcp?.metadata?.creationTimestamp}
+                mcpCreatedBy={mcp?.metadata?.annotations?.['openmcp.cloud/created-by']}
+                mcpStatus={
+                  mcp?.metadata?.deletionTimestamp
+                    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                    : mcp?.status
+                }
+                mcpDisplayName={displayName}
+                roleBindings={roleBindings}
+                onEditMcp={() => {
+                  setEditManagedControlPlaneWizardSection(undefined);
+                  setIsEditManagedControlPlaneWizardOpen(true);
+                }}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
@@ -538,7 +619,19 @@ export default function ControlPlanePageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName!}
+              workspaceName={workspaceName!}
+              mcpCreationTimestamp={mcp?.metadata?.creationTimestamp}
+              mcpCreatedBy={mcp?.metadata?.annotations?.['openmcp.cloud/created-by']}
+              mcpStatus={
+                mcp?.metadata?.deletionTimestamp
+                  ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                  : mcp?.status
+              }
+              mcpDisplayName={displayName}
+            />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

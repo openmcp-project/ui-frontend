@@ -24,6 +24,7 @@ import { Routes } from '../../../Routes.ts';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import styles from './ProjectPage.module.css';
 
 export default function ProjectPage() {
@@ -32,7 +33,14 @@ export default function ProjectPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
+
+  useEffect(() => {
+    setMcpActions({ navigateBack: () => navigate(Routes.Projects + '?noRedirect=true') });
+    return () => clearMcpActions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
 
