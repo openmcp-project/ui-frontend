@@ -22,7 +22,7 @@ const errorHandlerPlugin: FastifyPluginAsync = async (fastify) => {
       if (error.report) {
         request.telemetry.report(error, { message: error.message, context });
       } else if (error.logLevel === 'warn') {
-        request.log.warn(context, error.message);
+        request.telemetry.breadcrumb(error.message, { level: 'warning', context });
       } else {
         request.log.info(context, error.message);
       }
