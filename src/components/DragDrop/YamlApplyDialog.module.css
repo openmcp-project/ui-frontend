@@ -1,0 +1,152 @@
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 60vh;
+  overflow: hidden;
+}
+
+/* Two-panel layout for multi-doc */
+.twoPanel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--sapObjectHeader_BorderColor, #e5e5e5);
+  overflow: hidden;
+}
+
+.sidebarProgress {
+  padding: 0.5rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.sidebarList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.editorPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Single-panel layout */
+.singlePanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.strips {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem 0;
+}
+
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Phase screens */
+.centeredPhase {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+/* Summary */
+.summaryBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.countRow {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.summaryList {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Sidebar item states */
+.sidebarItemFailed {
+  color: var(--sapNegativeElementColor);
+}
+
+.sidebarItemApplied {
+  color: var(--sapPositiveElementColor);
+}
+
+.sidebarItemUnsupported {
+  color: var(--sapCriticalElementColor);
+}
+
+/* Summary error rows */
+.summaryErrorRow {
+  border: 1px solid var(--sapObjectHeader_BorderColor, #e5e5e5);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.summaryErrorHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background: var(--sapTile_Background, #fff);
+  user-select: none;
+}
+
+.summaryErrorHeader:hover {
+  background: var(--sapList_Hover_Background, #f5f5f5);
+}
+
+.summaryErrorDetail {
+  padding: 0.75rem 1rem;
+  background: var(--sapErrorBackground, #fdf2f2);
+  border-top: 1px solid var(--sapObjectHeader_BorderColor, #e5e5e5);
+  font-family: monospace;
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+[data-ui5-theme*='dark'] .summaryErrorHeader {
+  background: var(--sapTile_Background);
+}
+
+[data-ui5-theme*='dark'] .summaryErrorDetail {
+  background: var(--sapErrorBackground);
+}

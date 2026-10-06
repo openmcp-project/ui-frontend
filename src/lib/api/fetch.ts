@@ -47,6 +47,7 @@ export const fetchApiServer = async (
   jq?: string,
   httpMethod: string = 'GET',
   body?: BodyInit,
+  contentType?: string,
 ): Promise<Response> => {
   const isMcpRequest = config.mcpConfig !== undefined;
   const hasValidSession = isMcpRequest ? await refreshMcpToken() : await refreshOnboardingToken();
@@ -58,7 +59,9 @@ export const fetchApiServer = async (
   // The default headers used for the fetch request.
   // The Authorization header is required for both the Crate API and the MCP API and the correct token is passed in the config object that is consumed outside this function from the context that has handled the OIDC flow to get a token.
   const headers: { [key: string]: string } = {};
-  if (httpMethod !== 'PATCH') {
+  if (contentType) {
+    headers[contentTypeHeader] = contentType;
+  } else if (httpMethod !== 'PATCH') {
     headers[contentTypeHeader] = 'application/json';
   } else {
     headers[contentTypeHeader] = 'application/merge-patch+json';
@@ -137,8 +140,9 @@ export const fetchApiServerJson = async <T>(
   jq?: string,
   httpMethod: string = 'GET',
   body?: BodyInit,
+  contentType?: string,
 ): Promise<T> => {
-  const res = await fetchApiServer(path, config, jq, httpMethod, body);
+  const res = await fetchApiServer(path, config, jq, httpMethod, body, contentType);
 
   return await res.json();
 };

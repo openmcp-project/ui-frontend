@@ -6,6 +6,7 @@ import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/overflow';
 import '@ui5/webcomponents-icons/dist/source-code';
+import '@ui5/webcomponents-icons/dist/upload';
 import {
   Avatar,
   Button,
@@ -38,6 +39,7 @@ import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { useYamlApply } from '../../context/YamlApplyContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
@@ -106,6 +108,7 @@ export function ShellBarComponent({
               </div>
             )}
             <KubeconfigShellBarButton />
+            <UploadYamlShellBarButton />
             {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
               <div className={styles.switchWrapper}>
@@ -362,3 +365,28 @@ const ProfilePopover = ({
     </>
   );
 };
+
+function UploadYamlShellBarButton() {
+  const { t } = useTranslation();
+  const { requestApplyFile } = useYamlApply();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    inputRef.current?.click();
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) requestApplyFile(file);
+    e.target.value = '';
+  };
+
+  return (
+    <>
+      <Button icon="upload" design="Transparent" tooltip={t('yamlApply.uploadButton')} onClick={handleClick}>
+        {t('yamlApply.uploadButton')}
+      </Button>
+      <input ref={inputRef} type="file" accept=".yaml,.yml" style={{ display: 'none' }} onChange={handleChange} />
+    </>
+  );
+}

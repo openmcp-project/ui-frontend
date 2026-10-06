@@ -33,6 +33,7 @@ import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2
 import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
+import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
 import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
@@ -539,6 +540,7 @@ export default function ControlPlanePageV2() {
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
             <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <McpDragDropRegistrar />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

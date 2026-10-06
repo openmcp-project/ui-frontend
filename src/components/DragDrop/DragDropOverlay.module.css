@@ -1,0 +1,55 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 150ms ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+[data-ui5-theme*='dark'] .backdrop,
+@media (prefers-color-scheme: dark) {
+  .backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.card {
+  background: var(--sapBaseColor, #fff);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+  padding: 2rem 2.5rem;
+  min-width: 320px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.icon {
+  font-size: 3.5rem;
+  color: var(--sapContent_IconColor);
+}
+
+.title {
+  font-size: var(--sapFontHeader4Size, 1.125rem);
+  font-weight: 600;
+  color: var(--sapTextColor);
+  margin: 0;
+}
+
+.hint {
+  font-size: var(--sapFontSmallSize, 0.875rem);
+  color: var(--sapContent_LabelColor);
+  margin: 0;
+}

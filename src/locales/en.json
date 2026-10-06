@@ -770,5 +770,29 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit"
+  },
+  "yamlApply": {
+    "uploadButton": "Apply YAML",
+    "overlayTitle": "Drop YAML to apply",
+    "overlayHint": "Release to open the Apply YAML dialog",
+    "overlayTargetCp": "Control Plane: {{name}}",
+    "overlayTargetOnboarding": "Onboarding API",
+    "dialogTitle": "Apply YAML — {{name}}",
+    "parsing": "Reading file…",
+    "editHint": "Review and edit each resource before applying. Changes apply only on click.",
+    "footerApply": "Apply",
+    "footerApplying": "Applying…",
+    "parseErrorTitle": "Cannot read file",
+    "invalidYaml": "Invalid YAML — could not re-parse after editing",
+    "unsupportedKind": "Kind {{kind}} is not supported in this context",
+    "unknownError": "An unexpected error occurred",
+    "summarySuccessTitle": "All resources applied",
+    "summarySuccessSubtitle": "{{count}} resource(s) applied successfully",
+    "summaryPartialTitle": "Some resources failed",
+    "summaryPartialSubtitle": "{{applied}} applied, {{failed}} failed",
+    "summaryApplied": "{{count}} applied",
+    "summaryFailed": "{{count}} failed",
+    "schemaLoading": "Loading schema for {{kind}}…",
+    "schemaUnavailable": "Schema not available — Intellisense disabled for this resource type"
   }
 }

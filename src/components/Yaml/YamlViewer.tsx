@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { ComponentProps, FC } from 'react';
 
 import { YamlEditor } from '../YamlEditor/YamlEditor';
 
@@ -11,11 +11,20 @@ export interface YamlViewerProps {
   filename: string;
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
+  onChange?: ComponentProps<typeof YamlEditor>['onChange'];
   schema?: JSONSchema4;
   height?: string;
 }
 
-export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false, onApply, schema, height }) => {
+export const YamlViewer: FC<YamlViewerProps> = ({
+  yamlString,
+  filename,
+  isEdit = false,
+  onApply,
+  onChange,
+  schema,
+  height,
+}) => {
   return (
     <div
       className={styles.container}
@@ -28,6 +37,7 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit =
         options={{ readOnly: !isEdit }}
         schema={schema}
         onApply={onApply}
+        onChange={onChange}
       />
     </div>
   );
