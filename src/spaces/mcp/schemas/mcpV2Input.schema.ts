@@ -83,6 +83,11 @@ export const McpV2InputSchema = z
     namespace: z.string().min(1),
     roleBindings: z.array(RoleBindingSchema), // default provider; [] = disabled
     extraProviders: z.array(ExtraProviderInputSchema).default([]),
+    // Optional support metadata, persisted as `meta.orchestrate.cloud.sap/*` annotations.
+    supportLandscape: z.string().optional(),
+    supportServiceIds: z.string().optional(),
+    supportSecurityContacts: z.string().optional(),
+    supportOpsContacts: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     const seen = new Set<string>();
