@@ -37,12 +37,15 @@ import { SchemaAwareEditor } from '../Yaml/YamlResourceEditorSchemaLoader.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import styles from './YamlApplyDialog.module.css';
 
+type DryRunResult = { success: true } | { success: false; message: string };
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 type Phase = 'parsing' | 'parse-error' | 'editing' | 'summary';
 type ItemStatus = 'pending' | 'applied' | 'failed';
+type ApplySubPhase = 'validating' | 'applying' | null;
 
 export interface YamlApplyDialogProps {
   file: File;
@@ -82,7 +85,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
 
   // ---- Apply flow ----------------------------------------------------------
   const [isApplying, setIsApplying] = useState(false);
+  const [applySubPhase, setApplySubPhase] = useState<ApplySubPhase>(null);
   const [currentApplyingIndex, setCurrentApplyingIndex] = useState<number | null>(null);
+
+  // ---- Dry-run button flow -------------------------------------------------
+  const [isDryRunning, setIsDryRunning] = useState(false);
+  const [dryRunResults, setDryRunResults] = useState<Record<number, DryRunResult | null>>({});
 
   // ---- Edits tracking — state keyed by resource index ---------------------
   const [edits, setEdits] = useState<Record<number, string>>({});
@@ -109,10 +117,64 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     reader.readAsText(file);
   }, [file]);
 
-  // ---- Content change handler — updates edits state -----------------------
+  // ---- Content change handler — updates edits state and clears dry-run ----
   const handleContentChange = useCallback((index: number, value: string) => {
     setEdits((prev) => ({ ...prev, [index]: value }));
+    setDryRunResults((prev) => ({ ...prev, [index]: null }));
   }, []);
+
+  // ---- Resolve content + re-parsed resource for given index ----------------
+  const resolveContent = useCallback(
+    (index: number): { content: string; resource: ParsedResource } | { error: string } => {
+      const content = edits[index] ?? stringify(resources[index] as object);
+      let resource: ParsedResource;
+      try {
+        resource = parse(content) as ParsedResource;
+      } catch {
+        return { error: t('yamlApply.invalidYaml') };
+      }
+      return { content, resource };
+    },
+    [edits, resources, t],
+  );
+
+  // ---- Dry-run for current resource ----------------------------------------
+  const doDryRun = useCallback(async () => {
+    const resolved = resolveContent(currentIndex);
+    if ('error' in resolved) {
+      setDryRunResults((prev) => ({ ...prev, [currentIndex]: { success: false, message: resolved.error } }));
+      return;
+    }
+    const { content, resource } = resolved;
+
+    setIsDryRunning(true);
+    setDryRunResults((prev) => ({ ...prev, [currentIndex]: null }));
+
+    try {
+      if (isCP && targetApiConfig) {
+        const pluralKind = getPluralKind(resource.kind);
+        if (!pluralKind) {
+          setDryRunResults((prev) => ({
+            ...prev,
+            [currentIndex]: { success: false, message: t('yamlApply.unsupportedKind', { kind: resource.kind }) },
+          }));
+          return;
+        }
+        await dryRunCpResource(resource, content, pluralKind, targetApiConfig);
+      } else {
+        const exists = await checkOnboardingResourceExists(resource, apolloClient);
+        await applyOnboardingResource(resource, exists, apolloClient, true);
+      }
+      setDryRunResults((prev) => ({ ...prev, [currentIndex]: { success: true } }));
+    } catch (e) {
+      setDryRunResults((prev) => ({
+        ...prev,
+        [currentIndex]: { success: false, message: extractErrorMessage(e) },
+      }));
+    } finally {
+      setIsDryRunning(false);
+    }
+  }, [currentIndex, resolveContent, isCP, targetApiConfig, getPluralKind, apolloClient, t]);
 
   // ---- Apply all resources --------------------------------------------------
   const doApply = useCallback(async () => {
@@ -125,18 +187,17 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
 
     for (let i = 0; i < count; i++) {
       setCurrentApplyingIndex(i);
-      const content = edits[i] ?? stringify(resources[i] as object);
+      const resolved = resolveContent(i);
 
-      let resource: ParsedResource;
-      try {
-        resource = parse(content) as ParsedResource;
-      } catch (_e) {
+      if ('error' in resolved) {
         newStatuses[i] = 'failed';
-        newErrors[i] = t('yamlApply.invalidYaml');
+        newErrors[i] = resolved.error;
         setStatuses([...newStatuses]);
         setItemErrors([...newErrors]);
         continue;
       }
+
+      const { content, resource } = resolved;
 
       try {
         if (isCP && targetApiConfig) {
@@ -148,13 +209,31 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
             setItemErrors([...newErrors]);
             continue;
           }
-          await dryRunCpResource(resource, content, pluralKind, targetApiConfig);
+
+          // Skip dry-run if we already have a passing result for this resource
+          const cachedDryRun = dryRunResults[i];
+          if (!cachedDryRun || !cachedDryRun.success) {
+            setApplySubPhase('validating');
+            await dryRunCpResource(resource, content, pluralKind, targetApiConfig);
+          }
+
+          setApplySubPhase('applying');
           await applyCpResource(resource, content, pluralKind, targetApiConfig);
         } else {
           const exists = await checkOnboardingResourceExists(resource, apolloClient);
+
+          // Skip dry-run if we already have a passing result for this resource
+          const cachedDryRun = dryRunResults[i];
+          if (!cachedDryRun || !cachedDryRun.success) {
+            setApplySubPhase('validating');
+            await applyOnboardingResource(resource, exists, apolloClient, true);
+          }
+
+          setApplySubPhase('applying');
           await applyOnboardingResource(resource, exists, apolloClient, false);
         }
         newStatuses[i] = 'applied';
+        setDryRunResults((prev) => ({ ...prev, [i]: null }));
       } catch (e) {
         newStatuses[i] = 'failed';
         newErrors[i] = extractErrorMessage(e);
@@ -165,9 +244,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     }
 
     setIsApplying(false);
+    setApplySubPhase(null);
     setCurrentApplyingIndex(null);
     setPhase('summary');
-  }, [resources, edits, isCP, targetApiConfig, getPluralKind, apolloClient, t]);
+  }, [resources, resolveContent, isCP, targetApiConfig, getPluralKind, dryRunResults, apolloClient, t]);
 
   // ---- Sidebar item icon ---------------------------------------------------
   const itemIcon = (index: number): string => {
@@ -191,8 +271,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const allApplied = failedCount === 0 && appliedCount === resources.length;
 
   // ---- Footer button label -------------------------------------------------
-  const footerButtonLabel = (): string => {
-    if (isApplying) return t('yamlApply.footerApplying');
+  const footerApplyLabel = (): string => {
+    if (isApplying) {
+      return applySubPhase === 'validating' ? t('yamlApply.footerValidating') : t('yamlApply.footerApplying');
+    }
     return t('yamlApply.footerApply');
   };
 
@@ -213,21 +295,35 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
           <Bar
             endContent={
               <>
-                <Button design="Transparent" disabled={isApplying} onClick={onClose}>
+                <Button design="Transparent" disabled={isApplying || isDryRunning} onClick={onClose}>
                   {t('common.cancel')}
                 </Button>
                 <Button
+                  design="Default"
+                  disabled={isApplying || isDryRunning || phase === 'parsing' || (isCP && isNamesLoading)}
+                  onClick={doDryRun}
+                >
+                  {isDryRunning ? (
+                    <>
+                      <BusyIndicator active size="S" style={{ marginRight: '0.5rem' }} />
+                      {t('yamlApply.footerDryRunning')}
+                    </>
+                  ) : (
+                    t('yamlApply.footerDryRun')
+                  )}
+                </Button>
+                <Button
                   design="Emphasized"
-                  disabled={isApplying || phase === 'parsing' || (isCP && isNamesLoading)}
+                  disabled={isApplying || isDryRunning || phase === 'parsing' || (isCP && isNamesLoading)}
                   onClick={doApply}
                 >
                   {isApplying ? (
                     <>
                       <BusyIndicator active size="S" style={{ marginRight: '0.5rem' }} />
-                      {footerButtonLabel()}
+                      {footerApplyLabel()}
                     </>
                   ) : (
-                    footerButtonLabel()
+                    footerApplyLabel()
                   )}
                 </Button>
               </>
@@ -276,6 +372,16 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
                   <MessageStrip design="Information" hideCloseButton>
                     {t('yamlApply.editHint')}
                   </MessageStrip>
+                  {dryRunResults[0]?.success === true && (
+                    <MessageStrip design="Positive" hideCloseButton>
+                      {t('yamlApply.dryRunPassed')}
+                    </MessageStrip>
+                  )}
+                  {dryRunResults[0]?.success === false && (
+                    <MessageStrip design="Negative" hideCloseButton>
+                      {t('yamlApply.dryRunFailed', { message: dryRunResults[0].message })}
+                    </MessageStrip>
+                  )}
                 </div>
                 <div className={styles.editor}>
                   <SchemaAwareEditor
@@ -319,6 +425,16 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
                     <MessageStrip design="Information" hideCloseButton>
                       {t('yamlApply.editHint')}
                     </MessageStrip>
+                    {dryRunResults[currentIndex]?.success === true && (
+                      <MessageStrip design="Positive" hideCloseButton>
+                        {t('yamlApply.dryRunPassed')}
+                      </MessageStrip>
+                    )}
+                    {dryRunResults[currentIndex]?.success === false && (
+                      <MessageStrip design="Negative" hideCloseButton>
+                        {t('yamlApply.dryRunFailed', { message: dryRunResults[currentIndex].message })}
+                      </MessageStrip>
+                    )}
                   </div>
                   <div className={styles.editor}>
                     <SchemaAwareEditor
