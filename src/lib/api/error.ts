@@ -44,6 +44,12 @@ export function isUnauthorizedError(error?: ErrorLike | APIError | null): boolea
   return /(status code|statuscode)\s*401\b/i.test(error?.message ?? '');
 }
 
+export function extractErrorMessage(e: unknown): string {
+  if (e instanceof APIError) return `${e.message}: ${JSON.stringify(e.info)}`;
+  if (e instanceof Error) return e.message;
+  return String(e);
+}
+
 function hasHttpStatus(error: ErrorLike | APIError | null | undefined, ...codes: number[]): boolean {
   if (error instanceof APIError) {
     return codes.includes(error.status);

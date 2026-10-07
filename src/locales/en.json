@@ -126,7 +126,11 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installComponents": "Install components"
+    "installComponents": "Install components",
+    "serviceInstalling": "Installing",
+    "serviceDeleting": "Deleting",
+    "serviceReady": "Ready",
+    "serviceUnknown": "Unknown"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
@@ -154,6 +158,7 @@
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig",
+    "downloadKubeconfigError": "Could not download the kubeconfig. Please try again.",
     "noContextsError": "No connection context found in kubeconfig",
     "noAccessTitle": "No connection configured"
   },
@@ -355,7 +360,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -557,7 +563,8 @@
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
     "deprecated": "Deprecated",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "helpButtonLabel": "Help"
   },
   "deprecated": {
     "deprecatedPopoverMessage": "There is a new version of control plane available."
@@ -763,5 +770,44 @@
     "applySuccess": "Resource applied successfully",
     "applySuccessSubtitle": "{{kind}}/{{name}} has been applied to {{target}}",
     "applyError": "Failed to apply resource"
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "sectionLabel": "Support Info:",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "wizardIntroWorkspace": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Project where available. No runtime impact.",
+    "wizardIntroControlPlane": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Workspace or Project where available. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "addButton": "Add info",
+    "addButtonTooltip": "This metadata helps support engineers triage issues faster. No runtime impact.",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "staging": "Staging",
+      "testing": "Testing",
+      "development": "Development",
+      "experimental": "Experimental"
+    },
+    "serviceIds": "Service Reference",
+    "serviceIdsPlaceholder": "Services, apps, or landscapes backed by this project",
+    "serviceIdsTooltip": "BTP service IDs, Crossplane provider names, or Landscaper app identifiers managed by this project. Helps support engineers triage incidents by linking them to the owning project.",
+    "contacts": "Contacts",
+    "securityContactsPlaceholder": "Security team email or oncall alias",
+    "securityContactsTooltip": "Emails of security engineers or oncall contacts responsible for incidents in this project.",
+    "opsContactsPlaceholder": "SRE email or ops team alias",
+    "opsContactsTooltip": "Emails of SRE engineers or ops oncall contacts. Used as an escalation path for production incidents.",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit",
+    "copyFromProject": "Copy Info from the parent Project",
+    "copyFromProjectNoData": "The parent project has no support info to copy.",
+    "copyFromWorkspace": "Copy Info from the parent Workspace",
+    "copyFromWorkspaceNoData": "The parent workspace has no support info to copy."
   }
 }

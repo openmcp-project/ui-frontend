@@ -9,6 +9,7 @@ import {
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
+  Text,
 } from '@ui5/webcomponents-react';
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
@@ -27,6 +28,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -75,6 +78,8 @@ import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
 import { useCrossplaneYamlQuery } from '../../mcp/hooks/useCrossplaneYamlQuery.ts';
 import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
 import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
+import { useOcmYamlQuery } from '../../mcp/hooks/useOcmYamlQuery.ts';
+import { useKroYamlQuery } from '../../mcp/hooks/useKroYamlQuery.ts';
 import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
 import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 
@@ -118,12 +123,18 @@ function OpenSourceHeadlamp({
   const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
   const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
+  const ocmYaml = useOcmYamlQuery(mcpName, mcpNamespace);
+  const kroYaml = useKroYamlQuery(mcpName, mcpNamespace);
   const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
   const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
   const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
+  const { status: ocmStatus } = useComponentCardStatus(true, ocmYaml);
+  const { status: kroStatus } = useComponentCardStatus(true, kroYaml);
   const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
   const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
   const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
+  const ocmPhase = ocmStatus.kind === 'installed' ? ocmStatus.phase : null;
+  const kroPhase = kroStatus.kind === 'installed' ? kroStatus.phase : null;
 
   // Optimistic 'Initializing' shown right after a successful install, before the real
   // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
@@ -132,6 +143,8 @@ function OpenSourceHeadlamp({
     crossplane: crossplanePhase ?? optimistic.crossplane ?? null,
     flux: fluxPhase ?? optimistic.flux ?? null,
     externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
+    ocm: ocmPhase ?? null,
+    kro: kroPhase ?? null,
   };
 
   const markInitializing = useCallback((component: InstallTarget) => {
@@ -147,8 +160,16 @@ function OpenSourceHeadlamp({
       crossplane: effectivePhases.crossplane,
       flux: effectivePhases.flux,
       externalSecretsOperator: effectivePhases.externalSecretsOperator,
+      ocm: effectivePhases.ocm,
+      kro: effectivePhases.kro,
     };
-  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator]);
+  }, [
+    effectivePhases.crossplane,
+    effectivePhases.flux,
+    effectivePhases.externalSecretsOperator,
+    effectivePhases.ocm,
+    effectivePhases.kro,
+  ]);
   const pushStatuses = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
@@ -377,7 +398,7 @@ export default function ControlPlanePageV2() {
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -389,6 +410,29 @@ export default function ControlPlanePageV2() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
+
+  // Sync ?view param with mode: read on mount to restore shared deeplinks, write on change.
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set('view', 'open-source');
+        } else {
+          next.delete('view');
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
   const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
@@ -549,6 +593,17 @@ export default function ControlPlanePageV2() {
                       mcpName={controlPlaneName}
                     />
                     <McpMembersAvatarView roleBindings={roleBindings} />
+
+                    <FlexBox direction="Column">
+                      <Text className={styles.supportInfoText}>{t('SupportInfo.sectionLabel')}</Text>
+                      <McpSupportInfoTag
+                        namespace={mcp.metadata?.namespace ?? namespace ?? ''}
+                        resourceName={controlPlaneName}
+                        supportInfo={extractSupportInfo(
+                          mcp.metadata?.annotations as Record<string, string> | undefined,
+                        )}
+                      />
+                    </FlexBox>
                   </FlexBox>
                 </ObjectPageHeader>
               }

@@ -32,6 +32,10 @@ describe('CreateProjectDialogContainer', () => {
     cy.get('ui5-button').contains('Next').click();
   };
 
+  const goToSupportInfo = () => {
+    cy.get('ui5-button').contains('Next').click();
+  };
+
   it('creates a project with valid data', () => {
     const setIsOpen = cy.stub();
 
@@ -56,10 +60,14 @@ describe('CreateProjectDialogContainer', () => {
           kind: 'User',
         },
       ],
+      supportServiceIds: '',
+      supportSecurityContacts: '',
+      supportOpsContacts: '',
     };
 
     fillMetadata();
     goToMembers();
+    goToSupportInfo();
 
     cy.get('ui5-button').contains('Create').click();
 
@@ -137,6 +145,7 @@ describe('CreateProjectDialogContainer', () => {
     cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
+    goToSupportInfo();
     cy.get('ui5-button').contains('Create').click();
 
     cy.wrap(setIsOpen).should('not.have.been.called');

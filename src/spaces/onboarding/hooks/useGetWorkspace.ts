@@ -5,6 +5,7 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
+import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
 
 export const GetWorkspaceQuery = graphql(`
@@ -40,6 +41,10 @@ export interface WorkspaceData {
   chargingTarget: string;
   chargingTargetType: string;
   members: Member[];
+  supportServiceIds: string;
+  supportLandscape: string;
+  supportSecurityContacts: string;
+  supportOpsContacts: string;
 }
 
 export function useGetWorkspace(workspaceName: string | undefined, namespace: string | undefined) {
@@ -52,6 +57,7 @@ export function useGetWorkspace(workspaceName: string | undefined, namespace: st
   const workspace = data?.core_openmcp_cloud?.v1alpha1?.Workspace;
   const annotations = (workspace?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const labels = (workspace?.metadata?.labels as Record<string, string> | null | undefined) ?? {};
+  const support = extractSupportInfo(annotations);
 
   const workspaceData: WorkspaceData | undefined = workspace
     ? {
@@ -71,6 +77,10 @@ export function useGetWorkspace(workspaceName: string | undefined, namespace: st
             },
           ];
         }),
+        supportServiceIds: support.supportServiceIds ?? '',
+        supportLandscape: support.supportLandscape ?? '',
+        supportSecurityContacts: support.supportSecurityContacts ?? '',
+        supportOpsContacts: support.supportOpsContacts ?? '',
       }
     : undefined;
 

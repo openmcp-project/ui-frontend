@@ -7,7 +7,8 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
  * One combined query for every V2 control plane's component-install status in a workspace,
  * replacing 6 per-control-plane queries fired once per card. All V2 control planes in a workspace
  * share the same `mcpNamespace`, so this is 6 requests per workspace instead of 6 × cards.
- * Only `metadata.name` + `spec.version` are selected — all that `installed` status needs.
+ * `metadata.name` + `spec.version` drive `installed` status; `status.phase` drives the per-service
+ * lifecycle indicator (installing / deleting) shown on the control plane card.
  */
 const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
   query GetMcpV2ComponentsList($namespace: String) {
@@ -20,6 +21,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             }
             spec {
               version
+            }
+            status {
+              phase
             }
           }
         }
@@ -35,6 +39,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             spec {
               version
             }
+            status {
+              phase
+            }
           }
         }
       }
@@ -48,6 +55,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             }
             spec {
               version
+            }
+            status {
+              phase
             }
           }
         }
@@ -63,6 +73,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             spec {
               version
             }
+            status {
+              phase
+            }
           }
         }
       }
@@ -76,6 +89,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             }
             spec {
               version
+            }
+            status {
+              phase
             }
           }
         }
@@ -91,6 +107,9 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
             spec {
               version
             }
+            status {
+              phase
+            }
           }
         }
       }
@@ -98,24 +117,33 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
   }
 `);
 
+export interface McpV2ComponentStatus {
+  /** Raw `status.phase` reported by the service resource (e.g. `Progressing`, `Terminating`, `Ready`). */
+  phase?: string | null;
+}
+
 export interface McpV2Components {
-  crossplane?: true;
-  flux?: true;
-  landscaper?: true;
-  externalSecretsOperator?: true;
-  ocm?: true;
-  kro?: true;
+  crossplane?: McpV2ComponentStatus;
+  flux?: McpV2ComponentStatus;
+  landscaper?: McpV2ComponentStatus;
+  externalSecretsOperator?: McpV2ComponentStatus;
+  ocm?: McpV2ComponentStatus;
+  kro?: McpV2ComponentStatus;
 }
 
 type ListItems =
-  | readonly ({ metadata?: { name?: string | null } | null; spec?: { version?: string | null } | null } | null)[]
+  | readonly ({
+      metadata?: { name?: string | null } | null;
+      spec?: { version?: string | null } | null;
+      status?: { phase?: string | null } | null;
+    } | null)[]
   | undefined;
 
 function indexByName(items: ListItems, key: keyof McpV2Components, index: Record<string, McpV2Components>) {
   for (const item of items ?? []) {
     const name = item?.metadata?.name;
     if (!name || !item?.spec?.version) continue;
-    (index[name] ??= {})[key] = true;
+    (index[name] ??= {})[key] = { phase: item.status?.phase ?? null };
   }
 }
 

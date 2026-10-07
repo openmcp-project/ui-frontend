@@ -19,6 +19,10 @@ const projectData: ProjectData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'user@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const fakeUseGetProject: typeof useGetProject = () => ({
@@ -110,6 +114,10 @@ describe('ProjectsListItemMenu', () => {
         chargingTarget: '12345678-1234-1234-1234-123456789abc',
         chargingTargetType: 'btp',
         members: [{ name: 'user@example.com', kind: 'User', roles: ['admin'] }],
+        supportServiceIds: '',
+        supportLandscape: '',
+        supportSecurityContacts: '',
+        supportOpsContacts: '',
       });
     });
   });

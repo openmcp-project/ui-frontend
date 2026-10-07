@@ -141,6 +141,23 @@ const v2ControlPlaneWithExtraProviderMembers: ControlPlaneListItem = {
   },
 };
 
+const v2ControlPlaneWithSupportInfo: ControlPlaneListItem = {
+  version: 'v2',
+  metadata: {
+    name: 'cp-name',
+    namespace: 'project-my-project--ws-default',
+    creationTimestamp: '2024-06-01T12:00:00Z',
+    annotations: {
+      'meta.orchestrate.cloud.sap/landscape': 'production',
+      'meta.orchestrate.cloud.sap/service-ids': 'ID-1',
+      'meta.orchestrate.cloud.sap/security-contacts': 'mail:sec@example.com',
+      'meta.orchestrate.cloud.sap/ops-contacts': 'mail:ops@example.com',
+    },
+  },
+  status: null,
+  spec: null,
+};
+
 const fakeUseDeleteManagedControlPlane: typeof useDeleteManagedControlPlane = () => ({
   deleteManagedControlPlane: async (): Promise<void> => {},
 });
@@ -152,7 +169,12 @@ const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteControlPlaneV2G
 // V2 component-install status is passed into ControlPlaneCard as plain props now (pre-fetched by
 // the parent grid tile via useMcpV2ComponentsListQuery), not via an injected hook.
 const v2ComponentsEmpty: McpV2Components = {};
-const v2ComponentsWithData: McpV2Components = { crossplane: true, flux: true };
+const v2ComponentsWithData: McpV2Components = { crossplane: { phase: 'Ready' }, flux: { phase: 'Ready' } };
+// A control plane mid-provision (Crossplane still installing) and tearing down Flux.
+const v2ComponentsMixedLifecycle: McpV2Components = {
+  crossplane: { phase: 'Progressing' },
+  flux: { phase: 'Terminating' },
+};
 
 const mountCard = (controlPlane: ControlPlaneListItem) => {
   cy.mount(
@@ -500,6 +522,82 @@ describe('ControlPlaneCard', () => {
     });
   });
 
+  describe('per-service lifecycle badge (v2 only)', () => {
+    it('shows an installing badge for a Progressing service and a deleting badge for a Terminating one', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    v2Components={v2ComponentsMixedLifecycle}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[data-testid="service-status-Crossplane"]').should('have.attr', 'name', 'synchronize');
+      cy.get('[data-testid="service-status-Flux"]').should('have.attr', 'name', 'delete');
+    });
+
+    it('shows no badge when every installed service is Ready', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    v2Components={v2ComponentsWithData}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[data-testid^="service-status-"]').should('not.exist');
+    });
+
+    it('never shows lifecycle badges on a v1 card', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v1ControlPlaneWithComponents}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[data-testid^="service-status-"]').should('not.exist');
+    });
+  });
+
   describe('members avatars', () => {
     it('renders an avatar for each member from roleBindings', () => {
       cy.mount(
@@ -644,5 +742,67 @@ describe('ControlPlaneCard', () => {
       </MockedProvider>,
     );
     cy.contains('Deprecated').should('not.exist');
+  });
+
+  describe('support info tag (v2 only)', () => {
+    it('renders the purpose tag with the landscape label when support info is present', () => {
+      mountCard(v2ControlPlaneWithSupportInfo);
+      cy.get('[data-testid="mcp-support-info-tag"]').should('contain', 'Production');
+    });
+
+    it('opens the support-info popover when the purpose tag is clicked', () => {
+      mountCard(v2ControlPlaneWithSupportInfo);
+      cy.get('[data-testid="mcp-support-info-tag"]').click();
+      cy.contains('ID-1').should('exist');
+      cy.contains('mail:sec@example.com').should('exist');
+    });
+
+    it('shows the "add info" hover tag when no landscape is set', () => {
+      mountCard(v2ControlPlane);
+      // no landscape → no purpose label, just the question-mark hover tag
+      cy.get('[data-testid="mcp-support-info-tag"]').should('not.exist');
+      cy.get('ui5-icon[name="question-mark"]').should('exist');
+    });
+
+    it('opens the edit wizard on the Support Info step when the "add info" tag is clicked', () => {
+      const loadingMock = {
+        request: {
+          query: GET_MCP_V2_QUERY,
+          variables: { name: 'cp-name', namespace: 'project-my-project--ws-default' },
+        },
+        delay: Infinity,
+        result: { data: null },
+      };
+      cy.mount(
+        <MockedProvider mocks={[loadingMock]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('ui5-busy-indicator').should('not.exist');
+      // The only tag on an annotation-free v2 card is the "add info" support hover tag.
+      cy.get('ui5-tag').click();
+      // The edit wizard data loader mounted and is fetching the CP to seed the Support Info step.
+      cy.get('ui5-busy-indicator').should('exist');
+    });
+
+    it('does not render a support tag on a v1 card', () => {
+      mountCard(v1ControlPlane);
+      cy.get('[data-testid="mcp-support-info-tag"]').should('not.exist');
+      cy.get('ui5-icon[name="question-mark"]').should('not.exist');
+    });
   });
 });

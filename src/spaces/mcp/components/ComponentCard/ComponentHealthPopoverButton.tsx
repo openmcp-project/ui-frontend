@@ -1,8 +1,8 @@
+import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/in-progress-2';
-import '@ui5/webcomponents-icons/dist/message-warning';
 import '@ui5/webcomponents-icons/dist/pending';
-import '@ui5/webcomponents-icons/dist/sys-enter-2';
+import '@ui5/webcomponents-icons/dist/question-mark.js';
+import '@ui5/webcomponents-icons/dist/synchronize';
 import { ButtonDomRef, Icon, PopoverDomRef, ResponsivePopover } from '@ui5/webcomponents-react';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
@@ -15,12 +15,7 @@ import { AnimatedHoverTextButton } from '../../../../components/Helper/AnimatedH
 import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
-import {
-  getComponentPhaseVisual,
-  InstancePhase,
-  LOADING_PHASE_VISUAL,
-  UNRECOGNIZED_PHASE_VISUAL,
-} from './ComponentCardV2.tsx';
+import { getComponentPhaseVisual, LOADING_PHASE_VISUAL, UNRECOGNIZED_PHASE_VISUAL } from './ComponentCardV2.tsx';
 import styles from './ComponentHealthPopoverButton.module.css';
 
 export interface ComponentHealthPopoverButtonProps {
@@ -50,11 +45,12 @@ export function ComponentHealthPopoverButton({
   // `phase` itself is intentionally left untranslated: it's an open backend-reported string (see
   // InstancePhase's `(string & {})` comment in ComponentCardV2.tsx), not a bounded set we can
   // i18n - mirrors MCPHealthPopoverButton's existing behavior for the same reason.
-  const displayPhase = hasError
-    ? t('ComponentHealthPopoverButton.unknownStatus')
-    : isLoading
-      ? t('ComponentHealthPopoverButton.pendingStatus')
-      : (phase ?? InstancePhase.Ready);
+  const displayPhase =
+    hasError || !phase
+      ? t('ComponentHealthPopoverButton.unknownStatus')
+      : isLoading
+        ? t('ComponentHealthPopoverButton.pendingStatus')
+        : phase;
   const visual = hasError
     ? UNRECOGNIZED_PHASE_VISUAL
     : isLoading
