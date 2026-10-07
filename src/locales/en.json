@@ -757,7 +757,7 @@
     "structureError": "Missing required fields: apiVersion, kind, metadata.name",
     "unknownKind": "Could not resolve resource type for kind '{{kind}}'",
     "unsupportedKindTitle": "Unsupported resource type",
-    "unsupportedKindOnboarding": "Only Workspace and Project resources can be applied to the Onboarding API. Open a ControlPlane to apply other resource types.",
+    "unsupportedKindOnboarding": "Only Project, Workspace, ControlPlane and ManagedControlPlane resources can be applied to the Onboarding API. Open a ControlPlane to apply other resource types.",
     "projectExistsInfo": "Project '{{name}}' already exists. Projects are always created via this flow, so this request may fail.",
     "overwriteWarning": "{{kind}}/{{name}} already exists. Applying will overwrite the existing resource.",
     "overwriteHint": "Click 'Overwrite' in the footer to proceed, or 'Cancel' to abort.",

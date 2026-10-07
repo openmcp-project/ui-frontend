@@ -1,7 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { parseYamlDocuments, validateYamlFile } from './useYamlApplyResource';
-import type { MultiDocResult, ValidationResult } from './useYamlApplyResource';
+import {
+  applyOnboardingResource,
+  checkOnboardingResourceExists,
+  isOnboardingKind,
+  parseYamlDocuments,
+  validateYamlFile,
+} from './useYamlApplyResource';
+import type { MultiDocResult, ParsedResource, ValidationResult } from './useYamlApplyResource';
+import type { ApolloClient } from '@apollo/client';
 
 const workspaceYaml = `apiVersion: core.openmcp.cloud/v1alpha1
 kind: Workspace
@@ -100,5 +107,96 @@ describe('parseYamlDocuments', () => {
     const result: MultiDocResult = parseYamlDocuments('empty.yaml', '---\n---\n');
     assertInvalid(result);
     expect(result.error).toBe('empty-file');
+  });
+});
+
+describe('isOnboardingKind', () => {
+  it('accepts the four management-plane kinds', () => {
+    for (const kind of ['Project', 'Workspace', 'ControlPlane', 'ManagedControlPlane']) {
+      expect(isOnboardingKind(kind)).toBe(true);
+    }
+  });
+
+  it('rejects any other kind', () => {
+    expect(isOnboardingKind('Provider')).toBe(false);
+    expect(isOnboardingKind('ConfigMap')).toBe(false);
+  });
+});
+
+const controlPlane: ParsedResource = {
+  apiVersion: 'core.openmcp.cloud/v2alpha1',
+  kind: 'ControlPlane',
+  metadata: { name: 'my-cp', namespace: 'project-p--ws-w' },
+  spec: { foo: 'bar' },
+};
+
+const managedControlPlane: ParsedResource = {
+  apiVersion: 'core.openmcp.cloud/v1alpha1',
+  kind: 'ManagedControlPlane',
+  metadata: { name: 'my-mcp', namespace: 'p--ws-w' },
+  spec: { components: {} },
+};
+
+describe('checkOnboardingResourceExists', () => {
+  it('returns true when the ControlPlane (v2) is found', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        data: { core_open_control_plane_io: { v2alpha1: { ControlPlane: { metadata: { name: 'my-cp' } } } } },
+      }),
+    } as unknown as ApolloClient;
+    expect(await checkOnboardingResourceExists(controlPlane, client)).toBe(true);
+  });
+
+  it('returns false when the ControlPlane (v2) is absent', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({ data: { core_open_control_plane_io: { v2alpha1: { ControlPlane: null } } } }),
+    } as unknown as ApolloClient;
+    expect(await checkOnboardingResourceExists(controlPlane, client)).toBe(false);
+  });
+
+  it('returns true when the ManagedControlPlane (v1) is found', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        data: { core_openmcp_cloud: { v1alpha1: { ManagedControlPlane: { metadata: { name: 'my-mcp' } } } } },
+      }),
+    } as unknown as ApolloClient;
+    expect(await checkOnboardingResourceExists(managedControlPlane, client)).toBe(true);
+  });
+});
+
+describe('applyOnboardingResource', () => {
+  it('creates a ControlPlane (v2) when it does not exist', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: {} });
+    const client = { mutate } as unknown as ApolloClient;
+    const result = await applyOnboardingResource(controlPlane, false, client);
+    expect(result.success).toBe(true);
+    const call = mutate.mock.calls[0][0];
+    expect(call.variables).toMatchObject({ namespace: 'project-p--ws-w' });
+    expect(call.variables.name).toBeUndefined();
+    expect(call.variables.object.status).toBeUndefined();
+    expect(call.variables.object).toMatchObject({ kind: 'ControlPlane', spec: { foo: 'bar' } });
+  });
+
+  it('updates a ControlPlane (v2) when it already exists', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: {} });
+    const client = { mutate } as unknown as ApolloClient;
+    await applyOnboardingResource(controlPlane, true, client);
+    expect(mutate.mock.calls[0][0].variables).toMatchObject({ name: 'my-cp', namespace: 'project-p--ws-w' });
+  });
+
+  it('creates a ManagedControlPlane (v1) when it does not exist', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: {} });
+    const client = { mutate } as unknown as ApolloClient;
+    await applyOnboardingResource(managedControlPlane, false, client);
+    const call = mutate.mock.calls[0][0];
+    expect(call.variables).toMatchObject({ namespace: 'p--ws-w' });
+    expect(call.variables.name).toBeUndefined();
+  });
+
+  it('updates a ManagedControlPlane (v1) when it already exists', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: {} });
+    const client = { mutate } as unknown as ApolloClient;
+    await applyOnboardingResource(managedControlPlane, true, client);
+    expect(mutate.mock.calls[0][0].variables).toMatchObject({ name: 'my-mcp', namespace: 'p--ws-w' });
   });
 });

@@ -515,6 +515,7 @@ export default function ControlPlanePageV2() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
+              <McpDragDropRegistrar name={controlPlaneName} />
               <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}

@@ -37,6 +37,7 @@ import {
   applyCpResource,
   checkOnboardingResourceExists,
   applyOnboardingResource,
+  isOnboardingKind,
   parseYamlDocuments,
 } from '../../hooks/useYamlApplyResource';
 import styles from './YamlApplyDialog.module.css';
@@ -164,7 +165,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
           }
         } else {
           const kind = currentResource.kind;
-          if (kind !== 'Project' && kind !== 'Workspace') {
+          if (!isOnboardingKind(kind)) {
             if (!cancelled) {
               setItemError(t('yamlApply.unsupportedKindOnboarding'));
               setItemState('unsupported');

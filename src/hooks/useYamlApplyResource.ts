@@ -16,7 +16,15 @@ import { CreateWorkspaceMutation } from '../spaces/onboarding/hooks/useCreateWor
 import { UpdateWorkspaceMutation } from '../spaces/onboarding/hooks/useUpdateWorkspace';
 import { GetProjectQuery } from '../spaces/onboarding/hooks/useGetProject';
 import { GetWorkspaceQuery } from '../spaces/onboarding/hooks/useGetWorkspace';
+import { GET_MCP_V1_QUERY } from '../spaces/onboarding/hooks/useManagedControlPlaneQuery';
+import { CreateManagedControlPlaneMutation } from './useCreateManagedControlPlane';
+import { UpdateManagedControlPlaneMutation } from './useUpdateManagedControlPlane';
+import { GET_MCP_V2_QUERY } from '../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query';
+import { CreateManagedControlPlaneV2Mutation } from '../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL';
+import { UpdateManagedControlPlaneV2Mutation } from '../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2Mutation';
 import type {
+  CoreOpenControlPlaneIoV2alpha1ControlPlane_Input as ControlPlaneV2Input,
+  CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input as ManagedControlPlaneV1Input,
   CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput,
   CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput,
 } from '../types/__generated__/graphql/graphql';
@@ -35,6 +43,13 @@ export type ParsedResource = {
 };
 
 export type ValidationError = 'wrong-file-type' | 'parse-error' | 'missing-fields' | 'empty-file';
+
+/** Kinds the Onboarding API (GraphQL) can apply. Everything else must target a Control Plane. */
+export const ONBOARDING_KINDS = ['Project', 'Workspace', 'ControlPlane', 'ManagedControlPlane'] as const;
+
+export function isOnboardingKind(kind: string): boolean {
+  return (ONBOARDING_KINDS as readonly string[]).includes(kind);
+}
 
 export type ValidationResult =
   { valid: true; resource: ParsedResource } | { valid: false; error: ValidationError; message: string };
@@ -264,6 +279,22 @@ export async function checkOnboardingResourceExists(
       });
       return !!data?.core_openmcp_cloud?.v1alpha1?.Workspace;
     }
+    if (kind === 'ControlPlane') {
+      const { data } = await client.query({
+        query: GET_MCP_V2_QUERY,
+        variables: { name: resource.metadata.name, namespace: resource.metadata.namespace ?? '' },
+        fetchPolicy: 'network-only',
+      });
+      return !!data?.core_open_control_plane_io?.v2alpha1?.ControlPlane;
+    }
+    if (kind === 'ManagedControlPlane') {
+      const { data } = await client.query({
+        query: GET_MCP_V1_QUERY,
+        variables: { name: resource.metadata.name, namespace: resource.metadata.namespace ?? '' },
+        fetchPolicy: 'network-only',
+      });
+      return !!data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlane;
+    }
   } catch {
     return false;
   }
@@ -272,6 +303,24 @@ export async function checkOnboardingResourceExists(
 
 export type OnboardingApplyResult =
   { success: true } | { success: false; error: 'unsupported-kind' | 'api-error'; message?: string };
+
+/**
+ * Trims a parsed resource down to the fields the GraphQL create/update inputs accept,
+ * dropping server-managed data (status, resourceVersion, uid, …) that would be rejected.
+ */
+function buildControlPlaneApplyInput(resource: ParsedResource) {
+  return {
+    apiVersion: resource.apiVersion,
+    kind: resource.kind,
+    metadata: {
+      name: resource.metadata.name,
+      namespace: resource.metadata.namespace,
+      annotations: resource.metadata.annotations,
+      labels: resource.metadata.labels,
+    },
+    spec: resource.spec,
+  };
+}
 
 export async function applyOnboardingResource(
   resource: ParsedResource,
@@ -305,6 +354,44 @@ export async function applyOnboardingResource(
         mutation: CreateWorkspaceMutation,
         variables: { namespace, object },
         refetchQueries: ['GetWorkspaces'],
+      });
+    }
+    return { success: true };
+  }
+
+  if (kind === 'ControlPlane') {
+    const namespace = resource.metadata.namespace ?? '';
+    const object = buildControlPlaneApplyInput(resource) as unknown as ControlPlaneV2Input;
+    if (exists) {
+      await client.mutate({
+        mutation: UpdateManagedControlPlaneV2Mutation,
+        variables: { name: resource.metadata.name, namespace, object },
+        refetchQueries: ['GetMCPsList'],
+      });
+    } else {
+      await client.mutate({
+        mutation: CreateManagedControlPlaneV2Mutation,
+        variables: { namespace, object },
+        refetchQueries: ['GetMCPsList'],
+      });
+    }
+    return { success: true };
+  }
+
+  if (kind === 'ManagedControlPlane') {
+    const namespace = resource.metadata.namespace ?? '';
+    const object = buildControlPlaneApplyInput(resource) as unknown as ManagedControlPlaneV1Input;
+    if (exists) {
+      await client.mutate({
+        mutation: UpdateManagedControlPlaneMutation,
+        variables: { name: resource.metadata.name, namespace, object },
+        refetchQueries: ['GetMCPsList'],
+      });
+    } else {
+      await client.mutate({
+        mutation: CreateManagedControlPlaneMutation,
+        variables: { namespace, object },
+        refetchQueries: ['GetMCPsList'],
       });
     }
     return { success: true };
