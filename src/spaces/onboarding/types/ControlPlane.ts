@@ -88,7 +88,6 @@ const SpecSchema = z
   .nullish();
 
 const ControlPlaneV1Schema = z.object({
-  clientId: z.string(),
   version: z.literal('v1'),
   metadata: MetadataSchema,
   spec: SpecSchema,
@@ -137,7 +136,6 @@ const ExtraOidcProviderSchema = z.object({
 });
 
 const ControlPlaneV2Schema = z.object({
-  clientId: z.string(),
   version: z.literal('v2'),
   metadata: MetadataSchema,
   status: StatusSchema.nullish(),
@@ -157,7 +155,12 @@ const ControlPlaneV2Schema = z.object({
     .nullish(),
 });
 
-export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema]);
+export const ControlPlaneListItemSchema = z
+  .discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema])
+  .transform((data) => ({
+    ...data,
+    clientId: `${data.version}/${data.metadata.namespace}/${data.metadata.name}`,
+  }));
 
 export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
 export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
