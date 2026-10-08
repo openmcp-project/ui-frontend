@@ -7,7 +7,6 @@ import '@ui5/webcomponents-icons/dist/document';
 import '@ui5/webcomponents-icons/dist/validate';
 import '@ui5/webcomponents-icons/dist/cloud';
 import '@ui5/webcomponents-icons/dist/org-chart';
-import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import {
   Bar,
   BusyIndicator,
@@ -28,7 +27,6 @@ import { useTranslation } from 'react-i18next';
 import { ApiConfigProvider } from '../Shared/k8s';
 import { generateCrateAPIConfig } from '../../lib/api/types/apiConfig';
 import type { ApiConfig } from '../../lib/api/types/apiConfig';
-import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner';
 import IllustratedError from '../Shared/IllustratedError';
 import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchemaLoader';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
@@ -50,7 +48,7 @@ type ItemStatus = 'pending' | 'applied' | 'failed';
 type Phase = 'parsing' | 'parse-error' | 'editing' | 'summary';
 
 interface Props {
-  file: File;
+  files: File[];
   targetApiConfig: ApiConfig | null;
   targetName: string;
   onClose: () => void;
@@ -74,7 +72,7 @@ function splitApiVersion(apiVersion: string): { group: string; version: string }
   return parts.length === 2 ? { group: parts[0], version: parts[1] } : { group: '', version: parts[0] };
 }
 
-const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetName, onClose, apiConfig }) => {
+const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetName, onClose, apiConfig }) => {
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
   const { getPluralKind } = useResourcePluralNames();
@@ -101,6 +99,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const [isApplyingAll, setIsApplyingAll] = useState(false);
   // Edited YAML per resource index; falls back to the parsed resource when untouched.
   const [edits, setEdits] = useState<Record<number, string>>({});
+  // Error message per resource index for failed applies — surfaced in the summary.
+  const [itemErrors, setItemErrors] = useState<Record<number, string>>({});
   const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number }>({
     parseOk: true,
     schemaErrorCount: 0,
@@ -125,28 +125,49 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     [currentIndex],
   );
 
-  // ── Parse the dropped file into a queue of resources ──────────────────────
+  // ── Parse the dropped/selected files into a single queue of resources ─────
   useEffect(() => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = (e.target?.result as string) ?? '';
-      const result = parseYamlDocuments(file.name, content);
-      if (!result.valid) {
-        setParseErrorMessage(result.message);
+    let cancelled = false;
+    const run = async () => {
+      const merged: ParsedResource[] = [];
+      for (const file of files) {
+        let content: string;
+        try {
+          content = await file.text();
+        } catch {
+          if (!cancelled) {
+            setParseErrorMessage(t('yamlApply.parseError'));
+            setPhase('parse-error');
+          }
+          return;
+        }
+        const result = parseYamlDocuments(file.name, content);
+        if (!result.valid) {
+          if (!cancelled) {
+            setParseErrorMessage(result.message);
+            setPhase('parse-error');
+          }
+          return;
+        }
+        merged.push(...result.resources);
+      }
+      if (cancelled) return;
+      if (merged.length === 0) {
+        setParseErrorMessage('');
         setPhase('parse-error');
         return;
       }
-      setResources(result.resources);
-      setStatuses(result.resources.map(() => 'pending'));
+      setResources(merged);
+      setStatuses(merged.map(() => 'pending'));
+      setItemErrors({});
       setCurrentIndex(0);
       setPhase('editing');
     };
-    reader.onerror = () => {
-      setParseErrorMessage(t('yamlApply.parseError'));
-      setPhase('parse-error');
+    run();
+    return () => {
+      cancelled = true;
     };
-    reader.readAsText(file);
-  }, [file, t]);
+  }, [files, t]);
 
   // ── Prepare the current resource: reset per-item state + existence check ──
   useEffect(() => {
@@ -178,9 +199,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
         } else {
           const kind = currentResource.kind;
           if (!isOnboardingKind(kind)) {
+            // No dedicated mutation for this kind — it is applied generically via `applyYaml`
+            // (server-side create-or-update). There is no per-kind existence check, so go idle.
             if (!cancelled) {
-              setItemError(t('yamlApply.unsupportedKindOnboarding'));
-              setItemState('unsupported');
+              setResourceExists(false);
+              setItemState('idle');
             }
             return;
           }
@@ -263,9 +286,16 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
         }
       }
       markStatus(index, 'applied');
+      setItemErrors((prev) => {
+        const next = { ...prev };
+        delete next[index];
+        return next;
+      });
       advanceAfterApply(index);
     } catch (err) {
-      setItemError(err instanceof Error ? err.message : String(err));
+      const message = err instanceof Error ? err.message : String(err);
+      setItemError(message);
+      setItemErrors((prev) => ({ ...prev, [index]: message }));
       markStatus(index, 'failed');
       setItemState('idle');
     }
@@ -339,7 +369,14 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
             if (!result.success) throw new Error(t('yamlApply.unsupportedKindOnboarding'));
           }
           markStatus(i, 'applied');
-        } catch {
+          setItemErrors((prev) => {
+            const next = { ...prev };
+            delete next[i];
+            return next;
+          });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          setItemErrors((prev) => ({ ...prev, [i]: message }));
           markStatus(i, 'failed');
         }
       }
@@ -425,7 +462,14 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     !validity.parseOk ||
     validity.schemaErrorCount > 0;
 
-  const applyLabel = showOverwrite ? t('yamlApply.overwriteButton') : t('yamlApply.createButton');
+  // Generic onboarding kinds have no existence check (applied via server-side applyYaml),
+  // so neither 'Create' nor 'Overwrite' fits — use a neutral 'Apply'.
+  const isGenericOnboarding = !isCpTarget && !!currentResource && !isOnboardingKind(currentResource.kind);
+  const applyLabel = isGenericOnboarding
+    ? t('yamlApply.applyButton')
+    : showOverwrite
+      ? t('yamlApply.overwriteButton')
+      : t('yamlApply.createButton');
 
   const pendingCount = statuses.filter((s) => s === 'pending').length;
   const showApplyAll = phase === 'editing' && isMultiDoc && pendingCount > 1;
@@ -567,17 +611,39 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
         )}
 
         {phase === 'summary' && (
-          <div className={styles.center}>
-            <IllustratedBanner
-              illustrationName={
-                summary.failed > 0 ? IllustrationMessageType.SimpleError : IllustrationMessageType.SuccessHighFive
-              }
-              title={t('yamlApply.summaryTitle')}
-              subtitle={t('yamlApply.summaryCounts', {
-                applied: summary.applied,
-                failed: summary.failed,
+          <div className={styles.summaryContainer}>
+            {targetBanner}
+            <MessageStrip
+              design={summary.failed > 0 ? 'Negative' : 'Positive'}
+              hideCloseButton
+              className={styles.strip}
+            >
+              {t('yamlApply.summaryCounts', { applied: summary.applied, failed: summary.failed })}
+            </MessageStrip>
+            <div className={styles.summaryList}>
+              {resources.map((r, i) => {
+                const applied = statuses[i] === 'applied';
+                const meta = [r.apiVersion, r.metadata.namespace].filter(Boolean).join(' / ');
+                return (
+                  <div key={i} className={styles.summaryRow}>
+                    <ObjectStatus
+                      state={applied ? 'Positive' : 'Negative'}
+                      icon={<Icon name={applied ? 'accept' : 'error'} />}
+                      inverted
+                    >
+                      {t(applied ? 'yamlApply.statusApplied' : 'yamlApply.statusFailed')}
+                    </ObjectStatus>
+                    <div className={styles.summaryRowBody}>
+                      <Text className={styles.summaryRowTitle}>
+                        {r.kind}/{r.metadata.name}
+                      </Text>
+                      {meta && <Text className={styles.summaryRowMeta}>{meta}</Text>}
+                      {!applied && itemErrors[i] && <Text className={styles.summaryRowError}>{itemErrors[i]}</Text>}
+                    </div>
+                  </div>
+                );
               })}
-            />
+            </div>
           </div>
         )}
       </div>

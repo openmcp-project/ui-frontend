@@ -9,12 +9,12 @@ export type McpTarget = {
 interface YamlApplyContextValue {
   activeMcp: McpTarget | null;
   setActiveMcp: (target: McpTarget | null) => void;
-  /** The file currently queued for the apply flow (from a drop or the Upload YAML button). */
-  pendingFile: File | null;
-  /** Programmatically start the apply flow for a file (e.g. from an "Upload YAML" button). */
-  requestApplyFile: (file: File) => void;
-  /** Clear the queued file (closes the apply dialog). */
-  clearPendingFile: () => void;
+  /** The files currently queued for the apply flow (from a drop or the Upload YAML button). */
+  pendingFiles: File[];
+  /** Programmatically start the apply flow for one or more files (e.g. from an "Upload YAML" button). */
+  requestApplyFiles: (files: File[]) => void;
+  /** Clear the queued files (closes the apply dialog). */
+  clearPendingFiles: () => void;
 }
 
 const YamlApplyContext = createContext<YamlApplyContextValue | null>(null);
@@ -27,14 +27,14 @@ export const useYamlApply = (): YamlApplyContextValue => {
 
 export const YamlApplyContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [activeMcp, setActiveMcpState] = useState<McpTarget | null>(null);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const setActiveMcp = useCallback((target: McpTarget | null) => setActiveMcpState(target), []);
-  const requestApplyFile = useCallback((file: File) => setPendingFile(file), []);
-  const clearPendingFile = useCallback(() => setPendingFile(null), []);
+  const requestApplyFiles = useCallback((files: File[]) => setPendingFiles(files), []);
+  const clearPendingFiles = useCallback(() => setPendingFiles([]), []);
 
   return (
-    <YamlApplyContext.Provider value={{ activeMcp, setActiveMcp, pendingFile, requestApplyFile, clearPendingFile }}>
+    <YamlApplyContext.Provider value={{ activeMcp, setActiveMcp, pendingFiles, requestApplyFiles, clearPendingFiles }}>
       {children}
     </YamlApplyContext.Provider>
   );

@@ -367,7 +367,7 @@ const ProfilePopover = ({
 };
 
 function UploadYamlShellBarButton() {
-  const { requestApplyFile } = useYamlApply();
+  const { requestApplyFiles } = useYamlApply();
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -377,10 +377,11 @@ function UploadYamlShellBarButton() {
         ref={inputRef}
         type="file"
         accept=".yaml,.yml"
+        multiple
         style={{ display: 'none' }}
         onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) requestApplyFile(file);
+          const files = Array.from(e.target.files ?? []);
+          if (files.length > 0) requestApplyFiles(files);
           e.target.value = '';
         }}
       />
