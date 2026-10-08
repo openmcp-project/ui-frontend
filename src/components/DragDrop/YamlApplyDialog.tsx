@@ -4,6 +4,7 @@ import '@ui5/webcomponents-icons/dist/accept';
 import '@ui5/webcomponents-icons/dist/error';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/document';
+import '@ui5/webcomponents-icons/dist/validate';
 import '@ui5/webcomponents-icons/dist/cloud';
 import '@ui5/webcomponents-icons/dist/org-chart';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
@@ -38,6 +39,7 @@ import {
   checkOnboardingResourceExists,
   applyOnboardingResource,
   isOnboardingKind,
+  supportsOnboardingDryRun,
   parseYamlDocuments,
 } from '../../hooks/useYamlApplyResource';
 import styles from './YamlApplyDialog.module.css';
@@ -90,6 +92,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const [itemState, setItemState] = useState<ItemState>('checking');
   const [resourceExists, setResourceExists] = useState(false);
   const [itemError, setItemError] = useState('');
+  // Result of the last dry run for the current resource (server-side validation preview).
+  const [dryRun, setDryRun] = useState<{ status: 'idle' | 'running' | 'ok' | 'error'; message: string }>({
+    status: 'idle',
+    message: '',
+  });
+  // True while "Apply all" is applying the remaining resources sequentially.
+  const [isApplyingAll, setIsApplyingAll] = useState(false);
   // Edited YAML per resource index; falls back to the parsed resource when untouched.
   const [edits, setEdits] = useState<Record<number, string>>({});
   const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number }>({
@@ -110,6 +119,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   const handleContentChange = useCallback(
     (val: string) => {
       setEdits((prev) => ({ ...prev, [currentIndex]: val }));
+      // Edited YAML invalidates any previous dry-run result for this item.
+      setDryRun({ status: 'idle', message: '' });
     },
     [currentIndex],
   );
@@ -147,6 +158,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
       setItemError('');
       setResourceExists(false);
       setItemState('checking');
+      setDryRun({ status: 'idle', message: '' });
 
       try {
         if (isCpTarget) {
@@ -271,6 +283,72 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     advanceAfterApply,
   ]);
 
+  // Server-side validation of the current (possibly edited) resource without persisting.
+  // CP targets use `?dryRun=All`; the Onboarding API only supports it for v2 ControlPlane.
+  const canDryRun =
+    phase === 'editing' &&
+    itemState !== 'unsupported' &&
+    (isCpTarget || (currentResource ? supportsOnboardingDryRun(currentResource.kind) : false));
+
+  const doDryRun = useCallback(async () => {
+    if (!currentResource) return;
+    setDryRun({ status: 'running', message: '' });
+
+    let resource: ParsedResource = currentResource;
+    try {
+      resource = parse(currentYaml) as ParsedResource;
+    } catch {
+      resource = currentResource;
+    }
+
+    try {
+      if (isCpTarget) {
+        const plural = getPluralKind(resource.kind);
+        if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
+        await applyCpResource(resource, plural, apiConfig, true);
+      } else {
+        await applyOnboardingResource(resource, resourceExists, apolloClient, true);
+      }
+      setDryRun({ status: 'ok', message: t('yamlApply.dryRunOk') });
+    } catch (err) {
+      setDryRun({ status: 'error', message: err instanceof Error ? err.message : String(err) });
+    }
+  }, [currentResource, currentYaml, isCpTarget, getPluralKind, apiConfig, resourceExists, apolloClient, t]);
+
+  // Apply every still-pending resource in order, continuing past failures, then show the summary.
+  const doApplyAll = useCallback(async () => {
+    setIsApplyingAll(true);
+    try {
+      for (let i = 0; i < resources.length; i++) {
+        if (statuses[i] !== 'pending') continue;
+        const raw = edits[i] ?? stringify(resources[i]);
+        let resource: ParsedResource = resources[i];
+        try {
+          resource = parse(raw) as ParsedResource;
+        } catch {
+          resource = resources[i];
+        }
+        try {
+          if (isCpTarget) {
+            const plural = getPluralKind(resource.kind);
+            if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
+            await applyCpResource(resource, plural, apiConfig);
+          } else {
+            const exists = await checkOnboardingResourceExists(resource, apolloClient);
+            const result = await applyOnboardingResource(resource, exists, apolloClient);
+            if (!result.success) throw new Error(t('yamlApply.unsupportedKindOnboarding'));
+          }
+          markStatus(i, 'applied');
+        } catch {
+          markStatus(i, 'failed');
+        }
+      }
+    } finally {
+      setIsApplyingAll(false);
+      setPhase('summary');
+    }
+  }, [resources, statuses, edits, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
+
   // ── Presentation helpers ──────────────────────────────────────────────────
   const targetBanner = (
     <div className={styles.targetBar}>
@@ -299,7 +377,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
   };
 
   const jumpToIndex = (idx: number) => {
-    if (itemState === 'applying' || Number.isNaN(idx) || idx === currentIndex) return;
+    if (itemState === 'applying' || isApplyingAll || Number.isNaN(idx) || idx === currentIndex) return;
     setCurrentIndex(idx);
   };
 
@@ -342,18 +420,40 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
     itemState === 'checking' ||
     itemState === 'applying' ||
     itemState === 'unsupported' ||
+    isApplyingAll ||
+    dryRun.status === 'running' ||
     !validity.parseOk ||
     validity.schemaErrorCount > 0;
 
   const applyLabel = showOverwrite ? t('yamlApply.overwriteButton') : t('yamlApply.createButton');
 
-  const canClose = itemState !== 'applying' && phase !== 'parsing';
+  const pendingCount = statuses.filter((s) => s === 'pending').length;
+  const showApplyAll = phase === 'editing' && isMultiDoc && pendingCount > 1;
+
+  // The summary ('Apply complete') screen is always closable — the per-item working state
+  // may still read 'applying' after the final successful apply advanced us here.
+  const canClose = phase === 'summary' || (itemState !== 'applying' && !isApplyingAll && phase !== 'parsing');
 
   const footer = (
     <Bar
       design="Footer"
       endContent={
         <>
+          {canDryRun && (
+            <Button
+              design="Transparent"
+              disabled={applyDisabled || itemState !== 'idle'}
+              icon="validate"
+              onClick={doDryRun}
+            >
+              {t('yamlApply.dryRunButton')}
+            </Button>
+          )}
+          {showApplyAll && (
+            <Button design="Emphasized" disabled={applyDisabled} onClick={doApplyAll}>
+              {t('yamlApply.applyAllButton')}
+            </Button>
+          )}
           {phase === 'editing' && (
             <Button design={showOverwrite ? 'Negative' : 'Emphasized'} disabled={applyDisabled} onClick={doApply}>
               {applyLabel}
@@ -431,6 +531,18 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ file, targetApiConfig, targetNam
                 {itemError && itemState === 'idle' && (
                   <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
                     {itemError}
+                  </MessageStrip>
+                )}
+
+                {dryRun.status === 'ok' && (
+                  <MessageStrip design="Positive" hideCloseButton className={styles.strip}>
+                    {dryRun.message}
+                  </MessageStrip>
+                )}
+
+                {dryRun.status === 'error' && (
+                  <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
+                    {t('yamlApply.dryRunFailedTitle')}: {dryRun.message}
                   </MessageStrip>
                 )}
 

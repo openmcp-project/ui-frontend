@@ -1,14 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  applyCpResource,
   applyOnboardingResource,
   checkOnboardingResourceExists,
   isOnboardingKind,
   parseYamlDocuments,
+  supportsOnboardingDryRun,
   validateYamlFile,
 } from './useYamlApplyResource';
 import type { MultiDocResult, ParsedResource, ValidationResult } from './useYamlApplyResource';
 import type { ApolloClient } from '@apollo/client';
+import type { ApiConfig } from '../lib/api/types/apiConfig';
+import { fetchApiServerJson } from '../lib/api/fetch';
+
+vi.mock('../lib/api/fetch', () => ({
+  fetchApiServerJson: vi.fn().mockResolvedValue({}),
+}));
 
 const workspaceYaml = `apiVersion: core.openmcp.cloud/v1alpha1
 kind: Workspace
@@ -198,5 +206,44 @@ describe('applyOnboardingResource', () => {
     const client = { mutate } as unknown as ApolloClient;
     await applyOnboardingResource(managedControlPlane, true, client);
     expect(mutate.mock.calls[0][0].variables).toMatchObject({ name: 'my-mcp', namespace: 'p--ws-w' });
+  });
+});
+
+describe('dry run', () => {
+  it('supportsOnboardingDryRun is true only for ControlPlane (v2)', () => {
+    expect(supportsOnboardingDryRun('ControlPlane')).toBe(true);
+    expect(supportsOnboardingDryRun('ManagedControlPlane')).toBe(false);
+    expect(supportsOnboardingDryRun('Workspace')).toBe(false);
+    expect(supportsOnboardingDryRun('Project')).toBe(false);
+  });
+
+  it('passes dryRun to the ControlPlane (v2) mutation and skips refetchQueries', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: {} });
+    const client = { mutate } as unknown as ApolloClient;
+    await applyOnboardingResource(controlPlane, false, client, true);
+    const call = mutate.mock.calls[0][0];
+    expect(call.variables).toMatchObject({ dryRun: true });
+    expect(call.refetchQueries).toBeUndefined();
+  });
+
+  it('refuses a dry run for a kind the Onboarding API cannot dry-run', async () => {
+    const mutate = vi.fn();
+    const client = { mutate } as unknown as ApolloClient;
+    await expect(applyOnboardingResource(managedControlPlane, false, client, true)).rejects.toThrow();
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it('appends ?dryRun=All to the Control Plane server-side apply path', async () => {
+    const apiConfig = {} as ApiConfig;
+    await applyCpResource(controlPlane, 'controlplanes', apiConfig, true);
+    const url = vi.mocked(fetchApiServerJson).mock.calls.at(-1)?.[0] as string;
+    expect(url).toContain('dryRun=All');
+  });
+
+  it('does not append dryRun on a normal Control Plane apply', async () => {
+    const apiConfig = {} as ApiConfig;
+    await applyCpResource(controlPlane, 'controlplanes', apiConfig);
+    const url = vi.mocked(fetchApiServerJson).mock.calls.at(-1)?.[0] as string;
+    expect(url).not.toContain('dryRun');
   });
 });

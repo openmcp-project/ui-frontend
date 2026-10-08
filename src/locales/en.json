@@ -769,7 +769,11 @@
     "summaryCounts": "{{applied}} applied, {{failed}} failed",
     "applySuccess": "Resource applied successfully",
     "applySuccessSubtitle": "{{kind}}/{{name}} has been applied to {{target}}",
-    "applyError": "Failed to apply resource"
+    "applyError": "Failed to apply resource",
+    "applyAllButton": "Apply all",
+    "dryRunButton": "Dry run",
+    "dryRunOk": "Dry run succeeded — the server accepted this resource.",
+    "dryRunFailedTitle": "Dry run failed"
   },
   "SupportInfo": {
     "popoverTitle": "Support Annotations",

@@ -153,14 +153,18 @@ const SSA_FIELD_MANAGER = 'openmcp-ui';
  * Applies a resource to a Control Plane using Kubernetes server-side apply
  * (`PATCH` with `application/apply-patch+yaml`). This is idempotent: it creates
  * the resource if absent and updates it otherwise, in a single call.
+ *
+ * With `dryRun`, the server validates and reports what it would do without
+ * persisting anything (`?dryRun=All`).
  */
 export async function applyCpResource(
   resource: ParsedResource,
   pluralKind: string,
   apiConfig: ApiConfig,
+  dryRun = false,
 ): Promise<void> {
   const path = buildCpPath(resource.apiVersion, pluralKind, resource.metadata.namespace, resource.metadata.name);
-  const query = `?fieldManager=${SSA_FIELD_MANAGER}&force=true`;
+  const query = `?fieldManager=${SSA_FIELD_MANAGER}&force=true${dryRun ? '&dryRun=All' : ''}`;
   const body = stringify(resource);
   await fetchApiServerJson(`${path}${query}`, apiConfig, undefined, 'PATCH', body, 'application/apply-patch+yaml');
 }
@@ -322,12 +326,22 @@ function buildControlPlaneApplyInput(resource: ParsedResource) {
   };
 }
 
+/** Kinds for which the Onboarding API exposes a server-side `dryRun`. Only the v2 ControlPlane does. */
+export function supportsOnboardingDryRun(kind: string): boolean {
+  return kind === 'ControlPlane';
+}
+
 export async function applyOnboardingResource(
   resource: ParsedResource,
   exists: boolean,
   client: OnboardingClient,
+  dryRun = false,
 ): Promise<OnboardingApplyResult> {
   const kind = resource.kind;
+
+  if (dryRun && !supportsOnboardingDryRun(kind)) {
+    throw new Error(`Dry run is not supported for ${kind} on the Onboarding API.`);
+  }
 
   if (kind === 'Project') {
     // Projects are a special case: always CREATE, never update via this flow.
@@ -362,17 +376,19 @@ export async function applyOnboardingResource(
   if (kind === 'ControlPlane') {
     const namespace = resource.metadata.namespace ?? '';
     const object = buildControlPlaneApplyInput(resource) as unknown as ControlPlaneV2Input;
+    // A dry run must not disturb caches, so skip refetchQueries in that mode.
+    const refetchQueries = dryRun ? undefined : ['GetMCPsList'];
     if (exists) {
       await client.mutate({
         mutation: UpdateManagedControlPlaneV2Mutation,
-        variables: { name: resource.metadata.name, namespace, object },
-        refetchQueries: ['GetMCPsList'],
+        variables: { name: resource.metadata.name, namespace, object, dryRun },
+        refetchQueries,
       });
     } else {
       await client.mutate({
         mutation: CreateManagedControlPlaneV2Mutation,
-        variables: { namespace, object },
-        refetchQueries: ['GetMCPsList'],
+        variables: { namespace, object, dryRun },
+        refetchQueries,
       });
     }
     return { success: true };
