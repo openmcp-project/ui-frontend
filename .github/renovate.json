@@ -32,6 +32,16 @@
         "@opentelemetry/{/,}**"
       ],
       "separateMajorMinor": false
+    },
+    {
+      "groupName": "graphql packages",
+      "matchPackageNames": [
+        "graphql",
+        "graphql-config",
+        "graphql-sse",
+        "@apollo/client",
+        "@graphql-codegen/{/,}**"
+      ]
     }
   ]
 }

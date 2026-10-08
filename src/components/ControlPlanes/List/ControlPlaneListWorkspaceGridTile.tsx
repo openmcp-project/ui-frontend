@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MemberKind, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
@@ -33,6 +34,7 @@ import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSk
 import { ObservableCard } from './ObservableCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -220,6 +222,11 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
+  const supportInfo = useMemo(
+    () => extractSupportInfo(workspace.metadata.annotations),
+    [workspace.metadata.annotations],
+  );
+
   if (hidden) return null;
 
   return (
@@ -295,7 +302,12 @@ export function ControlPlaneListWorkspaceGridTile({
             )}
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            {!shouldCollapsePanel && <MembersAvatarView members={uniqueMembers} source="workspace-grid" />}
+            <WorkspaceSupportInfoTag
+              workspaceName={workspaceName}
+              namespace={projectNamespace}
+              supportInfo={supportInfo}
+            />
+            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>

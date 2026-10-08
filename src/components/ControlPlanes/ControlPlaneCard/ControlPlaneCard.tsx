@@ -23,9 +23,11 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
+import { McpSupportInfoTag } from './McpSupportInfoTag.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -184,6 +186,13 @@ export const ControlPlaneCard = ({
           </div>
 
           <div className={styles.headerActions}>
+            {isV2 && (
+              <McpSupportInfoTag
+                namespace={namespace}
+                resourceName={name}
+                supportInfo={extractSupportInfo(controlPlane.metadata.annotations)}
+              />
+            )}
             <MCPHealthPopoverButton
               mcpStatus={controlPlane.status}
               projectName={projectName}
