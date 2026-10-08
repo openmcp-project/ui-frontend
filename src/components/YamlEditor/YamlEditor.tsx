@@ -3,7 +3,7 @@ import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import * as monaco from 'monaco-editor';
 import type { SchemasSettings } from 'monaco-yaml';
 import type { ComponentProps } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseDocument } from 'yaml';
 import { useTheme } from '../../hooks/useTheme';
@@ -18,6 +18,12 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void;
   schema?: JSONSchema4;
+  /** Hide the built-in "Apply changes" toolbar (used when an external footer drives the apply). */
+  hideToolbar?: boolean;
+  /** Emitted whenever the parse/schema validity of the current content changes. */
+  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number }) => void;
+  /** Emitted with the raw editor text whenever it changes (edit mode only). */
+  onContentChange?: (yaml: string) => void;
 };
 
 export const YamlEditor = (props: YamlEditorProps) => {
@@ -33,6 +39,9 @@ export const YamlEditor = (props: YamlEditorProps) => {
     onApply,
     onMount: parentOnMount,
     schema,
+    hideToolbar = false,
+    onValidityChange,
+    onContentChange,
     ...rest
   } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
@@ -40,6 +49,8 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof monaco | null>(null);
 
   useEffect(() => {
     const schemas: SchemasSettings[] = schema
@@ -80,13 +91,57 @@ export const YamlEditor = (props: YamlEditorProps) => {
     (val: string | undefined, event?: monaco.editor.IModelContentChangedEvent) => {
       if (isEdit) {
         setEditorContent(val ?? '');
+        onContentChange?.(val ?? '');
       }
       if (event) {
         onChange?.(val ?? '', event);
       }
     },
-    [isEdit, onChange],
+    [isEdit, onChange, onContentChange],
   );
+
+  const [schemaErrorCount, setSchemaErrorCount] = useState(0);
+
+  const recomputeSchemaErrors = useCallback(() => {
+    const editor = editorRef.current;
+    const monacoInstance = monacoRef.current;
+    const model = editor?.getModel();
+    if (!editor || !monacoInstance || !model) return;
+    const markers = monacoInstance.editor.getModelMarkers({ resource: model.uri });
+    const errors = markers.filter((m) => m.severity === monacoInstance.MarkerSeverity.Error);
+    setSchemaErrorCount(errors.length);
+  }, []);
+
+  const handleMount = useCallback(
+    (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
+      editorRef.current = editor;
+      monacoRef.current = monacoInstance;
+      const disposable = monacoInstance.editor.onDidChangeMarkers((uris) => {
+        const model = editor.getModel();
+        if (model && uris.some((u) => u.toString() === model.uri.toString())) {
+          recomputeSchemaErrors();
+        }
+      });
+      editor.onDidDispose(() => disposable.dispose());
+      recomputeSchemaErrors();
+      parentOnMount?.(editor, monacoInstance);
+    },
+    [parentOnMount, recomputeSchemaErrors],
+  );
+
+  // Surface combined parse + schema validity to the parent (single source of truth for
+  // external footer buttons that gate on YAML validity).
+  useEffect(() => {
+    if (!onValidityChange) return;
+    let parseOk = true;
+    try {
+      const doc = parseDocument(editorContent);
+      parseOk = !doc.errors || doc.errors.length === 0;
+    } catch {
+      parseOk = false;
+    }
+    onValidityChange({ parseOk, schemaErrorCount });
+  }, [editorContent, schemaErrorCount, onValidityChange]);
 
   const handleApply = useCallback(() => {
     const run = async () => {
@@ -117,7 +172,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   return (
     <div className={styles.container}>
-      {isEdit && (
+      {isEdit && !hideToolbar && (
         <Toolbar design="Solid">
           <Button
             className={styles.applyButton}
@@ -138,6 +193,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
+          onMount={handleMount}
         />
       </div>
       {showValidationErrors && (
