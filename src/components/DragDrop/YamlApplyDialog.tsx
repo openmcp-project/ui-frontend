@@ -7,14 +7,14 @@ import '@ui5/webcomponents-icons/dist/document';
 import '@ui5/webcomponents-icons/dist/validate';
 import '@ui5/webcomponents-icons/dist/cloud';
 import '@ui5/webcomponents-icons/dist/org-chart';
+import '@ui5/webcomponents-icons/dist/decline';
+import '@ui5/webcomponents-icons/dist/add';
 import {
   Bar,
   BusyIndicator,
   Button,
   Dialog,
   Icon,
-  List,
-  ListItemStandard,
   MessageStrip,
   ObjectStatus,
   ProgressIndicator,
@@ -22,14 +22,14 @@ import {
 } from '@ui5/webcomponents-react';
 import { useApolloClient } from '@apollo/client/react';
 import { parse, stringify } from 'yaml';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiConfigProvider } from '../Shared/k8s';
 import { generateCrateAPIConfig } from '../../lib/api/types/apiConfig';
 import type { ApiConfig } from '../../lib/api/types/apiConfig';
 import IllustratedError from '../Shared/IllustratedError';
 import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchemaLoader';
-import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
+import { useResourcePluralNames as _useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import {
   type ParsedResource,
   checkCpResourceExists,
@@ -38,6 +38,8 @@ import {
   applyOnboardingResource,
   isOnboardingKind,
   supportsOnboardingDryRun,
+  dedupeResources,
+  nextIndexAfterRemove,
   parseYamlDocuments,
 } from '../../hooks/useYamlApplyResource';
 import styles from './YamlApplyDialog.module.css';
@@ -52,6 +54,12 @@ interface Props {
   targetApiConfig: ApiConfig | null;
   targetName: string;
   onClose: () => void;
+  /** Lets the drag-drop provider push files dropped onto the open dialog into this queue. */
+  onRegisterAppend?: (handler: ((files: File[]) => void) | null) => void;
+  /** True while a file is being dragged anywhere over the page with the dialog open. */
+  isExternalDragActive?: boolean;
+  /** Injectable for tests (CRD plural-name resolution for Control Plane targets). */
+  useResourcePluralNames?: typeof _useResourcePluralNames;
 }
 
 export function YamlApplyDialog(props: Props) {
@@ -72,7 +80,16 @@ function splitApiVersion(apiVersion: string): { group: string; version: string }
   return parts.length === 2 ? { group: parts[0], version: parts[1] } : { group: '', version: parts[0] };
 }
 
-const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetName, onClose, apiConfig }) => {
+const YamlApplyDialogInner: FC<InnerProps> = ({
+  files,
+  targetApiConfig,
+  targetName,
+  onClose,
+  onRegisterAppend,
+  isExternalDragActive,
+  useResourcePluralNames = _useResourcePluralNames,
+  apiConfig,
+}) => {
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
   const { getPluralKind } = useResourcePluralNames();
@@ -84,7 +101,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
 
   const [resources, setResources] = useState<ParsedResource[]>([]);
   const [statuses, setStatuses] = useState<ItemStatus[]>([]);
+  // Stable id per queue slot, aligned 1:1 with `resources`/`statuses`. Keeps the editor and the
+  // id-keyed `edits`/`itemErrors` maps correct across removals and insertions.
+  const [ids, setIds] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const idCounter = useRef(0);
+  const newId = useCallback(() => `item-${idCounter.current++}`, []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Per-item working state, reset whenever the current resource changes.
   const [itemState, setItemState] = useState<ItemState>('checking');
@@ -97,10 +120,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
   });
   // True while "Apply all" is applying the remaining resources sequentially.
   const [isApplyingAll, setIsApplyingAll] = useState(false);
-  // Edited YAML per resource index; falls back to the parsed resource when untouched.
-  const [edits, setEdits] = useState<Record<number, string>>({});
-  // Error message per resource index for failed applies — surfaced in the summary.
-  const [itemErrors, setItemErrors] = useState<Record<number, string>>({});
+  // Edited YAML per queue slot, keyed by stable id; falls back to the parsed resource when untouched.
+  const [edits, setEdits] = useState<Record<string, string>>({});
+  // Error message per queue slot (stable id) for failed applies — surfaced in the summary.
+  const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
+  // Transient error from a failed "add file" attempt (bad extension / parse error / duplicate).
+  const [addError, setAddError] = useState('');
   const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number }>({
     parseOk: true,
     schemaErrorCount: 0,
@@ -108,21 +133,23 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
 
   const isMultiDoc = resources.length > 1;
   const currentResource = resources[currentIndex] as ParsedResource | undefined;
+  const currentId = ids[currentIndex];
 
   // The YAML the editor should show for the current resource. Derived (not effect-set) so it is
   // always correct at the moment the editor mounts — the editor reads `value` only once per mount.
   const currentYaml = useMemo(
-    () => edits[currentIndex] ?? (currentResource ? stringify(currentResource) : ''),
-    [edits, currentIndex, currentResource],
+    () => (currentId && edits[currentId]) ?? (currentResource ? stringify(currentResource) : ''),
+    [edits, currentId, currentResource],
   );
 
   const handleContentChange = useCallback(
     (val: string) => {
-      setEdits((prev) => ({ ...prev, [currentIndex]: val }));
+      if (!currentId) return;
+      setEdits((prev) => ({ ...prev, [currentId]: val }));
       // Edited YAML invalidates any previous dry-run result for this item.
       setDryRun({ status: 'idle', message: '' });
     },
-    [currentIndex],
+    [currentId],
   );
 
   // ── Parse the dropped/selected files into a single queue of resources ─────
@@ -159,7 +186,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
       }
       setResources(merged);
       setStatuses(merged.map(() => 'pending'));
+      setIds(merged.map(() => newId()));
+      setEdits({});
       setItemErrors({});
+      setAddError('');
       setCurrentIndex(0);
       setPhase('editing');
     };
@@ -167,7 +197,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
     return () => {
       cancelled = true;
     };
-  }, [files, t]);
+  }, [files, t, newId]);
 
   // ── Prepare the current resource: reset per-item state + existence check ──
   useEffect(() => {
@@ -288,14 +318,14 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
       markStatus(index, 'applied');
       setItemErrors((prev) => {
         const next = { ...prev };
-        delete next[index];
+        delete next[ids[index]];
         return next;
       });
       advanceAfterApply(index);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setItemError(message);
-      setItemErrors((prev) => ({ ...prev, [index]: message }));
+      setItemErrors((prev) => ({ ...prev, [ids[index]]: message }));
       markStatus(index, 'failed');
       setItemState('idle');
     }
@@ -308,6 +338,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
     apiConfig,
     resourceExists,
     apolloClient,
+    ids,
     t,
     markStatus,
     advanceAfterApply,
@@ -351,7 +382,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
     try {
       for (let i = 0; i < resources.length; i++) {
         if (statuses[i] !== 'pending') continue;
-        const raw = edits[i] ?? stringify(resources[i]);
+        const raw = edits[ids[i]] ?? stringify(resources[i]);
         let resource: ParsedResource = resources[i];
         try {
           resource = parse(raw) as ParsedResource;
@@ -371,12 +402,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
           markStatus(i, 'applied');
           setItemErrors((prev) => {
             const next = { ...prev };
-            delete next[i];
+            delete next[ids[i]];
             return next;
           });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
-          setItemErrors((prev) => ({ ...prev, [i]: message }));
+          setItemErrors((prev) => ({ ...prev, [ids[i]]: message }));
           markStatus(i, 'failed');
         }
       }
@@ -384,7 +415,84 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
       setIsApplyingAll(false);
       setPhase('summary');
     }
-  }, [resources, statuses, edits, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
+  }, [resources, statuses, edits, ids, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
+
+  // Add more YAML (from the "Add file" button or a drop onto the open dialog) to the queue.
+  const addFiles = useCallback(
+    async (incoming: File[]) => {
+      if (phase !== 'editing' || itemState === 'applying' || isApplyingAll || incoming.length === 0) return;
+      setAddError('');
+
+      const merged: ParsedResource[] = [];
+      for (const file of incoming) {
+        let content: string;
+        try {
+          content = await file.text();
+        } catch {
+          setAddError(t('yamlApply.parseError'));
+          return;
+        }
+        const result = parseYamlDocuments(file.name, content);
+        if (!result.valid) {
+          setAddError(result.message.includes('.') ? t('yamlApply.fileTypeError') : t('yamlApply.parseError'));
+          return;
+        }
+        merged.push(...result.resources);
+      }
+      if (merged.length === 0) {
+        setAddError(t('yamlApply.structureError'));
+        return;
+      }
+
+      // Skip resources already in the queue (same apiVersion/kind/namespace/name).
+      const toAdd = dedupeResources(resources, merged);
+      if (toAdd.length === 0) {
+        setAddError(t('yamlApply.addDuplicate'));
+        return;
+      }
+
+      const firstNewIndex = resources.length;
+      setResources((prev) => [...prev, ...toAdd]);
+      setStatuses((prev) => [...prev, ...toAdd.map(() => 'pending' as ItemStatus)]);
+      setIds((prev) => [...prev, ...toAdd.map(() => newId())]);
+      setCurrentIndex(firstNewIndex);
+    },
+    [phase, itemState, isApplyingAll, resources, t, newId],
+  );
+
+  // Remove one resource from the queue, keeping ids/statuses/edits/errors aligned.
+  const removeAt = useCallback(
+    (index: number) => {
+      if (itemState === 'applying' || isApplyingAll) return;
+      if (resources.length <= 1) {
+        onClose();
+        return;
+      }
+      const removedId = ids[index];
+      setResources((prev) => prev.filter((_, i) => i !== index));
+      setStatuses((prev) => prev.filter((_, i) => i !== index));
+      setIds((prev) => prev.filter((_, i) => i !== index));
+      setEdits((prev) => {
+        const next = { ...prev };
+        delete next[removedId];
+        return next;
+      });
+      setItemErrors((prev) => {
+        const next = { ...prev };
+        delete next[removedId];
+        return next;
+      });
+      setCurrentIndex((prev) => nextIndexAfterRemove(index, prev, resources.length));
+    },
+    [itemState, isApplyingAll, resources.length, ids, onClose],
+  );
+
+  // Let the drag-drop provider route files dropped onto the open dialog into this queue.
+  useEffect(() => {
+    if (!onRegisterAppend) return;
+    onRegisterAppend((f) => void addFiles(f));
+    return () => onRegisterAppend(null);
+  }, [onRegisterAppend, addFiles]);
 
   // ── Presentation helpers ──────────────────────────────────────────────────
   const targetBanner = (
@@ -418,40 +526,82 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
     setCurrentIndex(idx);
   };
 
-  const progressPanel = isMultiDoc ? (
-    <div className={styles.progressPanel}>
-      <div className={styles.progressHeader}>
-        <Text className={styles.progressLabel}>
-          {t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
-        </Text>
-        <ProgressIndicator value={progressValue} valueState={progressState} hideValue />
+  const rail =
+    phase === 'editing' ? (
+      <div className={styles.progressPanel}>
+        <div className={styles.progressHeader}>
+          <Text className={styles.progressLabel}>
+            {t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
+          </Text>
+          <ProgressIndicator value={progressValue} valueState={progressState} hideValue />
+        </div>
+        <div className={styles.railList}>
+          {resources.map((r, i) => {
+            const v = itemVisual(statuses[i], i === currentIndex);
+            const active = i === currentIndex;
+            return (
+              <div
+                key={ids[i]}
+                className={`${styles.railRow} ${active ? styles.railRowActive : ''}`}
+                data-testid={`yaml-apply-item-${i}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => jumpToIndex(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    jumpToIndex(i);
+                  }
+                }}
+              >
+                <Icon name={v.icon} className={`${styles.railIcon} ${styles[`railIcon_${statuses[i]}`] ?? ''}`} />
+                <div className={styles.railRowText}>
+                  <Text className={styles.railRowTitle}>
+                    {r.kind}/{r.metadata.name}
+                  </Text>
+                  {v.text && <Text className={styles.railRowStatus}>{v.text}</Text>}
+                </div>
+                <Button
+                  design="Transparent"
+                  icon="decline"
+                  className={styles.railRemove}
+                  disabled={itemState === 'applying' || isApplyingAll}
+                  tooltip={t('yamlApply.removeButtonTooltip')}
+                  data-testid={`yaml-apply-remove-${i}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeAt(i);
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className={styles.railFooter}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".yaml,.yml"
+            multiple
+            style={{ display: 'none' }}
+            data-testid="yaml-apply-add-input"
+            onChange={(e) => {
+              const list = Array.from(e.target.files ?? []);
+              void addFiles(list);
+              e.target.value = '';
+            }}
+          />
+          <Button
+            design="Transparent"
+            icon="add"
+            disabled={itemState === 'applying' || isApplyingAll}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {t('yamlApply.addFileButton')}
+          </Button>
+        </div>
       </div>
-      <List
-        selectionMode="Single"
-        className={styles.progressList}
-        onSelectionChange={(e) => {
-          const item = e.detail.selectedItems[0] as HTMLElement | undefined;
-          jumpToIndex(Number(item?.dataset.index));
-        }}
-      >
-        {resources.map((r, i) => {
-          const v = itemVisual(statuses[i], i === currentIndex);
-          return (
-            <ListItemStandard
-              key={i}
-              data-index={i}
-              selected={i === currentIndex}
-              icon={v.icon}
-              highlight={v.highlight}
-              additionalText={v.text}
-            >
-              {r.kind}/{r.metadata.name}
-            </ListItemStandard>
-          );
-        })}
-      </List>
-    </div>
-  ) : null;
+    ) : null;
 
   const applyDisabled =
     itemState === 'checking' ||
@@ -547,10 +697,28 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
           <div className={styles.editingContainer}>
             {targetBanner}
 
+            {isExternalDragActive && itemState !== 'applying' && !isApplyingAll && (
+              <div className={styles.addDropOverlay}>
+                <Icon name="add" className={styles.addDropIcon} />
+                <Text>{t('yamlApply.addDropHint')}</Text>
+              </div>
+            )}
+
             <div className={styles.editLayout}>
-              {progressPanel}
+              {rail}
 
               <div className={styles.editMain}>
+                {addError && (
+                  <MessageStrip
+                    design="Negative"
+                    className={styles.strip}
+                    data-testid="yaml-apply-add-error"
+                    onClose={() => setAddError('')}
+                  >
+                    {addError}
+                  </MessageStrip>
+                )}
+
                 {itemState === 'unsupported' && (
                   <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
                     {itemError}
@@ -592,7 +760,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
 
                 <div className={styles.editorWrapper}>
                   <YamlResourceEditorSchemaLoader
-                    key={currentIndex}
+                    key={currentId}
                     yamlString={currentYaml}
                     filename={`${currentResource.kind}-${currentResource.metadata.name}`}
                     apiGroupName={splitApiVersion(currentResource.apiVersion).group}
@@ -625,7 +793,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
                 const applied = statuses[i] === 'applied';
                 const meta = [r.apiVersion, r.metadata.namespace].filter(Boolean).join(' / ');
                 return (
-                  <div key={i} className={styles.summaryRow}>
+                  <div key={ids[i]} className={styles.summaryRow}>
                     <ObjectStatus
                       state={applied ? 'Positive' : 'Negative'}
                       icon={<Icon name={applied ? 'accept' : 'error'} />}
@@ -638,7 +806,9 @@ const YamlApplyDialogInner: FC<InnerProps> = ({ files, targetApiConfig, targetNa
                         {r.kind}/{r.metadata.name}
                       </Text>
                       {meta && <Text className={styles.summaryRowMeta}>{meta}</Text>}
-                      {!applied && itemErrors[i] && <Text className={styles.summaryRowError}>{itemErrors[i]}</Text>}
+                      {!applied && itemErrors[ids[i]] && (
+                        <Text className={styles.summaryRowError}>{itemErrors[ids[i]]}</Text>
+                      )}
                     </div>
                   </div>
                 );

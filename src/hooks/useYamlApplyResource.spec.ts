@@ -4,8 +4,11 @@ import {
   applyCpResource,
   applyOnboardingResource,
   checkOnboardingResourceExists,
+  dedupeResources,
   isOnboardingKind,
+  nextIndexAfterRemove,
   parseYamlDocuments,
+  resourceIdentity,
   supportsOnboardingDryRun,
   validateYamlFile,
 } from './useYamlApplyResource';
@@ -231,6 +234,38 @@ describe('applyOnboardingResource', () => {
     const configMap: ParsedResource = { apiVersion: 'v1', kind: 'ConfigMap', metadata: { name: 'cm' } };
     await expect(applyOnboardingResource(configMap, false, client, true)).rejects.toThrow();
     expect(mutate).not.toHaveBeenCalled();
+  });
+});
+
+describe('queue helpers', () => {
+  const cm = (name: string, namespace?: string): ParsedResource => ({
+    apiVersion: 'v1',
+    kind: 'ConfigMap',
+    metadata: { name, namespace },
+  });
+
+  it('resourceIdentity distinguishes by apiVersion/kind/namespace/name', () => {
+    expect(resourceIdentity(cm('a'))).toBe('v1|ConfigMap||a');
+    expect(resourceIdentity(cm('a', 'ns'))).toBe('v1|ConfigMap|ns|a');
+    expect(resourceIdentity(cm('a'))).not.toBe(resourceIdentity(cm('b')));
+  });
+
+  it('dedupeResources keeps only resources not already present', () => {
+    const existing = [cm('a'), cm('b')];
+    const incoming = [cm('a'), cm('c')];
+    expect(dedupeResources(existing, incoming).map((r) => r.metadata.name)).toEqual(['c']);
+    expect(dedupeResources(existing, [cm('a'), cm('b')])).toEqual([]);
+  });
+
+  it('nextIndexAfterRemove keeps the selection pointing at the same item', () => {
+    // removing before the current item shifts the selection down by one
+    expect(nextIndexAfterRemove(0, 2, 4)).toBe(1);
+    // removing after the current item leaves it unchanged
+    expect(nextIndexAfterRemove(3, 1, 4)).toBe(1);
+    // removing the current (non-last) item keeps the index (next item slides in)
+    expect(nextIndexAfterRemove(1, 1, 4)).toBe(1);
+    // removing the current last item clamps to the new last index
+    expect(nextIndexAfterRemove(3, 3, 4)).toBe(2);
   });
 });
 

@@ -774,7 +774,11 @@
     "applyAllButton": "Apply all",
     "dryRunButton": "Dry run",
     "dryRunOk": "Dry run succeeded — the server accepted this resource.",
-    "dryRunFailedTitle": "Dry run failed"
+    "dryRunFailedTitle": "Dry run failed",
+    "addFileButton": "Add file",
+    "addDropHint": "Drop YAML to add to the list",
+    "addDuplicate": "That resource is already in the list.",
+    "removeButtonTooltip": "Remove from list"
   },
   "SupportInfo": {
     "popoverTitle": "Support Annotations",

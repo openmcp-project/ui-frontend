@@ -11,6 +11,9 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
   const { activeMcp, pendingFiles, requestApplyFiles, clearPendingFiles } = useYamlApply();
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
+  // Handler the open dialog registers so drops land in its queue instead of starting a new one.
+  const appendRef = useRef<((files: File[]) => void) | null>(null);
+  const dialogOpen = pendingFiles.length > 0;
 
   const handleDragEnter = useCallback((e: DragEvent) => {
     if (!e.dataTransfer?.types.includes('Files')) return;
@@ -40,9 +43,14 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
 
       const files = e.dataTransfer?.files;
       if (!files || files.length === 0) return;
-      requestApplyFiles(Array.from(files));
+      // With the dialog open, a drop adds to its existing queue; otherwise it starts a new flow.
+      if (dialogOpen && appendRef.current) {
+        appendRef.current(Array.from(files));
+      } else {
+        requestApplyFiles(Array.from(files));
+      }
     },
-    [requestApplyFiles],
+    [requestApplyFiles, dialogOpen],
   );
 
   const handleKeyDown = useCallback(
@@ -75,16 +83,22 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
     setIsDragging(false);
   }, []);
 
+  const registerAppend = useCallback((fn: ((files: File[]) => void) | null) => {
+    appendRef.current = fn;
+  }, []);
+
   return (
     <>
       {children}
-      {isDragging && pendingFiles.length === 0 && <DragDropOverlay onCancel={handleCancel} />}
-      {pendingFiles.length > 0 && (
+      {isDragging && !dialogOpen && <DragDropOverlay onCancel={handleCancel} />}
+      {dialogOpen && (
         <YamlApplyDialog
           files={pendingFiles}
           targetApiConfig={activeMcp?.apiConfig ?? null}
           targetName={activeMcp?.name ?? 'Onboarding API'}
+          isExternalDragActive={isDragging}
           onClose={clearPendingFiles}
+          onRegisterAppend={registerAppend}
         />
       )}
     </>

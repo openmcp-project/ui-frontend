@@ -56,6 +56,27 @@ export function isOnboardingKind(kind: string): boolean {
   return (ONBOARDING_KINDS as readonly string[]).includes(kind);
 }
 
+/** Stable identity of a resource within an apply queue (apiVersion + kind + namespace + name). */
+export function resourceIdentity(r: ParsedResource): string {
+  return `${r.apiVersion}|${r.kind}|${r.metadata.namespace ?? ''}|${r.metadata.name}`;
+}
+
+/** From `incoming`, keep only resources not already present in `existing` (by {@link resourceIdentity}). */
+export function dedupeResources(existing: ParsedResource[], incoming: ParsedResource[]): ParsedResource[] {
+  const seen = new Set(existing.map(resourceIdentity));
+  return incoming.filter((r) => !seen.has(resourceIdentity(r)));
+}
+
+/**
+ * New selected index after removing `removedIndex` from a queue of `lengthBefore` items.
+ * Call only when `lengthBefore > 1` (removing the last item closes the dialog instead).
+ */
+export function nextIndexAfterRemove(removedIndex: number, currentIndex: number, lengthBefore: number): number {
+  if (removedIndex < currentIndex) return currentIndex - 1;
+  if (removedIndex === currentIndex) return Math.min(currentIndex, lengthBefore - 2);
+  return currentIndex;
+}
+
 export type ValidationResult =
   { valid: true; resource: ParsedResource } | { valid: false; error: ValidationError; message: string };
 
