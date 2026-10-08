@@ -146,6 +146,7 @@ const v2ControlPlaneWithExtraProviderMembers: ControlPlaneListItem = {
 };
 
 const v2ControlPlaneWithSupportInfo: ControlPlaneListItem = {
+  clientId: 'v2/project-my-project--ws-default/cp-name',
   version: 'v2',
   metadata: {
     name: 'cp-name',
