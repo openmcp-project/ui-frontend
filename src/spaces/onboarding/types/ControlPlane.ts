@@ -88,6 +88,7 @@ const SpecSchema = z
   .nullish();
 
 const ControlPlaneV1Schema = z.object({
+  clientId: z.string(),
   version: z.literal('v1'),
   metadata: MetadataSchema,
   spec: SpecSchema,
@@ -136,6 +137,7 @@ const ExtraOidcProviderSchema = z.object({
 });
 
 const ControlPlaneV2Schema = z.object({
+  clientId: z.string(),
   version: z.literal('v2'),
   metadata: MetadataSchema,
   status: StatusSchema.nullish(),

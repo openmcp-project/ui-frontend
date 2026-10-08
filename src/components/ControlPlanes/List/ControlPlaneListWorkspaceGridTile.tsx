@@ -374,7 +374,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 <div className={styles.wrapper}>
                   <div className={styles.grid}>
                     {visibleMcps?.map((mcp) => (
-                      <ObservableCard key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}>
+                      <ObservableCard key={mcp.clientId}>
                         <ControlPlaneCard
                           controlPlane={mcp}
                           projectName={projectName}

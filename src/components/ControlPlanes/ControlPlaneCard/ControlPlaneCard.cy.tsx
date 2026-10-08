@@ -37,6 +37,7 @@ const workspace: Workspace = {
 };
 
 const v1ControlPlane: ControlPlaneListItem = {
+  clientId: 'v1/test-namespace/mcp-name',
   version: 'v1',
   metadata: {
     name: 'mcp-name',
@@ -64,6 +65,7 @@ const v1ControlPlaneWithComponents: ControlPlaneListItem = {
 };
 
 const v2ControlPlane: ControlPlaneListItem = {
+  clientId: 'v2/project-my-project--ws-default/cp-name',
   version: 'v2',
   metadata: {
     name: 'cp-name',
@@ -76,6 +78,7 @@ const v2ControlPlane: ControlPlaneListItem = {
 };
 
 const v2ControlPlaneWithMembers: ControlPlaneListItem = {
+  clientId: 'v2/project-my-project--ws-default/cp-name',
   version: 'v2',
   metadata: {
     name: 'cp-name',
@@ -105,6 +108,7 @@ const v2ControlPlaneWithMembers: ControlPlaneListItem = {
 };
 
 const v2ControlPlaneWithExtraProviderMembers: ControlPlaneListItem = {
+  clientId: 'v2/project-my-project--ws-default/cp-name',
   version: 'v2',
   metadata: {
     name: 'cp-name',

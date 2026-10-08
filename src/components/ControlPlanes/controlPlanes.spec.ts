@@ -15,6 +15,7 @@ const createCondition = (overrides: Partial<Condition>): Condition => ({
 });
 
 const createControlPlane = (conditions: Condition[]): ControlPlaneListItem => ({
+  clientId: 'v1//',
   version: 'v1',
   metadata: {
     name: '',
@@ -83,6 +84,7 @@ describe('canConnectToMCP', () => {
 
   it('returns false when status field is missing', () => {
     const controlPlane: ControlPlaneListItem = {
+      clientId: 'v1//',
       version: 'v1',
       metadata: {
         name: '',

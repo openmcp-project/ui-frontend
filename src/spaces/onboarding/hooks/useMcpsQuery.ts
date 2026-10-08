@@ -177,7 +177,10 @@ type V2Item = NonNullable<
 >['ControlPlanes']['items'][number];
 
 function toV1Input(item: V1Item) {
+  const name = item.metadata?.name ?? '';
+  const namespace = item.metadata?.namespace ?? '';
   return {
+    clientId: `v1/${namespace}/${name}`,
     version: 'v1' as const,
     metadata: item.metadata,
     spec: item.spec ? { components: item.spec.components, authorization: item.spec.authorization } : null,
@@ -207,7 +210,10 @@ type V2RawMetadata = NonNullable<V2Item['metadata']> & { deletionTimestamp?: str
 function toV2Input(item: V2Item) {
   const metadata = item.metadata as V2RawMetadata | null;
   const isBeingDeleted = !!metadata?.deletionTimestamp;
+  const name = metadata?.name ?? '';
+  const namespace = metadata?.namespace ?? '';
   return {
+    clientId: `v2/${namespace}/${name}`,
     version: 'v2' as const,
     metadata: item.metadata,
     status: item.status
@@ -312,7 +318,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
         });
         return [];
       }
-      const key = `${result.data.version}/${result.data.metadata.namespace}/${result.data.metadata.name}`;
+      const key = result.data.clientId;
       if (seen.has(key)) return [];
       seen.add(key);
       return [result.data];
