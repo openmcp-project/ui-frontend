@@ -167,7 +167,13 @@ describe('ConnectButton', () => {
 
   describe('telemetry', () => {
     const mockUseTelemetryWith = (trackSpy: Cypress.Agent<sinon.SinonStub>): typeof useTelemetry => {
-      return () => ({ track: trackSpy, report: cy.stub(), breadcrumb: cy.stub(), identify: cy.stub() });
+      return () => ({
+        track: trackSpy,
+        pageView: cy.stub(),
+        report: cy.stub(),
+        breadcrumb: cy.stub(),
+        identify: cy.stub(),
+      });
     };
 
     it('tracks controlplane.connected with idp=system when connecting via system IdP', () => {
