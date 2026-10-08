@@ -31,7 +31,6 @@ export default defineConfig({
   retries: { runMode: 3, openMode: 0 },
   video: false,
   defaultCommandTimeout: 8000,
-  experimentalMemoryManagement: true,
   numTestsKeptInMemory: 0,
   viewportWidth: 1920,
   viewportHeight: 1080,
