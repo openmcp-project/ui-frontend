@@ -1,4 +1,5 @@
 import type { ApolloClient } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { parseDocument, parseAllDocuments, stringify } from 'yaml';
 import { fetchApiServerJson } from '../lib/api/fetch';
 import { APIError, isNotFoundError } from '../lib/api/error';
@@ -44,7 +45,11 @@ export type ParsedResource = {
 
 export type ValidationError = 'wrong-file-type' | 'parse-error' | 'missing-fields' | 'empty-file';
 
-/** Kinds the Onboarding API (GraphQL) can apply. Everything else must target a Control Plane. */
+/**
+ * Kinds the Onboarding API applies through a dedicated, typed GraphQL mutation
+ * (with existence checks, create/overwrite semantics, and — for ControlPlane — dry run).
+ * Any other kind is applied generically via {@link applyOnboardingResource}'s `applyYaml` path.
+ */
 export const ONBOARDING_KINDS = ['Project', 'Workspace', 'ControlPlane', 'ManagedControlPlane'] as const;
 
 export function isOnboardingKind(kind: string): boolean {
@@ -331,6 +336,17 @@ export function supportsOnboardingDryRun(kind: string): boolean {
   return kind === 'ControlPlane';
 }
 
+/**
+ * Generic server-side apply for kinds without a dedicated onboarding mutation.
+ * Not a generated operation (not kind-specific), so authored with `gql`; the server
+ * resolves the GVK from the manifest and returns the applied object as a JSON string.
+ */
+const APPLY_YAML_MUTATION = gql`
+  mutation ApplyYaml($yaml: String!) {
+    applyYaml(yaml: $yaml)
+  }
+`;
+
 export async function applyOnboardingResource(
   resource: ParsedResource,
   exists: boolean,
@@ -413,5 +429,12 @@ export async function applyOnboardingResource(
     return { success: true };
   }
 
-  return { success: false, error: 'unsupported-kind' };
+  // Any other kind: hand the raw manifest to the server's generic apply (server-side
+  // apply = create-or-update). It resolves the GVK itself; no dry run is available here
+  // (guarded above), and there is no per-kind existence check.
+  await client.mutate({
+    mutation: APPLY_YAML_MUTATION,
+    variables: { yaml: stringify(resource) },
+  });
+  return { success: true };
 }

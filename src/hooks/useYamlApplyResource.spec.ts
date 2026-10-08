@@ -207,6 +207,31 @@ describe('applyOnboardingResource', () => {
     await applyOnboardingResource(managedControlPlane, true, client);
     expect(mutate.mock.calls[0][0].variables).toMatchObject({ name: 'my-mcp', namespace: 'p--ws-w' });
   });
+
+  it('applies any other kind through the generic applyYaml mutation', async () => {
+    const mutate = vi.fn().mockResolvedValue({ data: { applyYaml: '{}' } });
+    const client = { mutate } as unknown as ApolloClient;
+    const configMap: ParsedResource = {
+      apiVersion: 'v1',
+      kind: 'ConfigMap',
+      metadata: { name: 'cm', namespace: 'ns' },
+    };
+    const result = await applyOnboardingResource(configMap, false, client);
+    expect(result.success).toBe(true);
+    const call = mutate.mock.calls[0][0];
+    expect(typeof call.variables.yaml).toBe('string');
+    expect(call.variables.yaml).toContain('kind: ConfigMap');
+    // No per-kind refetch for the generic path.
+    expect(call.refetchQueries).toBeUndefined();
+  });
+
+  it('refuses a dry run for a generic (applyYaml) kind', async () => {
+    const mutate = vi.fn();
+    const client = { mutate } as unknown as ApolloClient;
+    const configMap: ParsedResource = { apiVersion: 'v1', kind: 'ConfigMap', metadata: { name: 'cm' } };
+    await expect(applyOnboardingResource(configMap, false, client, true)).rejects.toThrow();
+    expect(mutate).not.toHaveBeenCalled();
+  });
 });
 
 describe('dry run', () => {
