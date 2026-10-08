@@ -66,7 +66,7 @@ import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
 import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
@@ -103,7 +103,7 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -237,7 +237,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -412,7 +412,7 @@ export default function ControlPlanePageV2() {
 
   // Sync ?view param with mode: read on mount to restore shared deeplinks, write on change.
   useEffect(() => {
-    const viewParam = searchParams.get('view');
+    const viewParam = searchParams.get(SearchParams.View);
     if (viewParam === 'open-source') setMode('open-source');
     else if (viewParam === 'beginner') setMode('beginner');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -423,9 +423,9 @@ export default function ControlPlanePageV2() {
       (prev) => {
         const next = new URLSearchParams(prev);
         if (mode === 'open-source') {
-          next.set('view', 'open-source');
+          next.set(SearchParams.View, 'open-source');
         } else {
-          next.delete('view');
+          next.delete(SearchParams.View);
         }
         return next;
       },
