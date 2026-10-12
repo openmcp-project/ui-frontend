@@ -925,7 +925,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             {targetBanner}
             {summary.failed === 0 ? (
               <IllustratedBanner
-                compact
                 illustrationName={IllustrationMessageType.ReceiveAppreciation}
                 subtitle={t('yamlApply.summaryAllAppliedSubtitle', { count: summary.applied })}
                 title={t('yamlApply.summaryAllAppliedTitle')}

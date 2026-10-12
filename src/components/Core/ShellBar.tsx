@@ -5,7 +5,7 @@ import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/source-code';
+import '@ui5/webcomponents-icons/dist/upload';
 import {
   Avatar,
   Button,
@@ -43,7 +43,6 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
-import { YamlIcon } from '../Yaml/YamlIcon.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -370,6 +369,7 @@ function UploadYamlShellBarButton() {
   const { requestApplyFiles } = useYamlApply();
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <>
@@ -385,9 +385,18 @@ function UploadYamlShellBarButton() {
           e.target.value = '';
         }}
       />
-      <Button design="Transparent" tooltip={t('yamlApply.uploadButton')} onClick={() => inputRef.current?.click()}>
-        <YamlIcon className={styles.uploadYamlIcon} />
-        {t('yamlApply.uploadButtonShort')}
+      <Button
+        className={`${styles.uploadYamlButton} ${expanded ? styles.uploadYamlExpanded : styles.uploadYamlCollapsed}`}
+        design="Transparent"
+        icon="upload"
+        tooltip={t('yamlApply.uploadButton')}
+        onBlur={() => setExpanded(false)}
+        onClick={() => inputRef.current?.click()}
+        onFocus={() => setExpanded(true)}
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
+      >
+        <span className={styles.uploadYamlText}>{t('yamlApply.uploadButtonShort')}</span>
       </Button>
     </>
   );

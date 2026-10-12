@@ -741,7 +741,7 @@
   },
   "yamlApply": {
     "uploadButton": "Upload YAML",
-    "uploadButtonShort": "Upload",
+    "uploadButtonShort": "Apply YAML",
     "overlayTitle": "Drop YAML to apply",
     "overlayTargetCp": "Control Plane: {{name}}",
     "overlayTargetOnboarding": "Onboarding API",
