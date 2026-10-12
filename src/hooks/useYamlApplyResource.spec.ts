@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   applyCpResource,
   applyOnboardingResource,
+  checkCpResourceExists,
   checkOnboardingResourceExists,
   dedupeResources,
   isOnboardingKind,
@@ -16,6 +17,7 @@ import type { MultiDocResult, ParsedResource, ValidationResult } from './useYaml
 import type { ApolloClient } from '@apollo/client';
 import type { ApiConfig } from '../lib/api/types/apiConfig';
 import { fetchApiServerJson } from '../lib/api/fetch';
+import { APIError } from '../lib/api/error';
 
 vi.mock('../lib/api/fetch', () => ({
   fetchApiServerJson: vi.fn().mockResolvedValue({}),
@@ -118,6 +120,60 @@ describe('parseYamlDocuments', () => {
     const result: MultiDocResult = parseYamlDocuments('empty.yaml', '---\n---\n');
     assertInvalid(result);
     expect(result.error).toBe('empty-file');
+  });
+
+  it('splits documents separated by the `...` end marker', () => {
+    const multi = `${projectYaml}...\n${workspaceYaml}`;
+    const result: MultiDocResult = parseYamlDocuments('multi.yaml', multi);
+    assertValid(result);
+    expect(result.resources.map((r) => r.kind)).toEqual(['Project', 'Workspace']);
+  });
+
+  it('does not split a `---` that appears inside a block scalar', () => {
+    const content =
+      'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: cm\ndata:\n  body: |\n    ---\n    not a separator\n';
+    const result: MultiDocResult = parseYamlDocuments('cm.yaml', content);
+    assertValid(result);
+    expect(result.resources).toHaveLength(1);
+  });
+
+  it('expands a `kind: List` wrapper into individual resources', () => {
+    const list = [
+      'apiVersion: v1',
+      'kind: List',
+      'items:',
+      '  - { apiVersion: v1, kind: ConfigMap, metadata: { name: a } }',
+      '  - { apiVersion: v1, kind: Secret, metadata: { name: b } }',
+      '',
+    ].join('\n');
+    const result: MultiDocResult = parseYamlDocuments('list.yaml', list);
+    assertValid(result);
+    expect(result.resources.map((r) => r.kind)).toEqual(['ConfigMap', 'Secret']);
+    expect(result.resources).toHaveLength(result.texts.length);
+  });
+
+  it('expands a top-level sequence of resources', () => {
+    const seq = [
+      '- { apiVersion: v1, kind: ConfigMap, metadata: { name: a } }',
+      '- { apiVersion: v1, kind: Secret, metadata: { name: b } }',
+      '',
+    ].join('\n');
+    const result: MultiDocResult = parseYamlDocuments('seq.yaml', seq);
+    assertValid(result);
+    expect(result.resources.map((r) => r.metadata.name)).toEqual(['a', 'b']);
+  });
+
+  it('preserves comments and per-resource source text', () => {
+    const content =
+      '# head comment\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: cm # inline\n---\nkind: Second\napiVersion: v1\nmetadata:\n  name: s\n';
+    const result: MultiDocResult = parseYamlDocuments('cm.yaml', content);
+    assertValid(result);
+    expect(result.texts).toHaveLength(2);
+    expect(result.texts[0]).toContain('# head comment');
+    expect(result.texts[0]).toContain('# inline');
+    // The second document's source must not carry the leading `---` separator.
+    expect(result.texts[1].startsWith('---')).toBe(false);
+    expect(result.texts[1]).toContain('kind: Second');
   });
 });
 
@@ -266,6 +322,30 @@ describe('queue helpers', () => {
     expect(nextIndexAfterRemove(1, 1, 4)).toBe(1);
     // removing the current last item clamps to the new last index
     expect(nextIndexAfterRemove(3, 3, 4)).toBe(2);
+  });
+});
+
+describe('checkCpResourceExists', () => {
+  const cpResource: ParsedResource = {
+    apiVersion: 'v1',
+    kind: 'ConfigMap',
+    metadata: { name: 'cm', namespace: 'ns' },
+  };
+  const cpApiConfig = {} as ApiConfig;
+
+  it('returns true when the GET succeeds', async () => {
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({});
+    await expect(checkCpResourceExists(cpResource, 'configmaps', cpApiConfig)).resolves.toBe(true);
+  });
+
+  it('returns false on a 404 (resource genuinely absent)', async () => {
+    vi.mocked(fetchApiServerJson).mockRejectedValueOnce(new APIError('not found', 404));
+    await expect(checkCpResourceExists(cpResource, 'configmaps', cpApiConfig)).resolves.toBe(false);
+  });
+
+  it('rethrows a 403 so the caller can surface indeterminate existence', async () => {
+    vi.mocked(fetchApiServerJson).mockRejectedValueOnce(new APIError('forbidden', 403));
+    await expect(checkCpResourceExists(cpResource, 'configmaps', cpApiConfig)).rejects.toThrow();
   });
 });
 

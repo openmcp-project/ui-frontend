@@ -2,7 +2,7 @@ import type { ApolloClient } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { parseDocument, parseAllDocuments, stringify } from 'yaml';
 import { fetchApiServerJson } from '../lib/api/fetch';
-import { APIError, isNotFoundError } from '../lib/api/error';
+import { APIError, isForbiddenError, isNotFoundError } from '../lib/api/error';
 import type { ApiConfig } from '../lib/api/types/apiConfig';
 import {
   CHARGING_TARGET_LABEL,
@@ -110,12 +110,42 @@ export function validateYamlFile(fileName: string, content: string): ValidationR
 }
 
 export type MultiDocResult =
-  { valid: true; resources: ParsedResource[] } | { valid: false; error: ValidationError; message: string };
+  | { valid: true; resources: ParsedResource[]; texts: string[] }
+  | { valid: false; error: ValidationError; message: string };
+
+/** Max nesting depth for `List`/sequence expansion — guards against pathological inputs. */
+const MAX_CONTAINER_DEPTH = 3;
 
 /**
- * Parses a (possibly multi-document) YAML file into a list of resources.
- * Empty documents (blank sections between `---`) are skipped. Fails on the first
- * document that cannot be parsed or that is missing required fields.
+ * Flattens the two non-document-separated bundling forms into individual resource objects:
+ *  - a top-level YAML/JSON **sequence** (`- {…}\n- {…}`), and
+ *  - a core/v1 **`List`** wrapper (`kind: List`, `items: [...]`).
+ * Returns `null` when `obj` is a plain single object (not a container). Recurses through nested
+ * containers up to {@link MAX_CONTAINER_DEPTH}.
+ */
+function expandResourceContainer(obj: unknown, depth = 0): ParsedResource[] | null {
+  if (depth > MAX_CONTAINER_DEPTH) return [];
+  const flatten = (items: unknown[]): ParsedResource[] =>
+    items.flatMap((el) => expandResourceContainer(el, depth + 1) ?? [el as ParsedResource]);
+
+  if (Array.isArray(obj)) return flatten(obj);
+  const rec = obj as Record<string, unknown> | null;
+  if (rec && rec.kind === 'List' && Array.isArray(rec.items)) return flatten(rec.items);
+  return null;
+}
+
+/** Source text for one parsed document, with the leading `---` separator (added by the serializer
+ *  for every document after the first) stripped so the editor shows only the resource body. */
+function documentText(doc: { toString(): string }): string {
+  return doc.toString().replace(/^---[^\S\r\n]*\r?\n/, '');
+}
+
+/**
+ * Parses a (possibly multi-document) YAML file into a list of resources, returning each resource's
+ * original source text (for faithful editing — comments and formatting preserved). Besides `---`/`...`
+ * separated documents, a `kind: List` wrapper and top-level sequences are expanded into individual
+ * resources (their text is re-serialized, as no original per-item slice exists). Empty documents are
+ * skipped. Fails on the first document that cannot be parsed or that is missing required fields.
  */
 export function parseYamlDocuments(fileName: string, content: string): MultiDocResult {
   if (!hasYamlExtension(fileName)) {
@@ -124,6 +154,7 @@ export function parseYamlDocuments(fileName: string, content: string): MultiDocR
 
   const docs = parseAllDocuments(content);
   const resources: ParsedResource[] = [];
+  const texts: string[] = [];
 
   for (const doc of docs) {
     if (doc.errors.length > 0) {
@@ -134,17 +165,31 @@ export function parseYamlDocuments(fileName: string, content: string): MultiDocR
     if (obj == null || (typeof obj === 'object' && Object.keys(obj).length === 0)) {
       continue;
     }
+
+    const expanded = expandResourceContainer(obj);
+    if (expanded) {
+      for (const item of expanded) {
+        if (!resourceIsStructurallyValid(item)) {
+          return { valid: false, error: 'missing-fields', message: '' };
+        }
+        resources.push(item);
+        texts.push(stringify(item));
+      }
+      continue;
+    }
+
     if (!resourceIsStructurallyValid(obj)) {
       return { valid: false, error: 'missing-fields', message: '' };
     }
     resources.push(obj as ParsedResource);
+    texts.push(documentText(doc));
   }
 
   if (resources.length === 0) {
     return { valid: false, error: 'empty-file', message: '' };
   }
 
-  return { valid: true, resources };
+  return { valid: true, resources, texts };
 }
 
 // ─── Control Plane (REST) ────────────────────────────────────────────────────
@@ -168,6 +213,10 @@ export async function checkCpResourceExists(
     await fetchApiServerJson(path, apiConfig);
     return true;
   } catch (e) {
+    // 404 means the resource genuinely does not exist. A 403 (forbidden) means we could not
+    // determine existence — rethrow it so the caller can surface the uncertainty instead of
+    // silently assuming "new" (`isNotFoundError` conflates 403 and 404).
+    if (isForbiddenError(e as APIError)) throw e;
     if (isNotFoundError(e as APIError)) return false;
     throw e;
   }
