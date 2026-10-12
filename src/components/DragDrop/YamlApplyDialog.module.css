@@ -5,6 +5,20 @@
   overflow: hidden;
 }
 
+/* Visually hidden but exposed to assistive tech (for aria-live announcements). */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .center {
   display: flex;
   flex-direction: column;
@@ -209,6 +223,20 @@
   border-top: 1px solid var(--sapGroup_ContentBorderColor);
 }
 
+/* Full-dialog busy scrim shown while an apply / dry-run request is in flight */
+.busyOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ~50% tint of the theme background (mostly transparent) + a blur of the content behind. */
+  background: color-mix(in srgb, var(--sapBackgroundColor) 50%, transparent);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
 /* Overlay prompting the user to drop a new file onto the open dialog */
 .addDropOverlay {
   position: absolute;
@@ -253,10 +281,14 @@
 .summaryRow {
   display: flex;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: baseline;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--sapGroup_ContentBorderColor);
   border-radius: var(--sapElement_BorderCornerRadius);
+}
+
+.summaryStatus {
+  flex-shrink: 0;
 }
 
 .summaryRowBody {

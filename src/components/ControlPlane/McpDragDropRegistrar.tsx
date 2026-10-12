@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useMcp } from '../../lib/shared/McpContext';
+import { buildMcpApiConfig, useMcp } from '../../lib/shared/McpContext';
 import { useYamlApply } from '../../context/YamlApplyContext';
 
 interface Props {
@@ -10,17 +10,10 @@ export function McpDragDropRegistrar({ name }: Props) {
   const mcp = useMcp();
   const { setActiveMcp } = useYamlApply();
 
+  const { project, workspace, name: cpName, isV2, idp } = mcp;
   const apiConfig = useMemo(
-    () => ({
-      mcpConfig: {
-        projectName: mcp.project,
-        workspaceName: mcp.workspace,
-        controlPlaneName: mcp.name,
-        isV2: mcp.isV2,
-        idp: mcp.idp,
-      },
-    }),
-    [mcp.project, mcp.workspace, mcp.name, mcp.isV2, mcp.idp],
+    () => buildMcpApiConfig({ project, workspace, name: cpName, isV2, idp }),
+    [project, workspace, cpName, isV2, idp],
   );
 
   useEffect(() => {

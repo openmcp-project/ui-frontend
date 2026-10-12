@@ -14,7 +14,7 @@ export interface YamlViewerProps {
   schema?: JSONSchema4;
   height?: string;
   hideToolbar?: boolean;
-  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number }) => void;
+  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number; schemaStale?: boolean }) => void;
   onContentChange?: (yaml: string) => void;
 }
 

@@ -104,6 +104,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const [phase, setPhase] = useState<Phase>('parsing');
   const [parseErrorMessage, setParseErrorMessage] = useState('');
   const [parseErrorType, setParseErrorType] = useState<ValidationError | null>(null);
+  const [parseErrorFileName, setParseErrorFileName] = useState('');
 
   const [resources, setResources] = useState<ParsedResource[]>([]);
   // Original source text per queue slot (aligned 1:1 with `resources`), used to seed the editor so
@@ -138,7 +139,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
   // Transient error from a failed "add file" attempt (bad extension / parse error / duplicate).
   const [addError, setAddError] = useState('');
-  const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number }>({
+  const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number; schemaStale?: boolean }>({
     parseOk: true,
     schemaErrorCount: 0,
   });
@@ -194,7 +195,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         } catch {
           if (!cancelled) {
             setParseErrorType('parse-error');
-            setParseErrorMessage(t('yamlApply.parseError'));
+            setParseErrorMessage(t('yamlApply.parseError', { filename: file.name }));
+            setParseErrorFileName(file.name);
             setPhase('parse-error');
           }
           return;
@@ -204,6 +206,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           if (!cancelled) {
             setParseErrorType(result.error);
             setParseErrorMessage(result.message);
+            setParseErrorFileName(file.name);
             setPhase('parse-error');
           }
           return;
@@ -488,7 +491,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         try {
           content = await file.text();
         } catch {
-          setAddError(t('yamlApply.parseError'));
+          setAddError(t('yamlApply.parseError', { filename: file.name }));
           return;
         }
         const result = parseYamlDocuments(file.name, content);
@@ -500,7 +503,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                 ? t('yamlApply.emptyFileError')
                 : result.error === 'missing-fields'
                   ? t('yamlApply.structureError')
-                  : t('yamlApply.parseError');
+                  : t('yamlApply.parseError', { filename: file.name });
           setAddError(message);
           return;
         }
@@ -605,7 +608,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           <Text className={styles.progressLabel}>
             {t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
           </Text>
-          <ProgressIndicator value={progressValue} valueState={progressState} hideValue />
+          <ProgressIndicator
+            value={progressValue}
+            valueState={progressState}
+            hideValue
+            accessibleName={t('yamlApply.stepProgress', { current: currentIndex + 1, total: resources.length })}
+          />
         </div>
         <div className={styles.railList}>
           {resources.map((r, i) => {
@@ -618,6 +626,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                 data-testid={`yaml-apply-item-${i}`}
                 role="button"
                 tabIndex={0}
+                aria-current={active ? 'true' : undefined}
                 onClick={() => jumpToIndex(i)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -685,6 +694,9 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     dryRun.status === 'running' ||
     !validity.parseOk ||
     validity.schemaErrorCount > 0 ||
+    // Hold the primary action until monaco-yaml has re-validated the latest edit (schema markers
+    // lag content changes), so Apply can't fire against not-yet-validated YAML.
+    !!validity.schemaStale ||
     // An existing Project can't be updated via this flow, so don't offer a known-failing action.
     (isProject && resourceExists);
 
@@ -700,15 +712,26 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const pendingCount = statuses.filter((s) => s === 'pending').length;
   const showApplyAll = phase === 'editing' && isMultiDoc && pendingCount > 1;
 
+  // A request is in flight: block the whole dialog and show a spinner so the user can't act and
+  // knows something is happening. Covers single Apply, Apply all, and Dry run.
+  const isBusy = itemState === 'applying' || isApplyingAll || dryRun.status === 'running';
+  const busyText = dryRun.status === 'running' ? t('yamlApply.dryRunningText') : t('yamlApply.applyingText');
+
   // The summary ('Apply complete') screen is always closable — the per-item working state
-  // may still read 'applying' after the final successful apply advanced us here.
-  const canClose = phase === 'summary' || (itemState !== 'applying' && !isApplyingAll && phase !== 'parsing');
+  // may still read 'applying' after the final successful apply advanced us here. While any request
+  // is in flight (apply / apply-all / dry run) the dialog can't be closed.
+  const canClose = phase === 'summary' || (!isBusy && phase !== 'parsing');
 
   const footer = (
     <Bar
       design="Footer"
       endContent={
         <>
+          {canClose && (
+            <Button design="Transparent" onClick={onClose}>
+              {t(phase === 'summary' || phase === 'parse-error' ? 'yamlApply.closeButton' : 'yamlApply.cancelButton')}
+            </Button>
+          )}
           {canDryRun && (
             <Button
               design="Transparent"
@@ -727,11 +750,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           {phase === 'editing' && (
             <Button design={showOverwrite ? 'Negative' : 'Emphasized'} disabled={applyDisabled} onClick={doApply}>
               {applyLabel}
-            </Button>
-          )}
-          {canClose && (
-            <Button design="Transparent" onClick={onClose}>
-              {t(phase === 'summary' || phase === 'parse-error' ? 'yamlApply.closeButton' : 'yamlApply.cancelButton')}
             </Button>
           )}
         </>
@@ -768,7 +786,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                   ? t('yamlApply.fileTypeError')
                   : parseErrorType === 'empty-file'
                     ? t('yamlApply.emptyFileError')
-                    : t('yamlApply.parseError')
+                    : t('yamlApply.parseError', { filename: parseErrorFileName })
               }
               details={
                 parseErrorType === 'wrong-file-type'
@@ -800,10 +818,25 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           <div className={styles.editingContainer}>
             {targetBanner}
 
+            <div className={styles.srOnly} role="status" aria-live="polite">
+              {t('yamlApply.a11yProgress', {
+                applied: statuses.filter((s) => s === 'applied').length,
+                failed: statuses.filter((s) => s === 'failed').length,
+                pending: pendingCount,
+                total: resources.length,
+              })}
+            </div>
+
             {isExternalDragActive && itemState !== 'applying' && !isApplyingAll && (
               <div className={styles.addDropOverlay}>
                 <Icon name="add" className={styles.addDropIcon} />
                 <Text>{t('yamlApply.addDropHint')}</Text>
+              </div>
+            )}
+
+            {isBusy && (
+              <div className={styles.busyOverlay} data-testid="yaml-apply-busy">
+                <BusyIndicator active delay={0} text={busyText} />
               </div>
             )}
 
@@ -909,6 +942,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                 return (
                   <div key={ids[i]} className={styles.summaryRow}>
                     <ObjectStatus
+                      className={styles.summaryStatus}
                       state={applied ? 'Positive' : 'Negative'}
                       icon={<Icon name={applied ? 'accept' : 'error'} />}
                       inverted

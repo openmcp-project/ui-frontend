@@ -1,4 +1,4 @@
-import { createContext, FC, ReactNode, useCallback, useContext, useState } from 'react';
+import { createContext, FC, ReactNode, useCallback, useContext, useRef, useState } from 'react';
 import { ApiConfig } from '../lib/api/types/apiConfig';
 
 export type McpTarget = {
@@ -15,6 +15,12 @@ interface YamlApplyContextValue {
   requestApplyFiles: (files: File[]) => void;
   /** Clear the queued files (closes the apply dialog). */
   clearPendingFiles: () => void;
+  /**
+   * Lets the open dialog register a handler that appends files to its existing queue. While it is
+   * registered, {@link requestApplyFiles} routes to it instead of replacing the queue, so a second
+   * upload/drop never discards in-progress edits.
+   */
+  registerAppendHandler: (handler: ((files: File[]) => void) | null) => void;
 }
 
 const YamlApplyContext = createContext<YamlApplyContextValue | null>(null);
@@ -28,13 +34,35 @@ export const useYamlApply = (): YamlApplyContextValue => {
 export const YamlApplyContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [activeMcp, setActiveMcpState] = useState<McpTarget | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const appendHandlerRef = useRef<((files: File[]) => void) | null>(null);
 
   const setActiveMcp = useCallback((target: McpTarget | null) => setActiveMcpState(target), []);
-  const requestApplyFiles = useCallback((files: File[]) => setPendingFiles(files), []);
+  const requestApplyFiles = useCallback((files: File[]) => {
+    if (files.length === 0) return;
+    // If the dialog is already open and can append, add to its queue instead of replacing it
+    // (replacing would wipe the current queue and any in-progress edits).
+    if (appendHandlerRef.current) {
+      appendHandlerRef.current(files);
+    } else {
+      setPendingFiles(files);
+    }
+  }, []);
   const clearPendingFiles = useCallback(() => setPendingFiles([]), []);
+  const registerAppendHandler = useCallback((handler: ((files: File[]) => void) | null) => {
+    appendHandlerRef.current = handler;
+  }, []);
 
   return (
-    <YamlApplyContext.Provider value={{ activeMcp, setActiveMcp, pendingFiles, requestApplyFiles, clearPendingFiles }}>
+    <YamlApplyContext.Provider
+      value={{
+        activeMcp,
+        setActiveMcp,
+        pendingFiles,
+        requestApplyFiles,
+        clearPendingFiles,
+        registerAppendHandler,
+      }}
+    >
       {children}
     </YamlApplyContext.Provider>
   );

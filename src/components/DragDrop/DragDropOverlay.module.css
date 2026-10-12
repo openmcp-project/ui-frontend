@@ -10,8 +10,8 @@
 }
 
 .card {
-  background: var(--sapBaseColor, #fff);
-  border: 3px dashed var(--sapBrandColor, #0070f2);
+  background: var(--sapBaseColor);
+  border: 3px dashed var(--sapBrandColor);
   border-radius: 1rem;
   padding: 3rem 4rem;
   min-width: 400px;
@@ -24,15 +24,15 @@
 @keyframes pulse {
   0%,
   100% {
-    border-color: var(--sapBrandColor, #0070f2);
+    border-color: var(--sapBrandColor);
   }
   50% {
-    border-color: var(--sapPositiveColor, #107e3e);
+    border-color: var(--sapPositiveColor);
   }
 }
 
 .dropIcon {
-  color: var(--sapBrandColor, #0070f2);
+  color: var(--sapBrandColor);
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;

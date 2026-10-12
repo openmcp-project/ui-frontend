@@ -21,7 +21,7 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
   /** Hide the built-in "Apply changes" toolbar (used when an external footer drives the apply). */
   hideToolbar?: boolean;
   /** Emitted whenever the parse/schema validity of the current content changes. */
-  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number }) => void;
+  onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number; schemaStale?: boolean }) => void;
   /** Emitted with the raw editor text whenever it changes (edit mode only). */
   onContentChange?: (yaml: string) => void;
 };
@@ -87,11 +87,18 @@ export const YamlEditor = (props: YamlEditorProps) => {
     [options, isEdit],
   );
 
+  const [schemaErrorCount, setSchemaErrorCount] = useState(0);
+  // monaco-yaml validates asynchronously, so schema markers lag content edits. `schemaStale` is set
+  // on edit and cleared once typing settles (markers have been recomputed by then), letting the
+  // parent hold validity-gated actions until the latest content has actually been validated.
+  const [schemaStale, setSchemaStale] = useState(false);
+
   const handleEditorChange = useCallback(
     (val: string | undefined, event?: monaco.editor.IModelContentChangedEvent) => {
       if (isEdit) {
         setEditorContent(val ?? '');
         onContentChange?.(val ?? '');
+        setSchemaStale(true);
       }
       if (event) {
         onChange?.(val ?? '', event);
@@ -100,7 +107,11 @@ export const YamlEditor = (props: YamlEditorProps) => {
     [isEdit, onChange, onContentChange],
   );
 
-  const [schemaErrorCount, setSchemaErrorCount] = useState(0);
+  // Clear the stale flag a short while after edits stop (debounced on content).
+  useEffect(() => {
+    const timer = setTimeout(() => setSchemaStale(false), 800);
+    return () => clearTimeout(timer);
+  }, [editorContent]);
 
   const recomputeSchemaErrors = useCallback(() => {
     const editor = editorRef.current;
@@ -130,7 +141,8 @@ export const YamlEditor = (props: YamlEditorProps) => {
   );
 
   // Surface combined parse + schema validity to the parent (single source of truth for
-  // external footer buttons that gate on YAML validity).
+  // external footer buttons that gate on YAML validity). `schemaStale` is true while an edit is
+  // waiting for monaco-yaml to re-validate, so the parent can hold its primary action until then.
   useEffect(() => {
     if (!onValidityChange) return;
     let parseOk = true;
@@ -140,8 +152,8 @@ export const YamlEditor = (props: YamlEditorProps) => {
     } catch {
       parseOk = false;
     }
-    onValidityChange({ parseOk, schemaErrorCount });
-  }, [editorContent, schemaErrorCount, onValidityChange]);
+    onValidityChange({ parseOk, schemaErrorCount, schemaStale });
+  }, [editorContent, schemaErrorCount, schemaStale, onValidityChange]);
 
   const handleApply = useCallback(() => {
     const run = async () => {
