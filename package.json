@@ -8,7 +8,6 @@
   },
   "scripts": {
     "dev": "tsx ./server.ts --local-dev",
-    "dev:crossplane-mock": "cd ../crossplane-headlamp-plugin && npm run start:mock",
     "start": "node dist/server.js",
     "build": "npm run build:server && npm run build:client",
     "build:client": "vite build",
