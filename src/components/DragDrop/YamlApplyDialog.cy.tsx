@@ -1,11 +1,10 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { ComponentProps } from 'react';
 import { YamlApplyDialog } from './YamlApplyDialog';
-// Initialise i18next so t() returns the English strings the dialog renders.
+// Sets up i18n so t() works in tests.
 import '../../utils/i18n/i18n';
 
-// Generic (non-onboarding) kinds keep the flow offline: no existence check and no CRD plural
-// resolution fire, so the queue/rail can be exercised without stubbing the network.
+// Generic kinds skip existence checks and CRD resolution, so no network stubs needed.
 const yamlFile = (fileName: string, kind: string, name: string) =>
   new File([`apiVersion: v1\nkind: ${kind}\nmetadata:\n  name: ${name}\n`], fileName, {
     type: 'application/yaml',
@@ -140,7 +139,7 @@ describe('YamlApplyDialog — parse errors', () => {
     mountDialog({ files: [rawFile('empty.yaml', '---\n# just a comment\n---\n')] });
 
     cy.contains('This file has no YAML resources to apply').should('be.visible');
-    // Must not fall through to the "missing required fields" message.
+    // Must not show the "missing required fields" fallback.
     cy.contains('Missing required fields').should('not.exist');
   });
 

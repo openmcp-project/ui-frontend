@@ -49,7 +49,6 @@ import {
 } from '../../hooks/useYamlApplyResource';
 import styles from './YamlApplyDialog.module.css';
 
-/** Whether the resource already exists on the target, plus per-item lifecycle state. */
 type ItemState = 'checking' | 'idle' | 'unsupported' | 'applying';
 type ItemStatus = 'pending' | 'applied' | 'failed';
 type Phase = 'parsing' | 'parse-error' | 'editing' | 'summary';
@@ -59,11 +58,11 @@ interface Props {
   targetApiConfig: ApiConfig | null;
   targetName: string;
   onClose: () => void;
-  /** Lets the drag-drop provider push files dropped onto the open dialog into this queue. */
+  /** Registers a handler for appending files to the open dialog. */
   onRegisterAppend?: (handler: ((files: File[]) => void) | null) => void;
-  /** True while a file is being dragged anywhere over the page with the dialog open. */
+  /** Shows the drop-to-add overlay while dragging with the dialog open. */
   isExternalDragActive?: boolean;
-  /** Injectable for tests (CRD plural-name resolution for Control Plane targets). */
+  /** Injectable for tests. */
   useResourcePluralNames?: typeof _useResourcePluralNames;
 }
 
@@ -107,12 +106,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const [parseErrorFileName, setParseErrorFileName] = useState('');
 
   const [resources, setResources] = useState<ParsedResource[]>([]);
-  // Original source text per queue slot (aligned 1:1 with `resources`), used to seed the editor so
-  // comments/formatting survive the split; falls back to re-serializing the parsed resource.
+  // Original source text per slot; preserves YAML comments/formatting in the editor.
   const [texts, setTexts] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<ItemStatus[]>([]);
-  // Stable id per queue slot, aligned 1:1 with `resources`/`statuses`. Keeps the editor and the
-  // id-keyed `edits`/`itemErrors` maps correct across removals and insertions.
+  // Stable id per slot; keeps edits/itemErrors maps correct across removals and insertions.
   const [ids, setIds] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const idCounter = useRef(0);
@@ -122,22 +119,17 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   // Per-item working state, reset whenever the current resource changes.
   const [itemState, setItemState] = useState<ItemState>('checking');
   const [resourceExists, setResourceExists] = useState(false);
-  // True when the existence check could not be completed (e.g. 403) — we don't know if the
-  // resource exists, so we warn and let the apply (create-or-overwrite) proceed.
+  // 403 or other check failure: existence unknown, warn user and allow apply.
   const [existenceIndeterminate, setExistenceIndeterminate] = useState(false);
   const [itemError, setItemError] = useState('');
-  // Result of the last dry run for the current resource (server-side validation preview).
   const [dryRun, setDryRun] = useState<{ status: 'idle' | 'running' | 'ok' | 'error'; message: string }>({
     status: 'idle',
     message: '',
   });
-  // True while "Apply all" is applying the remaining resources sequentially.
   const [isApplyingAll, setIsApplyingAll] = useState(false);
-  // Edited YAML per queue slot, keyed by stable id; falls back to the parsed resource when untouched.
   const [edits, setEdits] = useState<Record<string, string>>({});
-  // Error message per queue slot (stable id) for failed applies — surfaced in the summary.
   const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
-  // Transient error from a failed "add file" attempt (bad extension / parse error / duplicate).
+  // Error from a failed "add file" attempt (shown transiently above the rail footer).
   const [addError, setAddError] = useState('');
   const [validity, setValidity] = useState<{ parseOk: boolean; schemaErrorCount: number; schemaStale?: boolean }>({
     parseOk: true,
@@ -148,18 +140,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const currentResource = resources[currentIndex] as ParsedResource | undefined;
   const currentId = ids[currentIndex];
 
-  // The YAML the editor should show for the current resource. Prefers the user's edit, then the
-  // original source text (comments preserved), then a re-serialized fallback. Derived (not
-  // effect-set) so it is always correct at the moment the editor mounts — the editor reads `value`
-  // only once per mount.
+  // Derived (not effect-set): edit → source text → re-serialized fallback. Editor reads this once on mount.
   const currentYaml = useMemo(() => {
     if (currentId && edits[currentId] != null) return edits[currentId];
     return texts[currentIndex] ?? (currentResource ? stringify(currentResource) : '');
   }, [edits, currentId, texts, currentIndex, currentResource]);
 
-  // The resource as currently shown in the editor (parsed from `currentYaml`). Edits to
-  // name/kind/namespace must drive the Create/Overwrite labelling and existence check — not the
-  // originally-parsed resource. Falls back to the parsed resource when the edit can't be parsed.
+  // Parsed from editor YAML; drives Create/Overwrite label and existence check.
   const effectiveResource = useMemo(() => {
     if (!currentResource) return undefined;
     try {
@@ -176,13 +163,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     (val: string) => {
       if (!currentId) return;
       setEdits((prev) => ({ ...prev, [currentId]: val }));
-      // Edited YAML invalidates any previous dry-run result for this item.
       setDryRun({ status: 'idle', message: '' });
     },
     [currentId],
   );
 
-  // ── Parse the dropped/selected files into a single queue of resources ─────
+  // Parse dropped/selected files into a resource queue.
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -237,15 +223,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     };
   }, [files, t, newId]);
 
-  // ── Prepare the current resource: reset per-item state + existence check ──
-  // Keyed on the *edited* identity (`effectiveIdentity`) so retyping name/kind/namespace re-checks
-  // existence (and flips Create/Overwrite). The network check is debounced so typing doesn't spam it.
+  // Reset per-item state and check existence when the edited resource identity changes (debounced).
   useEffect(() => {
     if (phase !== 'editing' || !effectiveResource) return;
     let cancelled = false;
 
     const run = async () => {
-      // Reset per-item working state immediately so the UI reflects the switch/edit at once.
       setValidity({ parseOk: true, schemaErrorCount: 0 });
       setItemError('');
       setResourceExists(false);
@@ -253,7 +236,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setItemState('checking');
       setDryRun({ status: 'idle', message: '' });
 
-      // Debounce the network existence check so typing a name doesn't fire a request per keystroke.
+      // 400ms debounce so typing doesn't fire a request per keystroke.
       await new Promise((resolve) => setTimeout(resolve, 400));
       if (cancelled) return;
 
@@ -276,8 +259,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         } else {
           const kind = resource.kind;
           if (!isOnboardingKind(kind)) {
-            // No dedicated mutation for this kind — it is applied generically via `applyYaml`
-            // (server-side create-or-update). There is no per-kind existence check, so go idle.
+            // Generic kind: no existence check, applied via server-side applyYaml.
             if (!cancelled) {
               setResourceExists(false);
               setItemState('idle');
@@ -292,8 +274,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         }
       } catch (err) {
         if (!cancelled) {
-          // A 403 means we couldn't determine existence — warn rather than silently assume "new".
-          // Any other failure is treated as new; the apply call will surface real errors.
+          // 403: can't determine existence, warn user. Other errors: treat as new.
           if (isForbiddenError(err as APIError)) setExistenceIndeterminate(true);
           setResourceExists(false);
           setItemState('idle');
@@ -310,7 +291,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
   const advanceAfterApply = useCallback(
     (doneIndex: number) => {
-      // Jump to the next still-pending resource; if none remain, show the summary.
       const n = resources.length;
       for (let off = 1; off <= n; off++) {
         const i = (doneIndex + off) % n;
@@ -333,8 +313,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     });
   }, []);
 
-  // Projects are always created (never updated) via this flow. Based on the edited content so
-  // changing the kind in the editor updates the labelling.
+  // Projects are create-only; derived from edited content so label reacts to kind changes.
   const isProject = !isCpTarget && effectiveResource?.kind === 'Project';
   const showOverwrite = resourceExists && !isProject;
 
@@ -342,8 +321,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     if (!currentResource) return;
     const index = currentIndex;
 
-    // Re-parse the (possibly edited) YAML. Never silently fall back to the pre-edit resource —
-    // apply exactly what the editor shows, or refuse if it can't be parsed.
+    // Apply exactly what the editor shows; refuse if YAML can't be parsed.
     let resource: ParsedResource;
     try {
       resource = parse(currentYaml) as ParsedResource;
@@ -398,8 +376,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     advanceAfterApply,
   ]);
 
-  // Server-side validation of the current (possibly edited) resource without persisting.
-  // CP targets use `?dryRun=All`; the Onboarding API only supports it for v2 ControlPlane.
+  // Server-side validation without persisting. CP uses ?dryRun=All; onboarding only for v2 ControlPlane.
   const canDryRun =
     phase === 'editing' &&
     itemState !== 'unsupported' &&
@@ -408,7 +385,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const doDryRun = useCallback(async () => {
     if (!currentResource) return;
 
-    // Refuse to dry-run unparseable YAML rather than validating the stale pre-edit resource.
     let resource: ParsedResource;
     try {
       resource = parse(currentYaml) as ParsedResource;
@@ -433,15 +409,14 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     }
   }, [currentResource, currentYaml, isCpTarget, getPluralKind, apiConfig, resourceExists, apolloClient, t]);
 
-  // Apply every still-pending resource in order, continuing past failures, then show the summary.
+  // Apply all pending resources sequentially, continuing past failures.
   const doApplyAll = useCallback(async () => {
     setIsApplyingAll(true);
     try {
       for (let i = 0; i < resources.length; i++) {
         if (statuses[i] !== 'pending') continue;
         const raw = edits[ids[i]] ?? texts[i] ?? stringify(resources[i]);
-        // Each item's edit may be invalid even though it isn't the one shown in the editor (only the
-        // mounted item is schema-validated). Fail it explicitly rather than applying the pre-edit copy.
+        // Off-screen edits aren't schema-validated; fail explicitly rather than applying pre-edit copy.
         let resource: ParsedResource;
         try {
           resource = parse(raw) as ParsedResource;
@@ -478,7 +453,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     }
   }, [resources, texts, statuses, edits, ids, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
 
-  // Add more YAML (from the "Add file" button or a drop onto the open dialog) to the queue.
   const addFiles = useCallback(
     async (incoming: File[]) => {
       if (phase !== 'editing' || itemState === 'applying' || isApplyingAll || incoming.length === 0) return;
@@ -515,8 +489,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         return;
       }
 
-      // Skip resources already in the queue (same apiVersion/kind/namespace/name), keeping each
-      // kept resource paired with its source text.
+      // Deduplicate by identity (apiVersion/kind/namespace/name).
       const existingIds = new Set(resources.map(resourceIdentity));
       const toAdd = merged
         .map((resource, i) => ({ resource, text: mergedTexts[i] }))
@@ -536,9 +509,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     [phase, itemState, isApplyingAll, resources, t, newId],
   );
 
-  // Remove one resource from the queue, keeping ids/statuses/edits/errors aligned.
-  // The last remaining resource can't be removed (the remove button is disabled) — the user closes
-  // the dialog via Cancel instead, so removing never silently dismisses the whole flow.
+  // Last item can't be removed; user cancels the dialog instead.
   const removeAt = useCallback(
     (index: number) => {
       if (itemState === 'applying' || isApplyingAll || resources.length <= 1) return;
@@ -562,14 +533,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     [itemState, isApplyingAll, resources.length, ids],
   );
 
-  // Let the drag-drop provider route files dropped onto the open dialog into this queue.
   useEffect(() => {
     if (!onRegisterAppend) return;
     onRegisterAppend((f) => void addFiles(f));
     return () => onRegisterAppend(null);
   }, [onRegisterAppend, addFiles]);
 
-  // ── Presentation helpers ──────────────────────────────────────────────────
   const targetBanner = (
     <div className={styles.targetBar}>
       <Text className={styles.targetLabel}>{t('yamlApply.targetLabel')}</Text>
@@ -694,14 +663,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     dryRun.status === 'running' ||
     !validity.parseOk ||
     validity.schemaErrorCount > 0 ||
-    // Hold the primary action until monaco-yaml has re-validated the latest edit (schema markers
-    // lag content changes), so Apply can't fire against not-yet-validated YAML.
+    // Monaco schema markers lag content changes; wait for re-validation before allowing Apply.
     !!validity.schemaStale ||
-    // An existing Project can't be updated via this flow, so don't offer a known-failing action.
     (isProject && resourceExists);
 
-  // Generic onboarding kinds have no existence check (applied via server-side applyYaml),
-  // so neither 'Create' nor 'Overwrite' fits — use a neutral 'Apply'.
+  // Generic onboarding kinds have no existence check, so use neutral 'Apply'.
   const isGenericOnboarding = !isCpTarget && !!effectiveResource && !isOnboardingKind(effectiveResource.kind);
   const applyLabel = isGenericOnboarding
     ? t('yamlApply.applyButton')
@@ -712,14 +678,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const pendingCount = statuses.filter((s) => s === 'pending').length;
   const showApplyAll = phase === 'editing' && isMultiDoc && pendingCount > 1;
 
-  // A request is in flight: block the whole dialog and show a spinner so the user can't act and
-  // knows something is happening. Covers single Apply, Apply all, and Dry run.
   const isBusy = itemState === 'applying' || isApplyingAll || dryRun.status === 'running';
   const busyText = dryRun.status === 'running' ? t('yamlApply.dryRunningText') : t('yamlApply.applyingText');
 
-  // The summary ('Apply complete') screen is always closable — the per-item working state
-  // may still read 'applying' after the final successful apply advanced us here. While any request
-  // is in flight (apply / apply-all / dry run) the dialog can't be closed.
+  // Summary is always closable even if itemState still reads 'applying' from the last item.
   const canClose = phase === 'summary' || (!isBusy && phase !== 'parsing');
 
   const footer = (

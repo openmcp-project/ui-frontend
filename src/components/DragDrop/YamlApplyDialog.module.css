@@ -5,7 +5,7 @@
   overflow: hidden;
 }
 
-/* Visually hidden but exposed to assistive tech (for aria-live announcements). */
+/* Visually hidden; exposed to screen readers. */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -28,7 +28,7 @@
   padding: 2rem;
 }
 
-/* Editing phase: target banner (full width) on top, then rail + editor row */
+/* Editing phase layout container. */
 .editingContainer {
   position: relative;
   display: flex;
@@ -110,7 +110,7 @@
   word-break: break-word;
 }
 
-/* Target row: a native subheader-style band with a colored ObjectStatus chip */
+/* Target banner bar. */
 .targetBar {
   display: flex;
   align-items: center;
@@ -125,7 +125,7 @@
   color: var(--sapContent_LabelColor);
 }
 
-/* Multi-document progress panel (native UI5 progress bar + list) */
+/* Multi-doc progress panel. */
 .progressPanel {
   display: flex;
   flex-direction: column;
@@ -154,7 +154,7 @@
   overflow-y: auto;
 }
 
-/* Editing rail: scrollable list of queued resources with per-row remove + an add-file footer */
+/* Queued resources rail with remove buttons and add-file footer. */
 .railList {
   flex: 1;
   min-height: 0;
@@ -223,7 +223,7 @@
   border-top: 1px solid var(--sapGroup_ContentBorderColor);
 }
 
-/* Full-dialog busy scrim shown while an apply / dry-run request is in flight */
+/* Full-dialog busy scrim. */
 .busyOverlay {
   position: absolute;
   inset: 0;
@@ -231,13 +231,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ~50% tint of the theme background (mostly transparent) + a blur of the content behind. */
+  /* Semi-transparent blur overlay. */
   background: color-mix(in srgb, var(--sapBackgroundColor) 50%, transparent);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
 
-/* Overlay prompting the user to drop a new file onto the open dialog */
+/* Drop-to-add overlay while dialog is open. */
 .addDropOverlay {
   position: absolute;
   inset: 0;
@@ -259,7 +259,7 @@
   color: var(--sapBrandColor);
 }
 
-/* Summary ('Apply complete') report: target + counts on top, scrollable per-resource list */
+/* Apply-complete summary screen. */
 .summaryContainer {
   display: flex;
   flex-direction: column;

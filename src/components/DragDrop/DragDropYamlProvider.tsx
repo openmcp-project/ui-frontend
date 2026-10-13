@@ -41,8 +41,7 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
 
       const files = e.dataTransfer?.files;
       if (!files || files.length === 0) return;
-      // `requestApplyFiles` appends to the open dialog's queue (if any) or starts a new flow —
-      // the routing lives in the context so a drop and the Upload button behave identically.
+      // Appends to an open dialog's queue, or starts a new flow (shared path with Upload button).
       requestApplyFiles(Array.from(files));
     },
     [requestApplyFiles],
@@ -58,13 +57,8 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
     [isDragging],
   );
 
-  // Deliberate design decision (see review N4): file drag-and-drop is captured app-wide at the
-  // `document` level. This is intentional — it gives the feature a single global entry point so a
-  // file can be dropped anywhere to start/extend an apply flow, instead of needing a dedicated drop
-  // zone. The trade-off: while the dialog is open, a drop *anywhere over it* (including onto the
-  // Monaco editor) routes to the queue via `handleDrop` rather than reaching the editor, so dropping
-  // a file onto the editor appends a new resource — it does not replace the edited content. That is
-  // the desired behavior here; editing is done by typing, adding is done by dropping/uploading.
+  // Document-level drop: files can be dropped anywhere to start/extend a flow. When the dialog
+  // is open, dropping onto Monaco appends to the queue rather than replacing editor content.
   useEffect(() => {
     document.addEventListener('dragenter', handleDragEnter);
     document.addEventListener('dragleave', handleDragLeave);
