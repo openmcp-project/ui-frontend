@@ -793,7 +793,8 @@
     "parseErrorHintContent": "Please fix the issues in your file and try uploading again.",
     "parseErrorDetailsTitle": "Error details",
     "parseErrorSubtitle": "Check the error details below to identify and fix the issues in your file.",
-    "parseErrorSubtitleFileType": "Select a valid .yaml or .yml file and try again."
+    "parseErrorSubtitleFileType": "Select a valid .yaml or .yml file and try again.",
+    "backToEditButton": "Back to editing"
   },
   "SupportInfo": {
     "popoverTitle": "Support Annotations",

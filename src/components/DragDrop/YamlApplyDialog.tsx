@@ -289,6 +289,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, effectiveIdentity]);
 
+  const goBackToEdit = useCallback(() => {
+    const firstFailed = statuses.findIndex((s) => s === 'failed');
+    setStatuses((prev) => prev.map((s) => (s === 'failed' ? 'pending' : s)));
+    setCurrentIndex(firstFailed >= 0 ? firstFailed : 0);
+    setPhase('editing');
+  }, [statuses]);
+
   const advanceAfterApply = useCallback(
     (doneIndex: number) => {
       const n = resources.length;
@@ -694,6 +701,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
               {t(phase === 'summary' || phase === 'parse-error' ? 'yamlApply.closeButton' : 'yamlApply.cancelButton')}
             </Button>
           )}
+          {phase === 'summary' && statuses.some((s) => s === 'failed') && (
+            <Button design="Default" onClick={goBackToEdit}>
+              {t('yamlApply.backToEditButton')}
+            </Button>
+          )}
           {canDryRun && (
             <Button
               design="Transparent"
@@ -845,19 +857,34 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                 )}
 
                 {itemError && itemState === 'idle' && (
-                  <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
+                  <MessageStrip
+                    design="Negative"
+                    hideCloseButton={false}
+                    className={styles.strip}
+                    onClose={() => setItemError('')}
+                  >
                     {itemError}
                   </MessageStrip>
                 )}
 
                 {dryRun.status === 'ok' && (
-                  <MessageStrip design="Positive" hideCloseButton className={styles.strip}>
+                  <MessageStrip
+                    design="Positive"
+                    hideCloseButton={false}
+                    className={styles.strip}
+                    onClose={() => setDryRun({ status: 'idle', message: '' })}
+                  >
                     {dryRun.message}
                   </MessageStrip>
                 )}
 
                 {dryRun.status === 'error' && (
-                  <MessageStrip design="Negative" hideCloseButton className={styles.strip}>
+                  <MessageStrip
+                    design="Negative"
+                    hideCloseButton={false}
+                    className={styles.strip}
+                    onClose={() => setDryRun({ status: 'idle', message: '' })}
+                  >
                     {t('yamlApply.dryRunFailedTitle')}: {dryRun.message}
                   </MessageStrip>
                 )}
