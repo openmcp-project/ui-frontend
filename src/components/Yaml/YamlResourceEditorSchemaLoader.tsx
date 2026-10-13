@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { YamlViewer, YamlViewerProps } from './YamlViewer.tsx';
 import Loading from '../Shared/Loading.tsx';
 import { useCustomResourceDefinitionQuery } from '../../hooks/useCustomResourceDefinitionQuery.ts';
+import { useTranslation } from 'react-i18next';
 
 interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
   apiVersion: string;
@@ -24,14 +25,29 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
   onValidityChange,
   onContentChange,
 }) => {
-  const { schema, isLoading } = useCustomResourceDefinitionQuery({
+  const { t } = useTranslation();
+  const { schema, isResolvingKind, isLoadingSchema } = useCustomResourceDefinitionQuery({
     kind,
     apiGroupName,
     apiVersion,
   });
 
-  if (kind && isLoading) {
-    return <Loading />;
+  if (kind && isResolvingKind) {
+    return (
+      <Loading
+        title={t('schemaLoader.resolvingTitle')}
+        subtitle={t('schemaLoader.resolvingSubtitle', { kind })}
+      />
+    );
+  }
+
+  if (kind && isLoadingSchema) {
+    return (
+      <Loading
+        title={t('schemaLoader.schemaTitle')}
+        subtitle={t('schemaLoader.schemaSubtitle', { kind })}
+      />
+    );
   }
 
   return (

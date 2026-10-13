@@ -261,6 +261,12 @@
     "title": "Getting Ready",
     "subtitle": "Fetching data..."
   },
+  "schemaLoader": {
+    "resolvingTitle": "Resolving resource type",
+    "resolvingSubtitle": "Looking up {{kind}} in the cluster…",
+    "schemaTitle": "Loading schema",
+    "schemaSubtitle": "Fetching validation rules for {{kind}}…"
+  },
   "MemberTable": {
     "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
