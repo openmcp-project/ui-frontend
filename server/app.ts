@@ -9,6 +9,8 @@ export const options = {};
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const TEST_FILE_PATTERN = /\.(?:spec|test)\.(?:ts|js)$/u;
+
 //@ts-ignore
 export default async function (fastify, opts) {
   await fastify.register(openTelemetryPlugin, opts);
@@ -19,11 +21,13 @@ export default async function (fastify, opts) {
 
   await fastify.register(AutoLoad, {
     dir: join(__dirname, 'plugins'),
+    ignorePattern: TEST_FILE_PATTERN,
     options: { ...opts },
   });
 
   await fastify.register(AutoLoad, {
     dir: join(__dirname, 'routes'),
+    ignorePattern: TEST_FILE_PATTERN,
     options: { ...opts },
   });
 }
