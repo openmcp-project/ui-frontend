@@ -11,6 +11,8 @@ import ManagedControlPlanePage from './spaces/mcp/pages/ManagedControlPlanePage.
 import ControlPlanePageV2 from './spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
+import { PageViewTracker } from './lib/telemetry/pageView/PageViewTracker.tsx';
+import { Routes as AppRoutes } from './Routes.ts';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
@@ -31,21 +33,14 @@ function AppRouter() {
         <SplitterLayout>
           <Router>
             <SentryRoutes>
-              <Route element={<GlobalProviderOutlet />}>
-                <Route path="projects" element={<ProjectListView />} />
-                <Route path="projects/:projectName" element={<ProjectPage />} />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName"
-                  element={<ControlPlanePageV2 />}
-                />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName/headlamp"
-                  element={<HeadlampPage />}
-                />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
-                  element={<ManagedControlPlanePage />}
-                />
+              <Route element={<PageViewTracker />}>
+                <Route element={<GlobalProviderOutlet />}>
+                  <Route path={AppRoutes.Projects} element={<ProjectListView />} />
+                  <Route path={AppRoutes.Project} element={<ProjectPage />} />
+                  <Route path={AppRoutes.McpV2} element={<ControlPlanePageV2 />} />
+                  <Route path={AppRoutes.McpV2Headlamp} element={<HeadlampPage />} />
+                  <Route path={AppRoutes.Mcp} element={<ManagedControlPlanePage />} />
+                </Route>
               </Route>
 
               {/* backward-compat: /mcp prefix + old segment names */}

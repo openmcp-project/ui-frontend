@@ -57,7 +57,7 @@ import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/Illu
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 
 // Open-source (Headlamp) mode — full-viewport iframe with ShellBar integration.
 // Only rendered when mode === 'open-source'. The legacy ObjectPage is rendered otherwise,
@@ -84,7 +84,7 @@ function OpenSourceHeadlamp({
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
   // Sanitise any stale full-BFF path that may have been persisted in the URL param
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -186,7 +186,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -269,7 +269,7 @@ export default function ManagedControlPlanePage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const viewParam = searchParams.get('view');
+    const viewParam = searchParams.get(SearchParams.View);
     if (viewParam === 'open-source') setMode('open-source');
     else if (viewParam === 'beginner') setMode('beginner');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,9 +280,9 @@ export default function ManagedControlPlanePage() {
       (prev) => {
         const next = new URLSearchParams(prev);
         if (mode === 'open-source') {
-          next.set('view', 'open-source');
+          next.set(SearchParams.View, 'open-source');
         } else {
-          next.delete('view');
+          next.delete(SearchParams.View);
         }
         return next;
       },
