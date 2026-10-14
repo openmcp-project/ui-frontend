@@ -4,6 +4,7 @@ import { Routes } from '../../Routes.ts';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
+import { YamlApplyContextProvider } from '../../context/YamlApplyContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
 import { ShellBarComponent } from './ShellBar.tsx';
@@ -45,9 +46,11 @@ describe('ShellBar', () => {
         <FrontendConfigContext.Provider value={fakeConfig}>
           <ToastProvider>
             <ViewModeProvider>
-              <ShellBarMcpActionsProvider>
-                <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-              </ShellBarMcpActionsProvider>
+              <YamlApplyContextProvider>
+                <ShellBarMcpActionsProvider>
+                  <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+                </ShellBarMcpActionsProvider>
+              </YamlApplyContextProvider>
             </ViewModeProvider>
           </ToastProvider>
         </FrontendConfigContext.Provider>
