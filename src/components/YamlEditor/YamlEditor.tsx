@@ -83,6 +83,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       fontSize: 13,
       lineHeight: 20,
       contextmenu: false,
+      copyWithSyntaxHighlighting: false,
     }),
     [options, isEdit],
   );
