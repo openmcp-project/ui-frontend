@@ -1,15 +1,19 @@
 import * as Sentry from '@sentry/react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/information';
 import '@ui5/webcomponents-icons/dist/nav-back';
-import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/source-code';
 import {
   Avatar,
+  Bar,
   Button,
   ButtonDomRef,
+  FlexBox,
+  Icon,
+  Label,
   List,
   ListItemStandard,
   ListItemStandardDomRef,
@@ -22,17 +26,20 @@ import {
   ShellBarDomRef,
   ShellBarSpacer,
   Switch,
+  Tag,
+  Text,
   TextAreaDomRef,
+  Title,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { ListItemBaseClickEventDetail } from '@ui5/webcomponents/dist/ListItemBase.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { RefObject, useRef, useState } from 'react';
+import { ReactNode, RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
 import { Routes } from '../../Routes.ts';
-import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
+import { useShellBarMcpActions, type McpStatusInfo } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
@@ -42,6 +49,7 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
+import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -57,11 +65,25 @@ export function ShellBarComponent({
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
   const telemetry = useTelemetry();
-  const { roleBindings, navigateBack, mcpName, mcpDisplayName } = useShellBarMcpActions();
+  const {
+    roleBindings,
+    navigateBack,
+    mcpName,
+    mcpDisplayName,
+    mcpKind,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpNamespace,
+    mcpStatus,
+    project,
+    workspace,
+    onEditMcp,
+    onDeleteMcp,
+  } = useShellBarMcpActions();
 
-  const onLogoClick = () => {
-    window.location.hash = Routes.Home;
-  };
+  const shellBarRef = useRef<ShellBarDomRef>(null);
+  const mcpInfoPopoverRef = useRef<PopoverDomRef>(null);
+  const [mcpInfoPopoverOpen, setMcpInfoPopoverOpen] = useState(false);
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     if (!profilePopoverRef.current) return;
@@ -72,9 +94,30 @@ export function ShellBarComponent({
   return (
     <>
       <ShellBar
+        ref={shellBarRef}
         hidden={window.location.href.includes('compact-mode')}
-        logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
-        primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
+        logo={
+          <div className={styles.logoSlot}>
+            <img src={SapLogo} alt="SAP" className={styles.logo} />
+            {mcpName && (
+              <>
+                <span className={styles.shellBarCpName}>{mcpDisplayName || mcpName}</span>
+                <Icon name="information" className={styles.mcpInfoHint} />
+              </>
+            )}
+          </div>
+        }
+        primaryTitle={mcpName ? '' : 'OpenControlPlane UI'}
+        onLogoClick={() => {
+          if (mcpName) {
+            if (mcpInfoPopoverRef.current && shellBarRef.current) {
+              mcpInfoPopoverRef.current.opener = shellBarRef.current.logoDomRef as HTMLElement;
+            }
+            setMcpInfoPopoverOpen(true);
+          } else {
+            window.location.hash = Routes.Home;
+          }
+        }}
         profile={
           <Avatar
             colorScheme={avatarColorSchemeForEmail(auth.user?.email)}
@@ -95,18 +138,7 @@ export function ShellBarComponent({
         content={[
           <ShellBarSpacer key="spacer" />,
           <div key="content" className={styles.shellBarContent}>
-            {roleBindings && (
-              <div className={styles.membersSlot}>
-                <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
-                <MembersAvatarView
-                  members={convertRoleBindingsToMembers(roleBindings)}
-                  hideNamespaceColumn
-                  source="controlplane-detail"
-                />
-              </div>
-            )}
             <KubeconfigShellBarButton />
-            {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
               <div className={styles.switchWrapper}>
                 <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
@@ -127,7 +159,6 @@ export function ShellBarComponent({
             )}
           </div>,
         ]}
-        onLogoClick={onLogoClick}
         onProfileClick={onProfileClick}
       />
 
@@ -137,6 +168,71 @@ export function ShellBarComponent({
         popoverRef={profilePopoverRef}
         useAuthOnboarding={useAuthOnboarding}
       />
+
+      {mcpName && (
+        <Popover
+          ref={mcpInfoPopoverRef}
+          placement={PopoverPlacement.Bottom}
+          header={
+            <Bar
+              startContent={
+                <Title level="H5" wrappingType="None">
+                  {mcpDisplayName || mcpName}
+                </Title>
+              }
+            />
+          }
+          footer={
+            onEditMcp || onDeleteMcp ? (
+              <Bar
+                design="Footer"
+                startContent={
+                  onDeleteMcp ? (
+                    <Button
+                      design="Transparent"
+                      icon="delete"
+                      onClick={() => {
+                        setMcpInfoPopoverOpen(false);
+                        onDeleteMcp();
+                      }}
+                    >
+                      {t('ShellBar.deleteMcp')}
+                    </Button>
+                  ) : undefined
+                }
+                endContent={
+                  onEditMcp ? (
+                    <Button
+                      design="Transparent"
+                      icon="edit"
+                      onClick={() => {
+                        setMcpInfoPopoverOpen(false);
+                        onEditMcp();
+                      }}
+                    >
+                      {t('ShellBar.overflowEditMcp')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined
+          }
+          open={mcpInfoPopoverOpen}
+          onClose={() => setMcpInfoPopoverOpen(false)}
+        >
+          <McpInfoPopoverContent
+            mcpName={mcpName}
+            mcpKind={mcpKind}
+            mcpCreationTimestamp={mcpCreationTimestamp}
+            mcpCreatedBy={mcpCreatedBy}
+            mcpNamespace={mcpNamespace}
+            mcpStatus={mcpStatus}
+            projectName={project}
+            workspaceName={workspace}
+            roleBindings={roleBindings}
+          />
+        </Popover>
+      )}
     </>
   );
 }
@@ -194,46 +290,6 @@ function KubeconfigShellBarButton() {
           <MenuItem text={t('CopyKubeconfigButton.menuDownload')} data-action="download" icon="download" />
         )}
         {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
-      </Menu>
-    </>
-  );
-}
-
-function OverflowMenuButton() {
-  const { onEditMcp, onOpenYaml } = useShellBarMcpActions();
-  const { t } = useTranslation();
-  const menuRef = useRef<MenuDomRef | null>(null);
-  const buttonRef = useRef<ButtonDomRef | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  if (!onEditMcp && !onOpenYaml) return null;
-
-  return (
-    <>
-      <Button
-        ref={buttonRef}
-        design="Transparent"
-        icon="overflow"
-        onClick={() => {
-          if (menuRef.current && buttonRef.current) {
-            menuRef.current.opener = buttonRef.current;
-            setMenuOpen((prev) => !prev);
-          }
-        }}
-      />
-      <Menu
-        ref={menuRef}
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onItemClick={(event) => {
-          const action = event.detail.item.dataset.action;
-          if (action === 'edit') onEditMcp?.();
-          else if (action === 'yaml') onOpenYaml?.();
-          setMenuOpen(false);
-        }}
-      >
-        {onEditMcp && <MenuItem text={t('ShellBar.overflowEditMcp')} data-action="edit" icon="edit" />}
-        {onOpenYaml && <MenuItem text={t('ShellBar.overflowViewYaml')} data-action="yaml" icon="source-code" />}
       </Menu>
     </>
   );
@@ -362,3 +418,126 @@ const ProfilePopover = ({
     </>
   );
 };
+
+function McpInfoPopoverContent({
+  mcpName,
+  mcpKind,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpNamespace,
+  mcpStatus,
+  projectName,
+  workspaceName,
+  roleBindings,
+}: {
+  mcpName: string;
+  mcpKind?: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpNamespace?: string;
+  mcpStatus?: McpStatusInfo | null;
+  projectName?: string;
+  workspaceName?: string;
+  roleBindings?: import('../../context/ShellBarMcpActionsContext.tsx').McpActions['roleBindings'];
+}) {
+  const { t } = useTranslation();
+  const { copyToClipboard } = useCopyToClipboard();
+  const members = roleBindings ? convertRoleBindingsToMembers(roleBindings) : undefined;
+
+  const created = mcpCreationTimestamp
+    ? new Date(mcpCreationTimestamp).toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : undefined;
+
+  const isDeprecated = mcpKind === 'ManagedControlPlane';
+
+  const hasStatus = !!(mcpStatus && projectName && workspaceName);
+  const hasMembers = !!(members && members.length > 0);
+
+  return (
+    <FlexBox direction="Column" style={{ gap: '0.75rem', padding: '0.25rem 0', minWidth: '20rem' }}>
+      <McpInfoField label={t('McpHeader.nameLabel')}>
+        <Text>{mcpName}</Text>
+      </McpInfoField>
+
+      {mcpKind && (
+        <McpInfoField label={t('ShellBar.kindLabel')}>
+          <FlexBox alignItems="Center" style={{ gap: '0.5rem' }}>
+            <Text>{mcpKind}</Text>
+            {isDeprecated && (
+              <Tag design="Set2" colorScheme="2" hideStateIcon>
+                {t('ShellBar.deprecatedBadge')}
+              </Tag>
+            )}
+          </FlexBox>
+        </McpInfoField>
+      )}
+
+      {(created || mcpCreatedBy) && (
+        <FlexBox direction="Row" wrap="NoWrap" style={{ gap: '1.5rem' }}>
+          {created && (
+            <McpInfoField label={t('McpHeader.createdOnLabel')}>
+              <Text>{created}</Text>
+            </McpInfoField>
+          )}
+          {mcpCreatedBy && (
+            <McpInfoField label={t('McpHeader.createdByLabel')}>
+              <Text>{mcpCreatedBy}</Text>
+            </McpInfoField>
+          )}
+        </FlexBox>
+      )}
+
+      {mcpNamespace && (
+        <McpInfoField label={t('ShellBar.namespaceLabel')}>
+          <FlexBox alignItems="Center" style={{ gap: '0.25rem' }}>
+            <Text
+              style={{ fontFamily: 'var(--sapFontMonospaceFamily, monospace)', wordBreak: 'break-all' }}
+            >
+              {mcpNamespace}
+            </Text>
+            <Button
+              design="Transparent"
+              icon="copy"
+              tooltip={t('ShellBar.copyNamespace')}
+              onClick={() => void copyToClipboard(mcpNamespace)}
+            />
+          </FlexBox>
+        </McpInfoField>
+      )}
+
+      {(hasStatus || hasMembers) && (
+        <FlexBox direction="Row" wrap="NoWrap" style={{ gap: '1.5rem' }}>
+          {hasStatus && (
+            <McpInfoField label={t('common.status')}>
+              <MCPHealthPopoverButton
+                mcpStatus={mcpStatus}
+                projectName={projectName!}
+                workspaceName={workspaceName!}
+                mcpName={mcpName}
+                source="detail"
+              />
+            </McpInfoField>
+          )}
+          {hasMembers && (
+            <McpInfoField label={t('ShellBar.membersLabel')}>
+              <MembersAvatarView members={members!} hideNamespaceColumn source="controlplane-detail" />
+            </McpInfoField>
+          )}
+        </FlexBox>
+      )}
+    </FlexBox>
+  );
+}
+
+function McpInfoField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <FlexBox direction="Column" style={{ gap: '0.125rem', flex: 1, minWidth: 0 }}>
+      <Label>{label}</Label>
+      {children}
+    </FlexBox>
+  );
+}

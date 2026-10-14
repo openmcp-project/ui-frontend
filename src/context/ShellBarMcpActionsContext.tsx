@@ -1,14 +1,26 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
-import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
+import { MemberRoleBinding } from '../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
+
+export interface McpStatusInfo {
+  status?: string | null;
+  phase?: string | null;
+  conditions?: Array<{ type: string; status: string; reason: string; message: string; lastTransitionTime: string }> | null;
+}
 
 export interface McpActions {
   kubeconfig?: string;
   mcpName?: string;
   mcpDisplayName?: string;
-  roleBindings?: RoleBinding[];
+  mcpKind?: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpNamespace?: string;
+  mcpStatus?: McpStatusInfo | null;
+  roleBindings?: MemberRoleBinding[];
   project?: string;
   workspace?: string;
   onEditMcp?: () => void;
+  onDeleteMcp?: () => void;
   onOpenYaml?: () => void;
   navigateBack?: () => void;
 }
@@ -27,6 +39,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setActions({
       ...next,
       onEditMcp: next.onEditMcp ? () => next.onEditMcp!() : undefined,
+      onDeleteMcp: next.onDeleteMcp ? () => next.onDeleteMcp!() : undefined,
       onOpenYaml: next.onOpenYaml ? () => next.onOpenYaml!() : undefined,
       navigateBack: next.navigateBack ? () => next.navigateBack!() : undefined,
     });

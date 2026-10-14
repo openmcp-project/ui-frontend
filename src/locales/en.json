@@ -234,7 +234,12 @@
     "backButton": "Back",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
-    "overflowViewYaml": "View YAML"
+    "deleteMcp": "Delete control plane",
+    "overflowViewYaml": "View YAML",
+    "namespaceLabel": "Namespace",
+    "copyNamespace": "Copy namespace",
+    "kindLabel": "Kind",
+    "deprecatedBadge": "Deprecated"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
