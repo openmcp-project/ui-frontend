@@ -34,20 +34,12 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
 
   if (kind && isResolvingKind) {
     return (
-      <Loading
-        title={t('schemaLoader.resolvingTitle')}
-        subtitle={t('schemaLoader.resolvingSubtitle', { kind })}
-      />
+      <Loading title={t('schemaLoader.resolvingTitle')} subtitle={t('schemaLoader.resolvingSubtitle', { kind })} />
     );
   }
 
   if (kind && isLoadingSchema) {
-    return (
-      <Loading
-        title={t('schemaLoader.schemaTitle')}
-        subtitle={t('schemaLoader.schemaSubtitle', { kind })}
-      />
-    );
+    return <Loading title={t('schemaLoader.schemaTitle')} subtitle={t('schemaLoader.schemaSubtitle', { kind })} />;
   }
 
   return (
