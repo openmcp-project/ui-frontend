@@ -16,6 +16,25 @@ function proxyPlugin(fastify) {
     }
   });
 
+  // @ts-ignore
+  const requireOnboardingAuth = async (req, reply) => {
+    const onboardingToken = req.encryptedSession.get('onboarding_accessToken');
+    if (!onboardingToken) {
+      return reply.unauthorized('Authentication required.');
+    }
+    const useCrate = req.headers['x-use-crate'];
+    if (!useCrate && !req.encryptedSession.get('mcp_accessToken')) {
+      return reply.unauthorized('Authentication required.');
+    }
+  };
+
+  // @ts-ignore
+  const requireGraphqlAuth = async (req, reply) => {
+    if (!req.encryptedSession.get('onboarding_accessToken')) {
+      return reply.unauthorized('Authentication required.');
+    }
+  };
+
   // Remove accept-encoding to prevent backend from compressing
   // This avoids double-compression or encoding issues
   // @ts-ignore
@@ -27,6 +46,7 @@ function proxyPlugin(fastify) {
   fastify.register(httpProxy, {
     prefix: '/onboarding',
     upstream: API_BACKEND_URL,
+    preHandler: requireOnboardingAuth,
     replyOptions: {
       // @ts-ignore
       rewriteRequestHeaders: (req, headers) => {
@@ -47,6 +67,7 @@ function proxyPlugin(fastify) {
       prefix: '/graphql',
       upstream: graphqlUrl.origin,
       rewritePrefix: graphqlUrl.pathname,
+      preHandler: requireGraphqlAuth,
       replyOptions: {
         // @ts-ignore
         rewriteRequestHeaders: (req, headers) => {
