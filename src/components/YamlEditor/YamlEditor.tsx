@@ -3,7 +3,7 @@ import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import * as monaco from 'monaco-editor';
 import type { SchemasSettings } from 'monaco-yaml';
 import type { ComponentProps } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseDocument } from 'yaml';
 import { useTheme } from '../../hooks/useTheme';
@@ -19,6 +19,83 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
   onApply?: (parsed: unknown, yaml: string) => void;
   schema?: JSONSchema4;
 };
+
+// How many characters into a value before we truncate.
+const TRUNCATE_AT = 30;
+
+// Injected-text marker stored in attachedData so we can identify clicks.
+const INJECTED_MORE = 'yaml-value-more';
+const INJECTED_LESS = 'yaml-value-less';
+
+// Fixed (non-hashed) class names applied by Monaco — must match :global selectors in the CSS module.
+const CLS_TAIL = 'yaml-value-tail';
+const CLS_MORE = 'yaml-inject-more';
+const CLS_LESS = 'yaml-inject-less';
+
+interface TruncationData {
+  lineNumber: number;
+  marker: typeof INJECTED_MORE | typeof INJECTED_LESS;
+}
+
+function applyTruncationDecorations(editor: monaco.editor.IStandaloneCodeEditor, expandedLines: Set<number>): string[] {
+  const model = editor.getModel();
+  if (!model) return [];
+
+  const newDecorations: monaco.editor.IModelDeltaDecoration[] = [];
+  const lineCount = model.getLineCount();
+
+  for (let lineNum = 1; lineNum <= lineCount; lineNum++) {
+    const line = model.getLineContent(lineNum);
+
+    // Match either:
+    //   "key: value"  — inline scalar
+    //   "  'value'"   — indented continuation / block scalar (quoted or plain, no key)
+    const inlineMatch = line.match(/^(\s*[\w\-./]+\s*:\s+)(.*)/);
+    const continuationMatch = !inlineMatch ? line.match(/^(\s+)(['"]?.+['"]?)$/) : null;
+    const match = inlineMatch ?? continuationMatch;
+    if (!match) continue;
+
+    const valueStart = match[1].length + 1; // 1-based column where value begins
+    const value = match[2];
+
+    if (value.length <= TRUNCATE_AT) continue;
+
+    const isExpanded = expandedLines.has(lineNum);
+    const tailStartCol = valueStart + TRUNCATE_AT;
+    const tailEndCol = valueStart + value.length;
+
+    if (isExpanded) {
+      // Show full value, inject "less" button after
+      newDecorations.push({
+        range: new monaco.Range(lineNum, tailEndCol, lineNum, tailEndCol),
+        options: {
+          after: {
+            content: '  ↑ less',
+            inlineClassName: CLS_LESS,
+            attachedData: { lineNumber: lineNum, marker: INJECTED_LESS } satisfies TruncationData,
+            cursorStops: monaco.editor.InjectedTextCursorStops.None,
+          },
+        },
+      });
+    } else {
+      // Hide the tail, inject "more" button
+      newDecorations.push({
+        range: new monaco.Range(lineNum, tailStartCol, lineNum, tailEndCol),
+        options: {
+          inlineClassName: CLS_TAIL,
+          after: {
+            content: '  … more',
+            inlineClassName: CLS_MORE,
+            attachedData: { lineNumber: lineNum, marker: INJECTED_MORE } satisfies TruncationData,
+            cursorStops: monaco.editor.InjectedTextCursorStops.None,
+          },
+        },
+      });
+    }
+  }
+
+  return editor.deltaDecorations([], newDecorations);
+}
 
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
@@ -41,12 +118,24 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
 
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const decorationIdsRef = useRef<string[]>([]);
+  const expandedLinesRef = useRef<Set<number>>(new Set());
+
   useEffect(() => {
     const schemas: SchemasSettings[] = schema
       ? [{ schema: schema as SchemasSettings['schema'], fileMatch: ['*'], uri: KUBERNETES_SCHEMA_URI }]
       : [];
     updateYamlSchemas(schemas);
   }, [schema]);
+
+  const refreshDecorations = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor || isEdit) return;
+    // Remove previous decorations before applying new ones
+    editor.deltaDecorations(decorationIdsRef.current, []);
+    decorationIdsRef.current = applyTruncationDecorations(editor, expandedLinesRef.current);
+  }, [isEdit]);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
@@ -57,7 +146,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       tabSize: 2,
       insertSpaces: true,
       detectIndentation: false,
-      wordWrap: 'on',
+      wordWrap: isEdit ? 'on' : 'off',
       folding: true,
       foldingStrategy: 'indentation',
       quickSuggestions: {
@@ -113,6 +202,43 @@ export const YamlEditor = (props: YamlEditorProps) => {
     run();
   }, [editorContent, onApply]);
 
+  const handleMount = useCallback(
+    (editor: monaco.editor.IStandaloneCodeEditor) => {
+      editorRef.current = editor;
+
+      if (!isEdit) {
+        refreshDecorations();
+
+        editor.onMouseDown((e) => {
+          if (e.target.type !== monaco.editor.MouseTargetType.CONTENT_TEXT) return;
+          // attachedData lives on detail.injectedText.options — not in the public types
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const data = (e.target.detail as any)?.injectedText?.options?.attachedData as TruncationData | undefined;
+          if (!data) return;
+
+          const { lineNumber, marker } = data;
+          if (marker === INJECTED_MORE) {
+            expandedLinesRef.current.add(lineNumber);
+          } else {
+            expandedLinesRef.current.delete(lineNumber);
+          }
+          refreshDecorations();
+        });
+      }
+
+      parentOnMount?.(editor, monaco);
+    },
+    [isEdit, refreshDecorations, parentOnMount],
+  );
+
+  // Re-apply decorations whenever the YAML value changes (e.g. "show only important" toggle)
+  useEffect(() => {
+    if (!isEdit) {
+      expandedLinesRef.current = new Set();
+      refreshDecorations();
+    }
+  }, [value, isEdit, refreshDecorations]);
+
   const showValidationErrors = isEdit && applyAttempted && validationErrors.length > 0;
 
   return (
@@ -138,6 +264,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
+          onMount={handleMount}
         />
       </div>
       {showValidationErrors && (
