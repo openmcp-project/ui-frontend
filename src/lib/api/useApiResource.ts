@@ -191,6 +191,8 @@ export const useApiResourceMutation = <T>(
 ) => {
   const apiConfig = useContext(ApiConfigContext);
 
+  // 2-tuple is intentional here: useSWRMutation keeps its own cache namespace,
+  // separate from the useSWR GET keys, so it does not need the 3-tuple shape.
   const { data, trigger, error, reset, isMutating } = useSWRMutation(
     resource.path === null
       ? null //TODO: is null a valid key?
