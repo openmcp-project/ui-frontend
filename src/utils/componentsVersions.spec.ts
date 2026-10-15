@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { getHighestVersion, sortVersions } from './componentsVersions.ts';
 
 describe('sortVersions', () => {
+  it('sorts mixed v-prefixed versions and numeric build suffixes newest first', () => {
+    const input = ['v1.9.0', '1.10.0', 'v2.0.2-1', 'v2.0.2-10', '2.0.2', 'v1.10.0'];
+    expect(sortVersions(input)).toEqual(['v2.0.2-10', 'v2.0.2-1', '2.0.2', '1.10.0', 'v1.10.0', 'v1.9.0']);
+  });
+
   it('sorts versions in descending order (latest first)', () => {
     const input = ['1.2.3', '2.0.0', '1.10.0', '1.2.10', '1.2.2'];
     const expected = ['2.0.0', '1.10.0', '1.2.10', '1.2.3', '1.2.2'];
