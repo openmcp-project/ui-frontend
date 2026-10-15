@@ -27,10 +27,11 @@ export function CrossplaneProviderPicker({
   getError,
 }: CrossplaneProviderPickerProps) {
   const { t } = useTranslation();
+  const sortedProviders = providers.toSorted((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div className={styles.providerList}>
-      {providers.map((provider) => {
+      {sortedProviders.map((provider) => {
         const providerVersions = catalog.find((p) => p.name === provider.name)?.versions ?? [];
         const currentVersion = provider.selectedVersion;
         const versionOptions =
