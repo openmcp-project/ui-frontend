@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
+import { createContext, useState, useEffect, ReactNode, use, useCallback, useMemo } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
 import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.tsx';
 import * as Sentry from '@sentry/react';
@@ -57,7 +57,10 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         user: apiUser,
         tokenExpiresAt: apiTokenExpiresAt,
       } = validationResult.data;
-      setUser(apiUser);
+      // Keep the previous `user` object identity when a background /me refresh returns an
+      // unchanged payload, so context consumers (e.g. open wizards) don't re-render on every
+      // periodic token refresh.
+      setUser((prev) => (JSON.stringify(prev) === JSON.stringify(apiUser) ? prev : apiUser));
       setIsAuthenticated(apiIsAuthenticated);
 
       const validTokenExpiry = apiTokenExpiresAt && apiTokenExpiresAt > Date.now() ? apiTokenExpiresAt : null;
@@ -89,35 +92,38 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
   }, [user, telemetry]);
 
-  const ensureFreshToken = useCallback(async () => {
-    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
-      return true; // Token still valid
-    }
-
-    try {
-      const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
-      if (response.ok) {
-        await refreshAuthStatus(true);
-        return true;
+  const ensureFreshToken = useCallback(
+    async (force = false) => {
+      if (!force && (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS)) {
+        return true; // Token still valid
       }
 
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        setUser(null);
-        setTokenExpiry(null);
-      }
+      try {
+        const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
+        if (response.ok) {
+          await refreshAuthStatus(true);
+          return true;
+        }
 
-      return false;
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Background token refresh failed',
-        level: 'warning',
-        ...(error instanceof Error && { data: { error: error.message } }),
-      });
-      return false;
-    }
-  }, [tokenExpiry, refreshAuthStatus]);
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setUser(null);
+          setTokenExpiry(null);
+        }
+
+        return false;
+      } catch (error) {
+        Sentry.addBreadcrumb({
+          category: 'auth',
+          message: 'Background token refresh failed',
+          level: 'warning',
+          ...(error instanceof Error && { data: { error: error.message } }),
+        });
+        return false;
+      }
+    },
+    [tokenExpiry, refreshAuthStatus],
+  );
 
   // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
   useEffect(() => {
@@ -142,12 +148,12 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     return () => clearTimeout(timerId);
   }, [tokenExpiry, isAuthenticated]);
 
-  const login = () => {
+  const login = useCallback(() => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
     window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -174,13 +180,14 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       });
       setError(err instanceof Error ? err : new Error('Logout error.'));
     }
-  };
+  }, [refreshAuthStatus]);
 
-  return (
-    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, login, logout }}>
-      {children}
-    </AuthContextOnboarding>
+  const value = useMemo(
+    () => ({ isPending, isAuthenticated, user, error, login, logout }),
+    [isPending, isAuthenticated, user, error, login, logout],
   );
+
+  return <AuthContextOnboarding value={value}>{children}</AuthContextOnboarding>;
 }
 
 export const useAuthOnboarding = () => {

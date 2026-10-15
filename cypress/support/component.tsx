@@ -36,7 +36,9 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('TextModel got disposed') ||
     err.message.includes('DiffEditorWidget') ||
     err.message.includes('no diff result available') ||
+    // Vite/dynamic-import failures during component teardown or lazy loading
     err.message.includes('Failed to fetch dynamically imported module') ||
+    // Network requests cancelled on component unmount — legitimate teardown noise
     err.message.includes('Canceled') ||
     err.name === 'Canceled' ||
     (err.stack ?? '').includes('Delayer.cancel') ||

@@ -6,6 +6,7 @@ import {
   STORAGE_KEY_AUTH_MCP,
   STORAGE_KEY_AUTH_NAMESPACE,
   STORAGE_KEY_AUTH_FLOW,
+  STORAGE_KEY_AUTH_VERSION,
 } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -31,6 +32,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams] = useSearchParams();
   const idpName = searchParams.get('idp');
+  const version = searchParams.get('version');
   const namespace = `project-${projectName}--ws-${workspaceName}`;
 
   const refreshAuthStatus = useCallback(
@@ -47,6 +49,9 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
         queryParams.set('namespace', namespace);
         queryParams.set('mcp', controlPlaneName);
         queryParams.set('idp', idpName);
+        if (version) {
+          queryParams.set('version', version);
+        }
       }
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
@@ -90,7 +95,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
         setIsPending(false);
       }
     },
-    [projectName, workspaceName, controlPlaneName, idpName, namespace],
+    [projectName, workspaceName, controlPlaneName, idpName, version, namespace],
   );
 
   // Check the authentication status when the component mounts
@@ -99,43 +104,49 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
-  const ensureFreshToken = useCallback(async () => {
-    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
-      return true; // Token still valid
-    }
-
-    const queryParams = new URLSearchParams();
-    if (projectName && workspaceName && controlPlaneName && idpName) {
-      // Custom identity provider
-      queryParams.set('namespace', namespace);
-      queryParams.set('mcp', controlPlaneName);
-      queryParams.set('idp', idpName);
-    }
-    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-
-    try {
-      const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
-      if (response.ok) {
-        await refreshAuthStatus(true);
-        return true;
+  const ensureFreshToken = useCallback(
+    async (force = false) => {
+      if (!force && (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS)) {
+        return true; // Token still valid
       }
 
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        setTokenExpiry(null);
+      const queryParams = new URLSearchParams();
+      if (projectName && workspaceName && controlPlaneName && idpName) {
+        // Custom identity provider
+        queryParams.set('namespace', namespace);
+        queryParams.set('mcp', controlPlaneName);
+        queryParams.set('idp', idpName);
+        if (version) {
+          queryParams.set('version', version);
+        }
       }
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
-      return false;
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Background token refresh failed',
-        level: 'warning',
-        ...(error instanceof Error && { data: { error: error.message } }),
-      });
-      return false;
-    }
-  }, [tokenExpiry, refreshAuthStatus, projectName, workspaceName, controlPlaneName, idpName, namespace]);
+      try {
+        const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
+        if (response.ok) {
+          await refreshAuthStatus(true);
+          return true;
+        }
+
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setTokenExpiry(null);
+        }
+
+        return false;
+      } catch (error) {
+        Sentry.addBreadcrumb({
+          category: 'auth',
+          message: 'Background token refresh failed',
+          level: 'warning',
+          ...(error instanceof Error && { data: { error: error.message } }),
+        });
+        return false;
+      }
+    },
+    [tokenExpiry, refreshAuthStatus, projectName, workspaceName, controlPlaneName, idpName, version, namespace],
+  );
 
   // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
   useEffect(() => {
@@ -175,11 +186,18 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
         mcp: controlPlaneName,
         idp: idpName,
       });
+      if (version) {
+        sessionStorage.setItem(STORAGE_KEY_AUTH_VERSION, version);
+        queryParams.set('version', version);
+      } else {
+        sessionStorage.removeItem(STORAGE_KEY_AUTH_VERSION);
+      }
       additionalQuery = `&${queryParams.toString()}`;
     } else {
       sessionStorage.removeItem(STORAGE_KEY_AUTH_NAMESPACE);
       sessionStorage.removeItem(STORAGE_KEY_AUTH_MCP);
       sessionStorage.removeItem(STORAGE_KEY_AUTH_IDP);
+      sessionStorage.removeItem(STORAGE_KEY_AUTH_VERSION);
     }
 
     window.location.replace(

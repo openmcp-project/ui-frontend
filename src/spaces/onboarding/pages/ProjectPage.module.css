@@ -1,0 +1,8 @@
+.searchBar {
+  margin: 0 auto;
+  width: min(1280px, 100%);
+}
+
+.expandCollapseButton {
+  flex-shrink: 0;
+}

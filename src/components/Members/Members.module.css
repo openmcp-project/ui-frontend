@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+.addButtonFitContent {
+  width: fit-content;
+}
+
 .wrapper {
   margin-bottom: 1rem;
 }

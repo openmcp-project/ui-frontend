@@ -76,6 +76,31 @@ describe('useCreateWorkspace', () => {
     expect(variables.object.spec.members[0].name).toBe('user@domain.com');
   });
 
+  it('round-trips populated support fields verbatim', async () => {
+    mutateMock.mockResolvedValue({});
+
+    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
+    const { createWorkspace } = renderHookResult.result.current;
+
+    await act(async () => {
+      await createWorkspace({
+        name: 'test-workspace',
+        displayName: 'Test Workspace',
+        members: [],
+        supportLandscape: 'production',
+        supportServiceIds: 'ID-1, ID-2',
+        supportSecurityContacts: 'mail:sec@example.com',
+        supportOpsContacts: 'mail:ops@example.com',
+      });
+    });
+
+    const annotations = mutateMock.mock.calls[0][0].variables.object.metadata.annotations;
+    expect(annotations['meta.orchestrate.cloud.sap/landscape']).toBe('production');
+    expect(annotations['meta.orchestrate.cloud.sap/service-ids']).toBe('ID-1, ID-2');
+    expect(annotations['meta.orchestrate.cloud.sap/security-contacts']).toBe('mail:sec@example.com');
+    expect(annotations['meta.orchestrate.cloud.sap/ops-contacts']).toBe('mail:ops@example.com');
+  });
+
   it('should throw error on API failure', async () => {
     // ARRANGE
     mutateMock.mockRejectedValue(new Error('API Error'));

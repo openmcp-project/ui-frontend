@@ -8,11 +8,13 @@ import { stringify } from 'yaml';
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
 import styles from './ComponentInstallDialog.module.css';
 import { createComponentInstallSchema, ComponentInstallFormValues } from './ComponentInstallDialog.schema.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 export interface UseCreateMutationResult {
-  create: (variables: { namespace: string; object: unknown }) => Promise<unknown>;
+  create: (variables: { namespace: string; name: string; object: unknown }) => Promise<unknown>;
   loading: boolean;
 }
 
@@ -24,6 +26,7 @@ export interface UseUpdateMutationResult {
 export interface ComponentInstallDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (mode: 'install' | 'edit') => void;
   mcpName: string;
   mcpNamespace: string;
   componentName: string;
@@ -38,6 +41,7 @@ export interface ComponentInstallDialogProps {
 export function ComponentInstallDialog({
   open,
   onClose,
+  onSuccess,
   mcpName,
   mcpNamespace,
   componentName,
@@ -50,13 +54,20 @@ export function ComponentInstallDialog({
 }: ComponentInstallDialogProps) {
   const { t } = useTranslation();
   const toast = useToast();
-  const { services } = useManagedServicesQuery();
+  const telemetry = useTelemetry();
+  const { services, isLoading: isServicesLoading } = useManagedServicesQuery();
   const { create, loading: createLoading } = useCreateMutation();
   const { update, loading: updateLoading } = useUpdateMutation();
-  const isLoading = createLoading || updateLoading;
+  const isLoading = createLoading || updateLoading || isServicesLoading;
 
   const service = useMemo(() => services.find((s) => s.name === serviceName), [services, serviceName]);
   const versions = useMemo(() => service?.versions ?? [], [service]);
+  const displayVersions = useMemo(() => {
+    if (mode === 'edit' && initialVersion && !versions.some((v) => v.version === initialVersion)) {
+      return [...versions, { version: initialVersion }];
+    }
+    return versions;
+  }, [versions, mode, initialVersion]);
   const apiVersion = service?.apiVersion ?? '';
   const kind = service?.kind ?? '';
 
@@ -77,7 +88,7 @@ export function ComponentInstallDialog({
     if (mode === 'edit' && initialVersion) {
       reset({ version: initialVersion });
     } else {
-      reset({ version: '' });
+      reset({ version: getHighestVersion(versions.map((v) => v.version)) ?? '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -109,16 +120,21 @@ export function ComponentInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.successMessageEdit', { component: componentName })
             : t('ComponentInstallDialog.successMessage', { component: componentName }),
         );
+        telemetry.track({
+          category: 'component',
+          action: mode === 'edit' ? 'updated' : 'installed',
+          componentName,
+        });
+        onSuccess?.(mode);
         handleClose();
-      } catch (error) {
-        console.error(`${componentName} mutation failed`, error);
+      } catch {
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.errorMessageEdit', { component: componentName })
@@ -126,7 +142,21 @@ export function ComponentInstallDialog({
         );
       }
     },
-    [create, update, mode, mcpName, mcpNamespace, apiVersion, kind, componentName, t, toast, handleClose],
+    [
+      create,
+      update,
+      mode,
+      mcpName,
+      mcpNamespace,
+      apiVersion,
+      kind,
+      componentName,
+      t,
+      toast,
+      onSuccess,
+      handleClose,
+      telemetry,
+    ],
   );
 
   const handleApply = useCallback(() => {
@@ -183,8 +213,7 @@ export function ComponentInstallDialog({
             valueStateMessage={errors.version ? <span>{errors.version.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
-            {versions.map(({ version: v }) => (
+            {displayVersions.map(({ version: v }) => (
               <Option key={v} value={v}>
                 {v}
               </Option>

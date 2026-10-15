@@ -45,7 +45,6 @@ export const useHandleResourcePatch = (errorDialogRef?: RefObject<ErrorDialogHan
       if (e instanceof APIError && errorDialogRef?.current) {
         errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
       }
-      console.error('Failed to patch resource', e);
       return false;
     }
   };

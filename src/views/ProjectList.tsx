@@ -2,7 +2,7 @@ import { Link, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webco
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import ProjectsList from '../components/Projects/ProjectsList.tsx';
+import ProjectsList, { ProjectsListHandle } from '../components/Projects/ProjectsList.tsx';
 import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 
@@ -16,6 +16,7 @@ export default function ProjectsListView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const noRedirect = searchParams.get('noRedirect') === 'true';
   const { rememberedProject } = useRememberedProject();
+  const projectsListRef = useRef<ProjectsListHandle>(null);
   // Capture noRedirect at mount time so the redirect effect is not re-triggered
   // when the cleanup effect strips the param and causes a re-render with noRedirect=false.
   const suppressRedirect = useRef(noRedirect);
@@ -47,12 +48,18 @@ export default function ProjectsListView() {
             </span>
           }
           breadcrumbs={<BreadcrumbFeedbackHeader />}
-          actionsBar={<ProjectListToolbar />}
+          actionsBar={
+            <ProjectListToolbar
+              onProjectCreated={() => {
+                void projectsListRef.current?.refetch();
+              }}
+            />
+          }
         />
       }
     >
       <ObjectPageSection id="projects" titleText="Projects" hideTitleText>
-        <ProjectsList />
+        <ProjectsList ref={projectsListRef} />
       </ObjectPageSection>
     </ObjectPage>
   );

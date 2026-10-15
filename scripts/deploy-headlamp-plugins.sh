@@ -32,5 +32,14 @@ kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/opencontrolplane/package.json"
 echo "✓ ocp plugin deployed"
 
+echo "→ building ocm plugin..."
+(cd "${ROOT_DIR}/../ocm-headlamp-plugin" && npm run build 2>&1 | tail -3)
+
+echo "→ syncing to pod ${POD}:/headlamp/plugins/headlamp-ocm/ ..."
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/headlamp-ocm
+kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../ocm-headlamp-plugin/dist/main.js" "${NAMESPACE}/${POD}:/headlamp/plugins/headlamp-ocm/main.js"
+kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../ocm-headlamp-plugin/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/headlamp-ocm/package.json"
+echo "✓ ocm plugin deployed"
+
 echo ""
 echo "✓ Plugins synced. Hard-refresh the browser to pick up changes."

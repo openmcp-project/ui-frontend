@@ -15,31 +15,25 @@ describe('CopyButton collapsible', () => {
   };
 
   it('renders with copy icon only when not hovered', () => {
-    mountWithProviders(<CopyButton collapsible text={testText} />);
+    mountWithProviders(<CopyButton collapsible text={testText} source="other" />);
 
     cy.get('ui5-button[icon="copy"]').should('exist');
   });
 
   it('expands to show text on hover', () => {
-    mountWithProviders(<CopyButton collapsible text={testText} />);
+    mountWithProviders(<CopyButton collapsible text={testText} source="other" />);
 
-    const button = cy.get('ui5-button[icon="copy"]');
-    button.trigger('mouseenter', { force: true });
-
-    cy.wait(350);
-    button.should('contain.text', testText);
+    cy.get('ui5-button[icon="copy"]').trigger('mouseenter', { force: true }).should('contain.text', testText);
   });
 
   it('collapses when mouse leaves', () => {
-    mountWithProviders(<CopyButton collapsible text={testText} />);
+    mountWithProviders(<CopyButton collapsible text={testText} source="other" />);
 
-    const button = cy.get('ui5-button[icon="copy"]');
-    button.trigger('mouseenter', { force: true });
-    cy.wait(350);
-    button.trigger('mouseleave', { force: true });
-    cy.wait(350);
-
-    button.should('exist');
+    cy.get('ui5-button[icon="copy"]')
+      .trigger('mouseenter', { force: true })
+      .should('contain.text', testText)
+      .trigger('mouseleave', { force: true })
+      .should('exist');
   });
 
   it('shows success state when clicked', () => {
@@ -52,37 +46,32 @@ describe('CopyButton collapsible', () => {
       });
     });
 
-    mountWithProviders(<CopyButton collapsible text={testText} />);
+    mountWithProviders(<CopyButton collapsible text={testText} source="other" />);
 
-    const button = cy.get('ui5-button[icon="copy"]');
-    button.trigger('mouseenter', { force: true });
-    cy.wait(350);
-    button.click();
-    cy.wait(500);
-
-    button.should('have.attr', 'design', 'Positive');
-    button.should('contain.text', 'Copied to clipboard');
+    cy.get('ui5-button[icon="copy"]')
+      .trigger('mouseenter', { force: true })
+      .should('contain.text', testText)
+      .click()
+      .should('have.attr', 'design', 'Positive')
+      .should('contain.text', 'Copied to clipboard');
   });
 
   it('displays text as tooltip', () => {
-    mountWithProviders(<CopyButton collapsible text={testText} />);
+    mountWithProviders(<CopyButton collapsible text={testText} source="other" />);
 
     cy.get('ui5-button[icon="copy"]').should('have.attr', 'tooltip', testText);
   });
 
   it('handles long strings', () => {
     const longText = 'project-very-long-project-name--ws-very-long-workspace-name';
-    mountWithProviders(<CopyButton collapsible text={longText} />);
+    mountWithProviders(<CopyButton collapsible text={longText} source="other" />);
 
     const button = cy.get('ui5-button[icon="copy"]');
-    button.trigger('mouseenter', { force: true });
-    cy.wait(350);
-
-    button.should('contain.text', longText);
+    button.trigger('mouseenter', { force: true }).should('contain.text', longText);
   });
 
   it('renders non-collapsible variant without container div', () => {
-    mountWithProviders(<CopyButton text={testText} />);
+    mountWithProviders(<CopyButton text={testText} source="other" />);
 
     cy.get('ui5-button[icon="copy"]').should('exist').should('contain.text', testText);
   });

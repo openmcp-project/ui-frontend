@@ -1,7 +1,7 @@
 import { ComponentInstallDialog, UseCreateMutationResult, UseUpdateMutationResult } from './ComponentInstallDialog.tsx';
 import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 
-type CreateVariables = { namespace: string; object: unknown };
+type CreateVariables = { namespace: string; name: string; object: unknown };
 type UpdateVariables = { namespace: string; name: string; object: unknown };
 
 describe('ComponentInstallDialog', () => {
@@ -39,6 +39,21 @@ describe('ComponentInstallDialog', () => {
     crossplaneProviders: [],
   })) as () => UseManagedServicesQueryResult;
 
+  const fakeUseManagedServicesQueryNoVersions: typeof useManagedServicesQuery = (() => ({
+    managedServicesData: null,
+    isLoading: false,
+    error: null,
+    services: [
+      {
+        name: 'flux',
+        kind: 'Flux',
+        apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
+        versions: [],
+      },
+    ],
+    crossplaneProviders: [],
+  })) as () => UseManagedServicesQueryResult;
+
   const baseObject = {
     apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
     kind: 'Flux',
@@ -69,7 +84,7 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('[ui5-select][data-cy="component-version-select"]').openDropDownByClick();
     cy.get('[ui5-select][data-cy="component-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
-      'v2.18.2',
+      'v2.17.0',
     );
 
     cy.get('ui5-button').contains('Apply Changes').click();
@@ -77,9 +92,10 @@ describe('ComponentInstallDialog', () => {
     cy.then(() =>
       cy.wrap(createPayload).deepEqualJson({
         namespace: 'test-namespace',
+        name: 'test-mcp',
         object: {
           ...baseObject,
-          spec: { version: 'v2.18.2' },
+          spec: { version: 'v2.17.0' },
         },
       }),
     );
@@ -100,7 +116,7 @@ describe('ComponentInstallDialog', () => {
         serviceName="flux"
         useCreateMutation={fakeUseCreateMutation}
         useUpdateMutation={fakeUseUpdateMutation}
-        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        useManagedServicesQuery={fakeUseManagedServicesQueryNoVersions}
         onClose={onClose}
       />,
     );
@@ -109,6 +125,24 @@ describe('ComponentInstallDialog', () => {
 
     cy.then(() => cy.wrap(createPayload).should('be.null'));
     cy.wrap(onClose).should('not.have.been.called');
+  });
+
+  it('preselects the highest version in install mode', () => {
+    cy.mount(
+      <ComponentInstallDialog
+        open={true}
+        mcpName="test-mcp"
+        mcpNamespace="test-namespace"
+        componentName="Flux"
+        serviceName="flux"
+        useCreateMutation={fakeUseCreateMutation}
+        useUpdateMutation={fakeUseUpdateMutation}
+        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        onClose={cy.stub()}
+      />,
+    );
+
+    cy.get('[ui5-select][data-cy="component-version-select"]').should('contain.text', 'v2.18.2');
   });
 
   it('updates a component with pre-loaded initial version', () => {
@@ -192,7 +226,7 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('[ui5-select][data-cy="component-version-select"]').openDropDownByClick();
     cy.get('[ui5-select][data-cy="component-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
-      'v2.18.2',
+      'v2.17.0',
     );
 
     cy.get('ui5-button').contains('Apply Changes').click();

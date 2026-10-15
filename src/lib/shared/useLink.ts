@@ -10,12 +10,11 @@ export function useLink() {
     documentationHomepage: createLink('/'),
     gettingStartedGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp'),
     workspaceCreationGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace'),
-    mcpCreationGuide: createLink(
-      '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
-    ),
+    mcpCreationGuide: createLink('/docs/managed-control-planes/get-started/onboard/get-started-mcp'),
     serviceAccoutsGuide: createLink(
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
     ),
+    identityProviderGuide: 'https://open-control-plane.io/operators/quickstart#configure-an-identity-provider',
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
     contributeLink: githubBaseUrl,
   };

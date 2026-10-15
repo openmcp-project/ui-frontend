@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { UpdateLandscaperMutationVariables } from '../../../types/__generated__/graphql/graphql';
+import { GET_LANDSCAPER_QUERY } from '../../controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
 
 const UpdateLandscaperMutation = graphql(`
   mutation UpdateLandscaper(
@@ -23,13 +24,16 @@ const UpdateLandscaperMutation = graphql(`
 `);
 
 export function useUpdateLandscaper() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateLandscaperMutation, {
-    refetchQueries: ['GetLandscaper'],
-  });
+  const [updateMutation, { loading, error }] = useMutation(UpdateLandscaperMutation);
 
   const update = useCallback(
     async (variables: { namespace: string; name: string; object: unknown }) => {
-      return updateMutation({ variables: variables as UpdateLandscaperMutationVariables });
+      return updateMutation({
+        variables: variables as UpdateLandscaperMutationVariables,
+        refetchQueries: [
+          { query: GET_LANDSCAPER_QUERY, variables: { name: variables.name, namespace: variables.namespace } },
+        ],
+      });
     },
     [updateMutation],
   );

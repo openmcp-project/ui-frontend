@@ -8,7 +8,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import React, { useMemo } from 'react';
-import { McpPageSectionId } from '../../spaces/mcp/pages/McpPage.tsx';
+import { McpPageSectionId } from '../../spaces/mcp/pages/ManagedControlPlanePage.tsx';
 
 interface HintsProps {
   mcp: ControlPlaneType;

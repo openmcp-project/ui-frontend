@@ -15,6 +15,7 @@ type ControlPlanesListMenuProps = {
   setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpenV2: Dispatch<SetStateAction<boolean>>;
   setInitialTemplateName: Dispatch<SetStateAction<string | undefined>>;
+  disabled?: boolean;
 };
 
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
@@ -23,12 +24,13 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setIsCreateManagedControlPlaneWizardOpen,
   setInitialTemplateName,
   setIsCreateManagedControlPlaneWizardOpenV2,
+  disabled = false,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
   const { t } = useTranslation();
-  const { enableMcpV2 } = useFeatureToggle();
+  const { enableMcpV2, markMcpV1asDeprecated } = useFeatureToggle();
 
   // Here we will pass template list from OnboardingAPI
   const allTemplates: ManagedControlPlaneTemplate[] = [];
@@ -47,6 +49,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
         icon="overflow"
         icon-end
         data-testid="ControlPlanesListMenu-opener"
+        disabled={disabled}
         onClick={handleOpenerClick}
       />
       <Menu
@@ -81,14 +84,19 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           data-action="newManagedControlPlane"
           icon="add"
+          additionalText={
+            markMcpV1asDeprecated
+              ? t('ControlPlaneListToolbar.deprecatedBadge')
+              : t('ControlPlaneListToolbar.defaultBadge')
+          }
         />
         {enableMcpV2 && (
           <MenuItem
             key={'addV2'}
-            text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+            text={t('ControlPlaneListToolbar.createNewControlPlane')}
             data-action="newManagedControlPlaneV2"
             icon="add"
-            additionalText={t('ControlPlaneListToolbar.V2')}
+            additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
           />
         )}
         {allTemplates.map((tpl) => (

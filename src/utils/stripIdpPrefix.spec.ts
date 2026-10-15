@@ -33,4 +33,20 @@ describe('stripIdpPrefix', () => {
   it('when principal starts with non-matching similar text, uses fallback', () => {
     expect(stripIdpPrefix('openmcpuser:john', 'openmcp')).to.equal('john');
   });
+
+  it('with appendColon=false, strips a prefix that already contains its own separator', () => {
+    expect(stripIdpPrefix('custom:alice', 'custom:', false)).to.equal('alice');
+  });
+
+  it('with appendColon=false, falls back to first-colon stripping when the literal prefix does not match', () => {
+    expect(stripIdpPrefix('other:alice', 'custom:', false)).to.equal('alice');
+  });
+
+  it('with appendColon=false, matches a prefix using a non-colon separator verbatim', () => {
+    expect(stripIdpPrefix('custom-alice', 'custom-', false)).to.equal('alice');
+  });
+
+  it('defaults appendColon to true, preserving existing call sites', () => {
+    expect(stripIdpPrefix('custom:alice', 'custom')).to.equal('alice');
+  });
 });

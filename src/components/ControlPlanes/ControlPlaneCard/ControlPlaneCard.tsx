@@ -1,31 +1,54 @@
-import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
+import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
+import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/question-mark.js';
+import '@ui5/webcomponents-icons/dist/synchronize.js';
+import '@ui5/webcomponents-icons/dist/add.js';
+import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
-
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState } from 'react';
-
-import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
-import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
-import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  ControlPlaneListItem,
+  ReadyStatus,
+  flattenV1RoleBindings,
+} from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
-
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
+import { McpSupportInfoTag } from './McpSupportInfoTag.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
-import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
-import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
+import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
+import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
+import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
+import { getServiceLifecycle, SERVICE_LIFECYCLE_ICON } from './serviceLifecycleIndicator.ts';
+import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
+import styles from './ControlPlaneCard.module.css';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { Routes } from '../../../Routes.ts';
+
+import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
+import LogoFlux from '../../../assets/images/logo-flux.svg';
+import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
+import LogoKyverno from '../../../assets/images/logo-kyverno.png';
+import LogoEso from '../../../assets/images/logo-eso.svg';
+import LogoOcm from '../../../assets/images/logo-ocm.svg';
+import LogoKro from '../../../assets/images/logo-kro.svg';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -33,20 +56,35 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
+  /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
+   * `undefined` while that fetch is still loading. */
+  v2Components?: McpV2Components;
+  isLoadingV2Components?: boolean;
 }
 
 type MCPWizardState = {
   isOpen: boolean;
   mode?: 'edit' | 'duplicate';
 };
+
+interface ComponentInfo {
+  name: string;
+  logo: string;
+  installed: boolean;
+  /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
+  phase?: string | null;
+}
+
 export const ControlPlaneCard = ({
   controlPlane,
   workspace,
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
+  v2Components,
+  isLoadingV2Components = false,
 }: Props) => {
-  const { markMcpV1asDeprecated } = useFeatureToggle();
+  const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
@@ -57,87 +95,272 @@ export const ControlPlaneCard = ({
   const handleIsManagedControlPlaneWizardOpen = (isOpen: boolean, mode?: 'edit' | 'duplicate') => {
     setManagedControlPlaneWizardState({ isOpen, mode });
   };
+
   const { deleteManagedControlPlane } = useDeleteManagedControlPlane(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
+
   const { deleteManagedControlPlaneV2 } = useDeleteManagedControlPlaneV2GraphQL(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
+  const telemetry = useTelemetry();
 
   const name = controlPlane.metadata.name;
+  const { t } = useTranslation();
   const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
-
   const namespace = controlPlane.metadata.namespace;
-
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
+
+  const isV2 = controlPlane.version === 'v2';
+  const navigate = useNavigate();
+
+  // V1 components and role bindings come with the `GetMCPsList` result — no per-card fetch
+  // (unlike V2, whose component status lives in separate CRs).
+  const v1Spec = controlPlane.version === 'v1' ? controlPlane.spec : undefined;
+  const mcpComponents = v1Spec?.components;
+  const v1RoleBindings = useMemo(() => flattenV1RoleBindings(v1Spec?.authorization?.roleBindings), [v1Spec]);
+  // V2 install status is pre-fetched by the parent grid tile; `undefined` = not yet resolved.
+  const mcpV2Components = v2Components;
+
+  const v2RoleBindings = useMemo(() => {
+    if (!isV2) return undefined;
+    return flattenOidcRoleBindings(controlPlane.spec?.iam?.oidc);
+  }, [isV2, controlPlane]);
+
+  const components = useMemo<ComponentInfo[]>(() => {
+    if (isV2) {
+      return [
+        {
+          name: 'Crossplane',
+          logo: LogoCrossplane,
+          installed: !!mcpV2Components?.crossplane,
+          phase: mcpV2Components?.crossplane?.phase,
+        },
+        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
+        ...(showLandscaperCard || !!mcpV2Components?.landscaper
+          ? [
+              {
+                name: 'Landscaper',
+                logo: LogoLandscaper,
+                installed: !!mcpV2Components?.landscaper,
+                phase: mcpV2Components?.landscaper?.phase,
+              },
+            ]
+          : []),
+        {
+          name: 'External Secrets Operator',
+          logo: LogoEso,
+          installed: !!mcpV2Components?.externalSecretsOperator,
+          phase: mcpV2Components?.externalSecretsOperator?.phase,
+        },
+        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm, phase: mcpV2Components?.ocm?.phase },
+        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro, phase: mcpV2Components?.kro?.phase },
+      ];
+    }
+    return [
+      { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpComponents?.crossplane },
+      { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux },
+      ...(showLandscaperCard || !!mcpComponents?.landscaper
+        ? [{ name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper }]
+        : []),
+      { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
+      { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
+    ];
+  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
+
+  const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
-        <div className={styles.container}>
-          <FlexBox direction="Column">
-            <FlexBox direction="Row" justifyContent="SpaceBetween">
-              <FlexBox direction="Column">
-                <Title level={TitleLevel.H5}>{displayName ? displayName : name}</Title>
-                <Label>{workspace.metadata.name} </Label>
-              </FlexBox>
-              <div>
-                <MCPHealthPopoverButton
-                  mcpStatus={controlPlane.status}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  mcpName={controlPlane.metadata.name}
-                />
-              </div>
+        <div className={styles.cardHeader}>
+          <div className={styles.titleSection}>
+            <FlexBox direction="Column" className={styles.titleContent}>
+              <Title level={TitleLevel.H5} className={styles.title}>
+                {displayName ? displayName : name}
+              </Title>
+              <span className={`${styles.kindLabel} mono-font`}>{isV2 ? 'ControlPlane' : 'ManagedControlPlane'}</span>
             </FlexBox>
-            <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              {controlPlane.version !== 'v2' && (
-                <ControlPlaneCardMenu
-                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                  setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
-                />
-              )}
-              {controlPlane.version === 'v2' && (
-                <ControlPlaneCardMenuV2
-                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                  setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
-                />
-              )}
-              {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
-              <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
-                <YamlViewButton
-                  variant="loader"
-                  workspaceName={controlPlane.metadata.namespace}
-                  resourceName={controlPlane.metadata.name}
-                  resourceType={controlPlane.version === 'v2' ? 'controlplanes' : 'managedcontrolplanes'}
-                />
-                {controlPlane.version === 'v2' ? (
-                  <ConnectButtonV2
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
+          </div>
+
+          <div className={styles.headerActions}>
+            {isV2 && (
+              <McpSupportInfoTag
+                namespace={namespace}
+                resourceName={name}
+                supportInfo={extractSupportInfo(controlPlane.metadata.annotations)}
+              />
+            )}
+            <MCPHealthPopoverButton
+              mcpStatus={controlPlane.status}
+              projectName={projectName}
+              workspaceName={workspace.metadata.name ?? ''}
+              mcpName={controlPlane.metadata.name}
+              source="card"
+              creationTimestamp={controlPlane.metadata.creationTimestamp}
+            />
+          </div>
+        </div>
+
+        <div className={styles.cardBody}>
+          <div className={styles.componentsRow}>
+            <div className={styles.componentIcons}>
+              {isV2 && isLoadingV2Components ? (
+                <>
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
                   />
-                ) : (
-                  <ConnectButton
-                    disabled={!isConnectButtonEnabled}
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
-                    namespace={controlPlane.status?.access?.namespace ?? ''}
-                    secretName={controlPlane.status?.access?.name ?? ''}
-                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
                   />
-                )}
-              </FlexBox>
-            </FlexBox>
-          </FlexBox>
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
+                  />
+                </>
+              ) : (
+                <>
+                  {installedComponents.map((component) => {
+                    const lifecycle = isV2 ? getServiceLifecycle(component.phase) : null;
+                    return (
+                      <button
+                        key={component.name}
+                        className={styles.componentIcon}
+                        title={component.name}
+                        onClick={() => {
+                          if (isV2) {
+                            setIsEditV2WizardOpen(true);
+                          } else {
+                            handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                          }
+                        }}
+                      >
+                        <img src={component.logo} alt={component.name} className={styles.componentLogo} />
+                        {(lifecycle === 'installing' || lifecycle === 'deleting') && (
+                          <Icon
+                            name={SERVICE_LIFECYCLE_ICON[lifecycle]}
+                            className={`${styles.statusBadge} ${
+                              lifecycle === 'installing'
+                                ? styles.statusBadgeInstalling
+                                : lifecycle === 'deleting'
+                                  ? styles.statusBadgeDeleting
+                                  : lifecycle === 'ready'
+                                    ? styles.statusBadgeReady
+                                    : styles.statusBadgeUnknown
+                            }`}
+                            data-testid={`service-status-${component.name}`}
+                            accessibleName={t(
+                              lifecycle === 'installing'
+                                ? 'ControlPlaneCard.serviceInstalling'
+                                : lifecycle === 'deleting'
+                                  ? 'ControlPlaneCard.serviceDeleting'
+                                  : lifecycle === 'ready'
+                                    ? 'ControlPlaneCard.serviceReady'
+                                    : 'ControlPlaneCard.serviceUnknown',
+                            )}
+                            showTooltip
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                  {installedComponents.length === 0 && (isV2 ? mcpV2Components !== undefined : true) && (
+                    <button
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
+                      data-testid="add-component-button"
+                      title={t('ControlPlaneCard.installComponents')}
+                      onClick={() => {
+                        if (isV2) {
+                          // V2 edit can't add components yet — route to the MCP page to install there.
+                          navigate(
+                            generatePath(Routes.McpV2, {
+                              projectName,
+                              workspaceName: workspace.metadata.name ?? '',
+                              controlPlaneName: name,
+                            }),
+                          );
+                        } else {
+                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                        }
+                      }}
+                    >
+                      <Icon name="add" className={styles.addComponentIcon} />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {markMcpV1asDeprecated && !isV2 && (
+            <div className={styles.deprecatedSection}>
+              <DeprecatedLabel />
+            </div>
+          )}
+        </div>
+
+        <div className={styles.cardFooter}>
+          <div className={styles.footerLeft}>
+            {!isV2 && (
+              <ControlPlaneCardMenu
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+                controlPlaneName={name}
+                namespace={controlPlane.status?.access?.namespace ?? ''}
+                secretName={controlPlane.status?.access?.name ?? ''}
+                secretKey={controlPlane.status?.access?.key ?? ''}
+              />
+            )}
+            {isV2 && (
+              <ControlPlaneCardMenuV2
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
+                controlPlaneName={name}
+                mcpNamespace={controlPlane.metadata.namespace}
+                access={controlPlane.status?.access}
+              />
+            )}
+            <YamlViewButton
+              variant="loader"
+              workspaceName={controlPlane.metadata.namespace}
+              resourceName={controlPlane.metadata.name}
+              resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
+            />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} compact />
+          </div>
+
+          <div className={styles.footerRight}>
+            {isV2 ? (
+              <ConnectButtonV2
+                controlPlaneName={name}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                access={controlPlane.status?.access}
+                disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                loading={!controlPlane.status}
+              />
+            ) : (
+              <ConnectButton
+                disabled={!isConnectButtonEnabled}
+                controlPlaneName={name}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                namespace={controlPlane.status?.access?.namespace ?? ''}
+                secretName={controlPlane.status?.access?.name ?? ''}
+                secretKey={controlPlane.status?.access?.key ?? ''}
+              />
+            )}
+          </div>
         </div>
       </Card>
-      {controlPlane.version !== 'v2' && (
+
+      {!isV2 && (
         <DeleteConfirmationDialog
           resourceName={controlPlane.metadata.name}
           kubectlDialog={({ isOpen, onClose }) => (
@@ -151,31 +374,44 @@ export const ControlPlaneCard = ({
           )}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
-          onDeletionConfirmed={deleteManagedControlPlane}
+          onDeletionConfirmed={async () => {
+            telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v1-card' });
+            await deleteManagedControlPlane();
+          }}
         />
       )}
-      {controlPlane.version === 'v2' && (
+      {isV2 && (
         <DeleteConfirmationDialog
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
-          onDeletionConfirmed={deleteManagedControlPlaneV2}
+          onDeletionConfirmed={async () => {
+            telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-card' });
+            await deleteManagedControlPlaneV2();
+          }}
         />
       )}
-      <EditManagedControlPlaneWizardDataLoader
-        isOpen={managedControlPlaneWizardState.isOpen}
-        setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
-        workspaceName={namespace}
-        resourceName={name}
-        mode={managedControlPlaneWizardState.mode}
-      />
-      {controlPlane.version === 'v2' && (
-        <EditManagedControlPlaneV2WizardDataLoader
-          isOpen={isEditV2WizardOpen}
-          setIsOpen={setIsEditV2WizardOpen}
-          namespace={namespace}
+      <div
+        data-testid={managedControlPlaneWizardState.isOpen ? 'v1-wizard-open' : undefined}
+        className={styles.wizardAnchor}
+      >
+        <EditManagedControlPlaneWizardDataLoader
+          isOpen={managedControlPlaneWizardState.isOpen}
+          setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
+          workspaceName={namespace}
           resourceName={name}
+          mode={managedControlPlaneWizardState.mode}
         />
+      </div>
+      {controlPlane.version === 'v2' && (
+        <div data-testid={isEditV2WizardOpen ? 'v2-wizard-open' : undefined} className={styles.wizardAnchor}>
+          <EditControlPlaneV2WizardDataLoader
+            isOpen={isEditV2WizardOpen}
+            setIsOpen={setIsEditV2WizardOpen}
+            namespace={namespace}
+            resourceName={name}
+          />
+        </div>
       )}
     </>
   );

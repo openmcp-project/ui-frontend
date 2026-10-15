@@ -2,14 +2,18 @@ import { Toolbar, ToolbarButton } from '@ui5/webcomponents-react';
 import { useState } from 'react';
 import { CreateProjectDialogContainer } from '../Dialogs/CreateProjectDialogContainer.tsx';
 
-export function ProjectListToolbar() {
+export function ProjectListToolbar({ onProjectCreated }: { onProjectCreated?: () => void }) {
   const [dialogCreateProjectIsOpen, setDialogIsOpen] = useState(false);
   return (
     <>
       <Toolbar>
         <ToolbarButton design="Emphasized" icon="add" text="Project" onClick={() => setDialogIsOpen(true)} />
       </Toolbar>
-      <CreateProjectDialogContainer isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} />
+      <CreateProjectDialogContainer
+        isOpen={dialogCreateProjectIsOpen}
+        setIsOpen={setDialogIsOpen}
+        onProjectCreated={onProjectCreated}
+      />
     </>
   );
 }

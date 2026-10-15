@@ -1,6 +1,9 @@
+import type { ComponentProps } from 'react';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { EditWorkspaceDialogContainer } from './EditWorkspaceDialogContainer';
 import { useUpdateWorkspace } from '../../spaces/onboarding/hooks/useUpdateWorkspace';
 import { useGetWorkspace, WorkspaceData } from '../../spaces/onboarding/hooks/useGetWorkspace';
+import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { MemberRoles } from '../../lib/api/types/shared/members';
 
 const workspaceData: WorkspaceData = {
@@ -10,6 +13,10 @@ const workspaceData: WorkspaceData = {
   chargingTarget: '',
   chargingTargetType: '',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const workspaceDataWithCharging: WorkspaceData = {
@@ -19,6 +26,10 @@ const workspaceDataWithCharging: WorkspaceData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const fakeUseGetWorkspace: typeof useGetWorkspace = () => ({
@@ -29,7 +40,37 @@ const fakeUseGetWorkspace: typeof useGetWorkspace = () => ({
 
 const fakeUseUpdateWorkspace: typeof useUpdateWorkspace = () => ({
   updateWorkspace: async () => {},
+  isLoading: false,
 });
+
+const fakeUseProjectMembers: typeof useProjectMembers = () => ({
+  members: [],
+  displayName: undefined,
+  creationTimestamp: undefined,
+  supportLandscape: undefined,
+  supportServiceIds: undefined,
+  supportSecurityContacts: undefined,
+  supportOpsContacts: undefined,
+  isLoading: false,
+});
+
+// MockedProvider satisfies the Apollo context that the Members step's ImportMembersDialog needs;
+// its queries stay skipped (import dialog closed), so no mocks are required.
+const mountEdit = (props: Partial<ComponentProps<typeof EditWorkspaceDialogContainer>>) =>
+  cy.mount(
+    <MockedProvider mocks={[]}>
+      <EditWorkspaceDialogContainer
+        isOpen={true}
+        setIsOpen={cy.stub()}
+        workspaceName="existing-workspace"
+        namespace="project-test-project"
+        useGetWorkspace={fakeUseGetWorkspace}
+        useUpdateWorkspace={fakeUseUpdateWorkspace}
+        useProjectMembers={fakeUseProjectMembers}
+        {...props}
+      />
+    </MockedProvider>,
+  );
 
 describe('EditWorkspaceDialogContainer', () => {
   it('pre-populates form with existing workspace data', () => {
@@ -39,16 +80,7 @@ describe('EditWorkspaceDialogContainer', () => {
       error: undefined,
     });
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={cy.stub()}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspaceWithCharging}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ useGetWorkspace: fakeUseGetWorkspaceWithCharging });
 
     cy.get('#name').invoke('prop', 'value').should('eq', 'existing-workspace');
     cy.get('#name').should('have.attr', 'disabled');
@@ -58,16 +90,7 @@ describe('EditWorkspaceDialogContainer', () => {
   });
 
   it('name field is always disabled — cannot be changed', () => {
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={cy.stub()}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ useGetWorkspace: fakeUseGetWorkspace });
 
     cy.get('#name').should('have.attr', 'disabled');
     cy.get('#name').invoke('prop', 'value').should('eq', 'existing-workspace');
@@ -82,20 +105,15 @@ describe('EditWorkspaceDialogContainer', () => {
       error: undefined,
     });
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={cy.stub()}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspaceWithCharging}
-        useUpdateWorkspace={() => ({
-          updateWorkspace: async (ns, params) => {
-            updatePayload = [ns, params];
-          },
-        })}
-      />,
-    );
+    mountEdit({
+      useGetWorkspace: fakeUseGetWorkspaceWithCharging,
+      useUpdateWorkspace: () => ({
+        updateWorkspace: async (ns, params) => {
+          updatePayload = [ns, params];
+        },
+        isLoading: false,
+      }),
+    });
 
     cy.get('#displayName').find('input[id*="inner"]').clear().type('Updated Name');
     cy.get('ui5-button').contains('Save').click();
@@ -110,6 +128,10 @@ describe('EditWorkspaceDialogContainer', () => {
           chargingTarget: '12345678-1234-1234-1234-123456789abc',
           chargingTargetType: 'btp',
           members: [{ name: 'admin@example.com', kind: 'User', roles: ['admin'] }],
+          supportServiceIds: '',
+          supportLandscape: '',
+          supportSecurityContacts: '',
+          supportOpsContacts: '',
         },
       ]);
     });
@@ -118,16 +140,7 @@ describe('EditWorkspaceDialogContainer', () => {
   it('saves without charging target — charging target is optional for workspaces', () => {
     const setIsOpen = cy.stub();
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ setIsOpen });
 
     // No charging target set — Save should still work
     cy.get('ui5-button').contains('Save').click();
@@ -137,16 +150,7 @@ describe('EditWorkspaceDialogContainer', () => {
   it('closes dialog on successful save', () => {
     const setIsOpen = cy.stub();
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ setIsOpen });
 
     cy.get('ui5-button').contains('Save').click();
     cy.wrap(setIsOpen).should('have.been.calledWith', false);
@@ -155,20 +159,15 @@ describe('EditWorkspaceDialogContainer', () => {
   it('does not close dialog when update fails and shows error', () => {
     const setIsOpen = cy.stub();
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
-        useUpdateWorkspace={() => ({
-          updateWorkspace: async () => {
-            throw new Error('Update failed');
-          },
-        })}
-      />,
-    );
+    mountEdit({
+      setIsOpen,
+      useUpdateWorkspace: () => ({
+        updateWorkspace: async () => {
+          throw new Error('Update failed');
+        },
+        isLoading: false,
+      }),
+    });
 
     cy.get('ui5-button').contains('Save').click();
     cy.wrap(setIsOpen).should('not.have.been.called');
@@ -182,16 +181,7 @@ describe('EditWorkspaceDialogContainer', () => {
       error: undefined,
     });
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={cy.stub()}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={loadingUseGetWorkspace}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ useGetWorkspace: loadingUseGetWorkspace });
 
     cy.get('ui5-busy-indicator').should('exist');
     cy.get('ui5-button').contains('Save').should('not.exist');
@@ -204,16 +194,7 @@ describe('EditWorkspaceDialogContainer', () => {
       error: new Error('Failed to load workspace'),
     });
 
-    cy.mount(
-      <EditWorkspaceDialogContainer
-        isOpen={true}
-        setIsOpen={cy.stub()}
-        workspaceName="existing-workspace"
-        namespace="project-test-project"
-        useGetWorkspace={errorUseGetWorkspace}
-        useUpdateWorkspace={fakeUseUpdateWorkspace}
-      />,
-    );
+    mountEdit({ useGetWorkspace: errorUseGetWorkspace });
 
     cy.contains('Failed to load workspace').should('exist');
   });

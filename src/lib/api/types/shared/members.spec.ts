@@ -80,5 +80,29 @@ describe('members', () => {
       const b = makeMember({ roles: ['Viewer', 'Admin'] });
       expect(areMembersEqual(a, b)).toBe(false);
     });
+
+    it('returns true when both providers are undefined (V1/default-provider members)', () => {
+      const a = makeMember({ provider: undefined });
+      const b = makeMember({ provider: undefined });
+      expect(areMembersEqual(a, b)).toBe(true);
+    });
+
+    it('returns true when providers are the same extra provider name', () => {
+      const a = makeMember({ provider: 'custom' });
+      const b = makeMember({ provider: 'custom' });
+      expect(areMembersEqual(a, b)).toBe(true);
+    });
+
+    it('returns false when providers differ', () => {
+      const a = makeMember({ provider: 'custom' });
+      const b = makeMember({ provider: 'other' });
+      expect(areMembersEqual(a, b)).toBe(false);
+    });
+
+    it('returns false when one member has a provider and the other does not', () => {
+      const a = makeMember({ provider: 'custom' });
+      const b = makeMember({ provider: undefined });
+      expect(areMembersEqual(a, b)).toBe(false);
+    });
   });
 });

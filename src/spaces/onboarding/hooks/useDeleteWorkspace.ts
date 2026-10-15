@@ -17,7 +17,9 @@ const DeleteWorkspaceMutation = graphql(`
 export function useDeleteWorkspace(projectNamespace: string, workspaceName: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceMutation);
+  const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceMutation, {
+    refetchQueries: ['GetWorkspaces'],
+  });
 
   const deleteWorkspace = useCallback(async (): Promise<void> => {
     try {

@@ -3,11 +3,8 @@ import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
 import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
+import { buildProjectAnnotations } from '../../../lib/api/types/shared/projectAnnotations';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
 import { CreateWorkspaceParams } from './useCreateWorkspace';
@@ -23,6 +20,7 @@ const UpdateWorkspaceMutation = graphql(`
       v1alpha1 {
         updateWorkspace(name: $name, namespace: $namespace, object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
             namespace
           }
@@ -39,9 +37,7 @@ function buildUpdateWorkspaceInput(namespace: string, params: CreateWorkspacePar
     metadata: {
       name: params.name,
       namespace,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',
@@ -61,7 +57,9 @@ function buildUpdateWorkspaceInput(namespace: string, params: CreateWorkspacePar
 export function useUpdateWorkspace() {
   const { t } = useTranslation();
   const toast = useToast();
-  const [updateWorkspaceMutation] = useMutation(UpdateWorkspaceMutation);
+  const [updateWorkspaceMutation, { loading: isLoading }] = useMutation(UpdateWorkspaceMutation, {
+    refetchQueries: ['GetWorkspaces', 'GetWorkspace'],
+  });
 
   const updateWorkspace = useCallback(
     async (namespace: string, params: CreateWorkspaceParams): Promise<void> => {
@@ -78,5 +76,5 @@ export function useUpdateWorkspace() {
     [updateWorkspaceMutation, toast, t],
   );
 
-  return { updateWorkspace };
+  return { updateWorkspace, isLoading };
 }

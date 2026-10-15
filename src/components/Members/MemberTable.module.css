@@ -1,0 +1,7 @@
+.groupTitle {
+  font-weight: bold;
+}
+
+.group:not(:last-child) {
+  margin-bottom: 2rem;
+}

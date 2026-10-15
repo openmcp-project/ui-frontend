@@ -14,15 +14,15 @@
 import { useSyncExternalStore } from 'react';
 
 interface TokenRefreshCoordinator {
-  registerRefreshFn: (fn: () => Promise<boolean>) => void;
-  refreshToken: () => Promise<boolean>;
+  registerRefreshFn: (fn: (force?: boolean) => Promise<boolean>) => void;
+  refreshToken: (force?: boolean) => Promise<boolean>;
   useIsRefreshInProgress: () => boolean;
 }
 
 export function createTokenRefreshCoordinator(lockName: string): TokenRefreshCoordinator {
   let isRefreshInProgress = false;
   let pendingRefresh: Promise<boolean> | null = null;
-  let registeredRefreshFn: (() => Promise<boolean>) | null = null;
+  let registeredRefreshFn: ((force?: boolean) => Promise<boolean>) | null = null;
 
   const listeners = new Set<() => void>();
 
@@ -35,40 +35,40 @@ export function createTokenRefreshCoordinator(lockName: string): TokenRefreshCoo
     return () => listeners.delete(listener);
   }
 
-  async function performRefresh(): Promise<boolean> {
+  async function performRefresh(force: boolean): Promise<boolean> {
     if (!registeredRefreshFn) return false;
 
     isRefreshInProgress = true;
     notifyListeners();
 
     try {
-      return await registeredRefreshFn();
+      return await registeredRefreshFn(force);
     } finally {
       isRefreshInProgress = false;
       notifyListeners();
     }
   }
 
-  async function acquireLockAndRefresh(): Promise<boolean> {
+  async function acquireLockAndRefresh(force: boolean): Promise<boolean> {
     if (!registeredRefreshFn) return false;
 
     // Fallback for browsers without Web Locks API
     if (!navigator.locks) {
-      return performRefresh();
+      return performRefresh(force);
     }
 
-    return await navigator.locks.request(lockName, performRefresh);
+    return await navigator.locks.request(lockName, () => performRefresh(force));
   }
 
-  function registerRefreshFn(fn: () => Promise<boolean>): void {
+  function registerRefreshFn(fn: (force?: boolean) => Promise<boolean>): void {
     registeredRefreshFn = fn;
   }
 
-  async function refreshToken(): Promise<boolean> {
+  async function refreshToken(force = false): Promise<boolean> {
     if (!registeredRefreshFn) return true;
 
     if (!pendingRefresh) {
-      pendingRefresh = acquireLockAndRefresh().finally(() => {
+      pendingRefresh = acquireLockAndRefresh(force).finally(() => {
         pendingRefresh = null;
       });
     }

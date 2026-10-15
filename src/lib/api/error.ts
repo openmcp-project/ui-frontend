@@ -33,6 +33,23 @@ export function isForbiddenError(error?: ErrorLike | APIError | null): boolean {
   return error?.message?.includes('is forbidden') ?? false;
 }
 
+/**
+ * True for an HTTP 401 — an Apollo network error, our REST `APIError`, or an
+ * Apollo error whose message carries the status code (e.g. "Received status
+ * code 401"). Used as a backstop so a stray 401 redirects to sign-in instead
+ * of rendering a dead-end error screen.
+ */
+export function isUnauthorizedError(error?: ErrorLike | APIError | null): boolean {
+  if (hasHttpStatus(error, 401)) return true;
+  return /(status code|statuscode)\s*401\b/i.test(error?.message ?? '');
+}
+
+export function extractErrorMessage(e: unknown): string {
+  if (e instanceof APIError) return `${e.message}: ${JSON.stringify(e.info)}`;
+  if (e instanceof Error) return e.message;
+  return String(e);
+}
+
 function hasHttpStatus(error: ErrorLike | APIError | null | undefined, ...codes: number[]): boolean {
   if (error instanceof APIError) {
     return codes.includes(error.status);

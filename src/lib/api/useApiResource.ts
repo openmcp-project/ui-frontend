@@ -44,9 +44,8 @@ export const useApiResource = <T>(
 
 export const useCRDItemsMapping = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
-  // key shape must match across hooks — see issue #653
   const { data, error, isValidating, isLoading } = useSWR(
-    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig, undefined],
+    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     config,
@@ -76,12 +75,10 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
 
 export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
-  const telemetry = useTelemetry();
-  // key shape must match across hooks — see issue #653
   const { data, error, isValidating } = useSWR(
     CRDRequest.path === null
       ? null //TODO: is null a valid key?
-      : [CRDRequest.path, apiConfig, undefined],
+      : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     config,
@@ -114,51 +111,62 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
     });
   }
 
-  const fetchProviderConfigs = async () => {
-    try {
-      // Create an array of promises for each fetch call
-      const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
-        const data = await fetchApiServerJson<ProviderConfigs>(
-          `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
-          apiConfig,
-          CRDRequest.jq,
-          CRDRequest.method,
-          CRDRequest.body,
-        );
-        data.provider = item.provider;
-        return data; // Return fetched data
-      });
+  const fetchProviderConfigsData = async () => {
+    const promises = providerConfigsDataForRequest.map(async (item) => {
+      const data = await fetchApiServerJson<ProviderConfigs>(
+        `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+        apiConfig,
+        CRDRequest.jq,
+        CRDRequest.method,
+        CRDRequest.body,
+      );
+      if (data) {
+        providerConfigs.push(data);
+      }
+    });
 
-      // Wait for all fetch operations to complete
-      const providerConfigs = await Promise.all(fetchPromises);
-
-      // Filter out any null/undefined values and return the valid data
-      return providerConfigs.filter((config) => config !== null);
-    } catch (error) {
-      console.error('Error fetching provider configs:', error);
-      telemetry.report(error, {
-        message: 'Failed to fetch provider configs',
-        context: { requestCount: providerConfigsDataForRequest.length },
-      });
-      return []; // Return an empty array in case of error
-    }
+    await Promise.all(promises);
   };
+
+  const providerConfigs: ProviderConfigs[] = [];
+
+  const fetchProviderConfigs = async () => {
+    const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
+      const data = await fetchApiServerJson<ProviderConfigs>(
+        `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+        apiConfig,
+        CRDRequest.jq,
+        CRDRequest.method,
+        CRDRequest.body,
+      );
+      data.provider = item.provider;
+      return data;
+    });
+
+    const providerConfigs = await Promise.all(fetchPromises);
+    return providerConfigs.filter((config) => config !== null);
+  };
+
   const [configs, setConfigs] = useState<ProviderConfigs[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<APIError | null>(null);
   const initialLoaded = useRef(false);
 
   useEffect(() => {
     const fetchDataAndUpdateState = async () => {
       if (!initialLoaded.current) setIsLoading(true);
       try {
+        await fetchProviderConfigsData();
         const finalData = await fetchProviderConfigs();
 
         setConfigs(finalData);
+        setFetchError(null);
         if (!initialLoaded.current) {
           setIsLoading(false);
           initialLoaded.current = true;
         }
-      } catch (_) {
+      } catch (err) {
+        setFetchError(err as APIError);
         setIsLoading(false);
       }
     };
@@ -169,7 +177,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
 
   return {
     data: configs,
-    error: error as APIError,
+    error: (error ?? fetchError) as APIError,
     isLoading: isLoading,
     isValidating: isValidating,
   };
@@ -214,11 +222,10 @@ export function useRevalidateApiResource<T>(resource: Resource<T>) {
   const apiConfig = useContext(ApiConfigContext);
 
   const onRevalidate = (options?: MutatorOptions) => {
-    // key shape must match across hooks — see issue #653
     return mutate(
       resource.path === null
         ? null //TODO: is null a valid key?
-        : [resource.path, apiConfig, undefined],
+        : [resource.path, apiConfig],
       undefined,
       options,
     );
@@ -252,11 +259,6 @@ export function useMultipleApiResources<T>(
         const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
       } catch (err) {
-        console.error('Error fetching multiple resources:', err);
-        telemetry.report(err, {
-          message: 'Failed to fetch multiple resources',
-          context: { namespacesCount: namespaces.length },
-        });
         setError(err as Error);
         setData([]);
       } finally {

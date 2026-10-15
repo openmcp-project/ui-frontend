@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { GET_ESO_QUERY } from '../../controlPlaneV2/components/Kpi/useEsoQuery.ts';
 
 const DeleteEsoMutation = graphql(`
   mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {
@@ -13,13 +14,14 @@ const DeleteEsoMutation = graphql(`
 `);
 
 export function useDeleteEso() {
-  const [deleteMutation, { loading, error }] = useMutation(DeleteEsoMutation, {
-    refetchQueries: ['GetExternalSecretsOperator'],
-  });
+  const [deleteMutation, { loading, error }] = useMutation(DeleteEsoMutation);
 
   const deleteEso = useCallback(
     async (variables: { namespace: string; name: string }) => {
-      return deleteMutation({ variables });
+      return deleteMutation({
+        variables,
+        refetchQueries: [{ query: GET_ESO_QUERY, variables: { name: variables.name, namespace: variables.namespace } }],
+      });
     },
     [deleteMutation],
   );

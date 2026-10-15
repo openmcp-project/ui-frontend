@@ -26,17 +26,17 @@ describe('ViewModeContext', () => {
     vi.restoreAllMocks();
   });
 
-  it('defaults to beginner mode when nothing is stored', () => {
+  it('defaults to open-source mode when nothing is stored and headlamp is enabled', () => {
     mockConfig(true);
     const { result } = renderHook(() => useViewMode(), { wrapper });
-    expect(result.current.mode).toBe('beginner');
+    expect(result.current.mode).toBe('open-source');
   });
 
-  it('falls back to beginner mode for any unknown stored value', () => {
+  it('falls back to open-source mode for any unknown stored value when headlamp is enabled', () => {
     mockConfig(true);
     localStorage.setItem('mcp-ui-view-mode', 'some-unknown-value');
     const { result } = renderHook(() => useViewMode(), { wrapper });
-    expect(result.current.mode).toBe('beginner');
+    expect(result.current.mode).toBe('open-source');
   });
 
   it('restores open-source mode from localStorage when headlamp is enabled', () => {

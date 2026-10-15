@@ -1,0 +1,44 @@
+.shimmer {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.titleBar {
+  composes: shimmer;
+  width: 60%;
+  height: 0.9375rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitleBar {
+  composes: shimmer;
+  width: 40%;
+  height: 0.6875rem;
+}
+
+.statusCircle {
+  composes: shimmer;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+}
+
+.footerBar {
+  composes: shimmer;
+  width: 50%;
+  height: 0.75rem;
+}
+
+.buttonBar {
+  composes: shimmer;
+  width: 80px;
+  height: 2rem;
+  border-radius: 0.5rem;
+}
