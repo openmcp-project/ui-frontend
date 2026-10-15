@@ -19,8 +19,10 @@ export const useApiResource = <T>(
 ) => {
   const apiConfig = useContext(ApiConfigContext);
 
+  // jq is part of the key: the same path with a different jq returns a
+  // different shape, so those requests must not share a cache entry.
   const { data, error, isLoading, isValidating } = useSWR(
-    disable || resource.path === null ? null : [resource.path, apiConfig, overrideMcpConfig],
+    disable || resource.path === null ? null : [resource.path, apiConfig, overrideMcpConfig, resource.jq],
     ([path, apiConfig, overrideMcpConfig]) =>
       fetchApiServerJson<T>(
         path,
@@ -44,8 +46,9 @@ export const useApiResource = <T>(
 
 export const useCRDItemsMapping = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
+  // key shape must match useApiResource (incl. jq) — see issue #653
   const { data, error, isValidating, isLoading } = useSWR(
-    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
+    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig, undefined, CRDRequest.jq],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     config,
@@ -75,10 +78,11 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
 
 export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
+  // key shape must match useApiResource (incl. jq) — see issue #653
   const { data, error, isValidating } = useSWR(
     CRDRequest.path === null
       ? null //TODO: is null a valid key?
-      : [CRDRequest.path, apiConfig],
+      : [CRDRequest.path, apiConfig, undefined, CRDRequest.jq],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     config,
@@ -86,7 +90,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
 
-  const crdWithProviderConfig = data?.items.filter((x) => x.spec.names.kind === 'ProviderConfig');
+  const crdWithProviderConfig = data?.items?.filter((x) => x.spec.names.kind === 'ProviderConfig');
 
   const providerConfigsData: ProviderConfigsData[] =
     crdWithProviderConfig?.map((item) => {
@@ -110,25 +114,6 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       });
     });
   }
-
-  const fetchProviderConfigsData = async () => {
-    const promises = providerConfigsDataForRequest.map(async (item) => {
-      const data = await fetchApiServerJson<ProviderConfigs>(
-        `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
-        apiConfig,
-        CRDRequest.jq,
-        CRDRequest.method,
-        CRDRequest.body,
-      );
-      if (data) {
-        providerConfigs.push(data);
-      }
-    });
-
-    await Promise.all(promises);
-  };
-
-  const providerConfigs: ProviderConfigs[] = [];
 
   const fetchProviderConfigs = async () => {
     const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
@@ -156,7 +141,6 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
     const fetchDataAndUpdateState = async () => {
       if (!initialLoaded.current) setIsLoading(true);
       try {
-        await fetchProviderConfigsData();
         const finalData = await fetchProviderConfigs();
 
         setConfigs(finalData);
@@ -224,10 +208,11 @@ export function useRevalidateApiResource<T>(resource: Resource<T>) {
   const apiConfig = useContext(ApiConfigContext);
 
   const onRevalidate = (options?: MutatorOptions) => {
+    // key shape must match useApiResource (incl. jq) — see issue #653
     return mutate(
       resource.path === null
         ? null //TODO: is null a valid key?
-        : [resource.path, apiConfig],
+        : [resource.path, apiConfig, undefined, resource.jq],
       undefined,
       options,
     );
