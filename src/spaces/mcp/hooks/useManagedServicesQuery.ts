@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client/react';
 
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
 import type { GetManagedServicesQuery } from '../../../types/__generated__/graphql/graphql.ts';
+import { sortVersions } from '../../../utils/componentsVersions.ts';
 
 export const GET_MANAGED_SERVICES_QUERY = graphql(`
   query GetManagedServices {
@@ -65,7 +66,7 @@ function notNull<T>(value: T | null | undefined): value is T {
 }
 
 function mapVersions(versions: ({ version: string | null } | null)[] | null | undefined): { version: string }[] {
-  return (versions ?? []).filter(notNull).map((v) => ({ version: v.version ?? '' }));
+  return sortVersions((versions ?? []).filter(notNull).map((v) => v.version ?? '')).map((version) => ({ version }));
 }
 
 export function useManagedServicesQuery(): UseManagedServicesQueryResult {
