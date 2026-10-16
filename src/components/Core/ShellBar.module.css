@@ -43,3 +43,27 @@
   color: var(--sapTextColor);
   white-space: nowrap;
 }
+
+/* Upload YAML button: icon-only by default, label slides in on hover/focus */
+.uploadYamlButton {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.uploadYamlButton .uploadYamlText {
+  display: inline-block;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.uploadYamlButton.uploadYamlCollapsed .uploadYamlText {
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+}
+
+.uploadYamlButton.uploadYamlExpanded .uploadYamlText {
+  max-width: 500px;
+  opacity: 1;
+  margin-left: 0.5rem;
+}

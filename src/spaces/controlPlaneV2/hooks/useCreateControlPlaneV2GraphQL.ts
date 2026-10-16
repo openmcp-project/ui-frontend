@@ -6,7 +6,7 @@ import { buildMcpV2GraphQLInput } from '../helpers/controlPlaneV2GraphQLInput.ts
 import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schema.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
-const CreateManagedControlPlaneV2Mutation = graphql(`
+export const CreateManagedControlPlaneV2Mutation = graphql(`
   mutation CreateManagedControlPlaneV2(
     $namespace: String
     $object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input!

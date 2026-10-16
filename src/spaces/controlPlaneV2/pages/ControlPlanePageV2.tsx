@@ -81,6 +81,7 @@ import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
 import { useOcmYamlQuery } from '../../mcp/hooks/useOcmYamlQuery.ts';
 import { useKroYamlQuery } from '../../mcp/hooks/useKroYamlQuery.ts';
 import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
+import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 
 type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
 
@@ -514,6 +515,7 @@ export default function ControlPlanePageV2() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
+              <McpDragDropRegistrar name={controlPlaneName} />
               <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}
@@ -542,6 +544,7 @@ export default function ControlPlanePageV2() {
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
             <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

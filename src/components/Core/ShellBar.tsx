@@ -5,7 +5,7 @@ import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/source-code';
+import '@ui5/webcomponents-icons/dist/upload';
 import {
   Avatar,
   Button,
@@ -35,6 +35,7 @@ import { Routes } from '../../Routes.ts';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
+import { useYamlApply } from '../../context/YamlApplyContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -106,6 +107,7 @@ export function ShellBarComponent({
               </div>
             )}
             <KubeconfigShellBarButton />
+            <UploadYamlShellBarButton />
             {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
               <div className={styles.switchWrapper}>
@@ -362,3 +364,40 @@ const ProfilePopover = ({
     </>
   );
 };
+
+function UploadYamlShellBarButton() {
+  const { requestApplyFiles } = useYamlApply();
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".yaml,.yml"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          if (files.length > 0) requestApplyFiles(files);
+          e.target.value = '';
+        }}
+      />
+      <Button
+        className={`${styles.uploadYamlButton} ${expanded ? styles.uploadYamlExpanded : styles.uploadYamlCollapsed}`}
+        design="Transparent"
+        icon="upload"
+        tooltip={t('yamlApply.uploadButton')}
+        onBlur={() => setExpanded(false)}
+        onClick={() => inputRef.current?.click()}
+        onFocus={() => setExpanded(true)}
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
+      >
+        <span className={styles.uploadYamlText}>{t('yamlApply.uploadButtonShort')}</span>
+      </Button>
+    </>
+  );
+}

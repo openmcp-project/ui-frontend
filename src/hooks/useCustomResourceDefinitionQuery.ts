@@ -16,6 +16,8 @@ export interface UseCustomResourceDefinitionQueryResult {
   schema: ReturnType<typeof openapiSchemaToJsonSchema> | undefined;
   crdData: CustomResourceDefinition | undefined;
   isLoading: boolean;
+  isResolvingKind: boolean;
+  isLoadingSchema: boolean;
   error: APIError | undefined;
 }
 
@@ -58,6 +60,8 @@ export function useCustomResourceDefinitionQuery({
     schema,
     crdData,
     isLoading: isLoading || isGetPluralNameLoading,
+    isResolvingKind: isGetPluralNameLoading,
+    isLoadingSchema: isLoading,
     error,
   };
 }
