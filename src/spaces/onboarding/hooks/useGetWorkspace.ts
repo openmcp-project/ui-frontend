@@ -8,7 +8,7 @@ import { Member } from '../../../lib/api/types/shared/members';
 import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
 
-const GetWorkspaceQuery = graphql(`
+export const GetWorkspaceQuery = graphql(`
   query GetWorkspace($name: String!, $namespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {
