@@ -34,7 +34,7 @@ import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchema
 import { useResourcePluralNames as _useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
-import { useTelemetry } from '../../lib/telemetry/telemetry';
+import { useTelemetry as _useTelemetry } from '../../lib/telemetry/telemetry';
 import type { YamlApplyErrorType, YamlApplyTarget, YamlUploadMethod } from '../../lib/telemetry/features';
 import { bucketCount, sanitizeKind } from '../../lib/telemetry/yamlApplyHelpers';
 import {
@@ -69,6 +69,8 @@ interface Props {
   openMethod?: YamlUploadMethod;
   /** Injectable for tests. */
   useResourcePluralNames?: typeof _useResourcePluralNames;
+  /** Injectable for tests. */
+  useTelemetry?: typeof _useTelemetry;
 }
 
 export function YamlApplyDialog(props: Props) {
@@ -98,6 +100,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   isExternalDragActive,
   openMethod = 'file-picker',
   useResourcePluralNames = _useResourcePluralNames,
+  useTelemetry = _useTelemetry,
   apiConfig,
 }) => {
   const { t } = useTranslation();
@@ -243,6 +246,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setPhase('editing');
       if (!hasTrackedOpen.current) {
         hasTrackedOpen.current = true;
+        // Fires only on a clean initial parse — it is the "upload succeeded" signal, not a raw
+        // "dialog opened" count. Success rate = dialog-opened / (dialog-opened + parse-error).
         telemetry.track({
           category: 'yaml-apply',
           action: 'dialog-opened',
@@ -537,6 +542,9 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             delete next[ids[i]];
             return next;
           });
+          // One event per resource (not per "Apply All" click). resource-applied counts
+          // resources; use dialog-closed for action/session-level metrics. `source` separates
+          // this batch path from single applies.
           telemetry.track({
             category: 'yaml-apply',
             action: 'resource-applied',

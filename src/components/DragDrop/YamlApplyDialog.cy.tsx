@@ -149,3 +149,72 @@ describe('YamlApplyDialog — parse errors', () => {
     cy.contains('Only .yaml and .yml files are supported').should('be.visible');
   });
 });
+
+describe('YamlApplyDialog — telemetry', () => {
+  const mountWithTelemetry = (props: Partial<ComponentProps<typeof YamlApplyDialog>>) => {
+    const track = cy.stub().as('track');
+    const fakeTelemetry = { track, report: cy.stub(), breadcrumb: cy.stub(), identify: cy.stub() };
+    return mountDialog({ ...props, useTelemetry: () => fakeTelemetry });
+  };
+
+  it('tracks dialog-opened with method, target and bucketed resource count on a clean parse', () => {
+    mountWithTelemetry({
+      files: [yamlFile('a.yaml', 'ConfigMap', 'cm-a'), yamlFile('b.yaml', 'Secret', 'sec-b')],
+      openMethod: 'drag-and-drop',
+    });
+
+    cy.get('@track').should('have.been.calledWithMatch', {
+      category: 'yaml-apply',
+      action: 'dialog-opened',
+      method: 'drag-and-drop',
+      target: 'onboarding',
+      resourceCount: '2',
+    });
+  });
+
+  it('tracks parse-error with the error category and no dialog-opened', () => {
+    mountWithTelemetry({ files: [new File(['anything'], 'notes.txt', { type: 'application/yaml' })] });
+
+    cy.get('@track').should('have.been.calledWithMatch', {
+      category: 'yaml-apply',
+      action: 'parse-error',
+      errorType: 'wrong-file-type',
+    });
+    cy.get('@track').should('not.have.been.calledWithMatch', { action: 'dialog-opened' });
+  });
+
+  it('tracks resource-removed with a sanitized kind (unknown kinds become "custom")', () => {
+    mountWithTelemetry({
+      files: [yamlFile('a.yaml', 'AcmeInternalThing', 'a'), yamlFile('b.yaml', 'ConfigMap', 'cm-b')],
+    });
+
+    cy.get('[data-testid="yaml-apply-item-1"]').should('be.visible');
+    cy.get('[data-testid="yaml-apply-remove-0"]').click();
+
+    cy.get('@track').should('have.been.calledWithMatch', {
+      category: 'yaml-apply',
+      action: 'resource-removed',
+      kind: 'custom',
+    });
+  });
+
+  it('tracks add-files-error with errorType "duplicate" and the file-picker method', () => {
+    mountWithTelemetry({ files: [yamlFile('a.yaml', 'ConfigMap', 'cm-a')] });
+
+    cy.get('[data-testid="yaml-apply-item-0"]').should('be.visible');
+    cy.get('[data-testid="yaml-apply-add-input"]').selectFile(
+      {
+        contents: Cypress.Buffer.from('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: cm-a\n'),
+        fileName: 'dup.yaml',
+      },
+      { force: true },
+    );
+
+    cy.get('@track').should('have.been.calledWithMatch', {
+      category: 'yaml-apply',
+      action: 'add-files-error',
+      errorType: 'duplicate',
+      method: 'file-picker',
+    });
+  });
+});
