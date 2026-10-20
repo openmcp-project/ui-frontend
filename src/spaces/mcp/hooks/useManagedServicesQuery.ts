@@ -66,7 +66,12 @@ function notNull<T>(value: T | null | undefined): value is T {
 }
 
 function mapVersions(versions: ({ version: string | null } | null)[] | null | undefined): { version: string }[] {
-  return sortVersions((versions ?? []).filter(notNull).map((v) => v.version ?? '')).map((version) => ({ version }));
+  return sortVersions(
+    (versions ?? [])
+      .filter(notNull)
+      .map((v) => v.version)
+      .filter((v): v is string => v !== null && v !== ''),
+  ).map((version) => ({ version }));
 }
 
 export function useManagedServicesQuery(): UseManagedServicesQueryResult {

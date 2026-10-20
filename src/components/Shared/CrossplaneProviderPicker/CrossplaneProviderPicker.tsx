@@ -1,4 +1,5 @@
 import { CheckBox, FlexBox, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import styles from './CrossplaneProviderPicker.module.css';
@@ -27,7 +28,7 @@ export function CrossplaneProviderPicker({
   getError,
 }: CrossplaneProviderPickerProps) {
   const { t } = useTranslation();
-  const sortedProviders = providers.toSorted((a, b) => a.name.localeCompare(b.name));
+  const sortedProviders = useMemo(() => providers.toSorted((a, b) => a.name.localeCompare(b.name)), [providers]);
 
   return (
     <div className={styles.providerList}>

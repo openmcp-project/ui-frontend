@@ -2,6 +2,12 @@ import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { CrossplaneProviderPicker } from './CrossplaneProviderPicker.tsx';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 describe('CrossplaneProviderPicker', () => {
   it('renders providers alphabetically without mutating their input order', () => {
     const names = ['provider-kubernetes', 'provider-btp', 'provider-helm'];

@@ -46,9 +46,10 @@ export const sortVersions = (versions: string[]): string[] => {
     const aParts = parseManagedServiceVersion(a);
     const bParts = parseManagedServiceVersion(b);
 
-    // If either version is not in the expected format, fallback to string comparison (reverse order)
+    // Parseable versions before non-parseable; among non-parseable use localeCompare (both fallbacks are transitive)
     if (!aParts || !bParts) {
-      return b.localeCompare(a);
+      if (!aParts && !bParts) return b.localeCompare(a);
+      return !aParts ? 1 : -1;
     }
 
     return compareParsedVersions(bParts, aParts);
