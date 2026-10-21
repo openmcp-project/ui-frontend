@@ -46,3 +46,10 @@
   display: block;
   margin-bottom: 0.5rem;
 }
+
+.updateIcon {
+  flex-shrink: 0;
+  color: var(--sapInformativeColor, #0070f2);
+  --sapContent_IconColor: var(--sapInformativeColor, #0070f2);
+  font-size: 0.875rem;
+}

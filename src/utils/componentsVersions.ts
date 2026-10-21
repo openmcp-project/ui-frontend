@@ -40,6 +40,19 @@ export const getHighestVersion = (versions: string[]): string | undefined => {
   return versions[highestIndex];
 };
 
+export type VersionDiff = 'major' | 'minor' | 'patch';
+
+/** Returns the type of version bump from `selected` to `latest`, or null if selected is already
+ *  up-to-date (or versions can't be parsed). */
+export const getVersionDiff = (selected: string, latest: string): VersionDiff | null => {
+  const a = parseManagedServiceVersion(selected);
+  const b = parseManagedServiceVersion(latest);
+  if (!a || !b || compareParsedVersions(a, b) >= 0) return null;
+  if (a.major !== b.major) return 'major';
+  if (a.minor !== b.minor) return 'minor';
+  return 'patch';
+};
+
 // Sorts latest first, including optional "v" prefixes and numeric build suffixes.
 export const sortVersions = (versions: string[]): string[] => {
   return versions.slice().sort((a, b) => {

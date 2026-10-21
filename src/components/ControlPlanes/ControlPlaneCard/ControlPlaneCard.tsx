@@ -5,6 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/arrow-top.js';
 import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
@@ -41,6 +42,8 @@ import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarVi
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
+import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { getVersionDiff } from '../../../utils/componentsVersions.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -73,7 +76,19 @@ interface ComponentInfo {
   installed: boolean;
   /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
   phase?: string | null;
+  /** V2 only: whether a newer catalog version is available for the installed version. */
+  hasUpdate?: boolean;
 }
+
+/** Maps McpV2Components keys to ManagedService catalog names. */
+const SERVICE_CATALOG_NAME: Record<string, string> = {
+  crossplane: 'crossplane',
+  flux: 'flux',
+  landscaper: 'landscaper',
+  externalSecretsOperator: 'external-secrets-operator',
+  ocm: 'ocm',
+  kro: 'kro',
+};
 
 export const ControlPlaneCard = ({
   controlPlane,
@@ -85,6 +100,7 @@ export const ControlPlaneCard = ({
   isLoadingV2Components = false,
 }: Props) => {
   const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
+  const { services: catalogServices } = useManagedServicesQuery();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
@@ -130,6 +146,13 @@ export const ControlPlaneCard = ({
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
+    const hasUpdate = (componentKey: string, componentStatus: { version?: string | null } | undefined) => {
+      if (!componentStatus?.version) return false;
+      const catalogName = SERVICE_CATALOG_NAME[componentKey];
+      const latestVersion = catalogServices.find((s) => s.name === catalogName)?.versions[0]?.version;
+      return !!latestVersion && !!getVersionDiff(componentStatus.version, latestVersion);
+    };
+
     if (isV2) {
       return [
         {
@@ -137,8 +160,15 @@ export const ControlPlaneCard = ({
           logo: LogoCrossplane,
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
+          hasUpdate: hasUpdate('crossplane', mcpV2Components?.crossplane),
         },
-        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
+        {
+          name: 'Flux',
+          logo: LogoFlux,
+          installed: !!mcpV2Components?.flux,
+          phase: mcpV2Components?.flux?.phase,
+          hasUpdate: hasUpdate('flux', mcpV2Components?.flux),
+        },
         ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
               {
@@ -146,6 +176,7 @@ export const ControlPlaneCard = ({
                 logo: LogoLandscaper,
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
+                hasUpdate: hasUpdate('landscaper', mcpV2Components?.landscaper),
               },
             ]
           : []),
@@ -154,9 +185,22 @@ export const ControlPlaneCard = ({
           logo: LogoEso,
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
+          hasUpdate: hasUpdate('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
         },
-        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm, phase: mcpV2Components?.ocm?.phase },
-        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro, phase: mcpV2Components?.kro?.phase },
+        {
+          name: 'OCM',
+          logo: LogoOcm,
+          installed: !!mcpV2Components?.ocm,
+          phase: mcpV2Components?.ocm?.phase,
+          hasUpdate: hasUpdate('ocm', mcpV2Components?.ocm),
+        },
+        {
+          name: 'KRO',
+          logo: LogoKro,
+          installed: !!mcpV2Components?.kro,
+          phase: mcpV2Components?.kro?.phase,
+          hasUpdate: hasUpdate('kro', mcpV2Components?.kro),
+        },
       ];
     }
     return [
@@ -168,7 +212,7 @@ export const ControlPlaneCard = ({
       { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
       { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
     ];
-  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
+  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard, catalogServices]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
@@ -262,6 +306,14 @@ export const ControlPlaneCard = ({
                                     ? 'ControlPlaneCard.serviceReady'
                                     : 'ControlPlaneCard.serviceUnknown',
                             )}
+                            showTooltip
+                          />
+                        )}
+                        {component.hasUpdate && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
+                          <Icon
+                            name="arrow-top"
+                            className={styles.updateBadge}
+                            accessibleName={t('ControlPlaneCard.updatesAvailable')}
                             showTooltip
                           />
                         )}

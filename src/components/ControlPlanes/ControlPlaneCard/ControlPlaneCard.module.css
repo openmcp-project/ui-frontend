@@ -176,6 +176,24 @@
   --sapContent_IconColor: var(--sapNeutralColor, #788fa6);
 }
 
+/* Update available (top-right badge, informative blue). */
+.updateBadge {
+  position: absolute;
+  right: -0.125rem;
+  top: -0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0.0625rem;
+  border-radius: 50%;
+  background: var(--sapBaseColor, #ffffff);
+  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sapInformativeColor, #0070f2);
+  --sapContent_IconColor: var(--sapInformativeColor, #0070f2);
+}
+
 .addComponentPlaceholder {
   box-sizing: border-box;
   appearance: none;
