@@ -49,7 +49,7 @@ The app runs standalone *and* embedded in SAP's Hyperspace Portal (Luigi micro-f
 | # | Item | Covered by |
 |---|---|---|
 | AC-1 | App name configurable (browser tab + ShellBar header) | `branding.appName`, client-side `document.title` |
-| AC-2 | Logo & hero image replaceable | `branding.logoUrl` / `heroImageUrl` + mounted asset dir |
+| AC-2 | Logo & hero image replaceable | `branding.logo` / `heroImage` as Base64 data URIs in config |
 | AC-3 | Favicon replaceable | Operator overrides files in the static root (no code) |
 | AC-4 | Documentation links configurable | Route through existing `documentationBaseUrl` |
 | AC-5 | Feedback link configurable | `feedbackUrl` (hidden when unset) |
@@ -81,8 +81,8 @@ Brand-sensitive surfaces, in journey order:
 
 | Asset | Format | Current default | Replace via |
 |---|---|---|---|
-| ShellBar logo | SVG (≤32px tall) | `src/assets/images/sap-logo.svg` | `branding.logoUrl` → mounted asset |
-| Sign-in hero | SVG/PNG (~280px wide) | `co-logo-orchestrating.png` | `branding.heroImageUrl` → mounted asset |
+| ShellBar logo | SVG (≤32px tall) | `src/assets/images/sap-logo.svg` | `branding.logo` — Base64 data URI in config |
+| Sign-in hero | SVG/PNG (~280px wide) | `co-logo-orchestrating.png` | `branding.heroImage` — Base64 data URI in config |
 | Favicon set | ico/svg/png | `public/favicon/*` | Overwrite files in static root |
 | Funding logo | PNG | `splash/BMWK-EU.png` | Hidden unless `showFundingLogo` |
 
@@ -100,9 +100,9 @@ SVG logo preferred (crisp in light + Horizon dark themes). Colors elsewhere use 
 
 | File | Line | Value | Fix |
 |---|---|---|---|
-| `src/components/Core/ShellBar.tsx` | 77 | `sap-logo.svg` | `branding.logoUrl`, neutral placeholder fallback |
+| `src/components/Core/ShellBar.tsx` | 77 | `sap-logo.svg` | `branding.logo` (data URI), neutral placeholder fallback |
 | `src/components/Core/ShellBar.tsx` | 78 | `'OpenControlPlane UI'` | `branding.appName` |
-| `src/spaces/onboarding/pages/SignInPage/SignInPage.tsx` | 38 | `co-logo-orchestrating.png` | `branding.heroImageUrl`, placeholder fallback |
+| `src/spaces/onboarding/pages/SignInPage/SignInPage.tsx` | 38 | `co-logo-orchestrating.png` | `branding.heroImage` (data URI), fallback to bundled OCP image |
 | `src/spaces/onboarding/pages/SignInPage/SignInPage.tsx` | 54 | BMWK-EU logo | show only if `branding.showFundingLogo` |
 | `src/lib/shared/useLink.ts` | 17 | `https://open-control-plane.io/operators/...` | route through `documentationBaseUrl` |
 | `src/views/ProjectList.tsx` | 11 | `https://open-control-plane.io/users/...` | route through `documentationBaseUrl` |
@@ -129,8 +129,8 @@ SVG logo preferred (crisp in light + Horizon dark themes). Colors elsewhere use 
   "branding": {
     "appName": "Control Plane UI",
     "portalName": "the portal",
-    "logoUrl": null,
-    "heroImageUrl": null,
+    "logo": null,
+    "heroImage": null,
     "showFundingLogo": false
   },
   "featureToggles": {
@@ -145,13 +145,13 @@ SVG logo preferred (crisp in light + Horizon dark themes). Colors elsewhere use 
 **Zod schema (in `FrontendConfigContext.tsx`), all optional with defaults** so existing deployments keep working unchanged:
 
 ```ts
-// Use z.string() (NOT .url()) for asset fields: the CSP permits same-origin
-// relative paths ("/brand/logo.svg") and data: URIs, which .url() rejects.
+// Use z.string() (NOT .url()): data: URIs are not valid per the URL spec,
+// so .url() would reject them. z.string() is correct here.
 branding: z.object({
-  appName:    z.string().default('Control Plane UI'),
-  portalName: z.string().default('the portal'),
-  logoUrl:    z.string().nullable().default(null),
-  heroImageUrl: z.string().nullable().default(null),
+  appName:         z.string().default('Control Plane UI'),
+  portalName:      z.string().default('the portal'),
+  logo:            z.string().nullable().default(null), // data URI: "data:image/svg+xml;base64,…"
+  heroImage:       z.string().nullable().default(null), // data URI: "data:image/png;base64,…"
   showFundingLogo: z.boolean().default(false),
 }).default({}),
 feedbackUrl: z.string().url().nullable().default(null),
@@ -159,20 +159,30 @@ feedbackUrl: z.string().url().nullable().default(null),
 
 Alt text derives from `appName` — no separate alt fields.
 
-### Brand assets — reuse the existing copy-at-startup pattern
+### Brand assets — inline Base64 data URIs in config
 
-The server already copies a config file from an env-specified path into the served directory ([`server.ts:35-39`](../server.ts#L35-L39)). Do the same for a brand-asset **directory** — one new env var, a few lines, **no new Fastify plugin and no CSP change** (assets land in the existing same-origin static root):
+Logo and hero image are stored **directly in `frontend-config.json`** as Base64-encoded data URI strings:
 
-```ts
-// server.ts — next to the FRONTEND_CONFIG_PATH copy
-if (process.env.BRAND_ASSETS_PATH) {
-  cpSync(process.env.BRAND_ASSETS_PATH, join(frontendDir, 'brand'), { recursive: true });
-}
+```
+"logo":      "data:image/svg+xml;base64,PHN2ZyB4bWxucz0i…"
+"heroImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg…"
 ```
 
-Config then references `"/brand/logo.svg"`, `"/brand/hero.png"`. A `data:` URI works too for a one-off small asset. **Favicons:** operators overwrite the files already served at `/favicon/*` (mount over them, or drop replacements into the brand copy) — no code change.
+**Why this works here:**
+- The CSP already allows `img-src 'self' data:` — no change needed.
+- The `<img src={logo}>` attribute accepts data URIs natively.
+- Zero extra files, zero file mounts, zero new env vars, zero server changes for assets. One config file contains everything.
+- Consistent with `FRONTEND_CONFIG_PATH` — operators already supply one file per environment.
 
-**Fallback:** `<img onError>` swaps to a neutral `BrandLogoPlaceholder` (monogram from `appName`) when the asset is null or 404s. Serve `/brand/*` and `frontend-config.json` with `no-cache` so branding changes propagate (the existing `1y immutable` caching applies only to content-hashed `/assets/`).
+**How to encode:** `base64 -i logo.svg` on Linux/macOS, then prepend `data:image/svg+xml;base64,`. Tools like [base64encode.org](https://www.base64encode.org) work too for one-offs.
+
+**JSON size:** a typical SVG logo encodes to ~1–5 KB; a PNG hero at 280px wide to ~10–30 KB. Acceptable in a config file loaded once per session.
+
+**Fallback:** when `logo` is `null` (or fails), render the neutral `BrandLogoPlaceholder` monogram — never the SAP logo (Legal). Null `heroImage` falls back to the bundled OCP hero.
+
+**Favicons** are a special case — they are referenced in the static `index.html` before JS loads and cannot be data-URI'd from config. Favicon replacement remains a file-level concern: operators drop replacement files into the server's static `/favicon/` directory (same-origin, no code change). This is optional — the default OCP favicons are acceptable for most deployments.
+
+> **No-cache:** `frontend-config.json` must be served with `Cache-Control: no-cache` so a branding update is picked up on the next page load. This applies regardless of the asset mechanism.
 
 ### App name in the browser tab — client-side
 
@@ -187,35 +197,35 @@ The client already holds the config in `FrontendConfigContext`. Set `document.ti
 ## Work Breakdown
 
 ### Phase 1 — Config + non-visual plumbing (small, low-risk)
-1. Extend Zod schema: `branding` + `feedbackUrl` (all optional, defaulted).
+1. Extend Zod schema: `branding` + `feedbackUrl` (all optional, defaulted). Use `z.string()` for `logo`/`heroImage` — not `.url()`, which rejects `data:` URIs.
 2. Route the two hardcoded doc URLs (`useLink.ts`, `ProjectList.tsx`) through existing `documentationBaseUrl`.
 3. `FeedbackButton.tsx`: use `feedbackUrl`; hide the button when unset.
 4. OTel service name ← `OTEL_SERVICE_NAME`.
-5. `server.ts`: copy `BRAND_ASSETS_PATH` → `dist/client/brand/`; ensure `no-cache` on `/brand/*` and `frontend-config.json`.
+5. `server.ts`: ensure `frontend-config.json` is served `no-cache` (so branding updates propagate on next load).
 
 ### Phase 2 — Visible branding
 6. `BrandLogoPlaceholder` component (neutral monogram — never SAP).
-7. `ShellBar.tsx`: `appName` as title; `logoUrl` with `onError` → placeholder.
-8. `SignInPage.tsx`: `heroImageUrl` (placeholder fallback); gate funding logo on `showFundingLogo`.
+7. `ShellBar.tsx`: `appName` as title; render `<img src={logo}>` (data URI) with `onError` → placeholder; null `logo` → placeholder.
+8. `SignInPage.tsx`: render `<img src={heroImage}>` (data URI); null → bundled OCP image; gate funding logo on `showFundingLogo`.
 9. Client: `document.title = appName`.
 10. `en.json`: `welcomeMessage` ← `{{appName}}`; `NotInLuigiView` ← `{{portalName}}`.
 
 ### Files changed
 ```
-src/context/FrontendConfigContext.tsx          Zod schema (z.string(), not .url(), for assets)
+src/context/FrontendConfigContext.tsx          Zod schema (branding.logo / heroImage as z.string())
 src/lib/shared/useLink.ts                       2 doc URLs → documentationBaseUrl
 src/views/ProjectList.tsx                       URL → useLink
 src/components/Core/FeedbackButton.tsx          feedbackUrl, hide if unset
-src/components/Core/ShellBar.tsx                logo + appName, placeholder fallback
+src/components/Core/ShellBar.tsx                logo (data URI) + appName, placeholder fallback
 src/components/Core/BrandLogoPlaceholder.tsx    NEW — neutral monogram
-src/spaces/.../SignInPage/SignInPage.tsx        hero image + funding flag
+src/spaces/.../SignInPage/SignInPage.tsx        heroImage (data URI) + funding flag
 src/<app root>                                  set document.title from appName
 src/locales/en.json                             interpolate appName / portalName
 server/telemetry/bootstrap/opentelemetry-init.ts  OTEL_SERVICE_NAME
-server.ts                                       copy BRAND_ASSETS_PATH; no-cache headers
+server.ts                                       no-cache for frontend-config.json
 docs/operator/whitelabel.md                     NEW — operator guide
 ```
-No new server plugins. One new client component. One new env var (`BRAND_ASSETS_PATH`) + one standard one (`OTEL_SERVICE_NAME`).
+No new server plugins. One new client component. One standard env var (`OTEL_SERVICE_NAME`). **No new env vars for assets — images live in the config file.**
 
 > **Compliance:** new files inherit REUSE/SPDX headers from `REUSE.toml` (`precedence = "closest"`); match neighbors if a directory has explicit per-file headers.
 
@@ -225,10 +235,9 @@ No new server plugins. One new client component. One new env var (`BRAND_ASSETS_
 
 | Deferred | Why | Revisit when |
 |---|---|---|
-| Runtime translation-override engine (`/brand/translations/en.json` deep-merge) | `appName` + `portalName` cover the real product-name pain; a general override loader is a whole subsystem beyond the issue's "remove hardcoded names" ask | An org needs to reword arbitrary strings, not just names |
-| Server-side `index.html` patch + dynamic `site.webmanifest` | Client-side `document.title` covers the tab; the SEO/no-flash/PWA-install benefit is marginal for an authenticated internal SPA | A correct PWA-install name is a stated requirement |
-| `customCssUrl` / custom CSS theme | CSP forces same-origin; UI5 Horizon `ThemingParameters` already carries theming; adds surface for little gain | A concrete theming request arrives; then same-origin + `<link>`-only |
-| External-CDN asset origins (CSP extension) | Same-origin mount covers every known case | An org genuinely cannot mount assets and must use a CDN |
+| Runtime translation-override engine | `appName` + `portalName` cover the real product-name pain; a general override loader is a whole subsystem beyond the issue's scope | An org needs to reword arbitrary strings, not just names |
+| Server-side `index.html` patch + dynamic `site.webmanifest` | Client-side `document.title` covers the tab; SEO/PWA-install benefit is marginal for an authenticated internal SPA | A correct PWA-install name is a stated requirement |
+| `customCssUrl` / custom CSS theme | UI5 Horizon `ThemingParameters` already carries theming; adds surface for little gain | A concrete theming request arrives |
 | `appShortName`, separate alt-text fields | No consumer once the manifest is static; alt derives from `appName` | Dynamic manifest is built |
 
 ---
@@ -239,14 +248,11 @@ No new server plugins. One new client component. One new env var (`BRAND_ASSETS_
 
 **Full whitelabel:**
 ```
-# env
-BRAND_ASSETS_PATH=/config/brand      # dir copied to dist/client/brand at startup
+# env — only one branding-related var
 OTEL_SERVICE_NAME=acmecorp-cp-ui
 
-# /config/brand/
-#   logo.svg
-#   hero.png
-#   favicon/…           (optional favicon overrides)
+# Optional: replace favicons by mounting files at /favicon/ in the static root.
+# Logo and hero image go directly into frontend-config.json as Base64 data URIs.
 ```
 ```json
 {
@@ -257,8 +263,8 @@ OTEL_SERVICE_NAME=acmecorp-cp-ui
   "branding": {
     "appName": "AcmeCorp Platform",
     "portalName": "Acme Portal",
-    "logoUrl": "/brand/logo.svg",
-    "heroImageUrl": "/brand/hero.png",
+    "logo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci…",
+    "heroImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAC0CAY…",
     "showFundingLogo": false
   },
   "featureToggles": { "markMcpV1asDeprecated": true, "enableMcpV2": true, "enableHeadlamp": false, "showLandscaperCard": false }
