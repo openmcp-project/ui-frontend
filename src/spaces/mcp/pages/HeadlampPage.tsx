@@ -9,7 +9,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
-import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
+import { McpActions, useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
@@ -24,7 +24,7 @@ function HeadlampIframe({
 }: {
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
-  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: unknown[] | null } | null;
+  mcpStatus?: McpActions['mcpStatus'];
   mcpDisplayName?: string;
   roleBindings?: MemberRoleBinding[];
 }) {

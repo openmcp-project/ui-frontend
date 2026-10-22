@@ -167,11 +167,7 @@ export function ShellBarComponent({
         popoverRef={profilePopoverRef}
         useAuthOnboarding={useAuthOnboarding}
       />
-      <ControlPlaneInfoPopover
-        ref={infoPopoverRef}
-        open={infoPopoverOpen}
-        setOpen={setInfoPopoverOpen}
-      />
+      <ControlPlaneInfoPopover ref={infoPopoverRef} open={infoPopoverOpen} setOpen={setInfoPopoverOpen} />
     </>
   );
 }
@@ -185,17 +181,8 @@ function ControlPlaneInfoPopover({
   open: boolean;
   setOpen: (v: boolean) => void;
 }) {
-  const {
-    mcpName,
-    mcpDisplayName,
-    project,
-    workspace,
-    mcpCreationTimestamp,
-    mcpCreatedBy,
-    mcpStatus,
-    roleBindings,
-    kubeconfig,
-  } = useShellBarMcpActions();
+  const { mcpName, mcpDisplayName, project, workspace, mcpCreationTimestamp, mcpCreatedBy, roleBindings, kubeconfig } =
+    useShellBarMcpActions();
   const { t } = useTranslation();
   const { mode } = useViewMode();
 

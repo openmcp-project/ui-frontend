@@ -536,7 +536,9 @@ export default function ControlPlanePageV2() {
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
                 mcpCreationTimestamp={mcp.metadata?.creationTimestamp}
-                mcpCreatedBy={(mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']}
+                mcpCreatedBy={
+                  (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
+                }
                 mcpStatus={
                   mcp?.metadata?.deletionTimestamp
                     ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
