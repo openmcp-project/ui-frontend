@@ -20,3 +20,10 @@
   width: 11.25rem;
   flex-shrink: 0;
 }
+
+.updateIcon {
+  flex-shrink: 0;
+  color: var(--sapInformativeColor, #0070f2);
+  --sapContent_IconColor: var(--sapInformativeColor, #0070f2);
+  font-size: 0.875rem;
+}

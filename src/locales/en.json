@@ -130,7 +130,13 @@
     "serviceInstalling": "Installing",
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
-    "serviceUnknown": "Unknown"
+    "serviceUnknown": "Unknown",
+    "updatesAvailable": "Updates available"
+  },
+  "VersionUpdateTag": {
+    "majorUpdate": "Major update available",
+    "minorUpdate": "Minor update available",
+    "patchUpdate": "Patch update available"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
