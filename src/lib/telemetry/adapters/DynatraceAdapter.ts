@@ -18,6 +18,8 @@ export class DynatraceAdapter implements Telemetry {
     }
   }
 
+  pageView(): void {}
+
   report(error: unknown, options?: { message?: string; context?: Record<string, unknown> }): void {
     if (!window.dtrum) return;
 
