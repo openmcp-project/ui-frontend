@@ -1,0 +1,52 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+
+.card {
+  background: var(--sapBaseColor);
+  border: 3px dashed var(--sapBrandColor);
+  border-radius: var(--sapPopover_BorderCornerRadius, 0.5rem);
+  padding: 3rem 4rem;
+  min-width: 400px;
+  max-width: 560px;
+  text-align: center;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    border-color: var(--sapBrandColor);
+  }
+  50% {
+    border-color: var(--sapPositiveColor);
+  }
+}
+
+.dropIcon {
+  color: var(--sapBrandColor);
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  margin: 0 0 1.5rem 0;
+}
+
+.targetBadge {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.hint {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}

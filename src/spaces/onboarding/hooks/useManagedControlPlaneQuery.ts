@@ -17,7 +17,7 @@ import { flattenV1RoleBindings } from '../types/ControlPlane.ts';
  * the fields the old REST `jq` extracted and flattens `status.components.authentication.access`
  * to `status.access` as the jq did, so consumers keep the same `ControlPlaneType` shape.
  */
-const GET_MCP_V1_QUERY = graphql(`
+export const GET_MCP_V1_QUERY = graphql(`
   query GetManagedControlPlane($name: String!, $namespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {

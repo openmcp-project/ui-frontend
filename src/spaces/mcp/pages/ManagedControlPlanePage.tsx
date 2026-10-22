@@ -41,6 +41,7 @@ import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.ts
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
@@ -389,6 +390,7 @@ export default function ManagedControlPlanePage() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
+              <McpDragDropRegistrar name={controlPlaneName} />
               <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}
@@ -423,6 +425,7 @@ export default function ManagedControlPlanePage() {
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
             <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

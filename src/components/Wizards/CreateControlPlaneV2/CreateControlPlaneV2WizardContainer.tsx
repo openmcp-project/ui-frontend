@@ -1154,7 +1154,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           <WizardStep
             data-step="supportInfo"
             disabled={isStepDisabled('supportInfo')}
-            icon="activities"
+            icon="vehicle-repair"
             selected={selectedStep === 'supportInfo'}
             titleText={t('SupportInfo.wizardStepTitle')}
           >
@@ -1204,7 +1204,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             />
           </WizardStep>
           <WizardStep
-            icon="activities"
+            icon="message-success"
             titleText={t('common.success')}
             disabled={isStepDisabled('success')}
             selected={selectedStep === 'success'}

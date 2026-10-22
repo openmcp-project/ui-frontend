@@ -312,7 +312,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
         });
         return [];
       }
-      const key = `${result.data.metadata.namespace}/${result.data.metadata.name}`;
+      const key = result.data.clientId;
       if (seen.has(key)) return [];
       seen.add(key);
       return [result.data];

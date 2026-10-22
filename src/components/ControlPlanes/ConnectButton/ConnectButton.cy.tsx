@@ -44,7 +44,7 @@ function kubeconfigMock(contexts: { user: string }[]) {
 describe('ConnectButton', () => {
   const defaultProps = {
     projectName: 'my-project',
-    workspaceName: 'my-project--ws-my-workspace',
+    workspaceName: 'my-workspace',
     controlPlaneName: 'my-mcp',
     secretName: 'my-secret',
     namespace: 'my-namespace',

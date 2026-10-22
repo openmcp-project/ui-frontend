@@ -28,6 +28,7 @@ const workspace: Workspace = {
 
 const fakeManagedControlPlanes: ControlPlaneListItem[] = [
   {
+    clientId: 'v1/project-webapp-playground--ws-workspaceName/mcp-a',
     version: 'v1',
     metadata: {
       name: 'mcp-a',
@@ -38,6 +39,7 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
   },
   {
+    clientId: 'v1/project-test--ws-workspaceName/test-cp-b',
     version: 'v1',
     metadata: {
       annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
@@ -48,6 +50,7 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
   },
   {
+    clientId: 'v1/project-test--ws-workspaceName/flux',
     version: 'v1',
     metadata: {
       annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
