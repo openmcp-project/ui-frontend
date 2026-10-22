@@ -4,6 +4,7 @@ import {
   AuthConfigurationError,
   AuthUpstreamError,
   ExpectedAuthError,
+  UpstreamUnavailableError,
   createOAuthAuthorizationError,
   createOAuthEndpointError,
   type OAuthOperation,
@@ -32,7 +33,7 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl: string) {
   try {
     res = await fetch(url);
   } catch (cause) {
-    throw new AuthUpstreamError('OIDC discovery endpoint is unavailable.', {
+    throw new UpstreamUnavailableError('OIDC discovery endpoint is unavailable.', {
       code: 'oidc_discovery_unavailable',
       statusCode: 503,
       context: { issuer: issuerBaseUrl },
@@ -43,7 +44,7 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl: string) {
   if (!res.ok) {
     const context = { issuer: issuerBaseUrl, upstreamStatus: res.status };
     if (res.status === 429 || res.status >= 500) {
-      throw new AuthUpstreamError(`OIDC discovery failed with status ${res.status}.`, {
+      throw new UpstreamUnavailableError(`OIDC discovery failed with status ${res.status}.`, {
         code: res.status === 429 ? 'oidc_discovery_rate_limited' : 'oidc_discovery_upstream_failure',
         statusCode: res.status === 429 ? 503 : 502,
         context,
@@ -166,7 +167,7 @@ async function authUtilsPlugin(fastify) {
           body: body.toString(),
         });
       } catch (cause) {
-        throw new AuthUpstreamError('OAuth token refresh endpoint is unavailable.', {
+        throw new UpstreamUnavailableError('OAuth token refresh endpoint is unavailable.', {
           code: 'oauth_refresh_unavailable',
           statusCode: 503,
           context: { operation: 'refresh' },
@@ -295,7 +296,7 @@ async function authUtilsPlugin(fastify) {
         body,
       });
     } catch (cause) {
-      throw new AuthUpstreamError('OAuth token exchange endpoint is unavailable.', {
+      throw new UpstreamUnavailableError('OAuth token exchange endpoint is unavailable.', {
         code: 'oauth_token_exchange_unavailable',
         statusCode: 503,
         context: { operation: 'token_exchange' },
