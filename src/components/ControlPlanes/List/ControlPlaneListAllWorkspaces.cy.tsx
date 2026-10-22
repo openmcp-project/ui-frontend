@@ -2,7 +2,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
-import { FrontendConfigContext, Landscape } from '../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, Landscape, defaultBranding } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -13,7 +13,9 @@ import ControlPlaneListAllWorkspaces from './ControlPlaneListAllWorkspaces.tsx';
 const frontendConfig = {
   landscape: Landscape.Local,
   documentationBaseUrl: 'http://localhost:3000',
+  feedbackUrl: null,
   githubBaseUrl: 'https://github.com/example/repo',
+  branding: defaultBranding,
   featureToggles: {
     markMcpV1asDeprecated: false,
     enableMcpV2: false,

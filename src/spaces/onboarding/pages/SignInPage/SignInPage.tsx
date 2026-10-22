@@ -7,9 +7,7 @@ import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 import { useLink as _useLink } from '../../../../lib/shared/useLink';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../auth/AuthContextOnboarding';
-
-import ocpLogo from '../../../../assets/images/co-logo-orchestrating.png';
-import bmwkEu from '../../../../assets/images/splash/BMWK-EU.png';
+import { useFrontendConfig } from '../../../../context/FrontendConfigContext';
 
 import styles from './SignInPage.module.css';
 
@@ -22,6 +20,7 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
   const { login } = useAuthOnboarding();
   const { contributeLink } = useLink();
   const { t } = useTranslation();
+  const { branding } = useFrontendConfig();
 
   useEffect(() => {
     Sentry.addBreadcrumb({
@@ -35,9 +34,9 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
     <div className={styles.container}>
       <div> </div>
       <div className={styles.heroSection}>
-        <img src={ocpLogo} alt="Open Control Plane" className={styles.heroImage} />
+        {branding.heroImage && <img src={branding.heroImage} alt={branding.appName} className={styles.heroImage} />}
 
-        <p className={styles.welcomeMessage}>{t('SignInPage.welcomeMessage')}</p>
+        <p className={styles.welcomeMessage}>{t('SignInPage.welcomeMessage', { appName: branding.appName })}</p>
         <p className={styles.subtitle}>{t('SignInPage.subtitle')}</p>
 
         <div className={styles.actionContainer}>
@@ -50,9 +49,11 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
         </div>
       </div>
 
-      <div className={styles.disclaimer}>
-        <img src={bmwkEu} alt="Funded by BMWK and EU" className={styles.disclaimerImage} />
-      </div>
+      {branding.showFundingLogo && branding.fundingLogo && (
+        <div className={styles.disclaimer}>
+          <img src={branding.fundingLogo} alt="Funded by BMWK and EU" className={styles.disclaimerImage} />
+        </div>
+      )}
     </div>
   );
 }

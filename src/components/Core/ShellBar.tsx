@@ -30,17 +30,18 @@ import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import SapLogo from '../../assets/images/sap-logo.svg';
 import { Routes } from '../../Routes.ts';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useYamlApply } from '../../context/YamlApplyContext.tsx';
+import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
+import { BrandLogoPlaceholder } from './BrandLogoPlaceholder.tsx';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
@@ -54,6 +55,7 @@ export function ShellBarComponent({
 } = {}) {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
+  const { branding } = useFrontendConfig();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
@@ -74,8 +76,14 @@ export function ShellBarComponent({
     <>
       <ShellBar
         hidden={window.location.href.includes('compact-mode')}
-        logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
-        primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
+        logo={
+          branding.logo ? (
+            <img src={branding.logo} alt={branding.appName} className={styles.logo} />
+          ) : (
+            <BrandLogoPlaceholder />
+          )
+        }
+        primaryTitle={mcpDisplayName ?? mcpName ?? branding.appName}
         profile={
           <Avatar
             colorScheme={avatarColorSchemeForEmail(auth.user?.email)}

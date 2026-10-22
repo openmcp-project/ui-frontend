@@ -8,7 +8,7 @@ import { YamlApplyContextProvider } from '../../context/YamlApplyContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
 import { ShellBarComponent } from './ShellBar.tsx';
-import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
@@ -32,8 +32,10 @@ describe('ShellBar', () => {
     const fakeConfig = {
       landscape: undefined,
       documentationBaseUrl: '',
+      feedbackUrl: null,
       githubBaseUrl: '',
       mcp2DocsUrl: '',
+      branding: defaultBranding,
       featureToggles: {
         markMcpV1asDeprecated: false,
         enableMcpV2: false,

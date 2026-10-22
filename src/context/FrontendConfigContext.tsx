@@ -49,11 +49,39 @@ export const useFrontendConfig = () => {
   return context;
 };
 
+export const defaultBranding: FrontendConfig['branding'] = {
+  appName: 'Control Plane UI',
+  portalName: 'the portal',
+  logo: null,
+  heroImage: null,
+  showFundingLogo: false,
+  fundingLogo: null,
+};
+
 const FrontendConfigSchema = z.object({
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
+  feedbackUrl: z.string().nullable().default(null),
   landscape: z.optional(z.nativeEnum(Landscape)),
   mcp2DocsUrl: z.string().optional(),
+  // Use z.string() (NOT .url()) — data: URIs fail URL validation but are valid here (img-src 'self' data: in CSP).
+  branding: z
+    .object({
+      appName: z.string().default('Control Plane UI'),
+      portalName: z.string().default('the portal'),
+      logo: z.string().nullable().default(null),
+      heroImage: z.string().nullable().default(null),
+      showFundingLogo: z.boolean().default(false),
+      fundingLogo: z.string().nullable().default(null),
+    })
+    .default({
+      appName: 'Control Plane UI',
+      portalName: 'the portal',
+      logo: null,
+      heroImage: null,
+      showFundingLogo: false,
+      fundingLogo: null,
+    }),
   featureToggles: z
     .object({
       markMcpV1asDeprecated: z.boolean().default(false),
