@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
 
 export interface McpActions {
   kubeconfig?: string;
@@ -11,6 +12,13 @@ export interface McpActions {
   onEditMcp?: () => void;
   onOpenYaml?: () => void;
   navigateBack?: () => void;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: {
+    status?: string | null;
+    phase?: string | null;
+    conditions?: ControlPlaneCondition[] | null;
+  } | null;
 }
 
 export interface ShellBarMcpActionsContextType extends McpActions {

@@ -9,14 +9,59 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
+import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
+import { flattenOidcRoleBindings, MemberRoleBinding } from '../../controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 
-function HeadlampIframe() {
+function HeadlampIframe({
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  mcpDisplayName,
+  roleBindings,
+}: {
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: unknown[] | null } | null;
+  mcpDisplayName?: string;
+  roleBindings?: MemberRoleBinding[];
+}) {
   const mcp = useMcp();
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+
+  useEffect(() => {
+    setMcpActions({
+      kubeconfig: mcp.kubeconfig,
+      mcpName: mcp.name,
+      mcpDisplayName,
+      roleBindings,
+      project: mcp.project,
+      workspace: mcp.workspace,
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
+    });
+    return () => clearMcpActions();
+  }, [
+    mcp.kubeconfig,
+    mcp.name,
+    mcp.project,
+    mcp.workspace,
+    mcpDisplayName,
+    roleBindings,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
+    setMcpActions,
+    clearMcpActions,
+  ]);
 
   useEffect(() => {
     if (!mcp.kubeconfig) return;
@@ -66,14 +111,29 @@ function HeadlampIframe() {
 
 export default function HeadlampPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
+  const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
+  const { data: mcp } = useControlPlaneV2Query(controlPlaneName, namespace);
 
   if (!projectName || !workspaceName || !controlPlaneName) return null;
+
+  const mcpDisplayName = (mcp?.metadata?.annotations as Record<string, string> | undefined)?.[DISPLAY_NAME_ANNOTATION];
+  const mcpCreatedBy = (mcp?.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by'];
+  const mcpStatus = mcp?.metadata?.deletionTimestamp
+    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+    : mcp?.status;
+  const roleBindings = flattenOidcRoleBindings(mcp?.spec?.iam?.oidc);
 
   return (
     <McpContextProvider context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }} isV2>
       <AuthProviderMcp>
         <WithinManagedControlPlane>
-          <HeadlampIframe />
+          <HeadlampIframe
+            mcpCreationTimestamp={mcp?.metadata?.creationTimestamp}
+            mcpCreatedBy={mcpCreatedBy}
+            mcpStatus={mcpStatus}
+            mcpDisplayName={mcpDisplayName}
+            roleBindings={roleBindings}
+          />
         </WithinManagedControlPlane>
       </AuthProviderMcp>
     </McpContextProvider>
