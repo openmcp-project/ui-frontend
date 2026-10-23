@@ -47,6 +47,7 @@ import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlaneCondition } from '../../onboarding/types/ControlPlane.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
@@ -68,11 +69,17 @@ function OpenSourceHeadlamp({
   workspaceName,
   controlPlaneName,
   requestedStatuses,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
   requestedStatuses: Record<string, string | null>;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -133,6 +140,9 @@ function OpenSourceHeadlamp({
       project: projectName,
       workspace: workspaceName,
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
     });
     return () => {
       clearMcpActions();
@@ -147,6 +157,9 @@ function OpenSourceHeadlamp({
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
   ]);
 
   // Register and load the kubeconfig, then set the iframe src
@@ -397,6 +410,9 @@ export default function ManagedControlPlanePage() {
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
                 requestedStatuses={requestedStatuses}
+                mcpCreationTimestamp={mcp.metadata.creationTimestamp}
+                mcpCreatedBy={mcp.metadata.annotations?.['openmcp.cloud/created-by'] as string | undefined}
+                mcpStatus={mcp.status}
               />
               <EditManagedControlPlaneWizardDataLoader
                 isOpen={isEditManagedControlPlaneWizardOpen}
