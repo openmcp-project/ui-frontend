@@ -53,6 +53,7 @@ const EXCLUDED_QUERY_PARAMS = [
   'clientid',
   'clientsecret',
   'clé',
+  'code',
   'codepostal',
   'company',
   'consumerkey',
@@ -106,6 +107,7 @@ const EXCLUDED_QUERY_PARAMS = [
   'identifier',
   'identitenationale',
   'indirizzo',
+  'iss',
   'kartakredytowa',
   'kennwort',
   'keyconsumerkey',
@@ -185,6 +187,7 @@ const EXCLUDED_QUERY_PARAMS = [
   'secretq',
   'secretquestion',
   'securitesociale',
+  'session_state',
   'sexe',
   'shippingaddress',
   'shippingaddress1',
@@ -198,6 +201,7 @@ const EXCLUDED_QUERY_PARAMS = [
   'socsec',
   'sokak',
   'ssn',
+  'state',
   'steuernummer',
   'strasse',
   'street',
@@ -247,7 +251,8 @@ export function injectMatomoTag(matomoUrl: string, siteId: string): string | nul
   const scriptBody = `
     var _paq = window._paq = window._paq || [];
     _paq.push(["setExcludedQueryParams", ${excludedParams}]);
-    _paq.push(['trackPageView']);
+    _paq.push(['discardHashTag', true]);
+    _paq.push(['enableHeartBeatTimer']);
     _paq.push(['enableLinkTracking']);
     (function() {
       var u="${u}";
