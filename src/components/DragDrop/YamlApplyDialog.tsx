@@ -802,9 +802,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             </div>
 
             {isExternalDragActive && itemState !== 'applying' && !isApplyingAll && (
-              <div className={styles.addDropOverlay}>
-                <Icon name="add" className={styles.addDropIcon} />
-                <Text>{t('yamlApply.addDropHint')}</Text>
+              <div className={styles.addDropOverlay} role="status">
+                <div className={styles.addDropPill}>
+                  <Icon name="add" className={styles.addDropIcon} />
+                  <Text>{t('yamlApply.addDropHint')}</Text>
+                </div>
               </div>
             )}
 
