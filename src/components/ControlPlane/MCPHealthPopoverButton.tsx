@@ -23,6 +23,7 @@ import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
 import { ConditionsMessageListView } from './ConditionsMessageListView';
 import { getIconForOverallStatus } from './statusUtils.tsx';
+import { buildSupportTicketLink } from './supportTicketLink.ts';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus:
@@ -85,30 +86,17 @@ const MCPHealthPopoverButton = ({
     }
   };
 
-  const constructGithubIssuesLink = (): string => {
-    const clusterDetails = `${projectName}/${workspaceName}/${mcpName}`;
-
-    const statusDetails = mcpStatus?.conditions
-      ? `${t('MCPHealthPopoverButton.statusDetailsLabel')}: ${mcpStatus.status}\n\n${t('MCPHealthPopoverButton.detailsLabel')}\n` +
-        mcpStatus.conditions
-          .map((condition) => {
-            let text = `- ${condition.type}: ${condition.status}\n`;
-            if (condition.reason) text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
-            if (condition.message) text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
-            return text;
-          })
-          .join('')
-      : '';
-
-    const params = new URLSearchParams({
-      template: '1-mcp_issue.yml',
-      title: `[${clusterDetails}]: ${getTicketTitle()}`,
-      'cluster-link': clusterDetails,
-      'what-happened': statusDetails,
+  const constructGithubIssuesLink = (): string =>
+    buildSupportTicketLink({
+      baseUrl: githubIssuesSupportTicket,
+      projectName,
+      workspaceName,
+      mcpName,
+      title: getTicketTitle(),
+      statusText: mcpStatus?.status ?? '',
+      conditions: mcpStatus?.conditions,
+      t,
     });
-
-    return `${githubIssuesSupportTicket}?${params}`;
-  };
 
   return (
     <div className="component-title-row">

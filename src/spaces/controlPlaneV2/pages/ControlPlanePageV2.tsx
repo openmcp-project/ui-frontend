@@ -25,7 +25,9 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
+import { ControlPlaneStatusPopoverButton } from '../../../components/ControlPlane/ControlPlaneStatusPopoverButton.tsx';
+import type { ServicePhases } from '../../../components/ControlPlane/controlPlaneHealth.ts';
+import { useMcpV2ComponentsListQuery } from '../components/Kpi/useMcpV2ComponentsListQuery.ts';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
@@ -38,7 +40,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
-import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
+import { ControlPlaneCondition } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -91,7 +93,9 @@ function OpenSourceHeadlamp({
   controlPlaneName,
   mcpCreationTimestamp,
   mcpCreatedBy,
-  mcpStatus,
+  mcpPhase,
+  mcpConditions,
+  mcpDeletionTimestamp,
   roleBindings,
 }: {
   projectName: string;
@@ -99,7 +103,9 @@ function OpenSourceHeadlamp({
   controlPlaneName: string;
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
-  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  mcpPhase?: string | null;
+  mcpConditions?: ControlPlaneCondition[] | null;
+  mcpDeletionTimestamp?: string | null;
   roleBindings?: MemberRoleBinding[];
 }) {
   const mcp = useMcp();
@@ -187,6 +193,23 @@ function OpenSourceHeadlamp({
     );
   }, []);
 
+  const services = useMemo<ServicePhases>(() => {
+    const phases: [keyof ServicePhases, string | null][] = [
+      ['crossplane', effectivePhases.crossplane],
+      ['flux', effectivePhases.flux],
+      ['externalSecretsOperator', effectivePhases.externalSecretsOperator],
+      ['ocm', effectivePhases.ocm],
+      ['kro', effectivePhases.kro],
+    ];
+    return Object.fromEntries(phases.filter(([, phase]) => phase !== null).map(([key, phase]) => [key, { phase }]));
+  }, [
+    effectivePhases.crossplane,
+    effectivePhases.flux,
+    effectivePhases.externalSecretsOperator,
+    effectivePhases.ocm,
+    effectivePhases.kro,
+  ]);
+
   useEffect(() => {
     setMcpActions({
       kubeconfig: mcp.kubeconfig,
@@ -197,7 +220,12 @@ function OpenSourceHeadlamp({
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
-      mcpStatus,
+      controlPlaneV2Status: {
+        phase: mcpPhase,
+        conditions: mcpConditions,
+        deletionTimestamp: mcpDeletionTimestamp,
+        services,
+      },
     });
     return () => {
       clearMcpActions();
@@ -214,7 +242,10 @@ function OpenSourceHeadlamp({
     clearMcpActions,
     mcpCreationTimestamp,
     mcpCreatedBy,
-    mcpStatus,
+    mcpPhase,
+    mcpConditions,
+    mcpDeletionTimestamp,
+    services,
   ]);
 
   useEffect(() => {
@@ -455,6 +486,7 @@ export default function ControlPlanePageV2() {
   const { ocmData } = useOcmQuery(controlPlaneName, namespace);
   const { kroData } = useKroQuery(controlPlaneName, namespace);
   const { metricsOperatorData } = useMetricsOperatorQuery(controlPlaneName, namespace);
+  const { componentsByName } = useMcpV2ComponentsListQuery(namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
   // Hold graph mount until the cards' 0.3s height transition (index.css) has
   // settled — otherwise the graph layout fights with concurrent card animations.
@@ -539,11 +571,9 @@ export default function ControlPlanePageV2() {
                 mcpCreatedBy={
                   (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
                 }
-                mcpStatus={
-                  mcp?.metadata?.deletionTimestamp
-                    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
-                    : mcp?.status
-                }
+                mcpPhase={mcp.status?.phase}
+                mcpConditions={mcp.status?.conditions}
+                mcpDeletionTimestamp={mcp.metadata?.deletionTimestamp}
                 roleBindings={roleBindings}
               />
             </ManagedControlPlaneAuthorization>
@@ -607,16 +637,21 @@ export default function ControlPlanePageV2() {
                 <ObjectPageHeader>
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
-                    <McpStatusSection
-                      mcpStatus={
-                        mcp?.metadata?.deletionTimestamp
-                          ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
-                          : mcp?.status
-                      }
-                      projectName={projectName}
-                      workspaceName={workspaceName}
-                      mcpName={controlPlaneName}
-                    />
+                    <FlexBox direction="Column">
+                      <Text className={styles.statusLabel}>{t('common.status')}:</Text>
+                      <ControlPlaneStatusPopoverButton
+                        phase={mcp.status?.phase}
+                        conditions={mcp.status?.conditions}
+                        deletionTimestamp={mcp.metadata?.deletionTimestamp}
+                        services={componentsByName[controlPlaneName]}
+                        projectName={projectName}
+                        workspaceName={workspaceName}
+                        mcpName={controlPlaneName}
+                        creationTimestamp={mcp.metadata?.creationTimestamp}
+                        source="detail"
+                        large
+                      />
+                    </FlexBox>
                     <McpMembersAvatarView roleBindings={roleBindings} />
 
                     <FlexBox direction="Column">
