@@ -9,6 +9,10 @@ export interface McpActions {
   roleBindings?: RoleBinding[];
   project?: string;
   workspace?: string;
+  // k8s namespace of the control plane resource (distinct from `workspace`,
+  // which holds the openmcp Workspace name) — used to load its YAML.
+  namespace?: string;
+  resourceType?: 'controlplanes' | 'managedcontrolplanes';
   onEditMcp?: () => void;
   navigateBack?: () => void;
   mcpCreationTimestamp?: string;

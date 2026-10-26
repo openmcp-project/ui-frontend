@@ -10,23 +10,28 @@ import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboa
 import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
 import { ShellBarComponent } from './ShellBar.tsx';
 import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
+import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
 
 function McpActionsSetter({
   mcpName,
   onEditMcp,
   project,
   workspace,
+  namespace,
+  resourceType,
   mcpStatus,
 }: {
   mcpName: string;
   onEditMcp?: () => void;
   project?: string;
   workspace?: string;
+  namespace?: string;
+  resourceType?: 'controlplanes' | 'managedcontrolplanes';
   mcpStatus?: { status?: string | null };
 }) {
   const { setMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName, onEditMcp, project, workspace, mcpStatus });
+    setMcpActions({ mcpName, onEditMcp, project, workspace, namespace, resourceType, mcpStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;
@@ -56,6 +61,8 @@ describe('ShellBar', () => {
     onEditMcp,
     project,
     workspace,
+    namespace,
+    resourceType,
     mcpStatus,
   }: {
     enableHeadlamp?: boolean;
@@ -63,6 +70,8 @@ describe('ShellBar', () => {
     onEditMcp?: () => void;
     project?: string;
     workspace?: string;
+    namespace?: string;
+    resourceType?: 'controlplanes' | 'managedcontrolplanes';
     mcpStatus?: { status?: string | null };
   } = {}) => {
     const fakeConfig = {
@@ -83,18 +92,22 @@ describe('ShellBar', () => {
           <ToastProvider>
             <ViewModeProvider>
               <YamlApplyContextProvider>
-                <ShellBarMcpActionsProvider>
-                  {mcpName && (
-                    <McpActionsSetter
-                      mcpName={mcpName}
-                      project={project}
-                      workspace={workspace}
-                      mcpStatus={mcpStatus}
-                      onEditMcp={onEditMcp}
-                    />
-                  )}
-                  <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-                </ShellBarMcpActionsProvider>
+                <SplitterProvider>
+                  <ShellBarMcpActionsProvider>
+                    {mcpName && (
+                      <McpActionsSetter
+                        mcpName={mcpName}
+                        project={project}
+                        workspace={workspace}
+                        namespace={namespace}
+                        resourceType={resourceType}
+                        mcpStatus={mcpStatus}
+                        onEditMcp={onEditMcp}
+                      />
+                    )}
+                    <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+                  </ShellBarMcpActionsProvider>
+                </SplitterProvider>
               </YamlApplyContextProvider>
             </ViewModeProvider>
           </ToastProvider>
@@ -246,5 +259,50 @@ describe('ShellBar', () => {
     });
 
     cy.get('[data-testid="mcp-health-button"]').should('not.exist');
+  });
+
+  it('shows a YAML button to the left of the edit button in the info popover when resourceType is set', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      namespace: 'project-my-project--ws-my-workspace',
+      resourceType: 'controlplanes',
+      onEditMcp: () => {},
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('exist');
+    cy.get('ui5-popover')
+      .find('ui5-button')
+      .then(($buttons) => {
+        const icons = [...$buttons].map((btn) => btn.getAttribute('icon') ?? btn.getAttribute('aria-label'));
+        const yamlIndex = icons.indexOf('View resource');
+        const editIndex = icons.indexOf('edit');
+        expect(yamlIndex).to.be.greaterThan(-1);
+        expect(editIndex).to.be.greaterThan(-1);
+        expect(yamlIndex).to.be.lessThan(editIndex);
+      });
+  });
+
+  it('does not show a YAML button in the info popover when resourceType is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane', onEditMcp: () => {} });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('not.exist');
+  });
+
+  it('closes the info popover and does not throw when the YAML button is clicked', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      namespace: 'project-my-project--ws-my-workspace',
+      resourceType: 'controlplanes',
+      onEditMcp: () => {},
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').click({ force: true });
+
+    cy.get('ui5-popover[open]').should('not.exist');
   });
 });

@@ -196,6 +196,8 @@ function OpenSourceHeadlamp({
       roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: mcpNamespace,
+      resourceType: 'controlplanes',
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
@@ -211,6 +213,7 @@ function OpenSourceHeadlamp({
     roleBindings,
     projectName,
     workspaceName,
+    mcpNamespace,
     backPath,
     navigate,
     setMcpActions,
@@ -401,12 +404,14 @@ function LegacyModeShellBarSync({
   controlPlaneName,
   projectName,
   workspaceName,
+  namespace,
   mcpStatus,
   onEditMcp,
 }: {
   controlPlaneName: string;
   projectName: string;
   workspaceName: string;
+  namespace?: string;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
   onEditMcp: () => void;
 }) {
@@ -416,13 +421,15 @@ function LegacyModeShellBarSync({
       mcpName: controlPlaneName,
       project: projectName,
       workspace: workspaceName,
+      namespace,
+      resourceType: 'controlplanes',
       mcpStatus,
       onEditMcp,
     });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, projectName, workspaceName, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -601,6 +608,7 @@ export default function ControlPlanePageV2() {
               controlPlaneName={controlPlaneName}
               projectName={projectName}
               workspaceName={workspaceName}
+              namespace={mcp?.metadata?.namespace}
               mcpStatus={
                 mcp?.metadata?.deletionTimestamp
                   ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }

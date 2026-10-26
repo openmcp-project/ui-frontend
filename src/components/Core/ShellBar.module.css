@@ -31,6 +31,11 @@
 }
 
 /* Control plane info popover */
+.infoPopoverHeaderActions {
+  display: flex;
+  align-items: center;
+}
+
 .infoPopoverContent {
   display: flex;
   flex-direction: column;

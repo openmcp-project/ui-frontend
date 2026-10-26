@@ -30,7 +30,7 @@ import { ListItemBaseClickEventDetail } from '@ui5/webcomponents/dist/ListItemBa
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { RefObject, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
 import { Routes } from '../../Routes.ts';
@@ -38,6 +38,7 @@ import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.t
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useYamlApply } from '../../context/YamlApplyContext.tsx';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -48,6 +49,7 @@ import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 
@@ -185,6 +187,8 @@ function ControlPlaneInfoPopover({
     mcpDisplayName,
     project,
     workspace,
+    namespace,
+    resourceType,
     mcpCreationTimestamp,
     mcpCreatedBy,
     roleBindings,
@@ -193,6 +197,12 @@ function ControlPlaneInfoPopover({
   } = useShellBarMcpActions();
   const { t } = useTranslation();
   const { mode } = useViewMode();
+  const { isAsideVisible } = useSplitter();
+
+  // Close the popover once the YAML side panel opens, since YamlViewButton has no onClick hook.
+  useEffect(() => {
+    if (isAsideVisible) setOpen(false);
+  }, [isAsideVisible, setOpen]);
 
   if (!mcpName) return null;
 
@@ -216,17 +226,28 @@ function ControlPlaneInfoPopover({
         <Bar
           startContent={<Title level={TitleLevel.H5}>{mcpDisplayName ?? mcpName}</Title>}
           endContent={
-            onEditMcp && (
-              <Button
-                design="Transparent"
-                icon="edit"
-                tooltip={t('ShellBar.controlPlaneInfoEditButton')}
-                onClick={() => {
-                  setOpen(false);
-                  onEditMcp();
-                }}
-              />
-            )
+            <div className={styles.infoPopoverHeaderActions}>
+              {resourceType && (
+                <YamlViewButton
+                  variant="loader"
+                  workspaceName={namespace}
+                  resourceType={resourceType}
+                  resourceName={mcpName}
+                  withoutApiConfig
+                />
+              )}
+              {onEditMcp && (
+                <Button
+                  design="Transparent"
+                  icon="edit"
+                  tooltip={t('ShellBar.controlPlaneInfoEditButton')}
+                  onClick={() => {
+                    setOpen(false);
+                    onEditMcp();
+                  }}
+                />
+              )}
+            </div>
           }
         />
       }

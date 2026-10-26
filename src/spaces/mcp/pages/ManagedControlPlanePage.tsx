@@ -141,6 +141,8 @@ function OpenSourceHeadlamp({
       roleBindings: mcp.roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: `project-${projectName}--ws-${workspaceName}`,
+      resourceType: 'managedcontrolplanes',
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
@@ -259,12 +261,14 @@ function LegacyModeShellBarSync({
   controlPlaneName,
   projectName,
   workspaceName,
+  namespace,
   mcpStatus,
   onEditMcp,
 }: {
   controlPlaneName: string;
   projectName: string;
   workspaceName: string;
+  namespace?: string;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
   onEditMcp: () => void;
 }) {
@@ -274,13 +278,15 @@ function LegacyModeShellBarSync({
       mcpName: controlPlaneName,
       project: projectName,
       workspace: workspaceName,
+      namespace,
+      resourceType: 'managedcontrolplanes',
       mcpStatus,
       onEditMcp,
     });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, projectName, workspaceName, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -468,6 +474,7 @@ export default function ManagedControlPlanePage() {
               controlPlaneName={controlPlaneName}
               projectName={projectName}
               workspaceName={workspaceName}
+              namespace={mcp?.status?.access?.namespace}
               mcpStatus={mcp?.status}
               onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
             />
