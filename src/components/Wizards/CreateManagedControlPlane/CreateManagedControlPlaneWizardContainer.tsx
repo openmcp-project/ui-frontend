@@ -588,14 +588,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
-                  <Button disabled={isSubmitting} onClick={requestClose}>
-                    {t('buttons.close')}
+                  <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                    {t('buttons.cancel')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button disabled={isSubmitting} onClick={requestClose}>
-                      {t('buttons.close')}
+                    <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                      {t('buttons.cancel')}
                     </Button>
                   ) : (
                     <Button disabled={isSubmitting} onClick={onBackClick}>
