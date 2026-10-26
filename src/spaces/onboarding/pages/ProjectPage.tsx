@@ -16,6 +16,7 @@ import Loading from '../../../components/Shared/Loading.tsx';
 import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError, isUnauthorizedError } from '../../../lib/api/error.ts';
 import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
@@ -37,6 +38,8 @@ export default function ProjectPage() {
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+
+  useDocumentTitle(projectName);
 
   useEffect(() => {
     setMcpActions({ navigateBack: () => navigate(Routes.Projects) });
