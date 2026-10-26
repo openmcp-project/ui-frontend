@@ -1,5 +1,5 @@
 .svg {
   & path[id="label"] {
-    fill: #004CA3
+    fill: color-mix(in srgb, var(--sapBrandColor) 70%, black)
   }
 }

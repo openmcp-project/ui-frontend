@@ -56,6 +56,10 @@ export const defaultBranding: FrontendConfig['branding'] = {
   heroImage: null,
   showFundingLogo: false,
   fundingLogo: null,
+  primaryColor: null,
+  fontFamily: null,
+  fontUrl: null,
+  favicon: null,
 };
 
 const FrontendConfigSchema = z.object({
@@ -73,6 +77,10 @@ const FrontendConfigSchema = z.object({
       heroImage: z.string().nullable().default(null),
       showFundingLogo: z.boolean().default(false),
       fundingLogo: z.string().nullable().default(null),
+      primaryColor: z.string().nullable().default(null),
+      fontFamily: z.string().nullable().default(null),
+      fontUrl: z.string().nullable().default(null),
+      favicon: z.string().nullable().default(null),
     })
     .default({
       appName: 'Control Plane UI',
@@ -81,6 +89,10 @@ const FrontendConfigSchema = z.object({
       heroImage: null,
       showFundingLogo: false,
       fundingLogo: null,
+      primaryColor: null,
+      fontFamily: null,
+      fontUrl: null,
+      favicon: null,
     }),
   featureToggles: z
     .object({
