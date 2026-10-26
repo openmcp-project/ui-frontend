@@ -93,6 +93,7 @@ function OpenSourceHeadlamp({
   mcpCreatedBy,
   mcpStatus,
   roleBindings,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
@@ -101,6 +102,7 @@ function OpenSourceHeadlamp({
   mcpCreatedBy?: string;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
   roleBindings?: MemberRoleBinding[];
+  onEditMcp: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -198,6 +200,7 @@ function OpenSourceHeadlamp({
       mcpCreationTimestamp,
       mcpCreatedBy,
       mcpStatus,
+      onEditMcp,
     });
     return () => {
       clearMcpActions();
@@ -215,6 +218,7 @@ function OpenSourceHeadlamp({
     mcpCreationTimestamp,
     mcpCreatedBy,
     mcpStatus,
+    onEditMcp,
   ]);
 
   useEffect(() => {
@@ -393,14 +397,32 @@ function OpenSourceHeadlamp({
   );
 }
 
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  mcpStatus,
+  onEditMcp,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      project: projectName,
+      workspace: workspaceName,
+      mcpStatus,
+      onEditMcp,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -545,6 +567,14 @@ export default function ControlPlanePageV2() {
                     : mcp?.status
                 }
                 roleBindings={roleBindings}
+                onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+              />
+              <EditControlPlaneV2WizardDataLoader
+                isOpen={isEditManagedControlPlaneWizardOpen}
+                setIsOpen={handleEditManagedControlPlaneWizardClose}
+                namespace={namespace}
+                resourceName={controlPlaneName}
+                initialSection={editManagedControlPlaneWizardSection}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
@@ -567,7 +597,17 @@ export default function ControlPlanePageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              mcpStatus={
+                mcp?.metadata?.deletionTimestamp
+                  ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                  : mcp?.status
+              }
+              onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+            />
             <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"

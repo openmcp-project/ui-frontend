@@ -10,7 +10,6 @@ export interface McpActions {
   project?: string;
   workspace?: string;
   onEditMcp?: () => void;
-  onOpenYaml?: () => void;
   navigateBack?: () => void;
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
@@ -35,7 +34,6 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setActions({
       ...next,
       onEditMcp: next.onEditMcp ? () => next.onEditMcp!() : undefined,
-      onOpenYaml: next.onOpenYaml ? () => next.onOpenYaml!() : undefined,
       navigateBack: next.navigateBack ? () => next.navigateBack!() : undefined,
     });
   }, []);
