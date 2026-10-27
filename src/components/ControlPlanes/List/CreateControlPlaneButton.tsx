@@ -4,6 +4,7 @@ import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import { useMediaQuery } from '../../../hooks/useMediaQuery.ts';
 
 interface Props {
   disabled?: boolean;
@@ -14,6 +15,7 @@ interface Props {
 export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreateV2 }: Props) {
   const { t } = useTranslation();
   const { enableMcpV2, markMcpV1asDeprecated } = useFeatureToggle();
+  const compact = useMediaQuery('(max-width: 1024px)');
   const menuRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
@@ -31,9 +33,10 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
         design="Emphasized"
         disabled={disabled}
         icon="add"
+        tooltip={compact ? t('ControlPlaneListToolbar.createControlPlane') : undefined}
         onClick={onCreateV1}
       >
-        {t('ControlPlaneListToolbar.createControlPlane')}
+        {compact ? undefined : t('ControlPlaneListToolbar.createControlPlane')}
       </Button>
     );
   }
@@ -46,9 +49,10 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
         disabled={disabled}
         icon="add"
         icon-end
+        tooltip={compact ? t('ControlPlaneListToolbar.createControlPlane') : undefined}
         onClick={handleOpenerClick}
       >
-        {t('ControlPlaneListToolbar.createControlPlane')}
+        {compact ? undefined : t('ControlPlaneListToolbar.createControlPlane')}
       </Button>
       <Menu
         ref={menuRef}
