@@ -1165,9 +1165,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                     register={register}
                     watch={watch}
                     setValue={setValue}
-                    copyFromProjectName={bareProjectName}
-                    copyFromWorkspaceName={workspaceName}
-                    copyFromWorkspaceNamespace={projectName}
+                    parentProjectName={bareProjectName}
+                    parentWorkspaceName={workspaceName}
                   />
                 </div>
                 <div>

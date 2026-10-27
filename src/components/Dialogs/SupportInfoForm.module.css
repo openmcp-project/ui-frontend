@@ -10,14 +10,8 @@
   margin-bottom: 1rem;
 }
 
-.reuseRow {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-
-.reuseButton {
-  min-width: fit-content;
+.inheritedHint {
+  margin-top: 0.25rem;
 }
 
 .fields {

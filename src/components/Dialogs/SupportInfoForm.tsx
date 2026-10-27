@@ -1,26 +1,14 @@
-import '@ui5/webcomponents-icons/dist/cause';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import {
-  Button,
-  ButtonDomRef,
-  Label,
-  Menu,
-  MenuDomRef,
-  MenuItem,
-  MessageStrip,
-  Option,
-  Select,
-  SelectDomRef,
-  Ui5CustomEvent,
-} from '@ui5/webcomponents-react';
-import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
-import { useRef, useState } from 'react';
+import { Label, MessageStrip, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
+import { purposeLabel, SupportInfo } from '../../lib/supportInfo.ts';
+import { useInheritedSupportInfo } from '../../spaces/onboarding/hooks/useInheritedSupportInfo.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
+import { InheritedFromText } from '../Shared/InheritedFromText.tsx';
 import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -31,118 +19,62 @@ interface SupportInfoFormProps {
   register: UseFormRegister<CreateDialogProps>;
   watch: UseFormWatch<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  copyFromProjectName?: string;
-  copyFromWorkspaceName?: string;
-  copyFromWorkspaceNamespace?: string;
+  /** Bare project name of the parent project (workspaces and control planes). */
+  parentProjectName?: string;
+  /** Parent workspace name (control planes only). */
+  parentWorkspaceName?: string;
   useProjectMembers?: typeof _useProjectMembers;
   useGetWorkspace?: typeof _useGetWorkspace;
 }
 
-type ReuseSource = 'Project' | 'Workspace';
-
-interface SupportInfoValues {
-  supportLandscape: string;
-  supportServiceIds: string;
-  supportSecurityContacts: string;
-  supportOpsContacts: string;
+// The hint lists what the empty fields fall back to; only non-empty values are worth naming.
+function inheritedSummary(t: ReturnType<typeof useTranslation>['t'], info: SupportInfo): string {
+  const parts = [
+    info.supportLandscape && purposeLabel(t, info.supportLandscape),
+    info.supportServiceIds,
+    info.supportSecurityContacts,
+    info.supportOpsContacts,
+  ].filter((v): v is string => !!v);
+  return parts.join(' · ');
 }
 
-function ReuseSupportInfoButton({
+function InheritedSupportInfoHint({
   projectName,
   workspaceName,
-  workspaceNamespace,
-  setValue,
-  useProjectMembers = _useProjectMembers,
-  useGetWorkspace = _useGetWorkspace,
+  ownIsEmpty,
+  useProjectMembers,
+  useGetWorkspace,
 }: {
-  projectName?: string;
+  projectName: string;
   workspaceName?: string;
-  workspaceNamespace?: string;
-  setValue: UseFormSetValue<CreateDialogProps>;
+  ownIsEmpty: boolean;
   useProjectMembers?: typeof _useProjectMembers;
   useGetWorkspace?: typeof _useGetWorkspace;
 }) {
   const { t } = useTranslation();
-  const menuRef = useRef<MenuDomRef>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const project = useProjectMembers(projectName);
-  const workspace = useGetWorkspace(workspaceName, workspaceNamespace);
-
-  const valuesBySource: Record<ReuseSource, SupportInfoValues> = {
-    Project: {
-      supportLandscape: project.supportLandscape ?? '',
-      supportServiceIds: project.supportServiceIds ?? '',
-      supportSecurityContacts: project.supportSecurityContacts ?? '',
-      supportOpsContacts: project.supportOpsContacts ?? '',
-    },
-    Workspace: {
-      supportLandscape: workspace.workspaceData?.supportLandscape ?? '',
-      supportServiceIds: workspace.workspaceData?.supportServiceIds ?? '',
-      supportSecurityContacts: workspace.workspaceData?.supportSecurityContacts ?? '',
-      supportOpsContacts: workspace.workspaceData?.supportOpsContacts ?? '',
-    },
-  };
-
-  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
-    if (menuRef.current && e.currentTarget) {
-      menuRef.current.opener = e.currentTarget as HTMLElement;
-      setMenuOpen((prev) => !prev);
-    }
-  };
-
-  const hasData = (source: ReuseSource) => Object.values(valuesBySource[source]).some((v) => v.trim() !== '');
-  const canReuseProject = !!projectName && hasData('Project');
-  const canReuseWorkspace = !!workspaceName && !!workspaceNamespace && hasData('Workspace');
-
-  const handleReuse = (source: ReuseSource) => {
-    (Object.entries(valuesBySource[source]) as [keyof SupportInfoValues, string][]).forEach(([field, value]) =>
-      setValue(field, value, { shouldDirty: true, shouldValidate: true }),
-    );
-  };
-
-  const isLoading = project.isLoading || workspace.isLoading;
-  const nothingToReuse = !isLoading && !canReuseProject && !canReuseWorkspace;
+  // Resolve against the parents only (own = empty) to learn what an empty form falls back to.
+  const parentDefaults = useInheritedSupportInfo(
+    {},
+    { projectName, workspaceName, useProjectMembers, useGetWorkspace },
+  );
+  const { inheritedFrom } = parentDefaults;
+  if (!inheritedFrom) return null;
+  const summary = inheritedSummary(t, parentDefaults.info);
 
   return (
-    <>
-      <Button
-        className={styles.reuseButton}
-        data-testid="reuse-support-info-button"
-        disabled={isLoading || nothingToReuse}
-        icon="cause"
-        tooltip={nothingToReuse ? t('SupportInfo.reuseNothingAvailable') : undefined}
-        onClick={handleOpenerClick}
-      >
-        {t('SupportInfo.reuseButton')}
-      </Button>
-      <Menu
-        ref={menuRef}
-        open={menuOpen}
-        onItemClick={(event) => {
-          const source = (event.detail.item as HTMLElement).dataset.source as ReuseSource;
-          handleReuse(source);
-          setMenuOpen(false);
-        }}
-      >
-        {canReuseProject && (
-          <MenuItem
-            data-source="Project"
-            data-testid="reuse-support-info-from-project"
-            text={projectName}
-            additionalText={t('Entities.Project')}
-          />
-        )}
-        {canReuseWorkspace && (
-          <MenuItem
-            data-source="Workspace"
-            data-testid="reuse-support-info-from-workspace"
-            text={workspaceName}
-            additionalText={t('Entities.Workspace')}
-          />
-        )}
-      </Menu>
-    </>
+    <MessageStrip
+      className={styles.intro}
+      data-testid="support-info-form-inherited"
+      data-active={ownIsEmpty ? 'true' : 'false'}
+      design={ownIsEmpty ? 'Information' : 'Critical'}
+      hideCloseButton
+    >
+      <InheritedFromText source={inheritedFrom} />
+      {summary && <span>: {summary}</span>}
+      <div className={styles.inheritedHint}>
+        {ownIsEmpty ? t('SupportInfo.inheritedFormHint') : t('SupportInfo.inheritedOverriddenHint')}
+      </div>
+    </MessageStrip>
   );
 }
 
@@ -172,9 +104,8 @@ export function SupportInfoForm({
   register,
   watch,
   setValue,
-  copyFromProjectName,
-  copyFromWorkspaceName,
-  copyFromWorkspaceNamespace,
+  parentProjectName,
+  parentWorkspaceName,
   useProjectMembers,
   useGetWorkspace,
 }: SupportInfoFormProps) {
@@ -189,24 +120,23 @@ export function SupportInfoForm({
     setValue('supportLandscape', value, { shouldDirty: true, shouldValidate: true });
   };
 
-  const showReuseButton = copyFromProjectName || (copyFromWorkspaceName && copyFromWorkspaceNamespace);
+  const ownIsEmpty = ![supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts].some(
+    (v) => v.trim() !== '',
+  );
 
   return (
     <div className={styles.container}>
       <MessageStrip className={styles.intro} design="Information" hideCloseButton>
         {t('SupportInfo.wizardIntro')}
       </MessageStrip>
-      {showReuseButton && (
-        <div className={styles.reuseRow}>
-          <ReuseSupportInfoButton
-            projectName={copyFromProjectName}
-            workspaceName={copyFromWorkspaceName}
-            workspaceNamespace={copyFromWorkspaceNamespace}
-            setValue={setValue}
-            useProjectMembers={useProjectMembers}
-            useGetWorkspace={useGetWorkspace}
-          />
-        </div>
+      {parentProjectName && (
+        <InheritedSupportInfoHint
+          projectName={parentProjectName}
+          workspaceName={parentWorkspaceName}
+          ownIsEmpty={ownIsEmpty}
+          useProjectMembers={useProjectMembers}
+          useGetWorkspace={useGetWorkspace}
+        />
       )}
       <div className={styles.fields}>
         <Field label={t('SupportInfo.purposeLabel')} inputId="support-landscape">

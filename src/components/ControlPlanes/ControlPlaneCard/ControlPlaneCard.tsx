@@ -27,7 +27,7 @@ import { McpSupportInfoTag } from './McpSupportInfoTag.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { extractSupportInfo, resolveSupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -54,6 +54,8 @@ interface Props {
   controlPlane: ControlPlaneListItem;
   workspace: Workspace;
   projectName: string;
+  /** Nearest ancestor's resolved support info; used when the control plane sets none of its own. */
+  parentSupportInfo?: SupportInfoCandidate;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
   /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
@@ -79,6 +81,7 @@ export const ControlPlaneCard = ({
   controlPlane,
   workspace,
   projectName,
+  parentSupportInfo,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
   v2Components,
@@ -190,7 +193,10 @@ export const ControlPlaneCard = ({
               <McpSupportInfoTag
                 namespace={namespace}
                 resourceName={name}
-                supportInfo={extractSupportInfo(controlPlane.metadata.annotations)}
+                resolved={resolveSupportInfo(
+                  extractSupportInfo(controlPlane.metadata.annotations),
+                  parentSupportInfo ? [parentSupportInfo] : [],
+                )}
               />
             )}
             <MCPHealthPopoverButton

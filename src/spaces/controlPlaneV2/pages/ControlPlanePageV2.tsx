@@ -30,6 +30,7 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { useInheritedSupportInfo } from '../../onboarding/hooks/useInheritedSupportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -448,6 +449,10 @@ export default function ControlPlanePageV2() {
     );
   }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
+  const resolvedSupportInfo = useInheritedSupportInfo(
+    extractSupportInfo(mcp?.metadata?.annotations as Record<string, string> | undefined),
+    { projectName, workspaceName },
+  );
   const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
@@ -624,9 +629,7 @@ export default function ControlPlanePageV2() {
                       <McpSupportInfoTag
                         namespace={mcp.metadata?.namespace ?? namespace ?? ''}
                         resourceName={controlPlaneName}
-                        supportInfo={extractSupportInfo(
-                          mcp.metadata?.annotations as Record<string, string> | undefined,
-                        )}
+                        resolved={resolvedSupportInfo}
                       />
                     </FlexBox>
                   </FlexBox>

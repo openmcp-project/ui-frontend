@@ -146,7 +146,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.contains('Creation failed').should('be.visible');
   });
 
-  it('copies support info from the parent project when it has data', () => {
+  it('shows the parent project as the inheritance source and keeps the fields empty', () => {
     const useProjectMembersWithSupport: typeof useProjectMembers = () => ({
       members: [],
       displayName: undefined,
@@ -165,14 +165,39 @@ describe('CreateWorkspaceDialogContainer', () => {
     goToMembers();
     goToSupportInfo();
 
-    cy.get('[data-testid="reuse-support-info-button"]').click();
-    cy.get('[data-testid="reuse-support-info-from-project"]').click();
-
-    cy.get('[data-testid="support-landscape"]').invoke('prop', 'value').should('eq', 'production');
-    cy.get('[data-testid="support-service-ids"] ui5-token[text="ID-1"]').should('exist');
+    cy.get('[data-testid="support-info-form-inherited"]')
+      .should('have.attr', 'data-active', 'true')
+      .and('contain', 'Project')
+      .and('contain', 'Production')
+      .and('contain', 'ID-1, ID-2');
+    cy.get('[data-testid="support-landscape"]').invoke('prop', 'value').should('eq', '');
   });
 
-  it('disables the reuse button when the parent project has no support info', () => {
+  it('switches the hint to "overridden" once the user sets their own value', () => {
+    const useProjectMembersWithSupport: typeof useProjectMembers = () => ({
+      members: [],
+      displayName: undefined,
+      creationTimestamp: undefined,
+      supportLandscape: 'production',
+      isLoading: false,
+    });
+
+    const setIsOpen = cy.stub();
+    mountWorkspace(setIsOpen, fakeUseCreateWorkspace, useProjectMembersWithSupport);
+
+    fillMetadata();
+    goToMembers();
+    goToSupportInfo();
+
+    cy.get('[data-testid="support-landscape"]').openDropDownByClick();
+    cy.get('[data-testid="support-landscape"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>('Staging');
+
+    cy.get('[data-testid="support-info-form-inherited"]')
+      .should('have.attr', 'data-active', 'false')
+      .and('contain', 'Clear all fields to inherit again');
+  });
+
+  it('shows no inheritance hint when the parent project has no support info', () => {
     const setIsOpen = cy.stub();
     // default fakeUseProjectMembers returns no support fields
     mountWorkspace(setIsOpen);
@@ -181,6 +206,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     goToMembers();
     goToSupportInfo();
 
-    cy.get('[data-testid="reuse-support-info-button"]').invoke('prop', 'disabled').should('equal', true);
+    cy.get('[data-testid="support-landscape"]').should('exist');
+    cy.get('[data-testid="support-info-form-inherited"]').should('not.exist');
   });
 });

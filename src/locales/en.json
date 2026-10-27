@@ -829,7 +829,10 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit",
-    "reuseButton": "Reuse",
-    "reuseNothingAvailable": "No support info available on the parent Project or Workspace"
+    "overrideButton": "Override",
+    "inheritedFrom": "Inherited from {{kind}} <b>{{name}}</b>",
+    "inheritedTooltip": "Inherited from {{kind}} {{name}}",
+    "inheritedFormHint": "Leave all fields empty to keep using these values. Setting any field replaces them all.",
+    "inheritedOverriddenHint": "You set your own values, so none of the inherited values apply. Clear all fields to inherit again."
   }
 }
