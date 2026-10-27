@@ -104,7 +104,7 @@
   },
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
-    "createControlPlane": "Create Control Plane",
+    "createControlPlane": "Control Plane",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
