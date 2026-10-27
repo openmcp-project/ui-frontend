@@ -41,7 +41,6 @@ import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
-import { BrandLogoPlaceholder } from './BrandLogoPlaceholder.tsx';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
@@ -76,13 +75,7 @@ export function ShellBarComponent({
     <>
       <ShellBar
         hidden={window.location.href.includes('compact-mode')}
-        logo={
-          branding.logo ? (
-            <img src={branding.logo} alt={branding.appName} className={styles.logo} />
-          ) : (
-            <BrandLogoPlaceholder />
-          )
-        }
+        logo={branding.logo ? <img src={branding.logo} alt={branding.appName} className={styles.logo} /> : undefined}
         primaryTitle={mcpDisplayName ?? mcpName ?? branding.appName}
         profile={
           <Avatar

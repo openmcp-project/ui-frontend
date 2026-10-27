@@ -17,7 +17,7 @@ describe('SignInPage', () => {
   it('renders the SignInPage', () => {
     cy.mount(<SignInPage useAuthOnboarding={fakeUseAuthOnboarding} />);
 
-    cy.get('img[alt="Open Control Plane"]').should('exist');
+    cy.get('[data-testid="app-icon"]').should('exist');
     cy.get('ui5-button').should('contain', 'Sign In');
   });
 

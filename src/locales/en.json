@@ -1,6 +1,6 @@
 {
   "SignInPage": {
-    "welcomeMessage": "Welcome to {{appName}}",
+    "welcomeMessage": "Welcome to <appName>{{appName}}</appName>",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
     "signInButton": "Sign In",
     "becomeContributorLink": "Become a Contributor"

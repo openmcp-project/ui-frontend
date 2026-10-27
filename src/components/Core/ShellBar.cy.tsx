@@ -60,11 +60,11 @@ describe('ShellBar', () => {
     );
   };
 
-  it('renders the ShellBar with logo and title', () => {
+  it('renders the ShellBar with title', () => {
     mountComponent();
 
-    cy.get('img[alt="SAP"]').should('be.visible');
-    cy.contains('OpenControlPlane UI').should('be.visible');
+    cy.get('ui5-shellbar').should('be.visible');
+    cy.contains(defaultBranding.appName).should('be.visible');
   });
 
   it('navigates home when the logo is clicked', () => {
