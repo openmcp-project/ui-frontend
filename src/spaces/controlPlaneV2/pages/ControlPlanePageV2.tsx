@@ -37,8 +37,8 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
-import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
-import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
+import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
+import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -89,10 +89,18 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  roleBindings,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  roleBindings?: MemberRoleBinding[];
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -183,10 +191,13 @@ function OpenSourceHeadlamp({
     setMcpActions({
       kubeconfig: mcp.kubeconfig,
       mcpName: mcp.name,
-      roleBindings: mcp.roleBindings,
+      roleBindings,
       project: projectName,
       workspace: workspaceName,
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
     });
     return () => {
       clearMcpActions();
@@ -194,13 +205,16 @@ function OpenSourceHeadlamp({
   }, [
     mcp.kubeconfig,
     mcp.name,
-    mcp.roleBindings,
+    roleBindings,
     projectName,
     workspaceName,
     backPath,
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
   ]);
 
   useEffect(() => {
@@ -521,6 +535,16 @@ export default function ControlPlanePageV2() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+                mcpCreationTimestamp={mcp.metadata?.creationTimestamp}
+                mcpCreatedBy={
+                  (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
+                }
+                mcpStatus={
+                  mcp?.metadata?.deletionTimestamp
+                    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                    : mcp?.status
+                }
+                roleBindings={roleBindings}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>

@@ -1,52 +1,115 @@
+/*
+ * Full-window drop overlay, modelled on native macOS drop targets: the app stays visible
+ * (softly blurred), an inset rounded frame highlights the target, and a compact floating card
+ * says what will happen. All colors come from UI5 theme tokens, so it follows the light,
+ * dark and high-contrast themes automatically.
+ */
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Keep capturing events so the dragleave/relatedTarget cancel logic stays unchanged. */
   pointer-events: all;
+  background: color-mix(in srgb, var(--sapBackgroundColor) 55%, transparent);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  animation: fadeIn 160ms ease-out;
 }
 
+/* Inset highlight frame. */
+.frame {
+  position: absolute;
+  inset: 0.75rem;
+  border: 2px solid var(--sapContent_DragAndDropActiveColor, var(--sapBrandColor));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--sapContent_DragAndDropActiveColor, var(--sapBrandColor)) 7%, transparent);
+  box-shadow:
+    inset 0 0 0 4px color-mix(in srgb, var(--sapContent_DragAndDropActiveColor, var(--sapBrandColor)) 14%, transparent),
+    0 0 2rem color-mix(in srgb, var(--sapContent_DragAndDropActiveColor, var(--sapBrandColor)) 25%, transparent);
+  pointer-events: none;
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+/* Floating, centered card. */
 .card {
-  background: var(--sapBaseColor);
-  border: 3px dashed var(--sapBrandColor);
-  border-radius: var(--sapPopover_BorderCornerRadius, 0.5rem);
-  padding: 3rem 4rem;
-  min-width: 400px;
-  max-width: 560px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 18rem;
+  max-width: 24rem;
+  padding: 2rem 2.5rem 1.75rem;
   text-align: center;
-  animation: pulse 1.8s ease-in-out infinite;
+  background: var(--sapTile_Background, var(--sapBaseColor));
+  border: 1px solid var(--sapGroup_ContentBorderColor);
+  border-radius: 1rem;
+  box-shadow: var(--sapContent_Shadow3);
+  pointer-events: none;
+  animation: popIn 200ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    border-color: var(--sapBrandColor);
-  }
-  50% {
-    border-color: var(--sapPositiveColor);
-  }
+.iconBadge {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 0.25rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sapBrandColor) 12%, transparent);
 }
 
 .dropIcon {
+  width: 2rem;
+  height: 2rem;
   color: var(--sapBrandColor);
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  animation: nudge 1.6s ease-in-out infinite;
 }
 
 .title {
-  margin: 0 0 1.5rem 0;
-}
-
-.targetBadge {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .hint {
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSmallSize);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.96);
+  }
+}
+
+/* Soft glow instead of the old border-color cycling. */
+@keyframes breathe {
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Small "drop it here" cue. */
+@keyframes nudge {
+  50% {
+    transform: translateY(-0.2rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .frame,
+  .card,
+  .dropIcon {
+    animation: none;
+  }
 }

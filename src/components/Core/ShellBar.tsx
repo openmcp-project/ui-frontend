@@ -3,6 +3,7 @@ import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/S
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/information';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/overflow';
 import '@ui5/webcomponents-icons/dist/upload';
@@ -10,6 +11,7 @@ import {
   Avatar,
   Button,
   ButtonDomRef,
+  Label,
   List,
   ListItemStandard,
   ListItemStandardDomRef,
@@ -22,6 +24,7 @@ import {
   ShellBarDomRef,
   ShellBarSpacer,
   Switch,
+  Text,
   TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
@@ -41,8 +44,10 @@ import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
+import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -57,9 +62,12 @@ export function ShellBarComponent({
   const { branding } = useFrontendConfig();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
+  const infoButtonRef = useRef<ButtonDomRef | null>(null);
+  const infoPopoverRef = useRef<PopoverDomRef>(null);
+  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
   const telemetry = useTelemetry();
-  const { roleBindings, navigateBack, mcpName, mcpDisplayName } = useShellBarMcpActions();
+  const { navigateBack, mcpName, mcpDisplayName, project, workspace, mcpStatus } = useShellBarMcpActions();
 
   const onLogoClick = () => {
     window.location.hash = Routes.Home;
@@ -69,6 +77,13 @@ export function ShellBarComponent({
     if (!profilePopoverRef.current) return;
     profilePopoverRef.current.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
+  };
+
+  const handleInfoClick = () => {
+    if (infoPopoverRef.current && infoButtonRef.current) {
+      infoPopoverRef.current.opener = infoButtonRef.current;
+      setInfoPopoverOpen((prev) => !prev);
+    }
   };
 
   return (
@@ -95,19 +110,32 @@ export function ShellBarComponent({
           ) : undefined
         }
         content={[
+          ...(mcpName && mcpStatus && project && workspace
+            ? [
+                <MCPHealthPopoverButton
+                  key="status"
+                  mcpStatus={mcpStatus}
+                  projectName={project}
+                  workspaceName={workspace}
+                  mcpName={mcpName}
+                  source="detail"
+                />,
+              ]
+            : []),
+          ...(mcpName
+            ? [
+                <Button
+                  key="info"
+                  ref={infoButtonRef}
+                  design="Transparent"
+                  icon="information"
+                  tooltip={t('ShellBar.controlPlaneInfoButton')}
+                  onClick={handleInfoClick}
+                />,
+              ]
+            : []),
           <ShellBarSpacer key="spacer" />,
           <div key="content" className={styles.shellBarContent}>
-            {roleBindings && (
-              <div className={styles.membersSlot}>
-                <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
-                <MembersAvatarView
-                  members={convertRoleBindingsToMembers(roleBindings)}
-                  hideNamespaceColumn
-                  source="controlplane-detail"
-                />
-              </div>
-            )}
-            <KubeconfigShellBarButton />
             <UploadYamlShellBarButton />
             {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
@@ -140,65 +168,124 @@ export function ShellBarComponent({
         popoverRef={profilePopoverRef}
         useAuthOnboarding={useAuthOnboarding}
       />
+      <ControlPlaneInfoPopover ref={infoPopoverRef} open={infoPopoverOpen} setOpen={setInfoPopoverOpen} />
     </>
   );
 }
 
-function KubeconfigShellBarButton() {
-  const { kubeconfig, mcpName } = useShellBarMcpActions();
+function ControlPlaneInfoPopover({
+  ref,
+  open,
+  setOpen,
+}: {
+  ref: RefObject<PopoverDomRef | null>;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+}) {
+  const { mcpName, mcpDisplayName, project, workspace, mcpCreationTimestamp, mcpCreatedBy, roleBindings, kubeconfig } =
+    useShellBarMcpActions();
+  const { t } = useTranslation();
   const { mode } = useViewMode();
+
+  if (!mcpName) return null;
+
+  const created = mcpCreationTimestamp
+    ? new Date(mcpCreationTimestamp).toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : undefined;
+
+  const members = roleBindings ? convertRoleBindingsToMembers(roleBindings) : [];
+  const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
+
+  return (
+    <Popover
+      ref={ref}
+      placement={PopoverPlacement.Bottom}
+      open={open}
+      headerText={mcpDisplayName ?? mcpName}
+      onClose={() => setOpen(false)}
+    >
+      <div className={styles.infoPopoverContent}>
+        <div className={styles.infoGrid}>
+          {project && (
+            <>
+              <Label>{t('Entities.Project')}</Label>
+              <Text>{project}</Text>
+            </>
+          )}
+          {workspace && (
+            <>
+              <Label>{t('Entities.Workspace')}</Label>
+              <Text>{workspace}</Text>
+            </>
+          )}
+          {created && (
+            <>
+              <Label>{t('McpHeader.createdOnLabel')}</Label>
+              <Text>
+                {created} ({formatDateAsTimeAgo(mcpCreationTimestamp!)})
+              </Text>
+            </>
+          )}
+          {mcpCreatedBy && (
+            <>
+              <Label>{t('McpHeader.createdByLabel')}</Label>
+              <Text>{mcpCreatedBy}</Text>
+            </>
+          )}
+        </div>
+
+        {members.length > 0 && (
+          <div className={styles.infoSection}>
+            <Label>
+              {t('common.members')} ({members.length})
+            </Label>
+            <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-detail" />
+          </div>
+        )}
+
+        {hasKubeconfig && (
+          <div className={styles.infoSection}>
+            <Label>{t('CopyKubeconfigButton.kubeconfigButton')}</Label>
+            <KubeconfigPopoverButtons kubeconfig={kubeconfig!} mcpName={mcpName} />
+          </div>
+        )}
+      </div>
+    </Popover>
+  );
+}
+
+function KubeconfigPopoverButtons({ kubeconfig, mcpName }: { kubeconfig: string; mcpName: string }) {
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const telemetry = useTelemetry();
-  const kubeconfigMenuRef = useRef<MenuDomRef | null>(null);
-  const buttonRef = useRef<ButtonDomRef | null>(null);
-  const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
-
-  const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
-
-  if (!hasKubeconfig) return null;
-
-  const handleButtonClick = () => {
-    if (kubeconfigMenuRef.current && buttonRef.current) {
-      kubeconfigMenuRef.current.opener = buttonRef.current;
-      setKubeconfigMenuOpen((prev) => !prev);
-    }
-  };
 
   return (
-    <>
+    <div className={styles.kubeconfigButtons}>
       <Button
-        ref={buttonRef}
-        className={styles.kubeconfigButton}
-        design="Emphasized"
-        icon="slim-arrow-down"
-        icon-end
-        onClick={handleButtonClick}
-      >
-        {t('CopyKubeconfigButton.kubeconfigButton')}
-      </Button>
-      <Menu
-        ref={kubeconfigMenuRef}
-        open={kubeconfigMenuOpen}
-        onClose={() => setKubeconfigMenuOpen(false)}
-        onItemClick={(event) => {
-          const action = event.detail.item.dataset.action;
-          if (action === 'download' && kubeconfig && mcpName) {
-            DownloadKubeconfig(kubeconfig, mcpName);
-            telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-shellbar' });
-          } else if (action === 'copy' && kubeconfig) {
-            void copyToClipboard(kubeconfig);
-            telemetry.track({ category: 'kubeconfig', action: 'copied', source: 'controlplane-shellbar' });
-          }
-          setKubeconfigMenuOpen(false);
+        design="Default"
+        icon="download"
+        onClick={() => {
+          DownloadKubeconfig(kubeconfig, mcpName);
+          telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-info-popover' });
         }}
       >
-        {hasKubeconfig && (
-          <MenuItem text={t('CopyKubeconfigButton.menuDownload')} data-action="download" icon="download" />
-        )}
-        {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
-      </Menu>
-    </>
+        {t('CopyKubeconfigButton.menuDownload')}
+      </Button>
+      <Button
+        design="Default"
+        icon="copy"
+        onClick={() => {
+          void copyToClipboard(kubeconfig);
+          telemetry.track({ category: 'kubeconfig', action: 'copied', source: 'controlplane-info-popover' });
+        }}
+      >
+        {t('CopyKubeconfigButton.menuCopy')}
+      </Button>
+    </div>
   );
 }
 
@@ -370,7 +457,6 @@ function UploadYamlShellBarButton() {
   const { requestApplyFiles } = useYamlApply();
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [expanded, setExpanded] = useState(false);
 
   return (
     <>
@@ -387,17 +473,12 @@ function UploadYamlShellBarButton() {
         }}
       />
       <Button
-        className={`${styles.uploadYamlButton} ${expanded ? styles.uploadYamlExpanded : styles.uploadYamlCollapsed}`}
         design="Transparent"
         icon="upload"
         tooltip={t('yamlApply.uploadButton')}
-        onBlur={() => setExpanded(false)}
         onClick={() => inputRef.current?.click()}
-        onFocus={() => setExpanded(true)}
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
       >
-        <span className={styles.uploadYamlText}>{t('yamlApply.uploadButtonShort')}</span>
+        {t('yamlApply.uploadButtonShort')}
       </Button>
     </>
   );
