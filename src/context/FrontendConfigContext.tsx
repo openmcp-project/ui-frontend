@@ -55,8 +55,6 @@ export const defaultBranding: FrontendConfig['branding'] = {
   logo: null,
   showFundingLogo: false,
   primaryColor: null,
-  fontFamily: null,
-  fontUrl: null,
   favicon: null,
 };
 
@@ -74,8 +72,6 @@ const FrontendConfigSchema = z.object({
       logo: z.string().nullable().default(null),
       showFundingLogo: z.boolean().default(false),
       primaryColor: z.string().nullable().default(null),
-      fontFamily: z.string().nullable().default(null),
-      fontUrl: z.string().nullable().default(null),
       favicon: z.string().nullable().default(null),
     })
     .default({
@@ -84,8 +80,6 @@ const FrontendConfigSchema = z.object({
       logo: null,
       showFundingLogo: false,
       primaryColor: null,
-      fontFamily: null,
-      fontUrl: null,
       favicon: null,
     }),
   featureToggles: z

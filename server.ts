@@ -156,7 +156,7 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     .join(' ');
   const csp = [
     "default-src 'self'",
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data:${matomoOrigin ? ` ${matomoOrigin}` : ''}`,
     `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${telemetryOrigins}`,
     isLocalDev

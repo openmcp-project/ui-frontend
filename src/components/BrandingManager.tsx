@@ -2,12 +2,11 @@ import { useEffect } from 'react';
 import { useFrontendConfig } from '../context/FrontendConfigContext.tsx';
 
 const STYLE_ID = 'branding-overrides';
-const LINK_ID = 'branding-font';
 const FAVICON_SELECTOR = 'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]';
 
 export function BrandingManager() {
   const { branding } = useFrontendConfig();
-  const { primaryColor, fontFamily, fontUrl, favicon } = branding;
+  const { primaryColor, favicon } = branding;
 
   useEffect(() => {
     if (!favicon) return;
@@ -22,16 +21,6 @@ export function BrandingManager() {
       replaced.forEach((el) => document.head.appendChild(el));
     };
   }, [favicon]);
-
-  useEffect(() => {
-    if (!fontUrl) return;
-    const link = document.createElement('link');
-    link.id = LINK_ID;
-    link.rel = 'stylesheet';
-    link.href = fontUrl;
-    document.head.appendChild(link);
-    return () => link.remove();
-  }, [fontUrl]);
 
   useEffect(() => {
     const rules: string[] = [];
@@ -116,18 +105,15 @@ export function BrandingManager() {
       );
     }
 
-    if (fontFamily) {
-      rules.push(`--sapFontFamily: ${fontFamily} !important`);
-    }
-
     if (rules.length === 0) return;
 
     const style = document.createElement('style');
     style.id = STYLE_ID;
-    style.textContent = `:root { ${rules.join('; ')} }`;
+    const css = `:root { ${rules.join('; ')} }`;
+    style.textContent = css;
     document.head.appendChild(style);
     return () => style.remove();
-  }, [primaryColor, fontFamily]);
+  }, [primaryColor]);
 
   return null;
 }
