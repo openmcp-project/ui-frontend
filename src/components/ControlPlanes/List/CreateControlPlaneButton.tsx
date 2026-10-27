@@ -26,7 +26,13 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
 
   if (!enableMcpV2) {
     return (
-      <Button data-testid="create-control-plane-button" disabled={disabled} icon="add" onClick={onCreateV1}>
+      <Button
+        data-testid="create-control-plane-button"
+        design="Emphasized"
+        disabled={disabled}
+        icon="add"
+        onClick={onCreateV1}
+      >
         {t('ControlPlaneListToolbar.createControlPlane')}
       </Button>
     );
@@ -36,6 +42,7 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
     <>
       <Button
         data-testid="create-control-plane-button"
+        design="Emphasized"
         disabled={disabled}
         icon="add"
         icon-end
