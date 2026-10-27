@@ -4,10 +4,20 @@
   text-align: left;
 }
 
-.copyRow {
+.intro {
+  max-width: 100%;
+  text-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.reuseRow {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.reuseButton {
+  min-width: fit-content;
 }
 
 .fields {

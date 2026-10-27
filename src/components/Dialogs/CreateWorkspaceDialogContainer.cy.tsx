@@ -165,13 +165,14 @@ describe('CreateWorkspaceDialogContainer', () => {
     goToMembers();
     goToSupportInfo();
 
-    cy.get('[data-testid="copy-support-info-from-project"]').click();
+    cy.get('[data-testid="reuse-support-info-button"]').click();
+    cy.get('[data-testid="reuse-support-info-from-project"]').click();
 
     cy.get('[data-testid="support-landscape"]').invoke('prop', 'value').should('eq', 'production');
     cy.get('[data-testid="support-service-ids"] ui5-token[text="ID-1"]').should('exist');
   });
 
-  it('shows an information popup when the parent project has no support info', () => {
+  it('disables the reuse button when the parent project has no support info', () => {
     const setIsOpen = cy.stub();
     // default fakeUseProjectMembers returns no support fields
     mountWorkspace(setIsOpen);
@@ -180,8 +181,6 @@ describe('CreateWorkspaceDialogContainer', () => {
     goToMembers();
     goToSupportInfo();
 
-    cy.get('[data-testid="copy-support-info-from-project"]').click();
-
-    cy.contains('The parent project has no support info to copy.').should('be.visible');
+    cy.get('[data-testid="reuse-support-info-button"]').invoke('prop', 'disabled').should('equal', true);
   });
 });

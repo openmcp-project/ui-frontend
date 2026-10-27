@@ -252,7 +252,6 @@ export function CreateProjectWorkspaceDialog({
                   watch={watch}
                   setValue={setValue}
                   copyFromProjectName={type === 'workspace' ? projectName : undefined}
-                  introText={type === 'workspace' ? t('SupportInfo.wizardIntroWorkspace') : undefined}
                   useProjectMembers={useProjectMembers}
                 />
               </WizardStep>

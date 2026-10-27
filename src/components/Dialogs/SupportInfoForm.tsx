@@ -1,23 +1,26 @@
-import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/cause';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
 import {
   Button,
+  ButtonDomRef,
   Label,
-  MessageBox,
-  MessageBoxType,
+  Menu,
+  MenuDomRef,
+  MenuItem,
+  MessageStrip,
   Option,
   Select,
   SelectDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useState } from 'react';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import { useRef, useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
-import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -31,120 +34,114 @@ interface SupportInfoFormProps {
   copyFromProjectName?: string;
   copyFromWorkspaceName?: string;
   copyFromWorkspaceNamespace?: string;
-  introText?: string;
   useProjectMembers?: typeof _useProjectMembers;
   useGetWorkspace?: typeof _useGetWorkspace;
 }
 
-function CopySupportInfoFromProjectButton({
+type ReuseSource = 'Project' | 'Workspace';
+
+interface SupportInfoValues {
+  supportLandscape: string;
+  supportServiceIds: string;
+  supportSecurityContacts: string;
+  supportOpsContacts: string;
+}
+
+function ReuseSupportInfoButton({
   projectName,
+  workspaceName,
+  workspaceNamespace,
   setValue,
   useProjectMembers = _useProjectMembers,
-}: {
-  projectName: string;
-  setValue: UseFormSetValue<CreateDialogProps>;
-  useProjectMembers?: typeof _useProjectMembers;
-}) {
-  const { t } = useTranslation();
-  // We only need the parent project's support annotations here; useProjectMembers
-  // is the existing query that already exposes them (its members payload is unused).
-  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
-    useProjectMembers(projectName);
-  const [noDataOpen, setNoDataOpen] = useState(false);
-
-  const handleCopy = () => {
-    const values = {
-      supportLandscape: supportLandscape ?? '',
-      supportServiceIds: supportServiceIds ?? '',
-      supportSecurityContacts: supportSecurityContacts ?? '',
-      supportOpsContacts: supportOpsContacts ?? '',
-    } as const;
-
-    if (!Object.values(values).some((v) => v.trim() !== '')) {
-      setNoDataOpen(true);
-      return;
-    }
-
-    (Object.entries(values) as [keyof typeof values, string][]).forEach(([field, value]) =>
-      setValue(field, value, { shouldDirty: true, shouldValidate: true }),
-    );
-  };
-
-  return (
-    <>
-      <Button
-        data-testid="copy-support-info-from-project"
-        design="Transparent"
-        disabled={isLoading}
-        icon="copy"
-        onClick={handleCopy}
-      >
-        {t('SupportInfo.copyFromProject')}
-      </Button>
-      <MessageBox
-        open={noDataOpen}
-        titleText={t('SupportInfo.copyFromProject')}
-        type={MessageBoxType.Information}
-        onClose={() => setNoDataOpen(false)}
-      >
-        {t('SupportInfo.copyFromProjectNoData')}
-      </MessageBox>
-    </>
-  );
-}
-
-function CopySupportInfoFromWorkspaceButton({
-  workspaceName,
-  namespace,
-  setValue,
   useGetWorkspace = _useGetWorkspace,
 }: {
-  workspaceName: string;
-  namespace: string;
+  projectName?: string;
+  workspaceName?: string;
+  workspaceNamespace?: string;
   setValue: UseFormSetValue<CreateDialogProps>;
+  useProjectMembers?: typeof _useProjectMembers;
   useGetWorkspace?: typeof _useGetWorkspace;
 }) {
   const { t } = useTranslation();
-  const { workspaceData, isLoading } = useGetWorkspace(workspaceName, namespace);
-  const [noDataOpen, setNoDataOpen] = useState(false);
+  const menuRef = useRef<MenuDomRef>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleCopy = () => {
-    const values = {
-      supportLandscape: workspaceData?.supportLandscape ?? '',
-      supportServiceIds: workspaceData?.supportServiceIds ?? '',
-      supportSecurityContacts: workspaceData?.supportSecurityContacts ?? '',
-      supportOpsContacts: workspaceData?.supportOpsContacts ?? '',
-    } as const;
+  const project = useProjectMembers(projectName);
+  const workspace = useGetWorkspace(workspaceName, workspaceNamespace);
 
-    if (!Object.values(values).some((v) => v.trim() !== '')) {
-      setNoDataOpen(true);
-      return;
+  const valuesBySource: Record<ReuseSource, SupportInfoValues> = {
+    Project: {
+      supportLandscape: project.supportLandscape ?? '',
+      supportServiceIds: project.supportServiceIds ?? '',
+      supportSecurityContacts: project.supportSecurityContacts ?? '',
+      supportOpsContacts: project.supportOpsContacts ?? '',
+    },
+    Workspace: {
+      supportLandscape: workspace.workspaceData?.supportLandscape ?? '',
+      supportServiceIds: workspace.workspaceData?.supportServiceIds ?? '',
+      supportSecurityContacts: workspace.workspaceData?.supportSecurityContacts ?? '',
+      supportOpsContacts: workspace.workspaceData?.supportOpsContacts ?? '',
+    },
+  };
+
+  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    if (menuRef.current && e.currentTarget) {
+      menuRef.current.opener = e.currentTarget as HTMLElement;
+      setMenuOpen((prev) => !prev);
     }
+  };
 
-    (Object.entries(values) as [keyof typeof values, string][]).forEach(([field, value]) =>
+  const hasData = (source: ReuseSource) => Object.values(valuesBySource[source]).some((v) => v.trim() !== '');
+  const canReuseProject = !!projectName && hasData('Project');
+  const canReuseWorkspace = !!workspaceName && !!workspaceNamespace && hasData('Workspace');
+
+  const handleReuse = (source: ReuseSource) => {
+    (Object.entries(valuesBySource[source]) as [keyof SupportInfoValues, string][]).forEach(([field, value]) =>
       setValue(field, value, { shouldDirty: true, shouldValidate: true }),
     );
   };
 
+  const isLoading = project.isLoading || workspace.isLoading;
+  const nothingToReuse = !isLoading && !canReuseProject && !canReuseWorkspace;
+
   return (
     <>
       <Button
-        data-testid="copy-support-info-from-workspace"
-        design="Transparent"
-        disabled={isLoading}
-        icon="copy"
-        onClick={handleCopy}
+        className={styles.reuseButton}
+        data-testid="reuse-support-info-button"
+        disabled={isLoading || nothingToReuse}
+        icon="cause"
+        tooltip={nothingToReuse ? t('SupportInfo.reuseNothingAvailable') : undefined}
+        onClick={handleOpenerClick}
       >
-        {t('SupportInfo.copyFromWorkspace')}
+        {t('SupportInfo.reuseButton')}
       </Button>
-      <MessageBox
-        open={noDataOpen}
-        titleText={t('SupportInfo.copyFromWorkspace')}
-        type={MessageBoxType.Information}
-        onClose={() => setNoDataOpen(false)}
+      <Menu
+        ref={menuRef}
+        open={menuOpen}
+        onItemClick={(event) => {
+          const source = (event.detail.item as HTMLElement).dataset.source as ReuseSource;
+          handleReuse(source);
+          setMenuOpen(false);
+        }}
       >
-        {t('SupportInfo.copyFromWorkspaceNoData')}
-      </MessageBox>
+        {canReuseProject && (
+          <MenuItem
+            data-source="Project"
+            data-testid="reuse-support-info-from-project"
+            text={projectName}
+            additionalText={t('Entities.Project')}
+          />
+        )}
+        {canReuseWorkspace && (
+          <MenuItem
+            data-source="Workspace"
+            data-testid="reuse-support-info-from-workspace"
+            text={workspaceName}
+            additionalText={t('Entities.Workspace')}
+          />
+        )}
+      </Menu>
     </>
   );
 }
@@ -178,7 +175,6 @@ export function SupportInfoForm({
   copyFromProjectName,
   copyFromWorkspaceName,
   copyFromWorkspaceNamespace,
-  introText,
   useProjectMembers,
   useGetWorkspace,
 }: SupportInfoFormProps) {
@@ -193,32 +189,25 @@ export function SupportInfoForm({
     setValue('supportLandscape', value, { shouldDirty: true, shouldValidate: true });
   };
 
-  const showCopyRow = copyFromProjectName || (copyFromWorkspaceName && copyFromWorkspaceNamespace);
+  const showReuseButton = copyFromProjectName || (copyFromWorkspaceName && copyFromWorkspaceNamespace);
 
   return (
     <div className={styles.container}>
-      {showCopyRow && (
-        <div className={styles.copyRow}>
-          {copyFromProjectName && (
-            <CopySupportInfoFromProjectButton
-              projectName={copyFromProjectName}
-              setValue={setValue}
-              useProjectMembers={useProjectMembers}
-            />
-          )}
-          {copyFromWorkspaceName && copyFromWorkspaceNamespace && (
-            <CopySupportInfoFromWorkspaceButton
-              workspaceName={copyFromWorkspaceName}
-              namespace={copyFromWorkspaceNamespace}
-              setValue={setValue}
-              useGetWorkspace={useGetWorkspace}
-            />
-          )}
+      <MessageStrip className={styles.intro} design="Information" hideCloseButton>
+        {t('SupportInfo.wizardIntro')}
+      </MessageStrip>
+      {showReuseButton && (
+        <div className={styles.reuseRow}>
+          <ReuseSupportInfoButton
+            projectName={copyFromProjectName}
+            workspaceName={copyFromWorkspaceName}
+            workspaceNamespace={copyFromWorkspaceNamespace}
+            setValue={setValue}
+            useProjectMembers={useProjectMembers}
+            useGetWorkspace={useGetWorkspace}
+          />
         </div>
       )}
-      <Infobox variant={'success'} size="sm">
-        {introText ?? t('SupportInfo.wizardIntro')}
-      </Infobox>
       <div className={styles.fields}>
         <Field label={t('SupportInfo.purposeLabel')} inputId="support-landscape">
           <Select

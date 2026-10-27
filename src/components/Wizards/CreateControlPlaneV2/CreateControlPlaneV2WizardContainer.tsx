@@ -1168,7 +1168,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                     copyFromProjectName={bareProjectName}
                     copyFromWorkspaceName={workspaceName}
                     copyFromWorkspaceNamespace={projectName}
-                    introText={t('SupportInfo.wizardIntroControlPlane')}
                   />
                 </div>
                 <div>
