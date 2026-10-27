@@ -8,7 +8,7 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 interface Props {
   disabled?: boolean;
   onCreateV1: () => void;
-  onCreateV2: () => void;
+  onCreateV2?: () => void;
 }
 
 export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreateV2 }: Props) {
@@ -17,6 +17,13 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
   const menuRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
+  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    if (menuRef.current && e.currentTarget) {
+      menuRef.current.opener = e.currentTarget as HTMLElement;
+      setOpen((prev) => !prev);
+    }
+  };
+
   if (!enableMcpV2) {
     return (
       <Button data-testid="create-control-plane-button" disabled={disabled} icon="add" onClick={onCreateV1}>
@@ -24,13 +31,6 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
       </Button>
     );
   }
-
-  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
-    if (menuRef.current && e.currentTarget) {
-      menuRef.current.opener = e.currentTarget as HTMLElement;
-      setOpen((prev) => !prev);
-    }
-  };
 
   return (
     <>
@@ -50,11 +50,12 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'createV1') onCreateV1();
-          if (action === 'createV2') onCreateV2();
+          if (action === 'createV2') onCreateV2?.();
           setOpen(false);
         }}
       >
         <MenuItem
+          key="createV1"
           data-action="createV1"
           additionalText={
             markMcpV1asDeprecated
@@ -65,6 +66,7 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
           text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
         />
         <MenuItem
+          key="createV2"
           data-action="createV2"
           additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
           icon="add"
