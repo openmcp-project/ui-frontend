@@ -4,6 +4,7 @@ import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import proxy from './server/app.js';
@@ -182,13 +183,33 @@ fastify.register(proxy, {
   prefix: '/api',
 });
 
+// Rate limiting for root-level routes. The autoloaded plugin in server/plugins/
+// is scoped to /api, so routes registered directly on the root instance (below)
+// need their own registration. global:false => only routes that opt in via
+// config.rateLimit are limited.
+await fastify.register(rateLimit, {
+  global: false,
+  keyGenerator: (req) => req.ip,
+});
+
 // Serve frontend-config.json with no-cache so branding/config changes propagate immediately.
 // This must be registered before FastifyVite so Fastify routes it here first.
-fastify.get('/frontend-config.json', async (_req, reply) => {
-  const configPath = path.join(__dirname, frontendConfigLocation);
-  const content = await readFile(configPath, 'utf-8');
-  return reply.header('content-type', 'application/json').header('cache-control', 'no-store').send(content);
-});
+fastify.get(
+  '/frontend-config.json',
+  {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  },
+  async (_req, reply) => {
+    const configPath = path.join(__dirname, frontendConfigLocation);
+    const content = await readFile(configPath, 'utf-8');
+    return reply.header('content-type', 'application/json').header('cache-control', 'no-store').send(content);
+  },
+);
 
 await fastify.register(FastifyVite, {
   root: __dirname,
