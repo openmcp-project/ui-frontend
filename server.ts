@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
-import { copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { initSentry } from './server/telemetry/bootstrap/sentry.js';
 import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
@@ -156,7 +157,7 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     .join(' ');
   const csp = [
     "default-src 'self'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data:${matomoOrigin ? ` ${matomoOrigin}` : ''}`,
     `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${telemetryOrigins}`,
     isLocalDev
@@ -185,7 +186,7 @@ fastify.register(proxy, {
 // This must be registered before FastifyVite so Fastify routes it here first.
 fastify.get('/frontend-config.json', async (_req, reply) => {
   const configPath = path.join(__dirname, frontendConfigLocation);
-  const content = readFileSync(configPath, 'utf-8');
+  const content = await readFile(configPath, 'utf-8');
   return reply.header('content-type', 'application/json').header('cache-control', 'no-store').send(content);
 });
 

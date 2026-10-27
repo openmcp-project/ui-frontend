@@ -49,14 +49,17 @@ export const useFrontendConfig = () => {
   return context;
 };
 
-export const defaultBranding: FrontendConfig['branding'] = {
-  appName: 'Control Plane UI',
-  portalName: 'the portal',
-  logo: null,
-  showFundingLogo: false,
-  primaryColor: null,
-  favicon: null,
-};
+// Use z.string() (NOT .url()) — data: URIs fail URL validation but are valid here (img-src 'self' data: in CSP).
+const BrandingSchema = z.object({
+  appName: z.string().default('Control Plane UI'),
+  portalName: z.string().default('the portal'),
+  logo: z.string().nullable().default(null),
+  showFundingLogo: z.boolean().default(false),
+  primaryColor: z.string().nullable().default(null),
+  favicon: z.string().nullable().default(null),
+});
+
+export const defaultBranding = BrandingSchema.parse({});
 
 const FrontendConfigSchema = z.object({
   documentationBaseUrl: z.string(),
@@ -64,24 +67,7 @@ const FrontendConfigSchema = z.object({
   feedbackUrl: z.string().nullable().default(null),
   landscape: z.optional(z.nativeEnum(Landscape)),
   mcp2DocsUrl: z.string().optional(),
-  // Use z.string() (NOT .url()) — data: URIs fail URL validation but are valid here (img-src 'self' data: in CSP).
-  branding: z
-    .object({
-      appName: z.string().default('Control Plane UI'),
-      portalName: z.string().default('the portal'),
-      logo: z.string().nullable().default(null),
-      showFundingLogo: z.boolean().default(false),
-      primaryColor: z.string().nullable().default(null),
-      favicon: z.string().nullable().default(null),
-    })
-    .default({
-      appName: 'Control Plane UI',
-      portalName: 'the portal',
-      logo: null,
-      showFundingLogo: false,
-      primaryColor: null,
-      favicon: null,
-    }),
+  branding: BrandingSchema.default(defaultBranding),
   featureToggles: z
     .object({
       markMcpV1asDeprecated: z.boolean().default(false),

@@ -3,15 +3,14 @@ import { useFrontendConfig } from '../../context/FrontendConfigContext';
 function hexToRgb(hex: string): [number, number, number] | null {
   const short = /^#([a-f\d])([a-f\d])([a-f\d])$/i.exec(hex);
   if (short) {
-    return [
-      parseInt(short[1] + short[1], 16),
-      parseInt(short[2] + short[2], 16),
-      parseInt(short[3] + short[3], 16),
-    ];
+    return [parseInt(short[1] + short[1], 16), parseInt(short[2] + short[2], 16), parseInt(short[3] + short[3], 16)];
   }
   const full = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!full) return null;
-  return [parseInt(full[1], 16), parseInt(full[2], 16), parseInt(full[3], 16)];
+  if (full) return [parseInt(full[1], 16), parseInt(full[2], 16), parseInt(full[3], 16)];
+  // rgb(r, g, b) / rgba(r, g, b, a)
+  const rgb = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i.exec(hex);
+  if (rgb) return [parseInt(rgb[1]), parseInt(rgb[2]), parseInt(rgb[3])];
+  return null;
 }
 
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
