@@ -28,14 +28,17 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+  const mountComponent = ({
+    enableHeadlamp = true,
+    branding = defaultBranding,
+  }: { enableHeadlamp?: boolean; branding?: typeof defaultBranding } = {}) => {
     const fakeConfig = {
       landscape: undefined,
       documentationBaseUrl: '',
       feedbackUrl: null,
       githubBaseUrl: '',
       mcp2DocsUrl: '',
-      branding: defaultBranding,
+      branding,
       featureToggles: {
         markMcpV1asDeprecated: false,
         enableMcpV2: false,
@@ -68,7 +71,12 @@ describe('ShellBar', () => {
   });
 
   it('navigates home when the logo is clicked', () => {
-    mountComponent();
+    mountComponent({
+      branding: {
+        ...defaultBranding,
+        logo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E',
+      },
+    });
 
     cy.window().then((win) => {
       win.location.hash = '#/projects/some-project';
