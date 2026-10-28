@@ -148,88 +148,90 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     }
   }, [services, crossplaneProviders, onServicesChange]);
 
-  // Builds the flat list of selected service names to pass to the recommendations widget.
-  // Uses the serviceName field (e.g. "crossplane") as identifier since that matches
-  // what the support-dashboard stores in its association rules.
+  // Builds the flat list of selected crossplane provider names (e.g. "provider-vault")
+  // to pass to the recommendations widget. The association rules use these provider
+  // short names as identifiers.
   const selectedServiceNames = useMemo(
-    () => SERVICES.filter(({ key }) => services[key]?.selected).map(({ serviceName }) => serviceName),
-    [services],
+    () => (services.crossplane?.providers ?? []).map((p) => p.name),
+    [services.crossplane?.providers],
   );
 
-  // When the recommendations widget suggests a provider, select it exactly like clicking
-  // the checkbox would — reuse the existing toggle() function.
+  // When the recommendations widget suggests a crossplane provider, add it to the
+  // crossplane providers list exactly like clicking the checkbox would.
   const handleAddRecommendedService = (providerName: string) => {
-    const match = SERVICES.find((s) => s.serviceName === providerName || s.key === providerName);
-    if (match && !services[match.key]?.selected) {
-      toggle(match.key, true);
-    }
+    toggleCrossplaneProvider(providerName);
   };
 
   return (
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
-      <div className={styles.grid}>
-        {SERVICES.map(({ key, labelKey, logo, serviceName }) => {
-          const entry = services[key];
-          const selected = entry?.selected ?? false;
-          const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
-          const currentVersion = entry?.version ?? '';
-          const versionOptions =
-            currentVersion && !versions.some((v) => v.version === currentVersion)
-              ? [{ version: currentVersion }, ...versions]
-              : versions;
-          return (
-            <div key={key} className={styles.row}>
-              <FlexBox alignItems="Center" gap={12}>
-                <img src={logo} alt={t(labelKey)} className={styles.logo} />
-                <CheckBox
-                  checked={selected}
-                  text={t(labelKey)}
-                  data-testid={`service-${key}-checkbox`}
-                  onChange={(e) => toggle(key, e.target.checked)}
-                />
-              </FlexBox>
-              {selected && (
-                <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
-                  <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
-                  <Select
-                    id={`service-${key}-version`}
-                    data-testid={`service-${key}-version`}
-                    accessibleName={t('ServiceSelectionStep.versionLabel')}
-                    value={entry?.version ?? ''}
-                    className={styles.versionSelect}
-                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
-                      setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
-                    }
-                  >
-                    {versionOptions.map(({ version: v }) => (
-                      <Option key={v} value={v}>
-                        {v}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
-              )}
-              {key === 'crossplane' && selected && (
-                <div className={styles.providersSection}>
-                  <Label>{t('ComponentInstallDialog.providers')}</Label>
-                  <CrossplaneProviderPicker
-                    providers={crossplaneProviderStates}
-                    catalog={crossplaneProviders}
-                    disabled={!entry?.version}
-                    onToggle={toggleCrossplaneProvider}
-                    onVersionChange={setCrossplaneProviderVersion}
+      <div className={styles.twoColumn}>
+        <div className={styles.grid}>
+          {SERVICES.map(({ key, labelKey, logo, serviceName }) => {
+            const entry = services[key];
+            const selected = entry?.selected ?? false;
+            const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+            const currentVersion = entry?.version ?? '';
+            const versionOptions =
+              currentVersion && !versions.some((v) => v.version === currentVersion)
+                ? [{ version: currentVersion }, ...versions]
+                : versions;
+            return (
+              <div key={key} className={styles.row}>
+                <FlexBox alignItems="Center" gap={12}>
+                  <img src={logo} alt={t(labelKey)} className={styles.logo} />
+                  <CheckBox
+                    checked={selected}
+                    text={t(labelKey)}
+                    data-testid={`service-${key}-checkbox`}
+                    onChange={(e) => toggle(key, e.target.checked)}
                   />
-                </div>
-              )}
-            </div>
-          );
-        })}
+                </FlexBox>
+                {selected && (
+                  <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
+                    <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
+                    <Select
+                      id={`service-${key}-version`}
+                      data-testid={`service-${key}-version`}
+                      accessibleName={t('ServiceSelectionStep.versionLabel')}
+                      value={entry?.version ?? ''}
+                      className={styles.versionSelect}
+                      onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                        setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
+                      }
+                    >
+                      {versionOptions.map(({ version: v }) => (
+                        <Option key={v} value={v}>
+                          {v}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FlexBox>
+                )}
+                {key === 'crossplane' && selected && (
+                  <div className={styles.providersSection}>
+                    <Label>{t('ComponentInstallDialog.providers')}</Label>
+                    <CrossplaneProviderPicker
+                      providers={crossplaneProviderStates}
+                      catalog={crossplaneProviders}
+                      disabled={!entry?.version}
+                      onToggle={toggleCrossplaneProvider}
+                      onVersionChange={setCrossplaneProviderVersion}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div>
+          <ProviderRecommendations
+            selectedServiceNames={selectedServiceNames}
+            availableProviderNames={crossplaneProviders.map((p) => p.name)}
+            onAddService={handleAddRecommendedService}
+          />
+        </div>
       </div>
-      <ProviderRecommendations
-        selectedServiceNames={selectedServiceNames}
-        onAddService={handleAddRecommendedService}
-      />
     </div>
   );
 }

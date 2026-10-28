@@ -14,3 +14,8 @@ export const ConfigMapsResource = (namespace: string): Resource<ConfigMapListIte
   path: `/api/v1/namespaces/${namespace}/configmaps`,
   jq: '[.items[] | { metadata: { name: .metadata.name, namespace: .metadata.namespace, creationTimestamp: .metadata.creationTimestamp }, data: .data, binaryData: .binaryData }]',
 });
+
+export const ConfigMapResource = (namespace: string, name: string): Resource<ConfigMapListItem> => ({
+  path: `/api/v1/namespaces/${namespace}/configmaps/${name}`,
+  jq: '{ metadata: { name: .metadata.name, namespace: .metadata.namespace }, data: .data }',
+});

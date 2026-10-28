@@ -1,6 +1,12 @@
 .container {
   padding: 1rem 0;
-  max-width: 640px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
 .intro {
