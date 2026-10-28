@@ -33,7 +33,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Make frontend configuration available (frontend-config.json)
-const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
+// In production the config must live outside dist/client/ so @fastify/static does not register
+// its own HEAD+GET route for it (which would collide with the explicit route below).
+const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/frontend-config.json';
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
   console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
   console.log(`  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`);
@@ -194,7 +196,7 @@ await fastify.register(rateLimit, {
 });
 
 // Serve frontend-config.json with no-cache so branding/config changes propagate immediately.
-// This must be registered before FastifyVite so Fastify routes it here first.
+// The file lives outside dist/client/ so @fastify/static does not also register this route.
 fastify.get(
   '/frontend-config.json',
   {
@@ -206,7 +208,8 @@ fastify.get(
     },
   },
   async (_req, reply) => {
-    const configPath = path.join(__dirname, frontendConfigLocation);
+    // path.resolve() uses CWD, which matches how copyFileSync places the file at startup.
+    const configPath = path.resolve(frontendConfigLocation);
     let content: string;
     try {
       content = await readFile(configPath, 'utf-8');
