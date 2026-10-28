@@ -1,6 +1,6 @@
 {
   "SignInPage": {
-    "welcomeMessage": "Welcome to Control Plane UI",
+    "welcomeMessage": "Welcome to <appName>{{appName}}</appName>",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
     "signInButton": "Sign In",
     "becomeContributorLink": "Become a Contributor"
@@ -213,8 +213,8 @@
     "errorMessage": "An unknown error occurred"
   },
   "NotInLuigiView": {
-    "titleMessage": "Opened outside of Hyperspace Portal",
-    "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
+    "titleMessage": "Opened outside of {{portalName}}",
+    "subtitleMessage": "Looks like this page is not opened inside of {{portalName}}. Contact admins for help."
   },
   "ShellBar": {
     "signOutButton": "Sign Out",

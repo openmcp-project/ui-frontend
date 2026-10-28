@@ -2,7 +2,7 @@ import '@ui5/webcomponents-cypress-commands';
 import type { MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
-import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useCreateControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -137,7 +137,9 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   const buildFrontendConfig = (showLandscaperCard: boolean) => ({
     documentationBaseUrl: '',
+    feedbackUrl: null,
     githubBaseUrl: '',
+    branding: defaultBranding,
     featureToggles: {
       markMcpV1asDeprecated: false,
       enableMcpV2: false,
