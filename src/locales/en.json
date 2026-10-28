@@ -143,7 +143,9 @@
     "externalSecretsOperator": "External Secrets Operator",
     "ocm": "OCM",
     "kro": "KRO",
-    "metricsOperator": "Metrics Operator"
+    "metricsOperator": "Metrics Operator",
+    "yamlPreviewNotSelectedTitle": "{{service}} is not selected",
+    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML."
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",

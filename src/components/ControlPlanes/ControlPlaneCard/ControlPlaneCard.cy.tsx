@@ -11,6 +11,8 @@ import { GET_MCP_V2_QUERY } from '../../../spaces/onboarding/hooks/controlPlaneV
 import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
+import { SplitterLayout } from '../../Splitter/SplitterLayout.tsx';
+import { GetCrossplaneYamlDocument } from '../../../types/__generated__/graphql/graphql.ts';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 
@@ -600,6 +602,65 @@ describe('ControlPlaneCard', () => {
       );
       cy.get('[title="Crossplane"]').should('exist');
       cy.get('[data-testid^="service-status-"]').should('not.exist');
+    });
+  });
+
+  describe('service icon click (v2 only)', () => {
+    const crossplaneYamlMock = {
+      request: {
+        query: GetCrossplaneYamlDocument,
+        variables: { name: 'cp-name', namespace: 'project-my-project--ws-default' },
+      },
+      result: {
+        data: {
+          crossplane_services_open_control_plane_io: {
+            v1alpha1: {
+              CrossplaneYaml:
+                'apiVersion: crossplane.services.open-control-plane.io/v1alpha1\nkind: Crossplane\nmetadata:\n  name: cp-name\nspec:\n  version: v1.20.0\n',
+            },
+          },
+        },
+      },
+    };
+
+    const mountV2CardInSplitter = () => {
+      cy.mount(
+        <MockedProvider mocks={[crossplaneYamlMock]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <SplitterLayout>
+                    <ControlPlaneCard
+                      controlPlane={v2ControlPlane}
+                      workspace={workspace}
+                      projectName="my-project"
+                      useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                      useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                      v2Components={v2ComponentsWithData}
+                    />
+                  </SplitterLayout>
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+    };
+
+    it('opens the service YAML in the side panel instead of the edit wizard', () => {
+      mountV2CardInSplitter();
+      cy.get('[data-testid="component-icon-Crossplane"]').click();
+      cy.get('[data-testid="v2-wizard-open"]').should('not.exist');
+      cy.get('[data-testid="yaml-close-button"]').should('exist');
+      cy.contains('kind: Crossplane').should('exist');
+    });
+
+    it('opens the edit wizard from the Edit button in the YAML panel', () => {
+      mountV2CardInSplitter();
+      cy.get('[data-testid="component-icon-Crossplane"]').click();
+      cy.get('[data-testid="service-yaml-edit-button"]').click();
+      cy.get('[data-testid="v2-wizard-open"]').should('exist');
     });
   });
 
