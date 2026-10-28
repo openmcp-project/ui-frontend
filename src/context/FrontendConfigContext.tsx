@@ -54,7 +54,6 @@ const BrandingSchema = z.object({
   appName: z.string().default('Control Plane UI'),
   portalName: z.string().default('the portal'),
   logo: z.string().nullable().default(null),
-  showFundingLogo: z.boolean().default(false),
   primaryColor: z.string().nullable().default(null),
   favicon: z.string().nullable().default(null),
 });

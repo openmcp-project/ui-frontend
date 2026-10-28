@@ -71,11 +71,9 @@ export function SignInPage({
         </div>
       </div>
 
-      {branding.showFundingLogo && (
-        <div className={styles.disclaimer}>
-          <img src={fundingLogo} alt="Funded by BMWK and EU" className={styles.disclaimerImage} />
-        </div>
-      )}
+      <div className={styles.disclaimer}>
+        <img src={fundingLogo} alt="Funded by BMWK and EU" className={styles.disclaimerImage} />
+      </div>
     </div>
   );
 }
