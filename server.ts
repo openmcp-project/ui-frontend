@@ -56,6 +56,7 @@ const fastify = Fastify({
   logger: true,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
+  trustProxy: true,
 });
 
 await fastify.register(serverTelemetryPlugin);
@@ -206,7 +207,13 @@ fastify.get(
   },
   async (_req, reply) => {
     const configPath = path.join(__dirname, frontendConfigLocation);
-    const content = await readFile(configPath, 'utf-8');
+    let content: string;
+    try {
+      content = await readFile(configPath, 'utf-8');
+    } catch (err) {
+      fastify.log.error({ err, configPath }, 'frontend-config.json not found or unreadable');
+      return reply.status(500).send({ error: 'Frontend configuration unavailable' });
+    }
     return reply.header('content-type', 'application/json').header('cache-control', 'no-store').send(content);
   },
 );

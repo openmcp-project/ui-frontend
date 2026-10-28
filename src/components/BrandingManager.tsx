@@ -4,6 +4,12 @@ import { useFrontendConfig } from '../context/FrontendConfigContext.tsx';
 const STYLE_ID = 'branding-overrides';
 const FAVICON_SELECTOR = 'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]';
 
+function isValidCssColor(value: string): boolean {
+  const el = document.createElement('div');
+  el.style.color = value;
+  return el.style.color !== '';
+}
+
 export function BrandingManager() {
   const { branding } = useFrontendConfig();
   const { appName, primaryColor, favicon } = branding;
@@ -37,6 +43,7 @@ export function BrandingManager() {
     const rules: string[] = [];
 
     if (primaryColor) {
+      if (!isValidCssColor(primaryColor)) return;
       // Darker shades — mirrors SAP Horizon: brand #0070f2, hover/selected #0064d9, focus ring #0032a5
       const dark = `color-mix(in srgb, ${primaryColor} 87%, black)`;
       const focus = `color-mix(in srgb, ${primaryColor} 55%, black)`;
@@ -128,6 +135,7 @@ export function BrandingManager() {
 
   useEffect(() => {
     // Sets theme-color so the browser chrome (Android tab bar, desktop title bar) matches the brand.
+    if (!primaryColor) return;
     const color = getComputedStyle(document.documentElement).getPropertyValue('--sapBrandColor').trim();
     if (!color) return;
     const existing = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');

@@ -50,12 +50,20 @@ export const useFrontendConfig = () => {
 };
 
 // Use z.string() (NOT .url()) — data: URIs fail URL validation but are valid here (img-src 'self' data: in CSP).
+// Restrict to safe schemes: https, http, and data:image/* only.
+const safeImageUri = z
+  .string()
+  .nullable()
+  .refine((v) => v === null || /^(https?:|data:image\/)/i.test(v), {
+    message: 'URI must use https, http, or data:image/ scheme',
+  });
+
 const BrandingSchema = z.object({
   appName: z.string().default('Control Plane UI'),
   portalName: z.string().default('the portal'),
-  logo: z.string().nullable().default(null),
+  logo: safeImageUri.default(null),
   primaryColor: z.string().nullable().default(null),
-  favicon: z.string().nullable().default(null),
+  favicon: safeImageUri.default(null),
 });
 
 export const defaultBranding = BrandingSchema.parse({});
@@ -63,7 +71,11 @@ export const defaultBranding = BrandingSchema.parse({});
 const FrontendConfigSchema = z.object({
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
-  feedbackUrl: z.string().nullable().default(null),
+  feedbackUrl: z
+    .string()
+    .nullable()
+    .default(null)
+    .refine((v) => v === null || /^https?:/i.test(v), { message: 'feedbackUrl must use https or http scheme' }),
   landscape: z.optional(z.nativeEnum(Landscape)),
   mcp2DocsUrl: z.string().optional(),
   branding: BrandingSchema.default(defaultBranding),
