@@ -6,6 +6,20 @@ html {
   height: 100%;
   overflow-y: auto;
   scrollbar-gutter: stable;
+
+  /* Sub-pixel antialiasing — sharper strokes on HiDPI / Retina screens */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Kern and common ligatures at every point size;
+     variable-font optical sizing tunes letterforms for small / large sizes */
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+
+  /* Prevent mobile browsers from auto-inflating font sizes in landscape */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -130,4 +144,27 @@ ui5-toast {
 
 ui5-shellbar {
   --_ui5-shellbar_separator-color: transparent;
+}
+
+/* ─── Text wrapping ────────────────────────────────────────────────────────
+   These are inherited properties, so they cascade into shadow-DOM components
+   as well as light-DOM React content.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Balanced line breaks for headings: no single word stranded on the last line.
+   Works best on short text (≤ 6 lines); browsers skip it if text is longer. */
+:is(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+/* Typographer-grade wrapping for running copy: avoids orphans
+   (the one short word left alone at the end of a paragraph). */
+:is(p, li, dd, dt, blockquote, figcaption, label) {
+  text-wrap: pretty;
+}
+
+/* Break long unbroken strings — URLs, resource IDs, hashes — at any
+   character boundary rather than letting them burst out of their container. */
+:is(p, li, td, th, dd) {
+  overflow-wrap: break-word;
 }

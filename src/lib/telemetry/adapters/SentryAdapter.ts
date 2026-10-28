@@ -1,12 +1,21 @@
 import * as Sentry from '@sentry/react';
 import type { Telemetry, TelemetryUser } from '../types';
 import type { TelemetryFeature } from '../features';
+import type { VirtualPage } from '../pageView/virtualPage';
 
 export class SentryAdapter implements Telemetry {
   track(feature: TelemetryFeature): void {
     Sentry.addBreadcrumb({
       message: `Feature used: ${feature.category}.${feature.action}`,
       data: feature,
+      category: 'ui',
+      level: 'info',
+    });
+  }
+
+  pageView(page: VirtualPage): void {
+    Sentry.addBreadcrumb({
+      message: `Page view: ${page}`,
       category: 'ui',
       level: 'info',
     });

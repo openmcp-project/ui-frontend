@@ -21,6 +21,7 @@ import { isNotFoundError, isUnauthorizedError } from '../../../lib/api/error.ts'
 import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
@@ -28,13 +29,19 @@ import styles from './ProjectPage.module.css';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
-  const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
+  const { data: workspaces, error, isPending, hasLoadedOnce } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+
+  useEffect(() => {
+    setMcpActions({ navigateBack: () => navigate(Routes.Projects) });
+    return () => clearMcpActions();
+  }, [navigate, setMcpActions, clearMcpActions]);
 
   const [expandedWorkspaces, setExpandedWorkspacesState] = useState<Set<string>>(() =>
     getExpandedWorkspaces(projectName ?? ''),
@@ -124,18 +131,23 @@ export default function ProjectPage() {
       redirectToLogin('onboarding');
       return <Loading />;
     }
-    return (
-      <Center>
-        <IllustratedError
-          button={
-            <Button onClick={() => navigate(`${Routes.Projects}?noRedirect=true`)}>
-              {t('ProjectPage.backToProjects')}
-            </Button>
-          }
-          details={error?.message}
-        />
-      </Center>
-    );
+    // Only tear the page down for an *initial-load* failure. Once workspaces have loaded
+    // at least once, a transient refetch error (subscription-driven) must not unmount the
+    // subtree — that would destroy any open create/edit wizard. Keep showing last-good data.
+    if (!projectName || !hasLoadedOnce) {
+      return (
+        <Center>
+          <IllustratedError
+            button={
+              <Button onClick={() => navigate(`${Routes.Projects}?noRedirect=true`)}>
+                {t('ProjectPage.backToProjects')}
+              </Button>
+            }
+            details={error?.message}
+          />
+        </Center>
+      );
+    }
   }
 
   const allExpanded = workspaces.length > 0 && workspaces.every((ws) => expandedWorkspaces.has(ws.metadata.name));

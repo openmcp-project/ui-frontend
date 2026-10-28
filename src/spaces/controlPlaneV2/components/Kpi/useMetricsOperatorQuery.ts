@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { MetricsOperatorData, MetricsOperatorSchema } from '../../../mcp/types/MetricsOperator.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_METRICS_OPERATOR_QUERY = graphql(`
+export const GET_METRICS_OPERATOR_QUERY = graphql(`
   query GetMetricsOperator($name: String!, $namespace: String) {
     metrics_services_open_control_plane_io {
       v1alpha1 {

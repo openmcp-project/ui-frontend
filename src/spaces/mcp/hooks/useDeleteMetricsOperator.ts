@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
+import { GET_METRICS_OPERATOR_QUERY } from '../../controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 
 const DeleteMetricsOperatorMutation = graphql(`
   mutation DeleteMetricsOperator($name: String!, $namespace: String) {
@@ -13,13 +14,16 @@ const DeleteMetricsOperatorMutation = graphql(`
 `);
 
 export function useDeleteMetricsOperator() {
-  const [deleteMutation, { loading, error }] = useMutation(DeleteMetricsOperatorMutation, {
-    refetchQueries: ['GetMetricsOperator'],
-  });
+  const [deleteMutation, { loading, error }] = useMutation(DeleteMetricsOperatorMutation);
 
   const deleteMetricsOperator = useCallback(
     async (variables: { namespace: string; name: string }) => {
-      return deleteMutation({ variables });
+      return deleteMutation({
+        variables,
+        refetchQueries: [
+          { query: GET_METRICS_OPERATOR_QUERY, variables: { name: variables.name, namespace: variables.namespace } },
+        ],
+      });
     },
     [deleteMutation],
   );

@@ -7,6 +7,7 @@ import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQ
 import { useManagedControlPlaneQuery } from '../../spaces/onboarding/hooks/useManagedControlPlaneQuery.ts';
 import { useControlPlaneV2Query } from '../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { RoleBinding } from '../api/types/crate/controlPlanes.ts';
+import type { ApiConfig } from '../api/types/apiConfig.ts';
 
 interface Mcp {
   project: string;
@@ -44,6 +45,17 @@ export const McpContext = createContext({} as Mcp);
 export const useMcp = () => {
   return useContext(McpContext);
 };
+
+/** Builds the k8s {@link ApiConfig} that routes BFF requests to this MCP's downstream cluster. */
+export const buildMcpApiConfig = (mcp: Pick<Mcp, 'project' | 'workspace' | 'name' | 'isV2' | 'idp'>): ApiConfig => ({
+  mcpConfig: {
+    projectName: mcp.project,
+    workspaceName: mcp.workspace,
+    controlPlaneName: mcp.name,
+    isV2: mcp.isV2,
+    idp: mcp.idp,
+  },
+});
 
 export const McpContextProvider = ({
   children,
@@ -143,17 +155,10 @@ export const McpContextProvider = ({
 function RequireDownstreamLogin(props: { children?: ReactNode }) {
   const mcp = useContext(McpContext);
 
+  const { project, workspace, name, isV2, idp } = mcp;
   const apiConfig = useMemo(
-    () => ({
-      mcpConfig: {
-        projectName: mcp.project,
-        workspaceName: mcp.workspace,
-        controlPlaneName: mcp.name,
-        isV2: mcp.isV2,
-        idp: mcp.idp,
-      },
-    }),
-    [mcp.project, mcp.workspace, mcp.name, mcp.isV2, mcp.idp],
+    () => buildMcpApiConfig({ project, workspace, name, isV2, idp }),
+    [project, workspace, name, isV2, idp],
   );
 
   return (

@@ -43,10 +43,10 @@ export function CrossplaneInstallDialog({
 }: CrossplaneInstallDialogProps) {
   const { t } = useTranslation();
   const toast = useToast();
-  const { services, crossplaneProviders } = useManagedServicesQuery();
+  const { services, crossplaneProviders, isLoading: isServicesLoading } = useManagedServicesQuery();
   const { create, loading: createLoading } = useCreateCrossplane();
   const { update, loading: updateLoading } = useUpdateCrossplane();
-  const isLoading = createLoading || updateLoading;
+  const isLoading = createLoading || updateLoading || isServicesLoading;
 
   const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
   const crossplaneVersions = useMemo(() => crossplaneService?.versions ?? [], [crossplaneService]);
@@ -176,7 +176,7 @@ export function CrossplaneInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'

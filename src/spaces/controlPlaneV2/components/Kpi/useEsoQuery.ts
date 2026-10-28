@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { EsoData, EsoSchema } from '../../../mcp/types/Eso.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_ESO_QUERY = graphql(`
+export const GET_ESO_QUERY = graphql(`
   query GetExternalSecretsOperator($name: String!, $namespace: String) {
     external_secrets_services_open_control_plane_io {
       v1alpha1 {

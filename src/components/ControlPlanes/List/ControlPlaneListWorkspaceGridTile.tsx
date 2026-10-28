@@ -2,16 +2,20 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/locked.js';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { Button, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
-import { useEffect, useMemo, useState } from 'react';
+import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { MemberRoles } from '../../../lib/api/types/shared/members.ts';
+import { MemberKind, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { McpsQueryMode, useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
@@ -30,6 +34,7 @@ import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSk
 import { ObservableCard } from './ObservableCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -38,10 +43,12 @@ interface Props {
   workspace: Workspace;
   search?: string;
   isExpanded?: boolean;
+  onForbiddenDetected?: () => void;
   onToggleExpanded?: () => void;
   onVisibilityChange?: (isVisible: boolean) => void;
-  useMcpsQuery?: typeof _useMcpsQuery;
+  useAuthOnboardingHook?: typeof useAuthOnboarding;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpsQuery?: typeof _useMcpsQuery;
   useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
 }
 
@@ -50,10 +57,12 @@ export function ControlPlaneListWorkspaceGridTile({
   workspace,
   search = '',
   isExpanded,
+  onForbiddenDetected,
   onToggleExpanded,
   onVisibilityChange,
-  useMcpsQuery = _useMcpsQuery,
+  useAuthOnboardingHook = useAuthOnboarding,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpsQuery = _useMcpsQuery,
   useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
@@ -66,6 +75,15 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const { t } = useTranslation();
   const { enableMcpV2 } = useFeatureToggle();
+  const { user, isPending: authPending } = useAuthOnboardingHook();
+
+  const isMember: boolean | null =
+    authPending || !user
+      ? null
+      : (workspace.spec.members ?? []).some(
+          (m) =>
+            m.kind.toLowerCase() === MemberKind.User.toLowerCase() && m.name.toLowerCase() === user.email.toLowerCase(),
+        );
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
@@ -83,7 +101,8 @@ export function ControlPlaneListWorkspaceGridTile({
   const [needsFullMcpData, setNeedsFullMcpData] = useState(false);
 
   const shouldRenderCardsWithFullData = isExpanded || workspaceMatches || needsFullMcpData;
-  const fetchMode: McpsQueryMode = shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
+  const fetchMode: McpsQueryMode =
+    isMember === false ? 'skip' : shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
   const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
 
   // One combined query for all V2 component status in this workspace, instead of each card
@@ -92,6 +111,17 @@ export function ControlPlaneListWorkspaceGridTile({
     mcpNamespace,
     !enableMcpV2 || fetchMode !== 'full',
   );
+
+  const isForbidden = isMember === false || (!!cpsError && isForbiddenError(cpsError));
+  const [forbiddenPopoverOpen, setForbiddenPopoverOpen] = useState(false);
+  const forbiddenButtonId = `forbidden-btn-${workspaceName}`;
+
+  const hasFiredForbidden = useRef(false);
+  useEffect(() => {
+    if (!isForbidden || hasFiredForbidden.current) return;
+    hasFiredForbidden.current = true;
+    onForbiddenDetected?.();
+  }, [isForbidden, onForbiddenDetected]);
 
   const visibleMcps =
     query && !workspaceMatches
@@ -103,12 +133,10 @@ export function ControlPlaneListWorkspaceGridTile({
       : managedControlPlanes;
 
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
-  // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
-  // Keep the panel expanded via `needsFullMcpData` through the 'minimal'→'full' upgrade:
-  // `hasMcpMatch` briefly flips false while the 'full' query reloads, which would otherwise
-  // collapse the panel just as it should settle into showing real data.
-  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded;
+
+  const shouldCollapsePanel =
+    isForbidden || (query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded);
 
   // Adjust state during render (not in an effect — avoids an extra render/fetch cascade) once
   // `hasMcpMatch` is derivable. Each branch fires once: its guard turns false right after.
@@ -126,6 +154,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
+
   const workspaceAdminEmails = useMemo(() => {
     const adminMembers = (workspace.spec.members ?? [])
       .filter((m) => m.kind === 'User' && m.roles.includes(MemberRoles.admin))
@@ -134,30 +163,33 @@ export function ControlPlaneListWorkspaceGridTile({
     const createdBy = workspace.metadata.annotations?.[CREATED_BY_ANNOTATION];
     return createdBy ? [createdBy] : [];
   }, [workspace.spec.members, workspace.metadata.annotations]);
-  const errorView = createErrorView(cpsError, workspaceAdminEmails);
+
+  const requestAccessMailtoHref = (() => {
+    const subject = encodeURIComponent(
+      t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
+    );
+    const body = encodeURIComponent(
+      t('ControlPlaneListWorkspaceGridTile.accessRequestBody', { workspaceName, projectName }),
+    );
+    return `mailto:${workspaceAdminEmails.join(',')}?subject=${subject}&body=${body}`;
+  })();
+
+  const errorView = createErrorView(cpsError);
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
   }
 
-  function createErrorView(error: Error | undefined, adminEmails: string[]) {
+  function createErrorView(error: Error | undefined) {
     if (error) {
       if (isForbiddenError(error)) {
-        const subject = encodeURIComponent(
-          t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
-        );
-        const body = encodeURIComponent(
-          t('ControlPlaneListWorkspaceGridTile.accessRequestBody', { workspaceName, projectName }),
-        );
-        const mailtoHref = `mailto:${adminEmails.join(',')}?subject=${subject}&body=${body}`;
-
         return (
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
             details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
             compact={true}
             button={
-              <a href={mailtoHref}>
+              <a href={requestAccessMailtoHref}>
                 <Button design="Transparent" icon="email">
                   {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
                 </Button>
@@ -176,7 +208,7 @@ export function ControlPlaneListWorkspaceGridTile({
     const seenKeys = new Set<string>();
     const fallbackNamespace = workspace.status?.namespace ?? '';
 
-    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string }) => {
+    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string | null }) => {
       const memberNamespace = member?.namespace ?? fallbackNamespace;
       const memberName = String(member?.name ?? '')
         .trim()
@@ -190,6 +222,11 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
+  const supportInfo = useMemo(
+    () => extractSupportInfo(workspace.metadata.annotations),
+    [workspace.metadata.annotations],
+  );
+
   if (hidden) return null;
 
   return (
@@ -202,27 +239,83 @@ export function ControlPlaneListWorkspaceGridTile({
       >
         <section className={styles.workspaceSection} data-testid={`workspace-panel-${workspaceName}`}>
           <div className={styles.workspaceHeader}>
-            <button
-              type="button"
-              className={styles.workspaceToggle}
-              aria-expanded={!shouldCollapsePanel}
-              onClick={onToggleExpanded}
-            >
-              <Icon
-                name="slim-arrow-right"
-                className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
-              />
-              <Icon name="product" className={styles.workspaceIcon} />
-              <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
-              <Title level="H3" className={styles.workspaceTitle}>
-                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-              </Title>
-            </button>
+            {isForbidden ? (
+              <>
+                <button
+                  id={forbiddenButtonId}
+                  type="button"
+                  className={styles.workspaceToggle}
+                  aria-expanded={false}
+                  onClick={() => setForbiddenPopoverOpen((o) => !o)}
+                >
+                  <Icon name="locked" className={styles.workspaceIcon} />
+                  <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                  <Title level="H3" className={styles.workspaceTitle}>
+                    {showDisplayName ? workspaceDisplayName : workspaceName}
+                  </Title>
+                </button>
+                <Popover
+                  open={forbiddenPopoverOpen}
+                  opener={forbiddenButtonId}
+                  placement={PopoverPlacement.Bottom}
+                  onClose={() => setForbiddenPopoverOpen(false)}
+                >
+                  <div style={{ padding: '0.5rem 1rem' }}>
+                    <p>{t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}</p>
+                    <p style={{ color: 'var(--sapContent_LabelColor)', fontSize: '0.875rem' }}>
+                      {t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
+                    </p>
+                    <a href={requestAccessMailtoHref}>
+                      <Button design="Transparent" icon="email">
+                        {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                      </Button>
+                    </a>
+                  </div>
+                </Popover>
+              </>
+            ) : isMember === null ? (
+              <div className={styles.workspaceToggle}>
+                <BusyIndicator active delay={0} size="S" />
+                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                <Title level="H3" className={styles.workspaceTitle}>
+                  {showDisplayName ? workspaceDisplayName : workspaceName}
+                </Title>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.workspaceToggle}
+                aria-expanded={!shouldCollapsePanel}
+                onClick={onToggleExpanded}
+              >
+                <Icon
+                  name="slim-arrow-right"
+                  className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+                />
+                <Icon name="product" className={styles.workspaceIcon} />
+                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                <Title level="H3" className={styles.workspaceTitle}>
+                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                </Title>
+              </button>
+            )}
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
+            <WorkspaceSupportInfoTag
+              workspaceName={workspaceName}
+              namespace={projectNamespace}
+              supportInfo={supportInfo}
+            />
             <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              {isForbidden && (
+                <a href={requestAccessMailtoHref}>
+                  <Button design="Transparent" icon="email">
+                    {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                  </Button>
+                </a>
+              )}
               <YamlViewButton
                 variant="loader"
                 workspaceName={workspace.metadata.namespace}
@@ -235,6 +328,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
                 setInitialTemplateName={setInitialTemplateName}
                 setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
+                disabled={isForbidden}
               />
             </FlexBox>
           </div>
@@ -292,7 +386,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 <div className={styles.wrapper}>
                   <div className={styles.grid}>
                     {visibleMcps?.map((mcp) => (
-                      <ObservableCard key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}>
+                      <ObservableCard key={mcp.clientId}>
                         <ControlPlaneCard
                           controlPlane={mcp}
                           projectName={projectName}
@@ -340,6 +434,12 @@ export function ControlPlaneListWorkspaceGridTile({
         workspaceName={workspaceName}
         namespace={projectNamespace}
       />
+      {/* Mounted only while open. The open/closed flag lives in this tile's own `useState`, which
+          already survives parent re-renders, so conditional mounting doesn't lose form state — it
+          only unmounts on close (intended) or if this tile unmounts. Tiles are kept mounted across
+          transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizards
+          unconditionally would run their hooks (auth, GetManagedComponents query) on every tile even
+          while closed. */}
       {isCreateManagedControlPlaneWizardOpen ? (
         <CreateManagedControlPlaneWizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpen}

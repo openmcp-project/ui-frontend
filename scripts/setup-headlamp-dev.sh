@@ -87,7 +87,7 @@ helm upgrade --install headlamp \
   oci://ghcr.io/openmcp-project/helm-charts/headlamp-deployment \
   --version "$CHART_VERSION" \
   --namespace "$NAMESPACE" --create-namespace \
-  --wait --timeout 300s
+  --force-conflicts --wait --timeout 300s
 
 echo ""
 

@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { UpdateExternalSecretsOperatorMutationVariables } from '../../../types/__generated__/graphql/graphql';
+import { GET_ESO_QUERY } from '../../controlPlaneV2/components/Kpi/useEsoQuery.ts';
 
 const UpdateEsoMutation = graphql(`
   mutation UpdateExternalSecretsOperator(
@@ -23,13 +24,14 @@ const UpdateEsoMutation = graphql(`
 `);
 
 export function useUpdateEso() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateEsoMutation, {
-    refetchQueries: ['GetExternalSecretsOperator'],
-  });
+  const [updateMutation, { loading, error }] = useMutation(UpdateEsoMutation);
 
   const update = useCallback(
     async (variables: { namespace: string; name: string; object: unknown }) => {
-      return updateMutation({ variables: variables as UpdateExternalSecretsOperatorMutationVariables });
+      return updateMutation({
+        variables: variables as UpdateExternalSecretsOperatorMutationVariables,
+        refetchQueries: [{ query: GET_ESO_QUERY, variables: { name: variables.name, namespace: variables.namespace } }],
+      });
     },
     [updateMutation],
   );

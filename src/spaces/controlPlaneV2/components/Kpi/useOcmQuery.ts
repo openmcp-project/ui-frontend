@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { OcmData, OcmSchema } from '../../../mcp/types/Ocm.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_OCM_QUERY = graphql(`
+export const GET_OCM_QUERY = graphql(`
   query GetOCM($name: String!, $namespace: String) {
     ocm_services_open_control_plane_io {
       v1alpha1 {
@@ -53,7 +53,9 @@ export function useOcmQuery(name?: string, namespace?: string) {
       return null;
     }
     const version = result.data.spec?.version ?? null;
-    return { isInstalled: !!version, version };
+    const conditions = result.data.status?.conditions ?? [];
+    const hasActiveCondition = conditions.some((c) => c?.status === 'True');
+    return { isInstalled: !!version || hasActiveCondition, version };
   }, [rawOcm, telemetry]);
 
   return { ocmData, isLoading: queryResult.loading, error: queryResult.error };

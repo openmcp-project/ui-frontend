@@ -15,14 +15,10 @@ const KubeConfigSchema = z.object({
 
 const KUBE_CONTEXT_USER_SYSTEM_IDP = 'openmcp' as const;
 
-// example: "project-test--ws-dev" => "dev"
-function extractWorkspaceNameFromNamespace(namespace: string): string {
-  return namespace.split('--ws-').pop() ?? namespace;
-}
-
 function buildMcpUrl(projectName: string, workspaceName: string, controlPlaneName: string, idp?: string): string {
-  const normalizedWorkspace = extractWorkspaceNameFromNamespace(workspaceName);
-  const basePath = `/projects/${projectName}/workspaces/${normalizedWorkspace}/managedcontrolplane/${controlPlaneName}`;
+  // Segments are resource names (metadata.name) and must land in the URL verbatim — the read
+  // side rebuilds the namespace from these route params, so any transformation here desyncs it.
+  const basePath = `/projects/${encodeURIComponent(projectName)}/workspaces/${encodeURIComponent(workspaceName)}/managedcontrolplane/${encodeURIComponent(controlPlaneName)}`;
   return idp ? `${basePath}?idp=${encodeURIComponent(idp)}` : basePath;
 }
 

@@ -18,8 +18,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
-import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 import styles from './ComponentCard.module.css';
+import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 
 const prefixVersion = (version: string) => (version.includes('v') ? version : `v${version}`);
 
@@ -56,22 +56,22 @@ export interface ComponentPhaseVisual {
 // readiness) - this is per-component InstancePhase. See statusUtils.tsx for why these two
 // vocabularies aren't unified.
 export const PHASE_VISUALS: Record<InstancePhase, ComponentPhaseVisual> = {
-  [InstancePhase.Ready]: { state: 'Positive', icon: 'sys-enter-2' },
-  [InstancePhase.Progressing]: { state: 'Critical', icon: 'in-progress-2' },
-  [InstancePhase.Terminating]: { state: 'Critical', icon: 'delete' },
+  [InstancePhase.Ready]: { state: 'Positive', icon: 'accept' },
+  [InstancePhase.Progressing]: { state: 'Critical', icon: 'synchronize' },
+  [InstancePhase.Terminating]: { state: 'Negative', icon: 'delete' },
 };
 
 // A phase string the backend reports that isn't one of the known InstancePhase values (e.g. a
 // future/unhandled phase) is treated as a warning rather than silently looking healthy. Also used
 // for the status query erroring out, for the same reason.
-export const UNRECOGNIZED_PHASE_VISUAL: ComponentPhaseVisual = { state: 'Critical', icon: 'message-warning' };
+export const UNRECOGNIZED_PHASE_VISUAL: ComponentPhaseVisual = { state: 'Neutral', icon: 'question-mark' };
 
 // "We don't know yet" visual for a status query still in flight - distinct from any known or
 // unrecognized backend phase.
 export const LOADING_PHASE_VISUAL: ComponentPhaseVisual = { state: 'Neutral', icon: 'pending' };
 
 export function getComponentPhaseVisual(phase: string | null): ComponentPhaseVisual {
-  if (!phase) return PHASE_VISUALS[InstancePhase.Ready];
+  if (!phase) return UNRECOGNIZED_PHASE_VISUAL;
   if (phase in PHASE_VISUALS) return PHASE_VISUALS[phase as InstancePhase];
   return UNRECOGNIZED_PHASE_VISUAL;
 }

@@ -41,11 +41,13 @@ import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.ts
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlaneCondition } from '../../onboarding/types/ControlPlane.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
@@ -57,7 +59,7 @@ import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/Illu
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 
 // Open-source (Headlamp) mode — full-viewport iframe with ShellBar integration.
 // Only rendered when mode === 'open-source'. The legacy ObjectPage is rendered otherwise,
@@ -67,11 +69,17 @@ function OpenSourceHeadlamp({
   workspaceName,
   controlPlaneName,
   requestedStatuses,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
   requestedStatuses: Record<string, string | null>;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -84,7 +92,7 @@ function OpenSourceHeadlamp({
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
   // Sanitise any stale full-BFF path that may have been persisted in the URL param
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -132,6 +140,9 @@ function OpenSourceHeadlamp({
       project: projectName,
       workspace: workspaceName,
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
     });
     return () => {
       clearMcpActions();
@@ -146,6 +157,9 @@ function OpenSourceHeadlamp({
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
   ]);
 
   // Register and load the kubeconfig, then set the iframe src
@@ -156,7 +170,7 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : `${baseSrc}/ocp/overview`);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -186,7 +200,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -255,7 +269,7 @@ export default function ManagedControlPlanePage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -267,6 +281,28 @@ export default function ManagedControlPlanePage() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
+
+  useEffect(() => {
+    const viewParam = searchParams.get(SearchParams.View);
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set(SearchParams.View, 'open-source');
+        } else {
+          next.delete(SearchParams.View);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
 
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
@@ -367,12 +403,16 @@ export default function ManagedControlPlanePage() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
+              <McpDragDropRegistrar name={controlPlaneName} />
               <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
                 requestedStatuses={requestedStatuses}
+                mcpCreationTimestamp={mcp.metadata.creationTimestamp}
+                mcpCreatedBy={mcp.metadata.annotations?.['openmcp.cloud/created-by'] as string | undefined}
+                mcpStatus={mcp.status}
               />
               <EditManagedControlPlaneWizardDataLoader
                 isOpen={isEditManagedControlPlaneWizardOpen}
@@ -401,6 +441,7 @@ export default function ManagedControlPlanePage() {
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
             <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

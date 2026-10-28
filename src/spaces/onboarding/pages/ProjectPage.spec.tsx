@@ -66,6 +66,12 @@ vi.mock('../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx', () => ({
 vi.mock('../../../components/Shared/Loading.tsx', () => ({
   default: () => <div data-testid="loading" />,
 }));
+vi.mock('../../../context/ShellBarMcpActionsContext.tsx', () => ({
+  useShellBarMcpActions: () => ({
+    setMcpActions: vi.fn(),
+    clearMcpActions: vi.fn(),
+  }),
+}));
 
 const mockUseWorkspacesQuery = vi.mocked(useWorkspacesQuery);
 

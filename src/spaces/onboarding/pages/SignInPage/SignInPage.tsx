@@ -6,6 +6,8 @@ import { Button } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 import { useLink as _useLink } from '../../../../lib/shared/useLink';
+import { useTelemetry as _useTelemetry } from '../../../../lib/telemetry/telemetry';
+import { SIGN_IN_PAGE } from '../../../../lib/telemetry/pageView/virtualPage';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../auth/AuthContextOnboarding';
 
 import ocpLogo from '../../../../assets/images/co-logo-orchestrating.png';
@@ -16,12 +18,18 @@ import styles from './SignInPage.module.css';
 export interface SignInPageProps {
   useAuthOnboarding?: typeof _useAuthOnboarding;
   useLink?: typeof _useLink;
+  useTelemetry?: typeof _useTelemetry;
 }
 
-export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _useLink }: SignInPageProps) {
+export function SignInPage({
+  useAuthOnboarding = _useAuthOnboarding,
+  useLink = _useLink,
+  useTelemetry = _useTelemetry,
+}: SignInPageProps) {
   const { login } = useAuthOnboarding();
   const { contributeLink } = useLink();
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   useEffect(() => {
     Sentry.addBreadcrumb({
@@ -29,7 +37,8 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
       message: 'Visit SignInPage',
       level: 'info',
     });
-  }, []);
+    telemetry.pageView(SIGN_IN_PAGE);
+  }, [telemetry]);
 
   return (
     <div className={styles.container}>

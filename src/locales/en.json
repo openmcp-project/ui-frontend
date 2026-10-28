@@ -106,8 +106,8 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane",
-    "createNewControlPlane": "Create Control Plane",
+    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
+    "createNewControlPlane": "Create Control Plane (v2)",
     "defaultBadge": "Default",
     "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
@@ -126,7 +126,11 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installComponents": "Install components"
+    "installComponents": "Install components",
+    "serviceInstalling": "Installing",
+    "serviceDeleting": "Deleting",
+    "serviceReady": "Ready",
+    "serviceUnknown": "Unknown"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
@@ -161,6 +165,7 @@
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig",
+    "downloadKubeconfigError": "Could not download the kubeconfig. Please try again.",
     "noContextsError": "No connection context found in kubeconfig",
     "noAccessTitle": "No connection configured"
   },
@@ -236,7 +241,8 @@
     "backButton": "Back",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
-    "overflowViewYaml": "View YAML"
+    "overflowViewYaml": "View YAML",
+    "controlPlaneInfoButton": "Control plane information"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -262,6 +268,12 @@
   "Loading": {
     "title": "Getting Ready",
     "subtitle": "Fetching data..."
+  },
+  "schemaLoader": {
+    "resolvingTitle": "Resolving resource type",
+    "resolvingSubtitle": "Looking up {{kind}} in the cluster…",
+    "schemaTitle": "Loading schema",
+    "schemaSubtitle": "Fetching validation rules for {{kind}}…"
   },
   "MemberTable": {
     "columnNameHeader": "Name",
@@ -362,7 +374,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -564,7 +577,8 @@
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
     "deprecated": "Deprecated",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "helpButtonLabel": "Help"
   },
   "deprecated": {
     "deprecatedPopoverMessage": "There is a new version of control plane available."
@@ -607,7 +621,9 @@
     "dialogTitleControlPlane": "Create Control Plane",
     "titleText": "Control Plane Created Successfully!",
     "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
-    "copySuffix": "-copy"
+    "copySuffix": "-copy",
+    "creating": "Creating Managed Control Plane...",
+    "creatingControlPlane": "Creating Control Plane..."
   },
   "editMCP": {
     "dialogTitle": "Edit Control Plane",
@@ -615,7 +631,16 @@
     "subtitleText": "Your control plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
     "editComponents": "Edit components",
     "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
-    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
+    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>",
+    "updating": "Updating Managed Control Plane...",
+    "updatingControlPlane": "Updating Control Plane...",
+    "loadingServices": "Loading installed services..."
+  },
+  "discardChangesDialog": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. If you close now, they will be lost.",
+    "confirmButton": "Discard changes",
+    "cancelButton": "Keep editing"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",
@@ -727,5 +752,95 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "yamlApply": {
+    "uploadButton": "Upload YAML",
+    "uploadButtonShort": "Apply YAML",
+    "overlayTitle": "Drop YAML to apply",
+    "overlayTargetCp": "Control Plane: {{name}}",
+    "overlayTargetOnboarding": "Onboarding API",
+    "overlayHint": "Release file to open apply dialog",
+    "dialogTitle": "Apply YAML Resource",
+    "targetLabel": "Target",
+    "targetOnboarding": "Onboarding API",
+    "stepProgress": "{{current}} of {{total}}",
+    "statusApplied": "Applied",
+    "statusFailed": "Failed",
+    "fileTypeError": "Only .yaml and .yml files are supported",
+    "parseError": "Could not parse YAML file: {{filename}}",
+    "structureError": "Missing required fields: apiVersion, kind, metadata.name",
+    "emptyFileError": "This file has no YAML resources to apply",
+    "invalidYaml": "This resource contains invalid YAML. Fix it before applying.",
+    "existenceUnknown": "Couldn't verify whether this resource already exists — you may not have read access. Applying will create or overwrite it.",
+    "unknownKind": "Could not resolve resource type for kind '{{kind}}'. It may not be installed on this Control Plane.",
+    "unsupportedKindOnboarding": "Only Project, Workspace, ControlPlane and ManagedControlPlane resources can be applied to the Onboarding API. Open a ControlPlane to apply other resource types.",
+    "projectExistsInfo": "Project '{{name}}' already exists and can't be updated here. Open the project to make changes.",
+    "overwriteWarning": "{{kind}}/{{name}} already exists. Applying will update it with the fields in this file.",
+    "createButton": "Create",
+    "overwriteButton": "Overwrite",
+    "applyButton": "Apply",
+    "cancelButton": "Cancel",
+    "closeButton": "Close",
+    "summaryCounts": "{{applied}} applied, {{failed}} failed",
+    "summaryAllAppliedTitle": "All resources applied",
+    "summaryAllAppliedSubtitle_one": "{{count}} resource applied successfully",
+    "summaryAllAppliedSubtitle_other": "{{count}} resources applied successfully",
+    "applyAllButton": "Apply all",
+    "dryRunButton": "Dry run",
+    "dryRunOk": "Dry run passed. The server accepted this resource.",
+    "dryRunFailedTitle": "Dry run failed",
+    "addFileButton": "Add file",
+    "addDropHint": "Drop YAML to add to the list",
+    "applyingText": "Applying…",
+    "dryRunningText": "Running dry run…",
+    "addDuplicate": "That resource is already in the list.",
+    "removeButtonTooltip": "Remove from list",
+    "removeLastTooltip": "Can't remove the only resource — use Cancel to close.",
+    "a11yProgress": "{{applied}} applied, {{failed}} failed, {{pending}} remaining of {{total}} resources.",
+    "parseErrorHintFileType": "Please try again with a valid .yaml or .yml file.",
+    "parseErrorHintContent": "Please fix the issues in your file and try uploading again.",
+    "parseErrorDetailsTitle": "Error details",
+    "parseErrorSubtitle": "Check the error details below to identify and fix the issues in your file.",
+    "parseErrorSubtitleFileType": "Select a valid .yaml or .yml file and try again.",
+    "backToEditButton": "Back to editing"
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "sectionLabel": "Support Info:",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "wizardIntroWorkspace": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Project where available. No runtime impact.",
+    "wizardIntroControlPlane": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Workspace or Project where available. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "addButton": "Add info",
+    "addButtonTooltip": "This metadata helps support engineers triage issues faster. No runtime impact.",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "staging": "Staging",
+      "testing": "Testing",
+      "development": "Development",
+      "experimental": "Experimental"
+    },
+    "serviceIds": "Service Reference",
+    "serviceIdsPlaceholder": "Services, apps, or landscapes backed by this project",
+    "serviceIdsTooltip": "BTP service IDs, Crossplane provider names, or Landscaper app identifiers managed by this project. Helps support engineers triage incidents by linking them to the owning project.",
+    "contacts": "Contacts",
+    "securityContactsPlaceholder": "Security team email or oncall alias",
+    "securityContactsTooltip": "Emails of security engineers or oncall contacts responsible for incidents in this project.",
+    "opsContactsPlaceholder": "SRE email or ops team alias",
+    "opsContactsTooltip": "Emails of SRE engineers or ops oncall contacts. Used as an escalation path for production incidents.",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit",
+    "copyFromProject": "Copy Info from the parent Project",
+    "copyFromProjectNoData": "The parent project has no support info to copy.",
+    "copyFromWorkspace": "Copy Info from the parent Workspace",
+    "copyFromWorkspaceNoData": "The parent workspace has no support info to copy."
   }
 }

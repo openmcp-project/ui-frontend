@@ -4,7 +4,7 @@ import { useUpdateCrossplane } from '../../hooks/useUpdateCrossplane.ts';
 import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 
-type CreateVariables = { namespace: string; object: unknown };
+type CreateVariables = { namespace: string; name: string; object: unknown };
 type UpdateVariables = { namespace: string; name: string; object: unknown };
 
 describe('CrossplaneInstallDialog', () => {
@@ -102,6 +102,7 @@ describe('CrossplaneInstallDialog', () => {
     cy.then(() =>
       cy.wrap(createPayload).deepEqualJson({
         namespace: 'test-namespace',
+        name: 'test-mcp',
         object: {
           ...baseObject,
           spec: {
@@ -236,6 +237,7 @@ describe('CrossplaneInstallDialog', () => {
     cy.then(() =>
       cy.wrap(createPayload).deepEqualJson({
         namespace: 'test-namespace',
+        name: 'test-mcp',
         object: {
           ...baseObject,
           spec: {
@@ -275,6 +277,7 @@ describe('CrossplaneInstallDialog', () => {
     cy.then(() =>
       cy.wrap(createPayload).deepEqualJson({
         namespace: 'test-namespace',
+        name: 'test-mcp',
         object: {
           ...baseObject,
           spec: { version: 'v1.20.1-1', providers: [] },

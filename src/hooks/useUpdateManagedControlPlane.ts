@@ -4,7 +4,7 @@ import { graphql } from '../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input } from '../types/__generated__/graphql/graphql';
 import type { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane';
 
-const UpdateManagedControlPlaneMutation = graphql(`
+export const UpdateManagedControlPlaneMutation = graphql(`
   mutation UpdateManagedControlPlane(
     $name: String!
     $namespace: String
@@ -25,7 +25,7 @@ const UpdateManagedControlPlaneMutation = graphql(`
 `);
 
 export function useUpdateManagedControlPlane(projectName: string, workspaceName: string, mcpName: string) {
-  const [updateMutation] = useMutation(UpdateManagedControlPlaneMutation, {
+  const [updateMutation, { loading }] = useMutation(UpdateManagedControlPlaneMutation, {
     refetchQueries: ['GetMCPsList'],
   });
 
@@ -42,5 +42,5 @@ export function useUpdateManagedControlPlane(projectName: string, workspaceName:
     [updateMutation, projectName, workspaceName, mcpName],
   );
 
-  return { mutate };
+  return { mutate, loading };
 }

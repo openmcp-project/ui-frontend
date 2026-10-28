@@ -141,4 +141,34 @@ describe('buildMcpV2GraphQLInput', () => {
     });
     expect(result.spec?.iam?.oidc?.extraProviders?.[0]?.extraScopes).toEqual(['profile', 'email']);
   });
+
+  it('omits the annotations key entirely when no support field is set', () => {
+    const result = buildMcpV2GraphQLInput(baseInput);
+    expect(result.metadata).not.toHaveProperty('annotations');
+  });
+
+  it('writes only the non-empty support fields as meta.orchestrate.cloud.sap annotations', () => {
+    const result = buildMcpV2GraphQLInput({
+      ...baseInput,
+      supportLandscape: 'production',
+      supportServiceIds: 'ID-1, ID-2',
+      supportSecurityContacts: '',
+      supportOpsContacts: 'mail:ops@example.com',
+    });
+    expect(result.metadata?.annotations).toEqual({
+      'meta.orchestrate.cloud.sap/landscape': 'production',
+      'meta.orchestrate.cloud.sap/service-ids': 'ID-1, ID-2',
+      'meta.orchestrate.cloud.sap/ops-contacts': 'mail:ops@example.com',
+    });
+  });
+
+  it('writes the landscape annotation as empty string when Purpose is set to Not Selected', () => {
+    const result = buildMcpV2GraphQLInput({
+      ...baseInput,
+      supportLandscape: '',
+    });
+    expect(result.metadata?.annotations).toEqual({
+      'meta.orchestrate.cloud.sap/landscape': '',
+    });
+  });
 });

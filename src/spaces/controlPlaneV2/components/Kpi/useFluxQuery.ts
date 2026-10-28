@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { FluxData, FluxSchema } from '../../../mcp/types/Flux.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_FLUX_QUERY = graphql(`
+export const GET_FLUX_QUERY = graphql(`
   query GetFlux($name: String!, $namespace: String) {
     flux_services_open_control_plane_io {
       v1alpha1 {

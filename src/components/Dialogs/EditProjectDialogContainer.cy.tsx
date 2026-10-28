@@ -9,6 +9,10 @@ const projectData: ProjectData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const fakeUseGetProject: typeof useGetProject = () => ({
@@ -86,6 +90,10 @@ describe('EditProjectDialogContainer', () => {
         chargingTarget: '12345678-1234-1234-1234-123456789abc',
         chargingTargetType: 'btp',
         members: [{ name: 'admin@example.com', kind: 'User', roles: ['admin'] }],
+        supportServiceIds: '',
+        supportLandscape: '',
+        supportSecurityContacts: '',
+        supportOpsContacts: '',
       });
     });
   });
@@ -175,5 +183,139 @@ describe('EditProjectDialogContainer', () => {
     );
 
     cy.contains('Failed to load project').should('exist');
+  });
+
+  describe('support-info round-trip', () => {
+    // When the project already has support annotations, opening the edit
+    // dialog and clicking Save without touching the support step must send
+    // the exact same values back — otherwise the round-trip is destructive.
+    it('preserves populated support fields when saving without editing them', () => {
+      const populatedProjectData: ProjectData = {
+        ...projectData,
+        supportLandscape: 'production',
+        supportServiceIds: 'ID-1, ID-2',
+        supportSecurityContacts: 'mail:sec@example.com',
+        supportOpsContacts: 'mail:ops@example.com',
+      };
+      const populatedUseGetProject: typeof useGetProject = () => ({
+        projectData: populatedProjectData,
+        isLoading: false,
+        error: undefined,
+      });
+
+      let updatePayload: Parameters<ReturnType<typeof useUpdateProject>['updateProject']>[0] | null = null;
+      cy.mount(
+        <EditProjectDialogContainer
+          isOpen={true}
+          setIsOpen={cy.stub()}
+          projectName="existing-project"
+          source="metadata-popover"
+          useGetProject={populatedUseGetProject}
+          useUpdateProject={() => ({
+            updateProject: async (params) => {
+              updatePayload = params;
+            },
+          })}
+        />,
+      );
+
+      cy.get('ui5-button').contains('Save').click();
+
+      cy.then(() => {
+        cy.wrap(updatePayload).should('not.be.null');
+        cy.wrap(updatePayload).should('include', {
+          supportLandscape: 'production',
+          supportServiceIds: 'ID-1, ID-2',
+          supportSecurityContacts: 'mail:sec@example.com',
+          supportOpsContacts: 'mail:ops@example.com',
+        });
+      });
+    });
+
+    // Editing from a clean project must let the user set every support
+    // field. Open the dialog directly on the Support Info step so we can
+    // interact with it without relying on wizard navigation in edit mode.
+    it('writes newly-entered support fields on save', () => {
+      let updatePayload: Parameters<ReturnType<typeof useUpdateProject>['updateProject']>[0] | null = null;
+      cy.mount(
+        <EditProjectDialogContainer
+          isOpen={true}
+          setIsOpen={cy.stub()}
+          projectName="existing-project"
+          source="metadata-popover"
+          initialStep="supportInfo"
+          useGetProject={fakeUseGetProject}
+          useUpdateProject={() => ({
+            updateProject: async (params) => {
+              updatePayload = params;
+            },
+          })}
+        />,
+      );
+
+      // MultiInput commits its editable value into a Token on Enter,
+      // which fires the wrapped `change` event our TagListInput listens to.
+      cy.get('[data-testid="support-service-ids"]').find('input').type('ID-42{enter}');
+      cy.get('[data-testid="support-security-contacts"]').find('input').type('mail:sec@example.com{enter}');
+      cy.get('[data-testid="support-ops-contacts"]').find('input').type('mail:ops@example.com{enter}');
+
+      cy.get('ui5-button').contains('Save').click();
+
+      cy.then(() => {
+        cy.wrap(updatePayload).should('not.be.null');
+        cy.wrap(updatePayload).should('include', {
+          supportServiceIds: 'ID-42',
+          supportSecurityContacts: 'mail:sec@example.com',
+          supportOpsContacts: 'mail:ops@example.com',
+        });
+      });
+    });
+
+    // A regular edit that touches only a non-support field (display name)
+    // must not eat support annotations that were already set.
+    it('does not drop support fields when editing an unrelated field', () => {
+      const populatedProjectData: ProjectData = {
+        ...projectData,
+        supportLandscape: 'production',
+        supportServiceIds: 'ID-1',
+        supportSecurityContacts: 'mail:sec@example.com',
+        supportOpsContacts: 'mail:ops@example.com',
+      };
+      const populatedUseGetProject: typeof useGetProject = () => ({
+        projectData: populatedProjectData,
+        isLoading: false,
+        error: undefined,
+      });
+
+      let updatePayload: Parameters<ReturnType<typeof useUpdateProject>['updateProject']>[0] | null = null;
+      cy.mount(
+        <EditProjectDialogContainer
+          isOpen={true}
+          setIsOpen={cy.stub()}
+          projectName="existing-project"
+          source="metadata-popover"
+          useGetProject={populatedUseGetProject}
+          useUpdateProject={() => ({
+            updateProject: async (params) => {
+              updatePayload = params;
+            },
+          })}
+        />,
+      );
+
+      cy.get('#displayName').find('input[id*="inner"]').clear().type('Renamed');
+      cy.get('ui5-button').contains('Save').click();
+
+      cy.then(() => {
+        cy.wrap(updatePayload).should('not.be.null');
+        cy.wrap(updatePayload).should('include', {
+          displayName: 'Renamed',
+          supportLandscape: 'production',
+          supportServiceIds: 'ID-1',
+          supportSecurityContacts: 'mail:sec@example.com',
+          supportOpsContacts: 'mail:ops@example.com',
+        });
+      });
+    });
   });
 });

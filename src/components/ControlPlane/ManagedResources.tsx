@@ -44,6 +44,7 @@ import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/u
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
+import { deduplicateManagedResources } from '../../utils/managedResourceVersion.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -283,28 +284,27 @@ export function ManagedResources({
     [t, openEditPanel, openDeleteDialog, hasMCPAdminRights, navigateToTab],
   );
 
-  const rows: ResourceRow[] =
-    managedResources
-      ?.filter((managedResource) => managedResource.items)
-      .flatMap((managedResource) =>
-        managedResource.items?.map((item) => {
-          const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
-          const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
+  const rows: ResourceRow[] = useMemo(() => {
+    const items = managedResources?.flatMap((managedResource) => managedResource.items ?? []) ?? [];
 
-          return {
-            kind: item.kind,
-            name: item.metadata.name,
-            created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-            synced: conditionSynced?.status === 'True',
-            syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
-            ready: conditionReady?.status === 'True',
-            readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
-            item: item,
-            conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
-            conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
-          };
-        }),
-      ) ?? [];
+    return deduplicateManagedResources(items).map((item) => {
+      const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
+      const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
+
+      return {
+        kind: item.kind,
+        name: item.metadata.name,
+        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
+        synced: conditionSynced?.status === 'True',
+        syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
+        ready: conditionReady?.status === 'True',
+        readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
+        item: item,
+        conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
+        conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
+      };
+    });
+  }, [managedResources]);
 
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));

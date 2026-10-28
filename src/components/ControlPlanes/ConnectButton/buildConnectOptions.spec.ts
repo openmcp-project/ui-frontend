@@ -8,7 +8,7 @@ vi.mock('../../../lib/telemetry/telemetry.ts', () => ({
 
 describe('buildConnectOptions', () => {
   const PROJECT_NAME = 'test-project';
-  const WORKSPACE_NAME = 'project-test-project--ws-test-workspace';
+  const WORKSPACE_NAME = 'test-workspace';
   const CONTROL_PLANE_NAME = 'test-mcp';
 
   const build = (kubeconfig: string | undefined) =>
@@ -131,5 +131,25 @@ clusters: []
 
     // ACT & ASSERT
     expect(build(kubeconfig)).toEqual([]);
+  });
+
+  it('should pass a hyphenated workspace name through verbatim (no stripping)', () => {
+    // ARRANGE — workspaceName is the short workspace resource name (metadata.name), which may
+    // itself contain hyphens. It must land in the URL verbatim: the detail page's read path
+    // wraps it into `project-<project>--ws-<workspace>`, so any stripping here desyncs the lookup.
+    const kubeconfig = `
+apiVersion: v1
+contexts:
+- name: context-system
+  context:
+    user: openmcp
+`;
+
+    // ACT
+    const options = buildConnectOptions(kubeconfig, 'onesr', 'prod-eu', 'test-mcp');
+
+    // ASSERT
+    expect(options).toHaveLength(1);
+    expect(options[0].url).toBe('/projects/onesr/workspaces/prod-eu/managedcontrolplane/test-mcp');
   });
 });

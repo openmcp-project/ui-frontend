@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { CrossplaneData, CrossplaneSchema } from '../../../mcp/types/Crossplane.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_CROSSPLANE_QUERY = graphql(`
+export const GET_CROSSPLANE_QUERY = graphql(`
   query GetCrossplane($name: String!, $namespace: String) {
     crossplane_services_open_control_plane_io {
       v1alpha1 {

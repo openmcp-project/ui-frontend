@@ -6,7 +6,7 @@ import {
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
@@ -16,7 +16,7 @@ import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
 import LogoMetricsOperator from '../../../assets/images/logo-metrics.svg';
 import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
-import { ProviderRecommendations } from './ProviderRecommendations.tsx';
+import Loading from '../../Shared/Loading.tsx';
 
 type ServiceKey = keyof ServiceSelection;
 
@@ -50,12 +50,23 @@ const SERVICES: ServiceDef[] = [
 interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
+  showLandscaper: boolean;
+  useManagedServicesQuery?: typeof _useManagedServicesQuery;
 }
 
-export function ServiceSelectionStep({ services, onServicesChange }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({
+  services,
+  onServicesChange,
+  showLandscaper,
+  useManagedServicesQuery = _useManagedServicesQuery,
+}: ServiceSelectionStepProps) {
   const { t } = useTranslation();
-  const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
+  const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
+  const visibleServices = useMemo(
+    () => (showLandscaper ? SERVICES : SERVICES.filter((s) => s.key !== 'landscaper')),
+    [showLandscaper],
+  );
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -148,89 +159,72 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     }
   }, [services, crossplaneProviders, onServicesChange]);
 
-  // Builds the flat list of selected crossplane provider names (e.g. "provider-vault")
-  // to pass to the recommendations widget. The association rules use these provider
-  // short names as identifiers.
-  const selectedServiceNames = useMemo(
-    () => (services.crossplane?.providers ?? []).map((p) => p.name),
-    [services.crossplane?.providers],
-  );
-
-  // When the recommendations widget suggests a crossplane provider, add it to the
-  // crossplane providers list exactly like clicking the checkbox would.
-  const handleAddRecommendedService = (providerName: string) => {
-    toggleCrossplaneProvider(providerName);
-  };
-
+  if (isLoading)
+    return (
+      <div className={styles.container}>
+        <Loading />
+      </div>
+    );
   return (
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
-      <div className={styles.twoColumn}>
-        <div className={styles.grid}>
-          {SERVICES.map(({ key, labelKey, logo, serviceName }) => {
-            const entry = services[key];
-            const selected = entry?.selected ?? false;
-            const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
-            const currentVersion = entry?.version ?? '';
-            const versionOptions =
-              currentVersion && !versions.some((v) => v.version === currentVersion)
-                ? [{ version: currentVersion }, ...versions]
-                : versions;
-            return (
-              <div key={key} className={styles.row}>
-                <FlexBox alignItems="Center" gap={12}>
-                  <img src={logo} alt={t(labelKey)} className={styles.logo} />
-                  <CheckBox
-                    checked={selected}
-                    text={t(labelKey)}
-                    data-testid={`service-${key}-checkbox`}
-                    onChange={(e) => toggle(key, e.target.checked)}
-                  />
+      <div className={styles.grid}>
+        {visibleServices.map(({ key, labelKey, logo, serviceName }) => {
+          const entry = services[key];
+          const selected = entry?.selected ?? false;
+          const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+          const currentVersion = entry?.version ?? '';
+          const versionOptions =
+            currentVersion && !versions.some((v) => v.version === currentVersion)
+              ? [{ version: currentVersion }, ...versions]
+              : versions;
+          return (
+            <div key={key} className={styles.row}>
+              <FlexBox alignItems="Center" gap={12}>
+                <img src={logo} alt={t(labelKey)} className={styles.logo} />
+                <CheckBox
+                  checked={selected}
+                  text={t(labelKey)}
+                  data-testid={`service-${key}-checkbox`}
+                  onChange={(e) => toggle(key, e.target.checked)}
+                />
+              </FlexBox>
+              {selected && (
+                <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
+                  <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
+                  <Select
+                    id={`service-${key}-version`}
+                    data-testid={`service-${key}-version`}
+                    accessibleName={t('ServiceSelectionStep.versionLabel')}
+                    value={entry?.version ?? ''}
+                    className={styles.versionSelect}
+                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                      setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
+                    }
+                  >
+                    {versionOptions.map(({ version: v }) => (
+                      <Option key={v} value={v}>
+                        {v}
+                      </Option>
+                    ))}
+                  </Select>
                 </FlexBox>
-                {selected && (
-                  <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
-                    <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
-                    <Select
-                      id={`service-${key}-version`}
-                      data-testid={`service-${key}-version`}
-                      accessibleName={t('ServiceSelectionStep.versionLabel')}
-                      value={entry?.version ?? ''}
-                      className={styles.versionSelect}
-                      onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
-                        setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
-                      }
-                    >
-                      {versionOptions.map(({ version: v }) => (
-                        <Option key={v} value={v}>
-                          {v}
-                        </Option>
-                      ))}
-                    </Select>
-                  </FlexBox>
-                )}
-                {key === 'crossplane' && selected && (
-                  <div className={styles.providersSection}>
-                    <Label>{t('ComponentInstallDialog.providers')}</Label>
-                    <CrossplaneProviderPicker
-                      providers={crossplaneProviderStates}
-                      catalog={crossplaneProviders}
-                      disabled={!entry?.version}
-                      onToggle={toggleCrossplaneProvider}
-                      onVersionChange={setCrossplaneProviderVersion}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div>
-          <ProviderRecommendations
-            selectedServiceNames={selectedServiceNames}
-            availableProviderNames={crossplaneProviders.map((p) => p.name)}
-            onAddService={handleAddRecommendedService}
-          />
-        </div>
+              )}
+              {key === 'crossplane' && selected && (
+                <div className={styles.providersSection}>
+                  <Label>{t('ComponentInstallDialog.providers')}</Label>
+                  <CrossplaneProviderPicker
+                    providers={crossplaneProviderStates}
+                    catalog={crossplaneProviders}
+                    disabled={!entry?.version}
+                    onToggle={toggleCrossplaneProvider}
+                    onVersionChange={setCrossplaneProviderVersion}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

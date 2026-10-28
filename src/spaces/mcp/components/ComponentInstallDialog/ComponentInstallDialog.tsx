@@ -14,7 +14,7 @@ import { createComponentInstallSchema, ComponentInstallFormValues } from './Comp
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 export interface UseCreateMutationResult {
-  create: (variables: { namespace: string; object: unknown }) => Promise<unknown>;
+  create: (variables: { namespace: string; name: string; object: unknown }) => Promise<unknown>;
   loading: boolean;
 }
 
@@ -55,10 +55,10 @@ export function ComponentInstallDialog({
   const { t } = useTranslation();
   const toast = useToast();
   const telemetry = useTelemetry();
-  const { services } = useManagedServicesQuery();
+  const { services, isLoading: isServicesLoading } = useManagedServicesQuery();
   const { create, loading: createLoading } = useCreateMutation();
   const { update, loading: updateLoading } = useUpdateMutation();
-  const isLoading = createLoading || updateLoading;
+  const isLoading = createLoading || updateLoading || isServicesLoading;
 
   const service = useMemo(() => services.find((s) => s.name === serviceName), [services, serviceName]);
   const versions = useMemo(() => service?.versions ?? [], [service]);
@@ -120,7 +120,7 @@ export function ComponentInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'

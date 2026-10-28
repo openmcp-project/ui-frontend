@@ -9,6 +9,7 @@ import {
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
+  Text,
 } from '@ui5/webcomponents-react';
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
@@ -27,6 +28,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
+import { extractSupportInfo } from '../../../lib/supportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -34,7 +37,8 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
-import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
+import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
+import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -62,7 +66,7 @@ import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
 import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
@@ -74,7 +78,10 @@ import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
 import { useCrossplaneYamlQuery } from '../../mcp/hooks/useCrossplaneYamlQuery.ts';
 import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
 import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
+import { useOcmYamlQuery } from '../../mcp/hooks/useOcmYamlQuery.ts';
+import { useKroYamlQuery } from '../../mcp/hooks/useKroYamlQuery.ts';
 import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
+import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 
 type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
 
@@ -82,10 +89,18 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  roleBindings,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  roleBindings?: MemberRoleBinding[];
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -97,7 +112,7 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -116,12 +131,18 @@ function OpenSourceHeadlamp({
   const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
   const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
+  const ocmYaml = useOcmYamlQuery(mcpName, mcpNamespace);
+  const kroYaml = useKroYamlQuery(mcpName, mcpNamespace);
   const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
   const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
   const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
+  const { status: ocmStatus } = useComponentCardStatus(true, ocmYaml);
+  const { status: kroStatus } = useComponentCardStatus(true, kroYaml);
   const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
   const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
   const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
+  const ocmPhase = ocmStatus.kind === 'installed' ? ocmStatus.phase : null;
+  const kroPhase = kroStatus.kind === 'installed' ? kroStatus.phase : null;
 
   // Optimistic 'Initializing' shown right after a successful install, before the real
   // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
@@ -130,6 +151,8 @@ function OpenSourceHeadlamp({
     crossplane: crossplanePhase ?? optimistic.crossplane ?? null,
     flux: fluxPhase ?? optimistic.flux ?? null,
     externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
+    ocm: ocmPhase ?? null,
+    kro: kroPhase ?? null,
   };
 
   const markInitializing = useCallback((component: InstallTarget) => {
@@ -145,8 +168,16 @@ function OpenSourceHeadlamp({
       crossplane: effectivePhases.crossplane,
       flux: effectivePhases.flux,
       externalSecretsOperator: effectivePhases.externalSecretsOperator,
+      ocm: effectivePhases.ocm,
+      kro: effectivePhases.kro,
     };
-  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator]);
+  }, [
+    effectivePhases.crossplane,
+    effectivePhases.flux,
+    effectivePhases.externalSecretsOperator,
+    effectivePhases.ocm,
+    effectivePhases.kro,
+  ]);
   const pushStatuses = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
@@ -160,10 +191,13 @@ function OpenSourceHeadlamp({
     setMcpActions({
       kubeconfig: mcp.kubeconfig,
       mcpName: mcp.name,
-      roleBindings: mcp.roleBindings,
+      roleBindings,
       project: projectName,
       workspace: workspaceName,
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
     });
     return () => {
       clearMcpActions();
@@ -171,13 +205,16 @@ function OpenSourceHeadlamp({
   }, [
     mcp.kubeconfig,
     mcp.name,
-    mcp.roleBindings,
+    roleBindings,
     projectName,
     workspaceName,
     backPath,
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
   ]);
 
   useEffect(() => {
@@ -215,7 +252,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -375,7 +412,7 @@ export default function ControlPlanePageV2() {
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -387,6 +424,29 @@ export default function ControlPlanePageV2() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
+
+  // Sync ?view param with mode: read on mount to restore shared deeplinks, write on change.
+  useEffect(() => {
+    const viewParam = searchParams.get(SearchParams.View);
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set(SearchParams.View, 'open-source');
+        } else {
+          next.delete(SearchParams.View);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
   const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
@@ -469,11 +529,22 @@ export default function ControlPlanePageV2() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
+              <McpDragDropRegistrar name={controlPlaneName} />
               <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+                mcpCreationTimestamp={mcp.metadata?.creationTimestamp}
+                mcpCreatedBy={
+                  (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
+                }
+                mcpStatus={
+                  mcp?.metadata?.deletionTimestamp
+                    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                    : mcp?.status
+                }
+                roleBindings={roleBindings}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
@@ -497,6 +568,7 @@ export default function ControlPlanePageV2() {
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
             <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={
@@ -517,6 +589,7 @@ export default function ControlPlanePageV2() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        isEditDisabled={!!mcp?.metadata?.deletionTimestamp}
                       />
                       <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
@@ -535,12 +608,27 @@ export default function ControlPlanePageV2() {
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection
-                      mcpStatus={mcp?.status}
+                      mcpStatus={
+                        mcp?.metadata?.deletionTimestamp
+                          ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                          : mcp?.status
+                      }
                       projectName={projectName}
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
                     <McpMembersAvatarView roleBindings={roleBindings} />
+
+                    <FlexBox direction="Column">
+                      <Text className={styles.supportInfoText}>{t('SupportInfo.sectionLabel')}</Text>
+                      <McpSupportInfoTag
+                        namespace={mcp.metadata?.namespace ?? namespace ?? ''}
+                        resourceName={controlPlaneName}
+                        supportInfo={extractSupportInfo(
+                          mcp.metadata?.annotations as Record<string, string> | undefined,
+                        )}
+                      />
+                    </FlexBox>
                   </FlexBox>
                 </ObjectPageHeader>
               }

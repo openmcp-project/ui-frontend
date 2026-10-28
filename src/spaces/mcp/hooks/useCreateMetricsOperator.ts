@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CreateMetricsOperatorMutationVariables } from '../../../types/__generated__/graphql/graphql';
+import { GET_METRICS_OPERATOR_QUERY } from '../../controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 
 const CreateMetricsOperatorMutation = graphql(`
   mutation CreateMetricsOperator(
@@ -22,13 +23,15 @@ const CreateMetricsOperatorMutation = graphql(`
 `);
 
 export function useCreateMetricsOperator() {
-  const [createMutation, { loading, error }] = useMutation(CreateMetricsOperatorMutation, {
-    refetchQueries: ['GetMetricsOperator'],
-  });
+  const [createMutation, { loading, error }] = useMutation(CreateMetricsOperatorMutation);
 
   const create = useCallback(
-    async (variables: { namespace: string; object: unknown }) => {
-      return createMutation({ variables: variables as CreateMetricsOperatorMutationVariables });
+    async (variables: { namespace: string; name: string; object: unknown }) => {
+      const { name, namespace, object } = variables;
+      return createMutation({
+        variables: { namespace, object } as CreateMetricsOperatorMutationVariables,
+        refetchQueries: [{ query: GET_METRICS_OPERATOR_QUERY, variables: { name, namespace } }],
+      });
     },
     [createMutation],
   );

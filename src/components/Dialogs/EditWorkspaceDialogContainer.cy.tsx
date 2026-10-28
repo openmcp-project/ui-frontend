@@ -3,6 +3,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { EditWorkspaceDialogContainer } from './EditWorkspaceDialogContainer';
 import { useUpdateWorkspace } from '../../spaces/onboarding/hooks/useUpdateWorkspace';
 import { useGetWorkspace, WorkspaceData } from '../../spaces/onboarding/hooks/useGetWorkspace';
+import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { MemberRoles } from '../../lib/api/types/shared/members';
 
 const workspaceData: WorkspaceData = {
@@ -12,6 +13,10 @@ const workspaceData: WorkspaceData = {
   chargingTarget: '',
   chargingTargetType: '',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const workspaceDataWithCharging: WorkspaceData = {
@@ -21,6 +26,10 @@ const workspaceDataWithCharging: WorkspaceData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const fakeUseGetWorkspace: typeof useGetWorkspace = () => ({
@@ -31,6 +40,18 @@ const fakeUseGetWorkspace: typeof useGetWorkspace = () => ({
 
 const fakeUseUpdateWorkspace: typeof useUpdateWorkspace = () => ({
   updateWorkspace: async () => {},
+  isLoading: false,
+});
+
+const fakeUseProjectMembers: typeof useProjectMembers = () => ({
+  members: [],
+  displayName: undefined,
+  creationTimestamp: undefined,
+  supportLandscape: undefined,
+  supportServiceIds: undefined,
+  supportSecurityContacts: undefined,
+  supportOpsContacts: undefined,
+  isLoading: false,
 });
 
 // MockedProvider satisfies the Apollo context that the Members step's ImportMembersDialog needs;
@@ -45,6 +66,7 @@ const mountEdit = (props: Partial<ComponentProps<typeof EditWorkspaceDialogConta
         namespace="project-test-project"
         useGetWorkspace={fakeUseGetWorkspace}
         useUpdateWorkspace={fakeUseUpdateWorkspace}
+        useProjectMembers={fakeUseProjectMembers}
         {...props}
       />
     </MockedProvider>,
@@ -89,6 +111,7 @@ describe('EditWorkspaceDialogContainer', () => {
         updateWorkspace: async (ns, params) => {
           updatePayload = [ns, params];
         },
+        isLoading: false,
       }),
     });
 
@@ -105,6 +128,10 @@ describe('EditWorkspaceDialogContainer', () => {
           chargingTarget: '12345678-1234-1234-1234-123456789abc',
           chargingTargetType: 'btp',
           members: [{ name: 'admin@example.com', kind: 'User', roles: ['admin'] }],
+          supportServiceIds: '',
+          supportLandscape: '',
+          supportSecurityContacts: '',
+          supportOpsContacts: '',
         },
       ]);
     });
@@ -138,6 +165,7 @@ describe('EditWorkspaceDialogContainer', () => {
         updateWorkspace: async () => {
           throw new Error('Update failed');
         },
+        isLoading: false,
       }),
     });
 
