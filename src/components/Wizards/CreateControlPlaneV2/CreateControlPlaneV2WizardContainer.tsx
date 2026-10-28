@@ -1145,6 +1145,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               <ServiceSelectionStep
                 services={services}
                 showLandscaper={showLandscaper}
+                isEditMode={isEditMode}
                 useManagedServicesQuery={useManagedServicesQuery}
                 onServicesChange={setServices}
               />

@@ -145,12 +145,8 @@
     "kro": "KRO",
     "metricsOperator": "Metrics Operator"
   },
-  "ProviderRecommendations": {
-    "title": "Recommended for you",
-    "subtitle": "Customers who selected the same services also commonly use:",
-    "addService": "Add",
-    "confidence": "{{value}}% of similar setups",
-    "noRecommendations": "No additional recommendations based on your current selection."
+  "CrossplaneProviderPicker": {
+    "recommendedBadge": "Recommended"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",

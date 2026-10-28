@@ -5,6 +5,7 @@ import {
   CrossplaneProviderPicker,
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
+import { useProviderRecommendations } from '../../Shared/CrossplaneProviderPicker/useProviderRecommendations.ts';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../utils/componentsVersions.ts';
@@ -51,6 +52,7 @@ interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
   showLandscaper: boolean;
+  isEditMode?: boolean;
   useManagedServicesQuery?: typeof _useManagedServicesQuery;
 }
 
@@ -58,6 +60,7 @@ export function ServiceSelectionStep({
   services,
   onServicesChange,
   showLandscaper,
+  isEditMode = false,
   useManagedServicesQuery = _useManagedServicesQuery,
 }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
@@ -67,6 +70,13 @@ export function ServiceSelectionStep({
     () => (showLandscaper ? SERVICES : SERVICES.filter((s) => s.key !== 'landscaper')),
     [showLandscaper],
   );
+
+  // Recommendations only in edit mode. The hook disables its ConfigMap fetch when not enabled.
+  const selectedProviderNames = useMemo(
+    () => (services.crossplane?.providers ?? []).map((p) => p.name),
+    [services.crossplane?.providers],
+  );
+  const recommendations = useProviderRecommendations(selectedProviderNames, isEditMode);
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -217,6 +227,7 @@ export function ServiceSelectionStep({
                     providers={crossplaneProviderStates}
                     catalog={crossplaneProviders}
                     disabled={!entry?.version}
+                    recommendations={recommendations}
                     onToggle={toggleCrossplaneProvider}
                     onVersionChange={setCrossplaneProviderVersion}
                   />
