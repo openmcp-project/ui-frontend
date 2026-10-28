@@ -6,7 +6,18 @@ const FAVICON_SELECTOR = 'link[rel="icon"], link[rel="shortcut icon"], link[rel=
 
 export function BrandingManager() {
   const { branding } = useFrontendConfig();
-  const { primaryColor, favicon } = branding;
+  const { appName, primaryColor, favicon } = branding;
+
+  useEffect(() => {
+    // Keeps og:title in sync with the configured app name for link previews in Slack, Teams, etc.
+    const meta = document.head.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+    if (!meta) return;
+    const prev = meta.content;
+    meta.content = appName;
+    return () => {
+      meta.content = prev;
+    };
+  }, [appName]);
 
   useEffect(() => {
     if (!favicon) return;
@@ -113,6 +124,20 @@ export function BrandingManager() {
     style.textContent = css;
     document.head.appendChild(style);
     return () => style.remove();
+  }, [primaryColor]);
+
+  useEffect(() => {
+    // Sets theme-color so the browser chrome (Android tab bar, desktop title bar) matches the brand.
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--sapBrandColor').trim();
+    if (!color) return;
+    const existing = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const meta =
+      existing ?? document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'theme-color' }));
+    const prev = existing?.content ?? null;
+    meta.content = color;
+    return () => {
+      prev === null ? meta.remove() : (meta.content = prev);
+    };
   }, [primaryColor]);
 
   return null;
