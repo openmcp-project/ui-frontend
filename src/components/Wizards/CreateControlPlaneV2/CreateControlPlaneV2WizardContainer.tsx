@@ -405,12 +405,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasPrefilledServices(false);
       setServices({});
-      setInitialServiceSelection({});
-      setActiveService(undefined);
-    } else if (initialService) {
-      setActiveService(initialService);
     }
-  }, [isOpen, initialService]);
+  }, [isOpen]);
   useEffect(() => {
     if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServices) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect

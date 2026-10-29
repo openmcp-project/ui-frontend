@@ -89,7 +89,9 @@ export const CONTROL_PLANE_V2_SERVICES: ControlPlaneV2ServiceDef[] = [
 ];
 
 export function getControlPlaneV2Service(key: ServiceKey): ControlPlaneV2ServiceDef {
-  return CONTROL_PLANE_V2_SERVICES.find((s) => s.key === key)!;
+  const def = CONTROL_PLANE_V2_SERVICES.find((s) => s.key === key);
+  if (!def) throw new Error(`No service definition for key: ${key}`);
+  return def;
 }
 
 // Landscaper is toggle-gated; callers decide whether it should be offered.

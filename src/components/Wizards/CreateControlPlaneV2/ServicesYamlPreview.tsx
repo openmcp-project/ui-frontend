@@ -59,10 +59,11 @@ export function ServicesYamlPreview({
   if (!activeDef) return null;
 
   const filename = buildYamlFilename(activeDef.kind, resourceName);
-  const showDiff = isEditMode && (!!yamlString || !!originalYamlString);
+  const showDiff = isEditMode && yamlString !== originalYamlString && (!!yamlString || !!originalYamlString);
+  const downloadContent = yamlString || originalYamlString;
 
   const downloadYaml = () => {
-    const blob = new Blob([yamlString], { type: 'text/yaml' });
+    const blob = new Blob([downloadContent], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -94,11 +95,13 @@ export function ServicesYamlPreview({
           />
         ))}
       </TabContainer>
-      {yamlString && (
+      {(yamlString || originalYamlString) && (
         <FlexBox justifyContent="End" gap={8} className={styles.actions}>
-          <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(yamlString)}>
-            {t('buttons.copy')}
-          </Button>
+          {yamlString && (
+            <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(yamlString)}>
+              {t('buttons.copy')}
+            </Button>
+          )}
           <Button icon="download" design="Transparent" onClick={downloadYaml}>
             {t('buttons.download')}
           </Button>
