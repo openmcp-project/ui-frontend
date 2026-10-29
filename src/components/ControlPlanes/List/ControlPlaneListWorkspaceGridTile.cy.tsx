@@ -236,6 +236,18 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
   });
 
+  it('offers the create action in the overflow menu when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('exist');
+  });
+
+  it('does not offer the create action in the overflow menu when the workspace is expanded', () => {
+    mountTile({ isExpanded: true });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('not.exist');
+  });
+
   it('does not show the Create Control Plane button when the user is forbidden', () => {
     const ws: Workspace = {
       metadata: { name: 'workspaceName', namespace: 'project-webapp-playground', annotations: {} },

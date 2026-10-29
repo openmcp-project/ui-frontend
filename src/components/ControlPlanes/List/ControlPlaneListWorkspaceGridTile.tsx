@@ -332,6 +332,9 @@ export function ControlPlaneListWorkspaceGridTile({
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
                 disabled={isForbidden}
+                showCreateActions={shouldCollapsePanel}
+                onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
             </FlexBox>
           </div>
