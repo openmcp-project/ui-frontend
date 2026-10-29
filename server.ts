@@ -4,13 +4,11 @@ import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
 import { initSentry } from './server/telemetry/bootstrap/sentry.js';
 import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
@@ -33,9 +31,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Make frontend configuration available (frontend-config.json)
-// In production the config must live outside dist/client/ so @fastify/static does not register
-// its own HEAD+GET route for it (which would collide with the explicit route below).
-const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/frontend-config.json';
+const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
   console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
   console.log(`  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`);
@@ -58,7 +54,6 @@ const fastify = Fastify({
   logger: true,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
-  trustProxy: true,
 });
 
 await fastify.register(serverTelemetryPlugin);
@@ -185,41 +180,6 @@ fastify.addHook('onSend', async (req, reply, payload) => {
 fastify.register(proxy, {
   prefix: '/api',
 });
-
-// Rate limiting for root-level routes. The autoloaded plugin in server/plugins/
-// is scoped to /api, so routes registered directly on the root instance (below)
-// need their own registration. global:false => only routes that opt in via
-// config.rateLimit are limited.
-await fastify.register(rateLimit, {
-  global: false,
-  keyGenerator: (req) => req.ip,
-});
-
-// Serve frontend-config.json with no-cache so branding/config changes propagate immediately.
-// The file lives outside dist/client/ so @fastify/static does not also register this route.
-fastify.get(
-  '/frontend-config.json',
-  {
-    config: {
-      rateLimit: {
-        max: 100,
-        timeWindow: '1 minute',
-      },
-    },
-  },
-  async (_req, reply) => {
-    // path.resolve() uses CWD, which matches how copyFileSync places the file at startup.
-    const configPath = path.resolve(frontendConfigLocation);
-    let content: string;
-    try {
-      content = await readFile(configPath, 'utf-8');
-    } catch (err) {
-      fastify.log.error({ err, configPath }, 'frontend-config.json not found or unreadable');
-      return reply.status(500).send({ error: 'Frontend configuration unavailable' });
-    }
-    return reply.header('content-type', 'application/json').header('cache-control', 'no-store').send(content);
-  },
-);
 
 await fastify.register(FastifyVite, {
   root: __dirname,
