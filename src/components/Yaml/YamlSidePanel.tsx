@@ -18,6 +18,7 @@ import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts'
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { parseResourceApiInfo } from '../../utils/parseResourceApiInfo.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
+import { downloadYamlFile } from './downloadYamlFile.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
@@ -50,15 +51,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
-    const blob = new Blob([originalYaml], { type: 'text/yaml' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${filename}.yaml`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    downloadYamlFile(originalYaml, filename);
   };
 
   const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {

@@ -11,6 +11,7 @@ import {
 } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { buildYamlFilename } from '../../Yaml/buildYamlFilename.ts';
+import { downloadYamlFile } from '../../Yaml/downloadYamlFile.ts';
 import { YamlViewer } from '../../Yaml/YamlViewer.tsx';
 import { YamlDiffEditor } from '../../YamlEditor/YamlDiffEditor.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -63,15 +64,7 @@ export function ServicesYamlPreview({
   const downloadContent = yamlString || originalYamlString;
 
   const downloadYaml = () => {
-    const blob = new Blob([downloadContent], { type: 'text/yaml' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${filename}.yaml`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    downloadYamlFile(downloadContent, filename);
   };
 
   return (
