@@ -73,4 +73,27 @@ export type TelemetryFeature =
       'clipboard',
       'copied',
       { source: 'project-namespace' | 'workspace-namespace' | 'controlplane-namespace' | 'other' }
-    >;
+    >
+  // YAML Apply Dialog
+  // IMPORTANT: MatomoAdapter sends ONLY the first property of each event as the Matomo
+  // event `name`; the rest are captured by Dynatrace but dropped by Matomo. The first
+  // property below is the load-bearing Matomo dimension — do not reorder without re-checking it.
+  | Feature<'yaml-apply', 'dialog-opened', { method: YamlUploadMethod; target: YamlApplyTarget; resourceCount: string }>
+  | Feature<'yaml-apply', 'files-added', { method: YamlUploadMethod; addedCount: string }>
+  | Feature<'yaml-apply', 'parse-error', { errorType: YamlApplyErrorType }>
+  | Feature<'yaml-apply', 'add-files-error', { errorType: YamlApplyErrorType | 'duplicate'; method: YamlUploadMethod }>
+  | Feature<
+      'yaml-apply',
+      'resource-applied',
+      { kind: string; target: YamlApplyTarget; source: YamlApplySource; mode?: 'create' | 'overwrite' }
+    >
+  | Feature<'yaml-apply', 'resource-apply-failed', { kind: string; target: YamlApplyTarget; source: YamlApplySource }>
+  | Feature<'yaml-apply', 'dry-run', { result: 'ok' | 'error'; kind: string; target: YamlApplyTarget }>
+  | Feature<'yaml-apply', 'resource-removed', { kind: string }>
+  | Feature<'yaml-apply', 'dialog-closed', { outcome: YamlApplyOutcome; appliedCount: string }>;
+
+export type YamlUploadMethod = 'drag-and-drop' | 'file-picker';
+export type YamlApplyTarget = 'controlplane' | 'onboarding';
+export type YamlApplySource = 'single' | 'apply-all';
+export type YamlApplyErrorType = 'wrong-file-type' | 'empty-file' | 'missing-fields' | 'parse-error';
+export type YamlApplyOutcome = 'all-applied' | 'partial' | 'none-applied' | 'abandoned' | 'parse-failed';

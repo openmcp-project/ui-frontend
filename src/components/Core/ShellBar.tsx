@@ -468,7 +468,7 @@ function UploadYamlShellBarButton() {
         style={{ display: 'none' }}
         onChange={(e) => {
           const files = Array.from(e.target.files ?? []);
-          if (files.length > 0) requestApplyFiles(files);
+          if (files.length > 0) requestApplyFiles(files, 'file-picker');
           e.target.value = '';
         }}
       />
