@@ -1,4 +1,5 @@
-import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/arrow-top.js';
+import { CheckBox, FlexBox, Icon, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,7 +8,7 @@ import {
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
-import { getHighestVersion } from '../../../utils/componentsVersions.ts';
+import { getHighestVersion, getVersionDiff } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -177,6 +178,9 @@ export function ServiceSelectionStep({
             currentVersion && !versions.some((v) => v.version === currentVersion)
               ? [{ version: currentVersion }, ...versions]
               : versions;
+          const latestVersion = getHighestVersion(versions.map((v) => v.version));
+          const versionDiff =
+            selected && currentVersion && latestVersion ? getVersionDiff(currentVersion, latestVersion) : null;
           return (
             <div key={key} className={styles.row}>
               <FlexBox alignItems="Center" gap={12}>
@@ -207,6 +211,14 @@ export function ServiceSelectionStep({
                       </Option>
                     ))}
                   </Select>
+                  {versionDiff && (
+                    <Icon
+                      name="arrow-top"
+                      className={styles.updateIcon}
+                      accessibleName={t(`VersionUpdateTag.${versionDiff}Update`)}
+                      showTooltip
+                    />
+                  )}
                 </FlexBox>
               )}
               {key === 'crossplane' && selected && (
