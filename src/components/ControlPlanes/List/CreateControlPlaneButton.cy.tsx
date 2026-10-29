@@ -74,7 +74,7 @@ describe('CreateControlPlaneButton', () => {
     const onCreateV1 = cy.stub().as('onCreateV1');
     mountButton({ enableMcpV2: true, onCreateV1 });
     cy.get('[data-testid="create-control-plane-button"]').click();
-    cy.get('ui5-menu[open] ui5-menu-item[data-action="createV1"]').click({ force: true });
+    cy.get('ui5-menu-item[data-action="createV1"]').click();
     cy.get('@onCreateV1').should('have.been.calledOnce');
   });
 
@@ -82,7 +82,7 @@ describe('CreateControlPlaneButton', () => {
     const onCreateV2 = cy.stub().as('onCreateV2');
     mountButton({ enableMcpV2: true, onCreateV2 });
     cy.get('[data-testid="create-control-plane-button"]').click();
-    cy.get('ui5-menu[open] ui5-menu-item[data-action="createV2"]').click({ force: true });
+    cy.get('ui5-menu-item[data-action="createV2"]').click();
     cy.get('@onCreateV2').should('have.been.calledOnce');
   });
 
