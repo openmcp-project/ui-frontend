@@ -95,7 +95,7 @@ describe('CrossplaneInstallDialog', () => {
       'v1.20.1-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
@@ -172,7 +172,7 @@ describe('CrossplaneInstallDialog', () => {
       'v1.20.1-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="vault"]').toggleUi5Checkbox();
 
     cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '2.2.1');
   });
@@ -195,7 +195,7 @@ describe('CrossplaneInstallDialog', () => {
       'v1.20.1-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="vault"]').toggleUi5Checkbox();
     cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '2.2.1');
 
     cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').openDropDownByClick();
@@ -203,8 +203,8 @@ describe('CrossplaneInstallDialog', () => {
       '[ui5-select][data-cy="provider-version-select-provider-vault"]',
     ).clickDropdownMenuItemByText<Cypress.TriggerOptions>('1.0.0');
 
-    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
-    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="vault"]').toggleUi5Checkbox();
 
     cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '1.0.0');
   });
@@ -229,8 +229,8 @@ describe('CrossplaneInstallDialog', () => {
       'v1.20.1-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
-    cy.get('[ui5-checkbox][text="provider-helm"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="helm"]').toggleUi5Checkbox();
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
@@ -308,7 +308,7 @@ describe('CrossplaneInstallDialog', () => {
       />,
     );
 
-    cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
     cy.get('ui5-button').contains('Apply Changes').click();
 
     cy.then(() =>
@@ -384,7 +384,7 @@ describe('CrossplaneInstallDialog', () => {
       'v1.20.1-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-no-versions"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="no-versions"]').toggleUi5Checkbox();
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
@@ -420,8 +420,8 @@ describe('CrossplaneInstallDialog', () => {
     );
 
     cy.get('[ui5-select][data-cy="crossplane-version-select"]').should('contain.text', 'v1.20.1-1');
-    cy.get('[ui5-checkbox][text="provider-btp"]').should('have.attr', 'checked');
-    cy.get('[ui5-checkbox][text="provider-helm"]').should('not.have.attr', 'checked');
+    cy.get('[ui5-checkbox][text="btp"]').should('have.attr', 'checked');
+    cy.get('[ui5-checkbox][text="helm"]').should('not.have.attr', 'checked');
     cy.get('[ui5-select][data-cy="provider-version-select-provider-btp"]').should('contain.text', '1.3.0');
   });
 
