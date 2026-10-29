@@ -1,12 +1,14 @@
 import '@ui5/webcomponents-cypress-commands';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
-import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../../context/FrontendConfigContext.tsx';
 import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
 
 const baseConfig = {
   documentationBaseUrl: '',
   githubBaseUrl: '',
   githubApps: [],
+  feedbackUrl: null,
+  branding: defaultBranding,
   featureToggles: {
     markMcpV1asDeprecated: false,
     enableMcpV2: false,

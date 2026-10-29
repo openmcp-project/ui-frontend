@@ -322,11 +322,13 @@ export function ControlPlaneListWorkspaceGridTile({
                 resourceName={workspaceName}
                 resourceType={'workspaces'}
               />
-              <CreateControlPlaneButton
-                disabled={isForbidden}
-                onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
-                onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
-              />
+              {!shouldCollapsePanel && (
+                <CreateControlPlaneButton
+                  disabled={isForbidden}
+                  onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                  onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
+              )}
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
