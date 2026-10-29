@@ -231,13 +231,18 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.get('[data-testid="create-control-plane-button"]').should('exist');
   });
 
-  it('the Create Control Plane button is disabled when the user is forbidden', () => {
+  it('does not show the Create Control Plane button when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
+  });
+
+  it('does not show the Create Control Plane button when the user is forbidden', () => {
     const ws: Workspace = {
       metadata: { name: 'workspaceName', namespace: 'project-webapp-playground', annotations: {} },
       spec: { members: [] },
     };
     mountForbiddenTile(ws);
-    cy.get('[data-testid="create-control-plane-button"]').invoke('prop', 'disabled').should('equal', true);
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
   });
 
   describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {
