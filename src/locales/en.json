@@ -121,6 +121,16 @@
     "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
+  "ControlPlaneAccessLock": {
+    "buttonText": "No access",
+    "permissionErrorMessage": "Not permitted to access this control plane",
+    "permissionErrorMessageSubtitle": "You need control plane membership to connect.",
+    "grantAccessSubtitle": "As a workspace admin, you can grant access to this control plane.",
+    "grantAccessButton": "Grant access",
+    "askAdminButton": "Request access",
+    "accessRequestSubject": "Access request: control plane {{controlPlaneName}} in workspace {{workspaceName}}",
+    "accessRequestBody": "Hi,\n\nI would like to request access to the control plane \"{{controlPlaneName}}\" in workspace \"{{workspaceName}}\".\n\nCould you please add me as a member?\n\nThank you."
+  },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit",
