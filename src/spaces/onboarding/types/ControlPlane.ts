@@ -49,6 +49,7 @@ const MetadataSchema = z.object({
   namespace: z.string(),
   creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
+  deletionTimestamp: z.string().nullish(),
 });
 
 const ComponentSchema = z.object({ __typename: z.string() }).nullish();
