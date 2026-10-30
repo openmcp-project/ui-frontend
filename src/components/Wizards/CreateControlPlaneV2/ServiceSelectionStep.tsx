@@ -43,7 +43,14 @@ export function ServiceSelectionStep({
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
+  const cardRefs = useRef(new Map<ServiceKey, HTMLDivElement | null>());
   const visibleServices = useMemo(() => getVisibleControlPlaneV2Services(showLandscaper), [showLandscaper]);
+
+  // When the active service changes (e.g. the user clicks a tab above the editor), bring the matching
+  // card on the left into view. `block: 'nearest'` is a no-op when the card is already visible.
+  useEffect(() => {
+    cardRefs.current.get(activeService)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [activeService]);
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -162,6 +169,9 @@ export function ServiceSelectionStep({
             return (
               <div
                 key={key}
+                ref={(el) => {
+                  cardRefs.current.set(key, el);
+                }}
                 className={`${styles.row} ${key === activeService ? styles.rowActive : ''}`.trim()}
                 data-testid={`service-${key}-card`}
               >
