@@ -2,21 +2,24 @@
   display: grid;
   grid-template-columns: minmax(360px, 640px) minmax(0, 1fr);
   gap: 1.5rem;
-  height: calc(100vh - 12rem);
-  min-height: 0;
+  /* No fixed height / inner scroll: the step flows and the wizard's own content area scrolls,
+     which is what the sticky preview sticks to. */
+  align-items: start;
 }
 
 .container {
   padding: 1rem 0;
   width: 100%;
-  overflow-y: auto;
-  min-height: 0;
 }
 
 .preview {
   padding: 1rem 0;
-  min-height: 0;
   min-width: 0;
+  /* Stays in view while the service list on the left scrolls past it. */
+  position: sticky;
+  top: 0;
+  /* Monaco needs a definite height to render, so the box is viewport-tall minus the wizard chrome above it. */
+  height: calc(100vh - 12rem);
 }
 
 .intro {
