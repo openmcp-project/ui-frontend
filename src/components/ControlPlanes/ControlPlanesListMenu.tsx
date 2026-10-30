@@ -1,39 +1,34 @@
-import '@ui5/webcomponents-icons/dist/accept';
-import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/add';
+import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/edit';
 import { Button, ButtonDomRef, Menu, MenuDomRef, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../context/FeatureToggleContext.tsx';
-import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTemplate.ts';
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
   setDialogEditWsIsOpen: Dispatch<SetStateAction<boolean>>;
-  setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
-  setIsCreateManagedControlPlaneWizardOpenV2: Dispatch<SetStateAction<boolean>>;
-  setInitialTemplateName: Dispatch<SetStateAction<string | undefined>>;
   disabled?: boolean;
+  showCreateActions?: boolean;
+  onCreateV1?: () => void;
+  onCreateV2?: () => void;
 };
 
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setDialogEditWsIsOpen,
-  setIsCreateManagedControlPlaneWizardOpen,
-  setInitialTemplateName,
-  setIsCreateManagedControlPlaneWizardOpenV2,
   disabled = false,
+  showCreateActions = false,
+  onCreateV1,
+  onCreateV2,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
   const { t } = useTranslation();
   const { enableMcpV2, markMcpV1asDeprecated } = useFeatureToggle();
-
-  // Here we will pass template list from OnboardingAPI
-  const allTemplates: ManagedControlPlaneTemplate[] = [];
 
   const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     if (popoverRef.current && e.currentTarget) {
@@ -45,31 +40,22 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   return (
     <>
       <Button
+        data-testid="ControlPlanesListMenu-opener"
         design="Transparent"
+        disabled={disabled}
         icon="overflow"
         icon-end
-        data-testid="ControlPlanesListMenu-opener"
-        disabled={disabled}
         onClick={handleOpenerClick}
       />
       <Menu
         ref={popoverRef}
         open={open}
+        onClose={() => setOpen(false)}
         onItemClick={(event) => {
           const item = event.detail.item as HTMLElement;
           const action = item.dataset.action;
-          if (action === 'newManagedControlPlane') {
-            setInitialTemplateName(undefined);
-            setIsCreateManagedControlPlaneWizardOpen(true);
-          }
-          if (action === 'newManagedControlPlaneV2') {
-            setIsCreateManagedControlPlaneWizardOpenV2(true);
-          }
-          if (action === 'newManagedControlPlaneWithTemplate') {
-            const tplName = item.dataset.templateName || undefined;
-            setInitialTemplateName(tplName);
-            setIsCreateManagedControlPlaneWizardOpen(true);
-          }
+          if (action === 'createV1') onCreateV1?.();
+          if (action === 'createV2') onCreateV2?.();
           if (action === 'deleteWorkspace') {
             setDialogDeleteWsIsOpen(true);
           }
@@ -79,49 +65,30 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           setOpen(false);
         }}
       >
-        <MenuItem
-          key={'add'}
-          text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
-          data-action="newManagedControlPlane"
-          icon="add"
-          additionalText={
-            markMcpV1asDeprecated
-              ? t('ControlPlaneListToolbar.deprecatedBadge')
-              : t('ControlPlaneListToolbar.defaultBadge')
-          }
-        />
-        {enableMcpV2 && (
+        {showCreateActions && (
           <MenuItem
-            key={'addV2'}
-            text={t('ControlPlaneListToolbar.createNewControlPlane')}
-            data-action="newManagedControlPlaneV2"
+            key="createV1"
+            data-action="createV1"
+            additionalText={
+              markMcpV1asDeprecated
+                ? t('ControlPlaneListToolbar.deprecatedBadge')
+                : t('ControlPlaneListToolbar.defaultBadge')
+            }
             icon="add"
-            additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
+            text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           />
         )}
-        {allTemplates.map((tpl) => (
+        {showCreateActions && enableMcpV2 && (
           <MenuItem
-            key={`tpl-${tpl.metadata.name}`}
-            text={tpl.metadata.name}
-            title={tpl.metadata.descriptionText || ''}
-            data-action="newManagedControlPlaneWithTemplate"
-            data-template-name={tpl.metadata.name}
-            icon="document-text"
+            key="createV2"
+            data-action="createV2"
+            additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
+            icon="add"
+            text={t('ControlPlaneListToolbar.createNewControlPlane')}
           />
-        ))}
-
-        <MenuItem
-          key={'edit'}
-          text={t('ControlPlaneListToolbar.editWorkspace')}
-          data-action="editWorkspace"
-          icon="edit"
-        />
-        <MenuItem
-          key={'delete'}
-          text={t('ControlPlaneListToolbar.deleteWorkspace')}
-          data-action="deleteWorkspace"
-          icon="delete"
-        />
+        )}
+        <MenuItem data-action="editWorkspace" icon="edit" text={t('ControlPlaneListToolbar.editWorkspace')} />
+        <MenuItem data-action="deleteWorkspace" icon="delete" text={t('ControlPlaneListToolbar.deleteWorkspace')} />
       </Menu>
     </>
   );
