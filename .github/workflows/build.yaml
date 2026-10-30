@@ -43,7 +43,7 @@ jobs:
       matrix:
         include:
           - shard: 1
-            spec: 'src/components/{ControlPlane,ControlPlanes,Core,Members,Shared,Ui}/**/*.cy.{js,ts,jsx,tsx}'
+            spec: 'src/components/{ControlPlane,ControlPlanes,Core,DragDrop,Members,Shared,Ui}/**/*.cy.{js,ts,jsx,tsx}'
           - shard: 2
             spec: 'src/components/{Dialogs,Graphs,Projects,Wizards}/**/*.cy.{js,ts,jsx,tsx}'
           - shard: 3

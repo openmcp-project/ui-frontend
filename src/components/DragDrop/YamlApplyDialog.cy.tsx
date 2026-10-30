@@ -149,3 +149,77 @@ describe('YamlApplyDialog — parse errors', () => {
     cy.contains('Only .yaml and .yml files are supported').should('be.visible');
   });
 });
+
+describe('YamlApplyDialog — Control Plane API discovery', () => {
+  const targetApiConfig = {
+    mcpConfig: { projectName: 'project', workspaceName: 'workspace', controlPlaneName: 'cp' },
+  };
+  const secret =
+    'apiVersion: v1\nkind: Secret\nmetadata:\n  name: test-secret\n  namespace: ns\ndata:\n  token: dGVzdA==\n';
+  const configMap = 'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test-config\n  namespace: ns\n';
+
+  beforeEach(() => {
+    // Built-in kinds are deliberately absent from the CRD list.
+    cy.intercept('GET', '/api/onboarding/apis/apiextensions.k8s.io/v1/customresourcedefinitions', {
+      items: [],
+    });
+    cy.intercept('GET', '/api/onboarding/api/v1', {
+      resources: [
+        { name: 'secrets', kind: 'Secret', namespaced: true },
+        { name: 'configmaps', kind: 'ConfigMap', namespaced: true },
+      ],
+    }).as('discovery');
+    cy.intercept('GET', '/api/onboarding/api/v1/namespaces/ns/secrets/test-secret', {
+      statusCode: 404,
+      body: { message: 'Not found' },
+    }).as('checkSecret');
+    cy.intercept('PATCH', '/api/onboarding/api/v1/namespaces/ns/secrets/test-secret?*', { body: {} }).as('applySecret');
+  });
+
+  it('allows dry run and apply of a Secret without a CRD', () => {
+    mountDialog({
+      files: [new File([secret], 'secret.yaml', { type: 'application/yaml' })],
+      targetApiConfig,
+    });
+
+    cy.wait('@discovery');
+    cy.wait('@checkSecret');
+    cy.contains('Could not resolve resource type').should('not.exist');
+    cy.contains('ui5-button', 'Dry run')
+      .should(($button) => expect($button).not.to.have.attr('disabled'))
+      .click();
+    cy.wait('@applySecret').then(({ request }) => {
+      expect(request.query.dryRun).to.equal('All');
+      expect(request.headers['content-type']).to.equal('application/apply-patch+yaml');
+      expect(request.body).to.contain('token: dGVzdA==');
+    });
+    cy.contains('Dry run passed').should('be.visible');
+
+    cy.contains('ui5-button', 'Create')
+      .should(($button) => expect($button).not.to.have.attr('disabled'))
+      .click();
+    cy.wait('@applySecret').then(({ request }) => {
+      expect(request.query).not.to.have.property('dryRun');
+    });
+    cy.contains('All resources applied').should('be.visible');
+  });
+
+  it('applies all built-in resources in a multi-document upload', () => {
+    cy.intercept('PATCH', '/api/onboarding/api/v1/namespaces/ns/configmaps/test-config?*', { body: {} }).as(
+      'applyConfigMap',
+    );
+    mountDialog({
+      files: [new File([secret, '---\n', configMap], 'resources.yaml', { type: 'application/yaml' })],
+      targetApiConfig,
+    });
+
+    cy.wait('@checkSecret');
+    cy.contains('ui5-button', 'Apply all')
+      .should(($button) => expect($button).not.to.have.attr('disabled'))
+      .click();
+    cy.wait('@applySecret');
+    cy.wait('@applyConfigMap');
+    cy.contains('All resources applied').should('be.visible');
+    cy.contains('2 resources applied successfully').should('be.visible');
+  });
+});
