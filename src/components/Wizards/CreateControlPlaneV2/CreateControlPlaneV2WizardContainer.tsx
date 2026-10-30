@@ -1121,10 +1121,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                     register={register}
                     watch={watch}
                     setValue={setValue}
-                    copyFromProjectName={bareProjectName}
-                    copyFromWorkspaceName={workspaceName}
-                    copyFromWorkspaceNamespace={projectName}
-                    introText={t('SupportInfo.wizardIntroControlPlane')}
+                    parentProjectName={bareProjectName}
+                    parentWorkspaceName={workspaceName}
                   />
                 </div>
                 <div>

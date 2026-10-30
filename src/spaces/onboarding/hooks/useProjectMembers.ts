@@ -28,9 +28,10 @@ const GetProjectMembersQuery = graphql(`
   }
 `);
 
-export function useProjectMembers(projectName: string) {
+export function useProjectMembers(projectName: string | undefined) {
   const { data, loading } = useQuery(GetProjectMembersQuery, {
-    variables: { name: projectName },
+    variables: { name: projectName ?? '' },
+    skip: !projectName,
   });
 
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;

@@ -804,9 +804,7 @@
     "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
     "wizardStepTitle": "Support Info",
     "sectionLabel": "Support Info:",
-    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
-    "wizardIntroWorkspace": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Project where available. No runtime impact.",
-    "wizardIntroControlPlane": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Workspace or Project where available. No runtime impact.",
+    "wizardIntro": "Optional metadata to help support engineers. No runtime impact.",
     "unknown": "Unknown",
     "pleaseSet": "n/a",
     "addButton": "Add info",
@@ -833,9 +831,10 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit",
-    "copyFromProject": "Copy Info from the parent Project",
-    "copyFromProjectNoData": "The parent project has no support info to copy.",
-    "copyFromWorkspace": "Copy Info from the parent Workspace",
-    "copyFromWorkspaceNoData": "The parent workspace has no support info to copy."
+    "overrideButton": "Override",
+    "inheritedFrom": "Inherited from {{kind}} <b>{{name}}</b>",
+    "inheritedTooltip": "Inherited from {{kind}} {{name}}",
+    "inheritedFormHint": "Leave all fields empty to keep using these values. Setting any field replaces them all.",
+    "inheritedOverriddenHint": "You set your own values, so none of the inherited values apply. Clear all fields to inherit again."
   }
 }

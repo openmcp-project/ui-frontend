@@ -4,10 +4,14 @@
   text-align: left;
 }
 
-.copyRow {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
+.intro {
+  max-width: 100%;
+  text-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.inheritedHint {
+  margin-top: 0.25rem;
 }
 
 .fields {
