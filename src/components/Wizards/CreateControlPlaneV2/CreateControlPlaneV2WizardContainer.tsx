@@ -349,8 +349,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
   // Services state — selected + optional version per service
   const [services, setServices] = useState<ServiceSelection>({});
-  // Edit mode: snapshot of the prefilled selection, used as the YAML diff baseline per service.
-  const [initialServiceSelection, setInitialServiceSelection] = useState<ServiceSelection>({});
   const [activeService, setActiveService] = useState<ServiceKey | undefined>(initialService);
 
   // Edit-mode: query existing service state to pre-populate the step.
@@ -412,7 +410,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasPrefilledServices(true);
 
-    const prefilled: ServiceSelection = {
+    setServices({
       crossplane: crossplaneData
         ? {
             selected: crossplaneData.isInstalled,
@@ -432,9 +430,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       metricsOperator: metricsOperatorData
         ? { selected: metricsOperatorData.isInstalled, version: metricsOperatorData.version ?? '' }
         : undefined,
-    };
-    setServices(prefilled);
-    setInitialServiceSelection(prefilled);
+    });
   }, [
     isEditMode,
     skipKpi,
@@ -1104,8 +1100,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                 activeService={resolvedActiveService}
                 resourceName={isEditMode ? editName : rawInput.name}
                 resourceNamespace={isEditMode ? editNs : rawInput.namespace}
-                isEditMode={isEditMode}
-                initialServices={isEditMode ? initialServiceSelection : undefined}
                 useManagedServicesQuery={useManagedServicesQuery}
                 onServicesChange={setServices}
                 onActiveServiceChange={setActiveService}

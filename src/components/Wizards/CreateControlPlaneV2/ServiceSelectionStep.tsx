@@ -27,8 +27,6 @@ interface ServiceSelectionStepProps {
   onActiveServiceChange: (key: ServiceKey) => void;
   resourceName: string;
   resourceNamespace: string;
-  isEditMode?: boolean;
-  initialServices?: ServiceSelection;
   useManagedServicesQuery?: typeof _useManagedServicesQuery;
 }
 
@@ -40,8 +38,6 @@ export function ServiceSelectionStep({
   onActiveServiceChange,
   resourceName,
   resourceNamespace,
-  isEditMode = false,
-  initialServices,
   useManagedServicesQuery = _useManagedServicesQuery,
 }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
@@ -230,8 +226,6 @@ export function ServiceSelectionStep({
           activeService={activeService}
           resourceName={resourceName}
           resourceNamespace={resourceNamespace}
-          isEditMode={isEditMode}
-          initialServices={initialServices}
           onActiveServiceChange={onActiveServiceChange}
         />
       </div>
