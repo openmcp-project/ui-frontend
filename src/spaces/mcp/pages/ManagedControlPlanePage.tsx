@@ -34,6 +34,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -320,6 +321,7 @@ export default function ManagedControlPlanePage() {
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+  useDocumentTitle(displayName ?? controlPlaneName);
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);

@@ -25,6 +25,7 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -478,6 +479,7 @@ export default function ControlPlanePageV2() {
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+  useDocumentTitle(displayName ?? controlPlaneName);
 
   const roleBindings = useMemo(() => flattenOidcRoleBindings(mcp?.spec?.iam?.oidc), [mcp?.spec?.iam?.oidc]);
 
