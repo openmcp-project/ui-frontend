@@ -1,7 +1,25 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 640px) minmax(0, 1fr);
+  gap: 1.5rem;
+  /* No fixed height / inner scroll: the step flows and the wizard's own content area scrolls,
+     which is what the sticky preview sticks to. */
+  align-items: start;
+}
+
 .container {
   padding: 1rem 0;
-  max-width: 640px;
   width: 100%;
+}
+
+.preview {
+  padding: 1rem 0;
+  min-width: 0;
+  /* Stays in view while the service list on the left scrolls past it. */
+  position: sticky;
+  top: 0;
+  /* Monaco needs a definite height to render, so the box is viewport-tall minus the wizard chrome above it. */
+  height: calc(100vh - 12rem);
 }
 
 .intro {
@@ -20,6 +38,11 @@
   border: 1px solid var(--sapList_BorderColor, #e5e5e5);
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
+}
+
+.rowActive {
+  border-color: var(--sapSelectedColor);
+  box-shadow: inset 0 0 0 1px var(--sapSelectedColor);
 }
 
 .logo {

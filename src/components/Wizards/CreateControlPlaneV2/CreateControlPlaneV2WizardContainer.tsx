@@ -86,6 +86,11 @@ import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpda
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
+import {
+  buildServiceResource,
+  getVisibleControlPlaneV2Services,
+  ServiceKey,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import summarizeStyles from '../CreateManagedControlPlane/SummarizeStep.module.css';
@@ -106,6 +111,8 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneV2;
   initialSection?: WizardStepType;
+  /** Service to focus in the Services step (card highlight + YAML tab). Defaults to the first one. */
+  initialService?: ServiceKey;
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
   useRefreshMcpV2ComponentsList?: typeof _useRefreshMcpV2ComponentsList;
@@ -155,6 +162,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   initialTemplateName,
   initialData,
   initialSection,
+  initialService,
   useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
   useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
   useRefreshMcpV2ComponentsList = _useRefreshMcpV2ComponentsList,
@@ -341,6 +349,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
   // Services state — selected + optional version per service
   const [services, setServices] = useState<ServiceSelection>({});
+  const [activeService, setActiveService] = useState<ServiceKey | undefined>(initialService);
 
   // Edit-mode: query existing service state to pre-populate the step.
   // Hooks are always called (rules of hooks) but skipped when not relevant.
@@ -367,6 +376,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Landscaper is toggle-gated for new installs, but an already-installed Landscaper must stay
   // visible in edit mode so it can still be managed/removed even after the toggle is off.
   const showLandscaper = showLandscaperCard || (isEditMode && !!landscaperData?.isInstalled);
+  const visibleServices = useMemo(() => getVisibleControlPlaneV2Services(showLandscaper), [showLandscaper]);
+  // Falls back to the first visible service (Crossplane) until the user focuses another one.
+  const resolvedActiveService =
+    activeService && visibleServices.some((s) => s.key === activeService) ? activeService : visibleServices[0].key;
 
   // Gates the Members → Components transition so it never reads stale "was this installed" data.
   const isKpiLoading =
@@ -572,20 +585,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       // Named so a partial failure below can report which service(s) failed.
       const servicePromises: { name: string; promise: Promise<unknown> }[] = [];
 
-      const makeServiceObject = (
-        serviceName: string,
-        version: string,
-        ns: string,
-        apiVersion: string,
-        kind: string,
-      ) => ({
-        namespace: ns,
-        object: {
-          apiVersion,
-          kind,
-          metadata: { name: serviceName, namespace: ns },
-          spec: { version: version || 'latest' },
-        },
+      const makeServiceObject = (key: ServiceKey) => ({
+        namespace: cpNamespace,
+        object: buildServiceResource(key, services[key], cpName, cpNamespace),
       });
 
       const crossplaneAction = resolveServiceMutationAction(
@@ -594,21 +596,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.crossplane?.selected,
       );
       if (crossplaneAction === 'create' || crossplaneAction === 'update') {
-        const vars = {
-          namespace: cpNamespace,
-          object: {
-            apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
-            kind: 'Crossplane',
-            metadata: { name: cpName, namespace: cpNamespace },
-            spec: {
-              version: services.crossplane?.version || 'latest',
-              providers: (services.crossplane?.providers ?? []).map((p) => ({
-                name: p.name,
-                version: p.version || 'latest',
-              })),
-            },
-          },
-        };
+        const vars = makeServiceObject('crossplane');
         servicePromises.push({
           name: 'Crossplane',
           promise:
@@ -625,13 +613,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const fluxAction = resolveServiceMutationAction(isEditMode, !!fluxData?.isInstalled, !!services.flux?.selected);
       if (fluxAction === 'create' || fluxAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.flux?.version ?? '',
-          cpNamespace,
-          'flux.services.open-control-plane.io/v1alpha1',
-          'Flux',
-        );
+        const vars = makeServiceObject('flux');
         servicePromises.push({
           name: 'Flux',
           promise:
@@ -647,13 +629,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.landscaper?.selected,
       );
       if (landscaperAction === 'create' || landscaperAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.landscaper?.version ?? '',
-          cpNamespace,
-          'landscaper.services.open-control-plane.io/v1alpha2',
-          'Landscaper',
-        );
+        const vars = makeServiceObject('landscaper');
         servicePromises.push({
           name: 'Landscaper',
           promise:
@@ -674,13 +650,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.externalSecretsOperator?.selected,
       );
       if (esoAction === 'create' || esoAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.externalSecretsOperator?.version ?? '',
-          cpNamespace,
-          'external-secrets.services.open-control-plane.io/v1alpha1',
-          'ExternalSecretsOperator',
-        );
+        const vars = makeServiceObject('externalSecretsOperator');
         servicePromises.push({
           name: 'ExternalSecretsOperator',
           promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso({ ...vars, name: cpName }),
@@ -694,13 +664,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const ocmAction = resolveServiceMutationAction(isEditMode, !!ocmData?.isInstalled, !!services.ocm?.selected);
       if (ocmAction === 'create' || ocmAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.ocm?.version ?? '',
-          cpNamespace,
-          'ocm.services.open-control-plane.io/v1alpha1',
-          'OCM',
-        );
+        const vars = makeServiceObject('ocm');
         servicePromises.push({
           name: 'OCM',
           promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm({ ...vars, name: cpName }),
@@ -711,13 +675,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const kroAction = resolveServiceMutationAction(isEditMode, !!kroData?.isInstalled, !!services.kro?.selected);
       if (kroAction === 'create' || kroAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.kro?.version ?? '',
-          cpNamespace,
-          'kro.services.open-control-plane.io/v1alpha1',
-          'KRO',
-        );
+        const vars = makeServiceObject('kro');
         servicePromises.push({
           name: 'KRO',
           promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro({ ...vars, name: cpName }),
@@ -732,13 +690,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.metricsOperator?.selected,
       );
       if (metricsOperatorAction === 'create' || metricsOperatorAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.metricsOperator?.version ?? '',
-          cpNamespace,
-          'metrics.services.open-control-plane.io/v1alpha1',
-          'MetricsOperator',
-        );
+        const vars = makeServiceObject('metricsOperator');
         servicePromises.push({
           name: 'MetricsOperator',
           promise:
@@ -1145,8 +1097,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               <ServiceSelectionStep
                 services={services}
                 showLandscaper={showLandscaper}
+                activeService={resolvedActiveService}
+                resourceName={isEditMode ? editName : rawInput.name}
+                resourceNamespace={isEditMode ? editNs : rawInput.namespace}
                 useManagedServicesQuery={useManagedServicesQuery}
                 onServicesChange={setServices}
+                onActiveServiceChange={setActiveService}
               />
             )}
           </WizardStep>

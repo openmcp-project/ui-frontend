@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'yaml';
 
@@ -19,12 +20,14 @@ export interface YamlSidePanelWithGraphqlLoaderProps {
   component: McpComponentKind;
   mcpName: string;
   mcpNamespace: string;
+  toolbarContent?: JSX.Element;
 }
 
 export function YamlSidePanelWithGraphqlLoader({
   component,
   mcpName,
   mcpNamespace,
+  toolbarContent,
 }: YamlSidePanelWithGraphqlLoaderProps) {
   const { t } = useTranslation();
 
@@ -59,5 +62,5 @@ export function YamlSidePanelWithGraphqlLoader({
   }
 
   const filename = buildYamlFilename(resource.kind ?? component, resource.metadata?.name ?? mcpName);
-  return <YamlSidePanel resource={resource} filename={filename} isEdit={false} />;
+  return <YamlSidePanel resource={resource} filename={filename} isEdit={false} toolbarContent={toolbarContent} />;
 }

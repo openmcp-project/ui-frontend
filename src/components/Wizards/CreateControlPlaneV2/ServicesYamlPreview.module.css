@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--sapList_Background);
+}
+
+.tabs {
+  flex: none;
+}
+
+.actions {
+  flex: none;
+  padding: 0.25rem 0.5rem 0;
+}
+
+.editor {
+  flex: 1;
+  min-height: 0;
+  padding: 0.5rem 0;
+}
