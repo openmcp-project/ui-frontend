@@ -322,12 +322,6 @@ export function ControlPlaneListWorkspaceGridTile({
                 resourceName={workspaceName}
                 resourceType={'workspaces'}
               />
-              {!shouldCollapsePanel && (
-                <CreateControlPlaneButton
-                  onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
-                  onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
-                />
-              )}
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
@@ -336,6 +330,12 @@ export function ControlPlaneListWorkspaceGridTile({
                 onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                 onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
+              {!shouldCollapsePanel && (
+                <CreateControlPlaneButton
+                  onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                  onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
+              )}
             </FlexBox>
           </div>
 
