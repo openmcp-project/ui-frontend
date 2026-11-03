@@ -226,6 +226,37 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
   });
 
+  it('shows the Create Control Plane button in the header when workspace is populated', () => {
+    mountTile({ isExpanded: true });
+    cy.get('[data-testid="create-control-plane-button"]').should('exist');
+  });
+
+  it('does not show the Create Control Plane button when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
+  });
+
+  it('offers the create action in the overflow menu when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('exist');
+  });
+
+  it('does not offer the create action in the overflow menu when the workspace is expanded', () => {
+    mountTile({ isExpanded: true });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('not.exist');
+  });
+
+  it('does not show the Create Control Plane button when the user is forbidden', () => {
+    const ws: Workspace = {
+      metadata: { name: 'workspaceName', namespace: 'project-webapp-playground', annotations: {} },
+      spec: { members: [] },
+    };
+    mountForbiddenTile(ws);
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
+  });
+
   describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {
     it('does NOT render ControlPlaneCards when workspace is collapsed', () => {
       let kpiRequestCount = 0;
