@@ -8,7 +8,7 @@ import { YamlApplyContextProvider } from '../../context/YamlApplyContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
 import { ShellBarComponent } from './ShellBar.tsx';
-import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
@@ -28,12 +28,17 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+  const mountComponent = ({
+    enableHeadlamp = true,
+    branding = defaultBranding,
+  }: { enableHeadlamp?: boolean; branding?: typeof defaultBranding } = {}) => {
     const fakeConfig = {
       landscape: undefined,
       documentationBaseUrl: '',
+      feedbackUrl: null,
       githubBaseUrl: '',
       mcp2DocsUrl: '',
+      branding,
       featureToggles: {
         markMcpV1asDeprecated: false,
         enableMcpV2: false,
@@ -58,15 +63,20 @@ describe('ShellBar', () => {
     );
   };
 
-  it('renders the ShellBar with logo and title', () => {
+  it('renders the ShellBar with title', () => {
     mountComponent();
 
-    cy.get('img[alt="SAP"]').should('be.visible');
-    cy.contains('OpenControlPlane UI').should('be.visible');
+    cy.get('ui5-shellbar').should('be.visible');
+    cy.contains(defaultBranding.appName).should('be.visible');
   });
 
   it('navigates home when the logo is clicked', () => {
-    mountComponent();
+    mountComponent({
+      branding: {
+        ...defaultBranding,
+        logo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E',
+      },
+    });
 
     cy.window().then((win) => {
       win.location.hash = '#/projects/some-project';
