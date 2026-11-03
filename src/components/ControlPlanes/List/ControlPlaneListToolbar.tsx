@@ -49,18 +49,18 @@ export function ControlPlaneListToolbar({
   return (
     <>
       <Toolbar className={styles.toolbar}>
-        <ToolbarButton
-          design="Emphasized"
-          icon="add"
-          text={t('ControlPlaneListToolbar.buttonText')}
-          onClick={() => setDialogIsOpen(true)}
-        />
         <Button
           id={menuButtonId}
           data-testid="project-overflow-menu"
           design="Transparent"
           icon="overflow"
           onClick={() => setMenuOpen((prev) => !prev)}
+        />
+        <ToolbarButton
+          design="Emphasized"
+          icon="add"
+          text={t('ControlPlaneListToolbar.buttonText')}
+          onClick={() => setDialogIsOpen(true)}
         />
       </Toolbar>
 
