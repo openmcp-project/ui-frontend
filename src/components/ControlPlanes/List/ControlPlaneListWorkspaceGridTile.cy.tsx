@@ -5,7 +5,7 @@ import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { APIError } from '../../../lib/api/error.ts';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
-import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -84,8 +84,10 @@ const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
 
 const frontendConfig = {
   documentationBaseUrl: '',
+  feedbackUrl: null,
   githubBaseUrl: '',
   githubApps: [],
+  branding: defaultBranding,
   featureToggles: {
     markMcpV1asDeprecated: false,
     enableMcpV2: false,

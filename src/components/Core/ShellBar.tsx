@@ -32,13 +32,12 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import SapLogo from '../../assets/images/sap-logo.svg';
 import { Routes } from '../../Routes.ts';
+import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useYamlApply } from '../../context/YamlApplyContext.tsx';
-import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -49,6 +48,7 @@ import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -60,6 +60,7 @@ export function ShellBarComponent({
 } = {}) {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
+  const { branding } = useFrontendConfig();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const infoButtonRef = useRef<ButtonDomRef | null>(null);
@@ -90,8 +91,8 @@ export function ShellBarComponent({
     <>
       <ShellBar
         hidden={window.location.href.includes('compact-mode')}
-        logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
-        primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
+        logo={branding.logo ? <img src={branding.logo} alt={branding.appName} className={styles.logo} /> : undefined}
+        primaryTitle={mcpDisplayName ?? mcpName ?? branding.appName}
         profile={
           <Avatar
             colorScheme={avatarColorSchemeForEmail(auth.user?.email)}

@@ -80,6 +80,10 @@ task build:ocm OCM_COMPONENT_VERSION=v1.2.3
 task publish:ocm OCM_COMPONENT_VERSION=v1.2.3
 ```
 
+## Branding
+
+Every field in the `branding` block of `frontend-config.json` is optional. Set them to white-label the UI for your organisation — custom app name, portal name, primary colour, logo, and favicon. See [Branding](branding.md).
+
 ## Telemetry
 
 The UI emits product analytics and error reports through a fan-out service that talks to Sentry, Dynatrace, and (in dev only) the browser console. For architectural details, the exact list of events sent, and how to opt a deployment out, see [Telemetry](telemetry.md).

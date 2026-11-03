@@ -5,10 +5,11 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
-import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState, useMemo } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ControlPlaneListItem,
@@ -20,6 +21,10 @@ import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.ts
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { YamlSidePanelWithGraphqlLoader } from '../../Yaml/YamlSidePanelWithGraphqlLoader.tsx';
+import { useSplitter } from '../../Splitter/SplitterContext.tsx';
+import { ApiConfigContext } from '../../Shared/k8s';
+import { getControlPlaneV2Service, ServiceKey } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { canConnectToMCP } from '../controlPlanes.ts';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
@@ -73,6 +78,8 @@ interface ComponentInfo {
   installed: boolean;
   /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
   phase?: string | null;
+  /** V2 only: identifies the service for the YAML side panel and the edit wizard. */
+  serviceKey?: ServiceKey;
 }
 
 export const ControlPlaneCard = ({
@@ -87,6 +94,10 @@ export const ControlPlaneCard = ({
   const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
+  // Service to focus when the V2 edit wizard is opened from a service's YAML panel.
+  const [editV2WizardService, setEditV2WizardService] = useState<ServiceKey | undefined>(undefined);
+  const { openInAsideWithApiConfig } = useSplitter();
+  const apiConfig = useContext(ApiConfigContext);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
     mode: undefined,
@@ -137,8 +148,15 @@ export const ControlPlaneCard = ({
           logo: LogoCrossplane,
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
+          serviceKey: 'crossplane',
         },
-        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
+        {
+          name: 'Flux',
+          logo: LogoFlux,
+          installed: !!mcpV2Components?.flux,
+          phase: mcpV2Components?.flux?.phase,
+          serviceKey: 'flux',
+        },
         ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
               {
@@ -146,6 +164,7 @@ export const ControlPlaneCard = ({
                 logo: LogoLandscaper,
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
+                serviceKey: 'landscaper' as const,
               },
             ]
           : []),
@@ -154,9 +173,22 @@ export const ControlPlaneCard = ({
           logo: LogoEso,
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
+          serviceKey: 'externalSecretsOperator',
         },
-        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm, phase: mcpV2Components?.ocm?.phase },
-        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro, phase: mcpV2Components?.kro?.phase },
+        {
+          name: 'OCM',
+          logo: LogoOcm,
+          installed: !!mcpV2Components?.ocm,
+          phase: mcpV2Components?.ocm?.phase,
+          serviceKey: 'ocm',
+        },
+        {
+          name: 'KRO',
+          logo: LogoKro,
+          installed: !!mcpV2Components?.kro,
+          phase: mcpV2Components?.kro?.phase,
+          serviceKey: 'kro',
+        },
       ];
     }
     return [
@@ -171,6 +203,34 @@ export const ControlPlaneCard = ({
   }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
+
+  const openEditV2Wizard = (serviceKey?: ServiceKey) => {
+    setEditV2WizardService(serviceKey);
+    setIsEditV2WizardOpen(true);
+  };
+
+  const openServiceYamlPanel = (serviceKey: ServiceKey) => {
+    const { yamlComponent } = getControlPlaneV2Service(serviceKey);
+    telemetry.track({ category: 'yaml', action: 'viewed', resourceType: yamlComponent });
+    openInAsideWithApiConfig(
+      <YamlSidePanelWithGraphqlLoader
+        component={yamlComponent}
+        mcpName={name}
+        mcpNamespace={namespace}
+        toolbarContent={
+          <Button
+            icon="edit"
+            design="Transparent"
+            data-testid="service-yaml-edit-button"
+            onClick={() => openEditV2Wizard(serviceKey)}
+          >
+            {t('buttons.edit')}
+          </Button>
+        }
+      />,
+      apiConfig,
+    );
+  };
 
   return (
     <>
@@ -231,9 +291,12 @@ export const ControlPlaneCard = ({
                         key={component.name}
                         className={styles.componentIcon}
                         title={component.name}
+                        data-testid={`component-icon-${component.name}`}
                         onClick={() => {
-                          if (isV2) {
-                            setIsEditV2WizardOpen(true);
+                          if (isV2 && component.serviceKey) {
+                            openServiceYamlPanel(component.serviceKey);
+                          } else if (isV2) {
+                            openEditV2Wizard();
                           } else {
                             handleIsManagedControlPlaneWizardOpen(true, 'edit');
                           }
@@ -320,7 +383,10 @@ export const ControlPlaneCard = ({
               <ControlPlaneCardMenuV2
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
+                setIsEditManagedControlPlaneWizardOpen={(open) => {
+                  setEditV2WizardService(undefined);
+                  setIsEditV2WizardOpen(open);
+                }}
                 controlPlaneName={name}
                 mcpNamespace={controlPlane.metadata.namespace}
                 access={controlPlane.status?.access}
@@ -410,6 +476,8 @@ export const ControlPlaneCard = ({
             setIsOpen={setIsEditV2WizardOpen}
             namespace={namespace}
             resourceName={name}
+            initialSection={editV2WizardService ? 'componentSelection' : undefined}
+            initialService={editV2WizardService}
           />
         </div>
       )}

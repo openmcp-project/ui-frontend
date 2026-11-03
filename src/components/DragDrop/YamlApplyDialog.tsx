@@ -31,12 +31,12 @@ import IllustratedError from '../Shared/IllustratedError';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchemaLoader';
-import { useResourcePluralNames as _useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
 import {
   type ParsedResource,
   type ValidationError,
+  resolveCpResourcePlural,
   checkCpResourceExists,
   applyCpResource,
   checkOnboardingResourceExists,
@@ -62,8 +62,6 @@ interface Props {
   onRegisterAppend?: (handler: ((files: File[]) => void) | null) => void;
   /** Shows the drop-to-add overlay while dragging with the dialog open. */
   isExternalDragActive?: boolean;
-  /** Injectable for tests. */
-  useResourcePluralNames?: typeof _useResourcePluralNames;
 }
 
 export function YamlApplyDialog(props: Props) {
@@ -91,12 +89,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   onClose,
   onRegisterAppend,
   isExternalDragActive,
-  useResourcePluralNames = _useResourcePluralNames,
   apiConfig,
 }) => {
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
-  const { getPluralKind } = useResourcePluralNames();
 
   const isCpTarget = targetApiConfig !== null;
 
@@ -243,7 +239,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       const resource = effectiveResource;
       try {
         if (isCpTarget) {
-          const plural = getPluralKind(resource.kind);
+          const plural = await resolveCpResourcePlural(resource, apiConfig);
+          if (cancelled) return;
           if (!plural) {
             if (!cancelled) {
               setItemError(t('yamlApply.unknownKind', { kind: resource.kind }));
@@ -343,7 +340,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) {
           throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         }
@@ -373,7 +370,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     currentIndex,
     currentYaml,
     isCpTarget,
-    getPluralKind,
     apiConfig,
     resourceExists,
     apolloClient,
@@ -404,7 +400,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         await applyCpResource(resource, plural, apiConfig, true);
       } else {
@@ -414,7 +410,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     } catch (err) {
       setDryRun({ status: 'error', message: err instanceof Error ? err.message : String(err) });
     }
-  }, [currentResource, currentYaml, isCpTarget, getPluralKind, apiConfig, resourceExists, apolloClient, t]);
+  }, [currentResource, currentYaml, isCpTarget, apiConfig, resourceExists, apolloClient, t]);
 
   // Apply all pending resources sequentially, continuing past failures.
   const doApplyAll = useCallback(async () => {
@@ -434,7 +430,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         }
         try {
           if (isCpTarget) {
-            const plural = getPluralKind(resource.kind);
+            const plural = await resolveCpResourcePlural(resource, apiConfig);
             if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
             await applyCpResource(resource, plural, apiConfig);
           } else {
@@ -458,7 +454,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setIsApplyingAll(false);
       setPhase('summary');
     }
-  }, [resources, texts, statuses, edits, ids, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
+  }, [resources, texts, statuses, edits, ids, isCpTarget, apiConfig, apolloClient, t, markStatus]);
 
   const addFiles = useCallback(
     async (incoming: File[]) => {
