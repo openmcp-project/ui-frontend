@@ -319,9 +319,14 @@ export function ControlPlaneListWorkspaceGridTile({
               workspaceName={workspaceName}
               workspaceDisplayName={showDisplayName ? workspaceDisplayName : undefined}
               namespace={workspace.status?.namespace || '-'}
+              projectNamespace={projectNamespace}
               members={uniqueMembers}
+              isForbidden={isForbidden}
               onClose={() => setInfoPopoverOpen(false)}
-              onEditClick={() => setDialogEditWsIsOpen(true)}
+              onEditClick={() => {
+                setInfoPopoverOpen(false);
+                setDialogEditWsIsOpen(true);
+              }}
             />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               {isForbidden && (

@@ -14,8 +14,10 @@ interface Props {
   workspaceName: string;
   workspaceDisplayName?: string;
   namespace: string;
+  projectNamespace: string;
   members: Member[];
   onEditClick: () => void;
+  isForbidden?: boolean;
 }
 
 export function WorkspaceInfoPopover({
@@ -25,8 +27,10 @@ export function WorkspaceInfoPopover({
   workspaceName,
   workspaceDisplayName,
   namespace,
+  projectNamespace,
   members,
   onEditClick,
+  isForbidden = false,
 }: Props) {
   const { t } = useTranslation();
 
@@ -43,13 +47,15 @@ export function WorkspaceInfoPopover({
             <div className={styles.headerActions}>
               <YamlViewButton
                 variant="loader"
-                workspaceName={namespace}
+                workspaceName={projectNamespace}
                 resourceName={workspaceName}
                 resourceType="workspaces"
               />
-              <Button design="Transparent" icon="edit" onClick={onEditClick}>
-                {t('WorkspaceInfoPopover.editButton')}
-              </Button>
+              {!isForbidden && (
+                <Button design="Transparent" icon="edit" onClick={onEditClick}>
+                  {t('WorkspaceInfoPopover.editButton')}
+                </Button>
+              )}
             </div>
           }
         />
@@ -61,7 +67,7 @@ export function WorkspaceInfoPopover({
           <Label>{t('Entities.Workspace')}</Label>
           <Text>{workspaceName}</Text>
           <Label>{t('common.namespace')}</Label>
-          <CopyButton text={namespace || '-'} source="workspace-namespace" />
+          <CopyButton text={namespace} source="workspace-namespace" />
         </div>
 
         {members.length > 0 && (
