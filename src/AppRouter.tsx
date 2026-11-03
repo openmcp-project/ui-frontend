@@ -21,17 +21,17 @@ const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 function AppRouter() {
   return (
     <YamlApplyContextProvider>
-      <SearchParamToggleVisibility
-        shouldBeVisible={(params) => {
-          if (params === undefined) return true;
-          if (params.get('showHeaderBar') === null) return true;
-          return params?.get('showHeaderBar') === 'true';
-        }}
-      >
-        <ShellBarComponent />
-      </SearchParamToggleVisibility>
-
       <SplitterProvider>
+        <SearchParamToggleVisibility
+          shouldBeVisible={(params) => {
+            if (params === undefined) return true;
+            if (params.get('showHeaderBar') === null) return true;
+            return params?.get('showHeaderBar') === 'true';
+          }}
+        >
+          <ShellBarComponent />
+        </SearchParamToggleVisibility>
+
         <DragDropYamlProvider>
           <SplitterLayout>
             <Router>
