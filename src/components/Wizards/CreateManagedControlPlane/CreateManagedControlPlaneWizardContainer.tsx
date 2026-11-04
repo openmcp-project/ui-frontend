@@ -214,7 +214,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       metadata: t('buttons.next'),
       members: t('buttons.next'),
       componentSelection: t('buttons.next'),
-      summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
+      summarize: isEditMode ? t('buttons.save') : t('buttons.create'),
       success: t('buttons.close'),
     }),
 
