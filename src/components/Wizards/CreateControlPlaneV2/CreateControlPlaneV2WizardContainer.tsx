@@ -1041,21 +1041,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   )
                 ) : (
                   <>
-                    {selectedStep !== 'success' &&
-                      (selectedStep === 'metadata' ? (
-                        <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
-                          {t('buttons.cancel')}
-                        </Button>
-                      ) : (
-                        <Button
-                          design="Transparent"
-                          disabled={isSubmitting}
-                          icon="navigation-left-arrow"
-                          onClick={onBackClick}
-                        >
-                          {t('buttons.back')}
-                        </Button>
-                      ))}
+                    {selectedStep !== 'success' && (
+                      <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
+                        {t('buttons.cancel')}
+                      </Button>
+                    )}
+                    {selectedStep !== 'success' && selectedStep !== 'metadata' && (
+                      <Button
+                        design="Transparent"
+                        disabled={isSubmitting}
+                        icon="navigation-left-arrow"
+                        onClick={onBackClick}
+                      >
+                        {t('buttons.back')}
+                      </Button>
+                    )}
                     <Button
                       design="Emphasized"
                       disabled={
