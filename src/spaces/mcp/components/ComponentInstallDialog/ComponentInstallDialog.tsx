@@ -187,10 +187,10 @@ export function ComponentInstallDialog({
           design="Footer"
           endContent={
             <>
-              <Button design={ButtonDesign.Emphasized} disabled={isLoading} onClick={handleApply}>
+              <Button design={ButtonDesign.Emphasized} disabled={isLoading} icon="accept" onClick={handleApply}>
                 {t('common.applyChanges')}
               </Button>
-              <Button design={ButtonDesign.Transparent} onClick={handleClose}>
+              <Button design={ButtonDesign.Transparent} icon="decline" onClick={handleClose}>
                 {t('common.cancel')}
               </Button>
             </>

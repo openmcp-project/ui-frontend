@@ -210,12 +210,13 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
           design="Footer"
           endContent={
             <>
-              <Button design="Transparent" onClick={onClose}>
+              <Button design="Transparent" icon="decline" onClick={onClose}>
                 {t('buttons.cancel')}
               </Button>
               <Button
                 design="Emphasized"
                 data-testid="save-provider-button"
+                icon={isEdit ? 'save' : 'add'}
                 onClick={() => handleSubmit(onFormSubmit)()}
               >
                 {isEdit ? t('EditMembers.saveButton') : t('IdentityProviders.addProviderButton')}

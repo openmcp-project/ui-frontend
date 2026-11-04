@@ -182,10 +182,10 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         <Bar
           endContent={
             <>
-              <Button design="Transparent" onClick={onClose}>
+              <Button design="Transparent" icon="decline" onClick={onClose}>
                 {t('buttons.cancel')}
               </Button>
-              <Button design="Emphasized" disabled={selectedMembersCount === 0} onClick={handleAddMembers}>
+              <Button design="Emphasized" disabled={selectedMembersCount === 0} icon="add" onClick={handleAddMembers}>
                 {getAddMembersButtonText(selectedMembersCount, t)}
               </Button>
             </>
