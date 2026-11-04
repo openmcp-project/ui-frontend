@@ -301,6 +301,18 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     [t, isEditMode],
   );
 
+  const nextButtonIcon = useMemo<Record<WizardStepType, { icon?: string; endIcon?: string }>>(
+    () => ({
+      metadata: { endIcon: 'navigation-right-arrow' },
+      members: { endIcon: 'navigation-right-arrow' },
+      componentSelection: { endIcon: 'navigation-right-arrow' },
+      supportInfo: { endIcon: 'navigation-right-arrow' },
+      summarize: { icon: isEditMode ? 'save' : 'add' },
+      success: { icon: 'accept' },
+    }),
+    [isEditMode],
+  );
+
   const resetFormAndClose = useCallback(() => {
     reset();
     setSelectedStep('metadata');
@@ -977,17 +989,17 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && selectedStep !== 'success' && isEditMode && (
-                  <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                  <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
                     {t('buttons.cancel')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                    <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
                       {t('buttons.cancel')}
                     </Button>
                   ) : (
-                    <Button disabled={isSubmitting} onClick={onBackClick}>
+                    <Button disabled={isSubmitting} icon="navigation-left-arrow" onClick={onBackClick}>
                       {t('buttons.back')}
                     </Button>
                   ))}
@@ -998,6 +1010,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                     (isEditMode && selectedStep === 'componentSelection' && !skipKpi && !hasPrefilledServices) ||
                     (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
                   }
+                  endIcon={nextButtonIcon[selectedStep].endIcon}
+                  icon={nextButtonIcon[selectedStep].icon}
                   onClick={onNextClick}
                 >
                   {nextButtonText[selectedStep]}
