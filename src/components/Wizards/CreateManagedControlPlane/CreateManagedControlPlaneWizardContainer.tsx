@@ -385,6 +385,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     isSubmitting,
   ]);
 
+  // Edit mode exposes Save on every step, so saving is decoupled from step navigation.
+  const onSaveClick = useCallback(() => {
+    if (isSubmitting) return;
+    void handleCreateManagedControlPlane(getValues());
+  }, [isSubmitting, handleCreateManagedControlPlane, getValues]);
+
   const normalizeMemberRole = useCallback((roleInput?: string | null) => {
     const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
     if (normalizedRole === 'admin' || normalizedRole === 'administrator') return MemberRoles.admin;
@@ -598,35 +604,74 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             design="Footer"
             endContent={
               <div className={styles.footer}>
-                {selectedStep !== 'metadata' && isEditMode && (
-                  <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
-                    {t('buttons.cancel')}
-                  </Button>
-                )}
-                {selectedStep !== 'success' &&
-                  (selectedStep === 'metadata' ? (
-                    <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
-                      {t('buttons.cancel')}
+                {isEditMode ? (
+                  selectedStep === 'success' ? (
+                    <Button design="Emphasized" icon="accept" onClick={onNextClick}>
+                      {t('buttons.close')}
                     </Button>
                   ) : (
+                    <>
+                      <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
+                        {t('buttons.cancel')}
+                      </Button>
+                      {selectedStep !== 'metadata' && (
+                        <Button
+                          design="Transparent"
+                          disabled={isSubmitting}
+                          icon="navigation-left-arrow"
+                          onClick={onBackClick}
+                        >
+                          {t('buttons.back')}
+                        </Button>
+                      )}
+                      {selectedStep !== 'summarize' && (
+                        <Button
+                          design="Transparent"
+                          disabled={isSubmitting}
+                          endIcon="navigation-right-arrow"
+                          onClick={onNextClick}
+                        >
+                          {t('buttons.next')}
+                        </Button>
+                      )}
+                      <Button
+                        design="Emphasized"
+                        disabled={isSubmitting || !isValid || hasMissingComponentVersions}
+                        icon="save"
+                        onClick={onSaveClick}
+                      >
+                        {t('buttons.save')}
+                      </Button>
+                    </>
+                  )
+                ) : (
+                  <>
+                    {selectedStep !== 'success' &&
+                      (selectedStep === 'metadata' ? (
+                        <Button design="Transparent" disabled={isSubmitting} icon="decline" onClick={requestClose}>
+                          {t('buttons.cancel')}
+                        </Button>
+                      ) : (
+                        <Button
+                          design="Transparent"
+                          disabled={isSubmitting}
+                          icon="navigation-left-arrow"
+                          onClick={onBackClick}
+                        >
+                          {t('buttons.back')}
+                        </Button>
+                      ))}
                     <Button
-                      design="Transparent"
+                      design="Emphasized"
                       disabled={isSubmitting}
-                      icon="navigation-left-arrow"
-                      onClick={onBackClick}
+                      endIcon={nextButtonIcon[selectedStep].endIcon}
+                      icon={nextButtonIcon[selectedStep].icon}
+                      onClick={onNextClick}
                     >
-                      {t('buttons.back')}
+                      {nextButtonText[selectedStep]}
                     </Button>
-                  ))}
-                <Button
-                  design="Emphasized"
-                  disabled={isSubmitting}
-                  endIcon={nextButtonIcon[selectedStep].endIcon}
-                  icon={nextButtonIcon[selectedStep].icon}
-                  onClick={onNextClick}
-                >
-                  {nextButtonText[selectedStep]}
-                </Button>
+                  </>
+                )}
               </div>
             }
           />

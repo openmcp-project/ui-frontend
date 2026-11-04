@@ -171,6 +171,24 @@ export function CreateProjectWorkspaceDialog({
                 </Button>
                 {isEditMode ? (
                   <>
+                    {step !== 'metadata' && (
+                      <Button
+                        design="Transparent"
+                        icon="navigation-left-arrow"
+                        onClick={() => setStep(step === 'supportInfo' ? 'members' : 'metadata')}
+                      >
+                        {t('buttons.back')}
+                      </Button>
+                    )}
+                    {step !== 'supportInfo' && (
+                      <Button
+                        design="Transparent"
+                        endIcon="navigation-right-arrow"
+                        onClick={step === 'metadata' ? goToMembers : () => setStep('supportInfo')}
+                      >
+                        {t('buttons.next')}
+                      </Button>
+                    )}
                     <BusyIndicator active={isLoading} size="S">
                       <Button
                         design="Emphasized"
