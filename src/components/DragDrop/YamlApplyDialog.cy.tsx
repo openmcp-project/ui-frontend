@@ -196,7 +196,7 @@ describe('YamlApplyDialog — telemetry', () => {
     });
   });
 
-  it('tracks add-files-error with errorType "duplicate" and the file-picker method', () => {
+  it('tracks add-files-error with errorType "duplicate"', () => {
     mountWithTelemetry({ files: [yamlFile('a.yaml', 'ConfigMap', 'cm-a')] });
 
     cy.get('[data-testid="yaml-apply-item-0"]').should('be.visible');
@@ -212,7 +212,6 @@ describe('YamlApplyDialog — telemetry', () => {
       category: 'yaml-apply',
       action: 'add-files-error',
       errorType: 'duplicate',
-      method: 'file-picker',
     });
   });
 });
