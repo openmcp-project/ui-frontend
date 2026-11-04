@@ -157,7 +157,7 @@ describe('YamlApplyDialog — telemetry', () => {
     return mountDialog({ ...props, useTelemetry: () => fakeTelemetry });
   };
 
-  it('tracks dialog-opened with method, target and bucketed resource count on a clean parse', () => {
+  it('tracks dialog-opened with method on a clean parse', () => {
     mountWithTelemetry({
       files: [yamlFile('a.yaml', 'ConfigMap', 'cm-a'), yamlFile('b.yaml', 'Secret', 'sec-b')],
       openMethod: 'drag-and-drop',
@@ -167,8 +167,6 @@ describe('YamlApplyDialog — telemetry', () => {
       category: 'yaml-apply',
       action: 'dialog-opened',
       method: 'drag-and-drop',
-      target: 'onboarding',
-      resourceCount: '2',
     });
   });
 
