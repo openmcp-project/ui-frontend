@@ -47,6 +47,7 @@ import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlaneCondition } from '../../onboarding/types/ControlPlane.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
@@ -58,7 +59,7 @@ import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/Illu
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 
 // Open-source (Headlamp) mode — full-viewport iframe with ShellBar integration.
 // Only rendered when mode === 'open-source'. The legacy ObjectPage is rendered otherwise,
@@ -68,11 +69,19 @@ function OpenSourceHeadlamp({
   workspaceName,
   controlPlaneName,
   requestedStatuses,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
   requestedStatuses: Record<string, string | null>;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -85,7 +94,7 @@ function OpenSourceHeadlamp({
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
   // Sanitise any stale full-BFF path that may have been persisted in the URL param
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -132,7 +141,13 @@ function OpenSourceHeadlamp({
       roleBindings: mcp.roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: `project-${projectName}--ws-${workspaceName}`,
+      resourceType: 'managedcontrolplanes',
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
+      onEditMcp,
     });
     return () => {
       clearMcpActions();
@@ -147,6 +162,10 @@ function OpenSourceHeadlamp({
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
+    onEditMcp,
   ]);
 
   // Register and load the kubeconfig, then set the iframe src
@@ -187,7 +206,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -235,16 +254,39 @@ function OpenSourceHeadlamp({
   );
 }
 
-// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
-// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+// Registers mcpName + status in ShellBarMcpActionsContext so the mode toggle and status
+// badge appear in legacy mode. No kubeconfig, roleBindings, or navigateBack — those extras
+// are open-source only.
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  namespace,
+  mcpStatus,
+  onEditMcp,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  namespace?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      project: projectName,
+      workspace: workspaceName,
+      namespace,
+      resourceType: 'managedcontrolplanes',
+      mcpStatus,
+      onEditMcp,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -270,7 +312,7 @@ export default function ManagedControlPlanePage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const viewParam = searchParams.get('view');
+    const viewParam = searchParams.get(SearchParams.View);
     if (viewParam === 'open-source') setMode('open-source');
     else if (viewParam === 'beginner') setMode('beginner');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,9 +323,9 @@ export default function ManagedControlPlanePage() {
       (prev) => {
         const next = new URLSearchParams(prev);
         if (mode === 'open-source') {
-          next.set('view', 'open-source');
+          next.set(SearchParams.View, 'open-source');
         } else {
-          next.delete('view');
+          next.delete(SearchParams.View);
         }
         return next;
       },
@@ -397,6 +439,10 @@ export default function ManagedControlPlanePage() {
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
                 requestedStatuses={requestedStatuses}
+                mcpCreationTimestamp={mcp.metadata.creationTimestamp}
+                mcpCreatedBy={mcp.metadata.annotations?.['openmcp.cloud/created-by'] as string | undefined}
+                mcpStatus={mcp.status}
+                onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
               />
               <EditManagedControlPlaneWizardDataLoader
                 isOpen={isEditManagedControlPlaneWizardOpen}
@@ -424,7 +470,14 @@ export default function ManagedControlPlanePage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              namespace={mcp?.status?.access?.namespace}
+              mcpStatus={mcp?.status}
+              onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+            />
             <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"

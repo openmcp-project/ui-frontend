@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 
-import { FrontendConfigContext, Landscape } from '../../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, Landscape, defaultBranding } from '../../../../context/FrontendConfigContext.tsx';
 import { FeatureToggleProvider } from '../../../../context/FeatureToggleContext.tsx';
 import { ToastProvider } from '../../../../context/ToastContext.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
@@ -15,7 +15,9 @@ import { ComponentsDashboardV2, ComponentsDashboardV2Props } from './ComponentsD
 const frontendConfig = {
   landscape: Landscape.Local,
   documentationBaseUrl: '',
+  feedbackUrl: null,
   githubBaseUrl: '',
+  branding: defaultBranding,
   featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: true, enableHeadlamp: false, showLandscaperCard: false },
 };
 

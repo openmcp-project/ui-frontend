@@ -37,8 +37,8 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
-import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
-import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
+import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
+import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -66,7 +66,7 @@ import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
-import { Routes } from '../../../Routes.ts';
+import { Routes, SearchParams } from '../../../Routes.ts';
 import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
 import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
@@ -89,10 +89,20 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  mcpCreationTimestamp,
+  mcpCreatedBy,
+  mcpStatus,
+  roleBindings,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  roleBindings?: MemberRoleBinding[];
+  onEditMcp: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -104,7 +114,7 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
-  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const rawInitialPath = searchParams.get(SearchParams.HeadlampPath) ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
@@ -183,10 +193,16 @@ function OpenSourceHeadlamp({
     setMcpActions({
       kubeconfig: mcp.kubeconfig,
       mcpName: mcp.name,
-      roleBindings: mcp.roleBindings,
+      roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: mcpNamespace,
+      resourceType: 'controlplanes',
       navigateBack: () => navigate(backPath),
+      mcpCreationTimestamp,
+      mcpCreatedBy,
+      mcpStatus,
+      onEditMcp,
     });
     return () => {
       clearMcpActions();
@@ -194,13 +210,18 @@ function OpenSourceHeadlamp({
   }, [
     mcp.kubeconfig,
     mcp.name,
-    mcp.roleBindings,
+    roleBindings,
     projectName,
     workspaceName,
+    mcpNamespace,
     backPath,
     navigate,
     setMcpActions,
     clearMcpActions,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    mcpStatus,
+    onEditMcp,
   ]);
 
   useEffect(() => {
@@ -238,7 +259,7 @@ function OpenSourceHeadlamp({
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', internalPath);
+              next.set(SearchParams.HeadlampPath, internalPath);
               return next;
             },
             { replace: true },
@@ -379,14 +400,36 @@ function OpenSourceHeadlamp({
   );
 }
 
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  namespace,
+  mcpStatus,
+  onEditMcp,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  namespace?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      project: projectName,
+      workspace: workspaceName,
+      namespace,
+      resourceType: 'controlplanes',
+      mcpStatus,
+      onEditMcp,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -413,7 +456,7 @@ export default function ControlPlanePageV2() {
 
   // Sync ?view param with mode: read on mount to restore shared deeplinks, write on change.
   useEffect(() => {
-    const viewParam = searchParams.get('view');
+    const viewParam = searchParams.get(SearchParams.View);
     if (viewParam === 'open-source') setMode('open-source');
     else if (viewParam === 'beginner') setMode('beginner');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -424,9 +467,9 @@ export default function ControlPlanePageV2() {
       (prev) => {
         const next = new URLSearchParams(prev);
         if (mode === 'open-source') {
-          next.set('view', 'open-source');
+          next.set(SearchParams.View, 'open-source');
         } else {
-          next.delete('view');
+          next.delete(SearchParams.View);
         }
         return next;
       },
@@ -521,6 +564,24 @@ export default function ControlPlanePageV2() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+                mcpCreationTimestamp={mcp.metadata?.creationTimestamp}
+                mcpCreatedBy={
+                  (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
+                }
+                mcpStatus={
+                  mcp?.metadata?.deletionTimestamp
+                    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                    : mcp?.status
+                }
+                roleBindings={roleBindings}
+                onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+              />
+              <EditControlPlaneV2WizardDataLoader
+                isOpen={isEditManagedControlPlaneWizardOpen}
+                setIsOpen={handleEditManagedControlPlaneWizardClose}
+                namespace={namespace}
+                resourceName={controlPlaneName}
+                initialSection={editManagedControlPlaneWizardSection}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
@@ -543,7 +604,18 @@ export default function ControlPlanePageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              namespace={mcp?.metadata?.namespace}
+              mcpStatus={
+                mcp?.metadata?.deletionTimestamp
+                  ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                  : mcp?.status
+              }
+              onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+            />
             <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"

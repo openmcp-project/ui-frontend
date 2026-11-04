@@ -10,7 +10,7 @@ if (DYNATRACE_OTLP_ENDPOINT && DYNATRACE_OTLP_TOKEN) {
   initializeOpenTelemetry({
     endpoint: DYNATRACE_OTLP_ENDPOINT,
     token: DYNATRACE_OTLP_TOKEN,
-    serviceName: 'ui-frontend-bff',
+    serviceName: process.env.OTEL_SERVICE_NAME ?? 'ui-frontend-bff',
     serviceVersion: process.env.npm_package_version || '1.0.0',
     environment: NODE_ENV || 'production',
     debug: NODE_ENV === 'development',

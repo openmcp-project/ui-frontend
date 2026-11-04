@@ -1,5 +1,6 @@
 import type { Telemetry, TelemetryUser } from '../types';
 import type { TelemetryFeature } from '../features';
+import type { VirtualPage } from '../pageView/virtualPage';
 import '../bootstrap/matomo';
 
 export class MatomoAdapter implements Telemetry {
@@ -10,6 +11,13 @@ export class MatomoAdapter implements Telemetry {
     const keys = Object.keys(rest);
     const name = keys.length > 0 ? String((rest as Record<string, unknown>)[keys[0]]) : undefined;
     window._paq.push(name ? ['trackEvent', category, action, name] : ['trackEvent', category, action]);
+  }
+
+  pageView(page: VirtualPage): void {
+    if (!window._paq) return;
+
+    window._paq.push(['setCustomUrl', page]);
+    window._paq.push(['trackPageView']);
   }
 
   report(_error: unknown, _options?: { message?: string; context?: Record<string, unknown> }): void {}

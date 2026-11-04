@@ -31,7 +31,6 @@ import IllustratedError from '../Shared/IllustratedError';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchemaLoader';
-import { useResourcePluralNames as _useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
 import { useTelemetry as _useTelemetry } from '../../lib/telemetry/telemetry';
@@ -40,6 +39,7 @@ import { bucketCount, sanitizeKind } from '../../lib/telemetry/yamlApplyHelpers'
 import {
   type ParsedResource,
   type ValidationError,
+  resolveCpResourcePlural,
   checkCpResourceExists,
   applyCpResource,
   checkOnboardingResourceExists,
@@ -67,8 +67,6 @@ interface Props {
   isExternalDragActive?: boolean;
   /** How the initial files were provided — drives the dialog-opened telemetry. */
   openMethod?: YamlUploadMethod;
-  /** Injectable for tests. */
-  useResourcePluralNames?: typeof _useResourcePluralNames;
   /** Injectable for tests. */
   useTelemetry?: typeof _useTelemetry;
 }
@@ -99,13 +97,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   onRegisterAppend,
   isExternalDragActive,
   openMethod = 'file-picker',
-  useResourcePluralNames = _useResourcePluralNames,
   useTelemetry = _useTelemetry,
   apiConfig,
 }) => {
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
-  const { getPluralKind } = useResourcePluralNames();
   const telemetry = useTelemetry();
 
   const isCpTarget = targetApiConfig !== null;
@@ -284,7 +280,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       const resource = effectiveResource;
       try {
         if (isCpTarget) {
-          const plural = getPluralKind(resource.kind);
+          const plural = await resolveCpResourcePlural(resource, apiConfig);
+          if (cancelled) return;
           if (!plural) {
             if (!cancelled) {
               setItemError(t('yamlApply.unknownKind', { kind: resource.kind }));
@@ -384,7 +381,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) {
           throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         }
@@ -429,7 +426,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     currentIndex,
     currentYaml,
     isCpTarget,
-    getPluralKind,
     apiConfig,
     resourceExists,
     apolloClient,
@@ -469,7 +465,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         await applyCpResource(resource, plural, apiConfig, true);
       } else {
@@ -497,7 +493,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     currentResource,
     currentYaml,
     isCpTarget,
-    getPluralKind,
     apiConfig,
     resourceExists,
     apolloClient,
@@ -527,7 +522,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           // uses server-side apply without a pre-check, so mode stays undefined there.
           let mode: 'create' | 'overwrite' | undefined;
           if (isCpTarget) {
-            const plural = getPluralKind(resource.kind);
+            const plural = await resolveCpResourcePlural(resource, apiConfig);
             if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
             await applyCpResource(resource, plural, apiConfig);
           } else {
@@ -577,7 +572,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     edits,
     ids,
     isCpTarget,
-    getPluralKind,
     apiConfig,
     apolloClient,
     t,
@@ -969,9 +963,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             </div>
 
             {isExternalDragActive && itemState !== 'applying' && !isApplyingAll && (
-              <div className={styles.addDropOverlay}>
-                <Icon name="add" className={styles.addDropIcon} />
-                <Text>{t('yamlApply.addDropHint')}</Text>
+              <div className={styles.addDropOverlay} role="status">
+                <div className={styles.addDropPill}>
+                  <Icon name="add" className={styles.addDropIcon} />
+                  <Text>{t('yamlApply.addDropHint')}</Text>
+                </div>
               </div>
             )}
 
