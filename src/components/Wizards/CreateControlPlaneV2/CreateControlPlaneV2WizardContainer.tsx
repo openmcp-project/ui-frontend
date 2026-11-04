@@ -999,7 +999,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                       {t('buttons.cancel')}
                     </Button>
                   ) : (
-                    <Button disabled={isSubmitting} icon="navigation-left-arrow" onClick={onBackClick}>
+                    <Button
+                      design="Transparent"
+                      disabled={isSubmitting}
+                      icon="navigation-left-arrow"
+                      onClick={onBackClick}
+                    >
                       {t('buttons.back')}
                     </Button>
                   ))}

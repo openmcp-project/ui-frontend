@@ -175,7 +175,7 @@ export function CreateProjectWorkspaceDialog({
                   </Button>
                 ) : step === 'members' ? (
                   <>
-                    <Button icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
+                    <Button design="Transparent" icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
                       {t('buttons.back')}
                     </Button>
                     <Button
@@ -189,7 +189,7 @@ export function CreateProjectWorkspaceDialog({
                   </>
                 ) : (
                   <>
-                    <Button icon="navigation-left-arrow" onClick={() => setStep('members')}>
+                    <Button design="Transparent" icon="navigation-left-arrow" onClick={() => setStep('members')}>
                       {t('buttons.back')}
                     </Button>
                     <BusyIndicator active={isLoading} size="S">
