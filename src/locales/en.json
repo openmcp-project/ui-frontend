@@ -146,7 +146,8 @@
     "metricsOperator": "Metrics Operator"
   },
   "CrossplaneProviderPicker": {
-    "recommendedBadge": "Recommended"
+    "recommendedBadge": "Recommended",
+    "recommendedTooltip": "Recommended because customers with a similar setup also use this provider."
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -193,6 +194,14 @@
     "versionLabel": "{{component}} Version",
     "providers": "Providers",
     "providerVersionLabel": "{{provider}} version",
+    "searchProviders": "Search",
+    "providerNameHeader": "Name",
+    "sortAscending": "Sorted ascending, click to sort descending",
+    "sortDescending": "Sorted descending, click to sort ascending",
+    "noProvidersFound": "No providers found",
+    "paginationPrevious": "Previous page",
+    "paginationNext": "Next page",
+    "paginationPage": "Page {{page}}",
     "successMessage": "{{component}} has been successfully installed.",
     "errorMessage": "Failed to install {{component}}. Please try again.",
     "successMessageEdit": "{{component}} has been successfully updated.",
