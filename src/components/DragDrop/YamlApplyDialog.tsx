@@ -34,8 +34,8 @@ import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchema
 import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
 import { useTelemetry as _useTelemetry } from '../../lib/telemetry/telemetry';
-import type { YamlApplyErrorType, YamlApplyTarget, YamlUploadMethod } from '../../lib/telemetry/features';
-import { bucketCount, sanitizeKind } from '../../lib/telemetry/yamlApplyHelpers';
+import type { YamlApplyErrorType, YamlUploadMethod } from '../../lib/telemetry/features';
+import { sanitizeKind } from '../../lib/telemetry/yamlApplyHelpers';
 import {
   type ParsedResource,
   type ValidationError,
@@ -105,7 +105,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const telemetry = useTelemetry();
 
   const isCpTarget = targetApiConfig !== null;
-  const telemetryTarget: YamlApplyTarget = isCpTarget ? 'controlplane' : 'onboarding';
 
   const [phase, setPhase] = useState<Phase>('parsing');
   const [parseErrorMessage, setParseErrorMessage] = useState('');
@@ -248,8 +247,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           category: 'yaml-apply',
           action: 'dialog-opened',
           method: openMethod,
-          target: telemetryTarget,
-          resourceCount: bucketCount(merged.length),
         });
       }
     };
@@ -402,9 +399,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'resource-applied',
         kind: sanitizeKind(resource.kind),
-        target: telemetryTarget,
-        source: 'single',
-        mode: resourceExists ? 'overwrite' : 'create',
       });
       advanceAfterApply(index);
     } catch (err) {
@@ -417,8 +411,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'resource-apply-failed',
         kind: sanitizeKind(resource.kind),
-        target: telemetryTarget,
-        source: 'single',
       });
     }
   }, [
@@ -434,7 +426,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     markStatus,
     advanceAfterApply,
     telemetry,
-    telemetryTarget,
   ]);
 
   // Server-side validation without persisting. CP uses ?dryRun=All; onboarding only for v2 ControlPlane.
@@ -455,8 +446,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'dry-run',
         result: 'error',
-        kind: 'custom',
-        target: telemetryTarget,
       });
       return;
     }
@@ -476,8 +465,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'dry-run',
         result: 'ok',
-        kind: sanitizeKind(resource.kind),
-        target: telemetryTarget,
       });
     } catch (err) {
       setDryRun({ status: 'error', message: err instanceof Error ? err.message : String(err) });
@@ -485,21 +472,9 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'dry-run',
         result: 'error',
-        kind: sanitizeKind(resource.kind),
-        target: telemetryTarget,
       });
     }
-  }, [
-    currentResource,
-    currentYaml,
-    isCpTarget,
-    apiConfig,
-    resourceExists,
-    apolloClient,
-    t,
-    telemetry,
-    telemetryTarget,
-  ]);
+  }, [currentResource, currentYaml, isCpTarget, apiConfig, resourceExists, apolloClient, t, telemetry]);
 
   // Apply all pending resources sequentially, continuing past failures.
   const doApplyAll = useCallback(async () => {
@@ -518,16 +493,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           continue;
         }
         try {
-          // Mode is known only for the onboarding path (it checks existence); CP apply-all
-          // uses server-side apply without a pre-check, so mode stays undefined there.
-          let mode: 'create' | 'overwrite' | undefined;
           if (isCpTarget) {
             const plural = await resolveCpResourcePlural(resource, apiConfig);
             if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
             await applyCpResource(resource, plural, apiConfig);
           } else {
             const exists = await checkOnboardingResourceExists(resource, apolloClient);
-            mode = exists ? 'overwrite' : 'create';
             const result = await applyOnboardingResource(resource, exists, apolloClient);
             if (!result.success) throw new Error(t('yamlApply.unsupportedKindOnboarding'));
           }
@@ -537,16 +508,10 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             delete next[ids[i]];
             return next;
           });
-          // One event per resource (not per "Apply All" click). resource-applied counts
-          // resources; use dialog-closed for action/session-level metrics. `source` separates
-          // this batch path from single applies.
           telemetry.track({
             category: 'yaml-apply',
             action: 'resource-applied',
             kind: sanitizeKind(resource.kind),
-            target: telemetryTarget,
-            source: 'apply-all',
-            ...(mode ? { mode } : {}),
           });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
@@ -556,8 +521,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             category: 'yaml-apply',
             action: 'resource-apply-failed',
             kind: sanitizeKind(resource.kind),
-            target: telemetryTarget,
-            source: 'apply-all',
           });
         }
       }
@@ -565,20 +528,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setIsApplyingAll(false);
       setPhase('summary');
     }
-  }, [
-    resources,
-    texts,
-    statuses,
-    edits,
-    ids,
-    isCpTarget,
-    apiConfig,
-    apolloClient,
-    t,
-    markStatus,
-    telemetry,
-    telemetryTarget,
-  ]);
+  }, [resources, texts, statuses, edits, ids, isCpTarget, apiConfig, apolloClient, t, markStatus, telemetry]);
 
   const addFiles = useCallback(
     async (incoming: File[], method: YamlUploadMethod) => {
@@ -593,7 +543,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           content = await file.text();
         } catch {
           setAddError(t('yamlApply.parseError', { filename: file.name }));
-          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'parse-error', method });
+          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'parse-error' });
           return;
         }
         const result = parseYamlDocuments(file.name, content);
@@ -607,7 +557,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                   ? t('yamlApply.structureError')
                   : t('yamlApply.parseError', { filename: file.name });
           setAddError(message);
-          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: result.error, method });
+          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: result.error });
           return;
         }
         merged.push(...result.resources);
@@ -615,7 +565,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       }
       if (merged.length === 0) {
         setAddError(t('yamlApply.structureError'));
-        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'missing-fields', method });
+        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'missing-fields' });
         return;
       }
 
@@ -626,7 +576,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         .filter((pair) => !existingIds.has(resourceIdentity(pair.resource)));
       if (toAdd.length === 0) {
         setAddError(t('yamlApply.addDuplicate'));
-        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'duplicate', method });
+        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'duplicate' });
         return;
       }
 
@@ -640,7 +590,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'files-added',
         method,
-        addedCount: bucketCount(toAdd.length),
       });
     },
     [phase, itemState, isApplyingAll, resources, t, newId, telemetry],
@@ -701,7 +650,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         category: 'yaml-apply',
         action: 'dialog-closed',
         outcome,
-        appliedCount: bucketCount(applied),
       });
     }
     onClose();
