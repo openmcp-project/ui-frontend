@@ -1097,6 +1097,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               <ServiceSelectionStep
                 services={services}
                 showLandscaper={showLandscaper}
+                isEditMode={isEditMode}
                 activeService={resolvedActiveService}
                 resourceName={isEditMode ? editName : rawInput.name}
                 resourceNamespace={isEditMode ? editNs : rawInput.namespace}

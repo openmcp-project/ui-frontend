@@ -5,6 +5,7 @@ import {
   CrossplaneProviderPicker,
   ProviderRowState,
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
+import { useProviderRecommendations } from '../../Shared/CrossplaneProviderPicker/useProviderRecommendations.ts';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import {
@@ -22,6 +23,7 @@ interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
   showLandscaper: boolean;
+  isEditMode?: boolean;
   /** Service whose YAML is shown in the preview; follows the most recent change on the left. */
   activeService: ServiceKey;
   onActiveServiceChange: (key: ServiceKey) => void;
@@ -34,6 +36,7 @@ export function ServiceSelectionStep({
   services,
   onServicesChange,
   showLandscaper,
+  isEditMode = false,
   activeService,
   onActiveServiceChange,
   resourceName,
@@ -51,6 +54,13 @@ export function ServiceSelectionStep({
   useEffect(() => {
     cardRefs.current.get(activeService)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [activeService]);
+
+  // Recommendations only in edit mode. The hook disables its ConfigMap fetch when not enabled.
+  const selectedProviderNames = useMemo(
+    () => (services.crossplane?.providers ?? []).map((p) => p.name),
+    [services.crossplane?.providers],
+  );
+  const recommendations = useProviderRecommendations(selectedProviderNames, isEditMode);
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -146,6 +156,7 @@ export function ServiceSelectionStep({
       });
     }
   }, [services, crossplaneProviders, onServicesChange]);
+
   if (isLoading)
     return (
       <div className={styles.container}>
@@ -219,6 +230,7 @@ export function ServiceSelectionStep({
                       providers={crossplaneProviderStates}
                       catalog={crossplaneProviders}
                       disabled={!entry?.version}
+                      recommendations={recommendations}
                       onToggle={toggleCrossplaneProvider}
                       onVersionChange={setCrossplaneProviderVersion}
                     />
