@@ -30,6 +30,7 @@ import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateMa
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
+import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { WorkspaceInfoPopover } from './WorkspaceInfoPopover.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
@@ -65,7 +66,6 @@ export function ControlPlaneListWorkspaceGridTile({
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
-  const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
@@ -339,11 +339,17 @@ export function ControlPlaneListWorkspaceGridTile({
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
-                setInitialTemplateName={setInitialTemplateName}
-                setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 disabled={isForbidden}
+                showCreateActions={shouldCollapsePanel}
+                onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
+              {!shouldCollapsePanel && (
+                <CreateControlPlaneButton
+                  onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                  onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
+              )}
             </FlexBox>
           </div>
 
@@ -460,7 +466,7 @@ export function ControlPlaneListWorkspaceGridTile({
           setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
+          initialTemplateName={undefined}
         />
       ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
@@ -469,7 +475,7 @@ export function ControlPlaneListWorkspaceGridTile({
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
+          initialTemplateName={undefined}
         />
       ) : null}
     </div>
