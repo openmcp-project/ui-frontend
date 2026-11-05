@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { purposeColorScheme, purposeLabel, ResolvedSupportInfo } from '../../lib/supportInfo.ts';
 import { ProjectSupportInfoPopover } from '../Projects/ProjectSupportInfoPopover.tsx';
 import { HoverRevealTag } from '../Ui/HoverRevealTag/HoverRevealTag.tsx';
+import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import styles from './SupportInfoTag.module.css';
 
 interface Props {
@@ -20,7 +21,7 @@ export function SupportInfoTag({ resolved, testId, renderEditDialog }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const editDialog = editOpen && renderEditDialog(() => setEditOpen(false));
 
-  if (!info.supportLandscape) {
+  if (!info.supportLandscape && !inheritedFrom) {
     return (
       <>
         <HoverRevealTag
@@ -43,19 +44,21 @@ export function SupportInfoTag({ resolved, testId, renderEditDialog }: Props) {
 
   return (
     <>
-      <Tag
-        id={openerId}
-        interactive
-        design="Set2"
-        colorScheme={purposeColorScheme(info.supportLandscape)}
-        className={inheritedFrom ? `${styles.tag} ${styles.inherited}` : styles.tag}
-        data-testid={testId}
-        data-inherited={inheritedFrom ? 'true' : undefined}
-        title={inheritedTooltip}
-        onClick={() => setPopoverOpen(true)}
-      >
-        {purposeLabel(t, info.supportLandscape)}
-      </Tag>
+      <span className={inheritedFrom ? styles.tagWrapper : undefined}>
+        <Tag
+          id={openerId}
+          interactive
+          design="Set2"
+          colorScheme={purposeColorScheme(info.supportLandscape)}
+          className={inheritedFrom ? `${styles.tag} ${styles.inherited}` : styles.tag}
+          data-testid={testId}
+          data-inherited={inheritedFrom ? 'true' : undefined}
+          onClick={() => setPopoverOpen(true)}
+        >
+          {purposeLabel(t, info.supportLandscape)}
+        </Tag>
+        {inheritedTooltip && <Tooltip text={inheritedTooltip} />}
+      </span>
       {popoverOpen && (
         <ProjectSupportInfoPopover
           opener={openerId}

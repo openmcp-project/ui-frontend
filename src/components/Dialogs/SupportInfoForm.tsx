@@ -1,6 +1,7 @@
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
 import { Label, MessageStrip, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import type { TFunction } from 'i18next';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
@@ -28,7 +29,7 @@ interface SupportInfoFormProps {
 }
 
 // The hint lists what the empty fields fall back to; only non-empty values are worth naming.
-function inheritedSummary(t: ReturnType<typeof useTranslation>['t'], info: SupportInfo): string {
+function inheritedSummary(t: TFunction, info: SupportInfo): string {
   const parts = [
     info.supportLandscape && purposeLabel(t, info.supportLandscape),
     info.supportServiceIds,

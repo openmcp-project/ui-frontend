@@ -30,7 +30,7 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
-import { useInheritedSupportInfo } from '../../onboarding/hooks/useInheritedSupportInfo.ts';
+import { useInheritedSupportInfo as _useInheritedSupportInfo } from '../../onboarding/hooks/useInheritedSupportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -437,7 +437,11 @@ function LegacyModeShellBarSync({
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function ControlPlanePageV2() {
+interface Props {
+  useInheritedSupportInfo?: typeof _useInheritedSupportInfo;
+}
+
+export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInheritedSupportInfo }: Props) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
