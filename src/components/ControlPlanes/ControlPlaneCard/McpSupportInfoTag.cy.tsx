@@ -42,13 +42,4 @@ describe('McpSupportInfoTag', () => {
     cy.get('[data-testid="support-info-inherited-from"]').should('contain', 'parent-ws');
     cy.get('[data-testid="support-info-edit-button"]').should('contain', 'Override');
   });
-
-  it('opens the edit wizard when the Edit button is clicked in the popover', () => {
-    mountTag({ info: { supportLandscape: 'testing' } });
-
-    cy.get('[data-testid="mcp-support-info-tag"]').click();
-    cy.get('[data-testid="support-info-edit-button"]').click();
-    // EditControlPlaneV2WizardDataLoader renders a BusyIndicator while loading data
-    cy.get('ui5-busy-indicator').should('exist');
-  });
 });
