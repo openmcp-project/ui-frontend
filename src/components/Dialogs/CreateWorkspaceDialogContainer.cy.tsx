@@ -169,7 +169,8 @@ describe('CreateWorkspaceDialogContainer', () => {
       .should('have.attr', 'data-active', 'true')
       .and('contain', 'Project')
       .and('contain', 'Production')
-      .and('contain', 'ID-1, ID-2');
+      .and('contain', 'ID-1')
+      .and('contain', 'ID-2');
     cy.get('[data-testid="support-landscape"]').invoke('prop', 'value').should('eq', '');
   });
 
