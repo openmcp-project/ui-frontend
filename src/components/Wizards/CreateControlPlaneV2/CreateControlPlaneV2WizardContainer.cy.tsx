@@ -502,7 +502,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
     cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
     cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
 
     cy.then(() => {
       cy.wrap(updatePayload).should('not.be.null');
@@ -529,7 +529,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
 
     cy.get('ui5-button').contains('Close').should('exist');
   });
@@ -560,11 +560,11 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click();
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
 
     // wizard should stay on summarize step and surface the backend error
     cy.contains('Network error').should('exist');
-    cy.get('ui5-button').contains('Update').should('exist');
+    cy.get('ui5-button').contains('Save').should('exist');
   });
 
   // ── Landscaper feature toggle in edit mode ──────────────────────────────
@@ -714,7 +714,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click(); // members → componentSelection
     cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
     cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
 
     cy.then(() => {
       cy.wrap(updatePayload).should('not.be.null');
@@ -794,7 +794,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     it('shows Update button instead of Create on the summarize step', () => {
       navigateToSummarize(allNotInstalled);
-      cy.get('ui5-button').contains('Update').should('exist');
+      cy.get('ui5-button').contains('Save').should('exist');
       cy.get('ui5-button').contains('Create').should('not.exist');
     });
 
@@ -997,7 +997,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
       cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(deleteFluxPayload).should('deep.equal', {
@@ -1037,7 +1037,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(createLandscaperCalled).should('equal', false);
@@ -1073,7 +1073,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(updateCrossplanePayload).should('not.be.null');
@@ -1111,7 +1111,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(deleteEsoCalled).should('equal', false);
@@ -1153,7 +1153,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
       cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(deleteOcmPayload).should('deep.equal', {
@@ -1190,7 +1190,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(deleteKroCalled).should('equal', false);
@@ -1225,7 +1225,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
-      cy.get('ui5-button').contains('Update').click();
+      cy.get('ui5-button').contains('Save').click();
 
       cy.then(() => {
         cy.wrap(createKroCalled).should('equal', false);

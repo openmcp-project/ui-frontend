@@ -570,7 +570,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.get('ui5-button').contains('Next').click(); // navigate to Members
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
     cy.get('ui5-button').contains('Next').click(); // navigate to Summarize
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
     cy.then(() => cy.wrap(updateMutationPayload).deepEqualJson(expMutationPayload));
   });
 
@@ -705,7 +705,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.get('[ui5-select][aria-label*="flux"]').openDropDownByClick();
     cy.get('[ui5-select][aria-label*="flux"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>('2.15.0');
     cy.get('ui5-button').contains('Next').click(); // navigate to Summarize
-    cy.get('ui5-button').contains('Update').click();
+    cy.get('ui5-button').contains('Save').click();
     cy.then(() => cy.wrap(updateMutationPayload).deepEqualJson(expMutationPayload));
   });
 });
