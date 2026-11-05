@@ -440,6 +440,77 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.then(() => cy.wrap(createMutationPayload).deepEqualJson(expMutationPayload));
   });
 
+  it('routes Save to the summarize step from an earlier step in edit mode without submitting', () => {
+    const existingMcp: ManagedControlPlaneInterface = {
+      apiVersion: 'core.openmcp.cloud/v1alpha1',
+      kind: 'ManagedControlPlane',
+      metadata: {
+        name: 'existing-mcp',
+        namespace: 'project-existing-project--ws-existing-workspace',
+        annotations: {
+          'openmcp.cloud/created-by': 'name@domain.com',
+          'openmcp.cloud/display-name': 'displayName',
+        },
+        labels: {
+          'openmcp.cloud.sap/charging-target': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+          'openmcp.cloud.sap/charging-target-type': 'BTP',
+          'openmcp.cloud/mcp-project': 'existing-project',
+          'openmcp.cloud/mcp-workspace': 'existing-workspace',
+        },
+      },
+      spec: {
+        authentication: {
+          enableSystemIdentityProvider: true,
+        },
+        authorization: {
+          roleBindings: [
+            {
+              role: 'admin',
+              subjects: [
+                {
+                  kind: 'User',
+                  name: 'openmcp:name@domain.com',
+                },
+              ],
+            },
+          ],
+        },
+        components: {
+          apiServer: {
+            type: 'GardenerDedicated',
+          },
+          flux: {
+            version: '2.15.0',
+          },
+          crossplane: {
+            version: '1.19.0',
+            providers: [],
+          },
+        },
+      },
+    };
+
+    cy.mount(
+      <CreateManagedControlPlaneWizardContainer
+        useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
+        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+        useComponentsQuery={fakeUseComponentsQuery}
+        initialData={existingMcp}
+        isEditMode={true}
+        isOpen={true}
+        setIsOpen={() => {}}
+      />,
+    );
+
+    // Save is available on every step in edit mode; from the first step it should take the user to
+    // the summarize step to review the change rather than submitting immediately.
+    cy.get('ui5-button').contains('Save').click();
+
+    cy.get('ui5-wizard-step[data-step="summarize"]').invoke('prop', 'selected').should('equal', true);
+    cy.then(() => cy.wrap(updateMutationPayload).should('be.null'));
+  });
+
   it('edits an existing MCP without any changes', () => {
     const existingMcp: ManagedControlPlaneInterface = {
       apiVersion: 'core.openmcp.cloud/v1alpha1',

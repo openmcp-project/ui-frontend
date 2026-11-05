@@ -828,11 +828,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isSubmitting,
   ]);
 
-  // Edit mode exposes Save on every step, so saving is decoupled from step navigation.
+  // Edit mode exposes Save on every step. From any step other than summarize it routes the user
+  // to the summarize step to review the full change; only from summarize does it actually submit.
   const onSaveClick = useCallback(() => {
     if (isSubmitting || hasNoAssignedMembers) return;
-    void handleCreateManagedControlPlane();
-  }, [isSubmitting, hasNoAssignedMembers, handleCreateManagedControlPlane]);
+    if (selectedStep === 'summarize') {
+      void handleCreateManagedControlPlane();
+    } else {
+      handleSubmit(() => setSelectedStep('summarize'))();
+    }
+  }, [
+    isSubmitting,
+    hasNoAssignedMembers,
+    selectedStep,
+    handleSubmit,
+    setSelectedStep,
+    handleCreateManagedControlPlane,
+  ]);
 
   const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
 

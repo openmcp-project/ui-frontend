@@ -514,6 +514,25 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.then(() => cy.wrap(createPayload).should('be.null'));
   });
 
+  it('routes Save to the summarize step from an earlier step in edit mode without submitting', () => {
+    mountWizard({ isEditMode: true, initialData: existingMcp }, [
+      notInstalledCrossplaneMock,
+      notInstalledFluxMock,
+      notInstalledLandscaperMock,
+      notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
+      notInstalledMetricsOperatorMock,
+    ]);
+
+    // Save is available on every step in edit mode; from the first step it should take the user to
+    // the summarize step to review the change rather than submitting immediately.
+    cy.get('ui5-button').contains('Save').click();
+
+    cy.get('ui5-wizard-step[data-step="summarize"]').invoke('prop', 'selected').should('equal', true);
+    cy.then(() => cy.wrap(updatePayload).should('be.null'));
+  });
+
   it('shows the success step after a successful update in edit mode', () => {
     mountWizard({ isEditMode: true, initialData: existingMcp }, [
       notInstalledCrossplaneMock,
