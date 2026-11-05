@@ -36,7 +36,7 @@ function EditProjectForm({
     handleSubmit,
     setValue,
     trigger,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useProjectForm({
     name: projectData.name,
     displayName: projectData.displayName,
@@ -61,7 +61,7 @@ function EditProjectForm({
       errorDialogRef={errorDialogRef}
       titleText={t('EditProjectDialog.title')}
       members={members}
-      form={{ register, errors, setValue, watch, handleSubmit }}
+      form={{ register, errors, setValue, watch, handleSubmit, isDirty }}
       type={'project'}
       isEditMode
       isMetadataValid={!errors.name && !errors.chargingTarget}

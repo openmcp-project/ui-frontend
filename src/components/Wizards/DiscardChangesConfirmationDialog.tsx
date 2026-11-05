@@ -25,10 +25,15 @@ export const DiscardChangesConfirmationDialog: FC<DiscardChangesConfirmationDial
           design="Footer"
           endContent={
             <>
-              <Button design="Transparent" onClick={onCancel}>
+              <Button design="Transparent" icon="edit" onClick={onCancel}>
                 {t('discardChangesDialog.cancelButton')}
               </Button>
-              <Button design={ButtonDesign.Negative} data-testid="confirm-discard-changes-button" onClick={onConfirm}>
+              <Button
+                design={ButtonDesign.Negative}
+                icon="delete"
+                data-testid="confirm-discard-changes-button"
+                onClick={onConfirm}
+              >
                 {t('discardChangesDialog.confirmButton')}
               </Button>
             </>

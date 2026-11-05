@@ -23,6 +23,7 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { FormEvent, Suspense, lazy, useState } from 'react';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
+import { DiscardChangesConfirmationDialog } from '../Wizards/DiscardChangesConfirmationDialog.tsx';
 
 import { useTranslation } from 'react-i18next';
 
@@ -44,6 +45,7 @@ interface FormHandles {
   setValue: UseFormSetValue<CreateDialogProps>;
   watch: UseFormWatch<CreateDialogProps>;
   handleSubmit?: UseFormHandleSubmit<CreateDialogProps>;
+  isDirty?: boolean;
 }
 
 export interface CreateProjectWorkspaceDialogProps {
@@ -72,7 +74,7 @@ export function CreateProjectWorkspaceDialog({
   onCreate,
   errorDialogRef,
   members,
-  form: { register, errors, setValue, watch, handleSubmit },
+  form: { register, errors, setValue, watch, handleSubmit, isDirty = false },
   projectName,
   type,
   isMetadataValid = true,
@@ -83,6 +85,7 @@ export function CreateProjectWorkspaceDialog({
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>(initialStep);
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
 
   const canSave = isMetadataValid && members.length > 0;
 
@@ -129,9 +132,24 @@ export function CreateProjectWorkspaceDialog({
     setStep((e.detail.step.dataset.step ?? 'metadata') as Step);
   };
 
-  const onClose = () => {
+  // Escape/backdrop and the footer Cancel button route through requestClose so an accidental
+  // close can't silently discard in-progress edits — only closeDialog() actually tears down state.
+  const closeDialog = () => {
     setStep(initialStep);
     setIsOpen(false);
+  };
+
+  const requestClose = () => {
+    if (isDirty) {
+      setIsDiscardConfirmOpen(true);
+      return;
+    }
+    closeDialog();
+  };
+
+  const confirmDiscardAndClose = () => {
+    setIsDiscardConfirmOpen(false);
+    closeDialog();
   };
 
   const goToMembers = () => handleSubmit?.(() => setStep('members'))?.();
@@ -148,11 +166,29 @@ export function CreateProjectWorkspaceDialog({
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Button design="Transparent" icon="decline" onClick={onClose}>
+                <Button design="Transparent" icon="decline" onClick={requestClose}>
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
                 {isEditMode ? (
                   <>
+                    {step !== 'metadata' && (
+                      <Button
+                        design="Transparent"
+                        icon="navigation-left-arrow"
+                        onClick={() => setStep(step === 'supportInfo' ? 'members' : 'metadata')}
+                      >
+                        {t('buttons.back')}
+                      </Button>
+                    )}
+                    {step !== 'supportInfo' && (
+                      <Button
+                        design="Transparent"
+                        endIcon="navigation-right-arrow"
+                        onClick={step === 'metadata' ? goToMembers : () => setStep('supportInfo')}
+                      >
+                        {t('buttons.next')}
+                      </Button>
+                    )}
                     <BusyIndicator active={isLoading} size="S">
                       <Button
                         design="Emphasized"
@@ -175,7 +211,7 @@ export function CreateProjectWorkspaceDialog({
                   </Button>
                 ) : step === 'members' ? (
                   <>
-                    <Button icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
+                    <Button design="Transparent" icon="navigation-left-arrow" onClick={() => setStep('metadata')}>
                       {t('buttons.back')}
                     </Button>
                     <Button
@@ -189,7 +225,7 @@ export function CreateProjectWorkspaceDialog({
                   </>
                 ) : (
                   <>
-                    <Button icon="navigation-left-arrow" onClick={() => setStep('members')}>
+                    <Button design="Transparent" icon="navigation-left-arrow" onClick={() => setStep('members')}>
                       {t('buttons.back')}
                     </Button>
                     <BusyIndicator active={isLoading} size="S">
@@ -203,7 +239,7 @@ export function CreateProjectWorkspaceDialog({
             }
           />
         }
-        onClose={onClose}
+        onClose={requestClose}
       >
         <SplitterLayout style={{ height: '100%' }}>
           <SplitterElement size="50%">
@@ -265,6 +301,11 @@ export function CreateProjectWorkspaceDialog({
           </SplitterElement>
         </SplitterLayout>
       </Dialog>
+      <DiscardChangesConfirmationDialog
+        open={isDiscardConfirmOpen}
+        onCancel={() => setIsDiscardConfirmOpen(false)}
+        onConfirm={confirmDiscardAndClose}
+      />
       <ErrorDialog ref={errorDialogRef} />
     </>
   );

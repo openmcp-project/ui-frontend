@@ -693,12 +693,12 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       endContent={
         <>
           {canClose && (
-            <Button design="Transparent" onClick={onClose}>
+            <Button design="Transparent" icon="decline" onClick={onClose}>
               {t(phase === 'summary' || phase === 'parse-error' ? 'yamlApply.closeButton' : 'yamlApply.cancelButton')}
             </Button>
           )}
           {phase === 'summary' && statuses.some((s) => s === 'failed') && (
-            <Button design="Default" onClick={goBackToEdit}>
+            <Button design="Default" icon="edit" onClick={goBackToEdit}>
               {t('yamlApply.backToEditButton')}
             </Button>
           )}
@@ -713,12 +713,17 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             </Button>
           )}
           {showApplyAll && (
-            <Button design="Emphasized" disabled={applyDisabled} onClick={doApplyAll}>
+            <Button design="Emphasized" disabled={applyDisabled} icon="accept" onClick={doApplyAll}>
               {t('yamlApply.applyAllButton')}
             </Button>
           )}
           {phase === 'editing' && (
-            <Button design={showOverwrite ? 'Negative' : 'Emphasized'} disabled={applyDisabled} onClick={doApply}>
+            <Button
+              design={showOverwrite ? 'Negative' : 'Emphasized'}
+              disabled={applyDisabled}
+              icon="accept"
+              onClick={doApply}
+            >
               {applyLabel}
             </Button>
           )}

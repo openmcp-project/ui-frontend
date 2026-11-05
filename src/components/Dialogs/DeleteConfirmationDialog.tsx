@@ -48,6 +48,7 @@ export function DeleteConfirmationDialog({
                 {kubectlDialog ? <KubectlInfoButton onClick={() => setIsKubectlDialogOpen(true)} /> : null}
                 <Button
                   design={ButtonDesign.Transparent}
+                  icon="decline"
                   onClick={() => {
                     setIsOpen(false);
                     setIsKubectlDialogOpen(false);
@@ -59,6 +60,7 @@ export function DeleteConfirmationDialog({
                 <Button
                   design={ButtonDesign.Negative}
                   disabled={!isConfirmed}
+                  icon="delete"
                   onClick={async () => {
                     try {
                       await onDeletionConfirmed?.();

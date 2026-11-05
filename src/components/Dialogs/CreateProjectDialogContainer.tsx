@@ -41,7 +41,7 @@ export function CreateProjectDialogContainer({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useProjectForm(DEFAULT_VALUES);
   const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
@@ -82,7 +82,7 @@ export function CreateProjectDialogContainer({
       errorDialogRef={errorDialogRef}
       titleText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       members={members}
-      form={{ register, errors, setValue, watch, handleSubmit }}
+      form={{ register, errors, setValue, watch, handleSubmit, isDirty }}
       isMetadataValid={isValid}
       isLoading={isLoading}
       type={'project'}

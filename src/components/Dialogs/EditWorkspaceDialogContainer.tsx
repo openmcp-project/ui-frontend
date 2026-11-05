@@ -40,7 +40,7 @@ function EditWorkspaceForm({
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useProjectForm({
     name: workspaceData.name,
     displayName: workspaceData.displayName,
@@ -61,7 +61,7 @@ function EditWorkspaceForm({
       errorDialogRef={errorDialogRef}
       titleText={t('EditWorkspaceDialog.title')}
       members={members}
-      form={{ register, errors, setValue, watch, handleSubmit }}
+      form={{ register, errors, setValue, watch, handleSubmit, isDirty }}
       type={'workspace'}
       isEditMode
       isLoading={isLoading}

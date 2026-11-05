@@ -94,10 +94,10 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
         </Panel>
 
         <FlexBox justifyContent="End" className={styles.actions}>
-          <Button design="Transparent" onClick={handleClose}>
+          <Button design="Transparent" icon="decline" onClick={handleClose}>
             {t('buttons.cancel')}
           </Button>
-          <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleDelete}>
+          <Button design={ButtonDesign.Negative} disabled={!isConfirmed} icon="delete" onClick={handleDelete}>
             {t('DeleteConfirmationDialog.deleteButton')}
           </Button>
         </FlexBox>

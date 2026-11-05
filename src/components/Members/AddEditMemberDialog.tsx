@@ -169,13 +169,13 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       design="Footer"
       endContent={
         <>
-          <Button design="Transparent" onClick={onClose}>
+          <Button design="Transparent" icon="decline" onClick={onClose}>
             {t('buttons.cancel')}
           </Button>
           <Button
             data-testid={withTestId('add-member-submit-button')}
             design="Emphasized"
-            icon={'sap-icon://add-employee'}
+            icon={memberToEdit ? 'save' : 'sap-icon://add-employee'}
             onClick={() => handleSubmit(onFormSubmit)()}
           >
             {memberToEdit

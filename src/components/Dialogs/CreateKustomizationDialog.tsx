@@ -118,10 +118,10 @@ export function CreateKustomizationDialog({
         <Bar
           endContent={
             <>
-              <Button design="Transparent" onClick={handleClose}>
+              <Button design="Transparent" icon="decline" onClick={handleClose}>
                 {t('buttons.cancel', 'Cancel')}
               </Button>
-              <Button design="Emphasized" disabled={isLoading} onClick={handleCreate}>
+              <Button design="Emphasized" disabled={isLoading} icon="add" onClick={handleCreate}>
                 {t('buttons.create', 'Create')}
               </Button>
             </>

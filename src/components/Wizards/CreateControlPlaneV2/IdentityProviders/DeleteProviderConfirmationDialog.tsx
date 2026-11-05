@@ -36,10 +36,15 @@ export const DeleteProviderConfirmationDialog: FC<DeleteProviderConfirmationDial
           design="Footer"
           endContent={
             <>
-              <Button design="Transparent" onClick={onCancel}>
+              <Button design="Transparent" icon="decline" onClick={onCancel}>
                 {t('buttons.cancel')}
               </Button>
-              <Button design={ButtonDesign.Negative} data-testid="confirm-delete-provider-button" onClick={onConfirm}>
+              <Button
+                design={ButtonDesign.Negative}
+                data-testid="confirm-delete-provider-button"
+                icon="delete"
+                onClick={onConfirm}
+              >
                 {t('IdentityProviders.deleteConfirmButton')}
               </Button>
             </>

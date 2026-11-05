@@ -56,7 +56,7 @@ export function CreateWorkspaceDialogContainer({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
     watch,
     control,
   } = useProjectForm(DEFAULT_VALUES);
@@ -100,7 +100,7 @@ export function CreateWorkspaceDialogContainer({
       errorDialogRef={errorDialogRef}
       titleText={t('CreateProjectWorkspaceDialog.createWorkspaceTitle')}
       members={members}
-      form={{ register, errors, setValue, watch, handleSubmit }}
+      form={{ register, errors, setValue, watch, handleSubmit, isDirty }}
       isMetadataValid={isValid}
       isLoading={isLoading}
       type={'workspace'}
