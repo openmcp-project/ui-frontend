@@ -1,15 +1,13 @@
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import { Label, MessageStrip, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import type { TFunction } from 'i18next';
+import { Label, MessageStrip, Option, Select, SelectDomRef, Tag, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
-import { purposeLabel, SupportInfo } from '../../lib/supportInfo.ts';
+import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
 import { useInheritedSupportInfo } from '../../spaces/onboarding/hooks/useInheritedSupportInfo.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
-import { InheritedFromText } from '../Shared/InheritedFromText.tsx';
 import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -28,15 +26,31 @@ interface SupportInfoFormProps {
   useGetWorkspace?: typeof _useGetWorkspace;
 }
 
-// The hint lists what the empty fields fall back to; only non-empty values are worth naming.
-function inheritedSummary(t: TFunction, info: SupportInfo): string {
-  const parts = [
-    info.supportLandscape && purposeLabel(t, info.supportLandscape),
-    info.supportServiceIds,
-    info.supportSecurityContacts,
-    info.supportOpsContacts,
-  ].filter((v): v is string => !!v);
-  return parts.join(' · ');
+function InheritedChips({ value }: { value?: string }) {
+  const items = (value ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (items.length === 0) return null;
+  return (
+    <div className={styles.inheritedChips}>
+      {items.map((item) => (
+        <Tag key={item} design="Neutral" hideStateIcon>
+          {item}
+        </Tag>
+      ))}
+    </div>
+  );
+}
+
+function InheritedField({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  return (
+    <div className={styles.inheritedRow}>
+      <span className={styles.inheritedLabel}>{label}</span>
+      <InheritedChips value={value} />
+    </div>
+  );
 }
 
 function InheritedSupportInfoHint({
@@ -53,27 +67,61 @@ function InheritedSupportInfoHint({
   useGetWorkspace?: typeof _useGetWorkspace;
 }) {
   const { t } = useTranslation();
-  // Resolve against the parents only (own = empty) to learn what an empty form falls back to.
   const parentDefaults = useInheritedSupportInfo(
     {},
     { projectName, workspaceName, useProjectMembers, useGetWorkspace },
   );
-  const { inheritedFrom } = parentDefaults;
+  const { inheritedFrom, info } = parentDefaults;
   if (!inheritedFrom) return null;
-  const summary = inheritedSummary(t, parentDefaults.info);
+
+  if (!ownIsEmpty) {
+    return (
+      <MessageStrip
+        className={styles.intro}
+        data-testid="support-info-form-inherited"
+        data-active="false"
+        design="Critical"
+        hideCloseButton
+      >
+        <Trans
+          i18nKey="SupportInfo.inheritedOverriddenHint"
+          values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
+          components={{ b: <b /> }}
+        />
+      </MessageStrip>
+    );
+  }
 
   return (
     <MessageStrip
       className={styles.intro}
       data-testid="support-info-form-inherited"
-      data-active={ownIsEmpty ? 'true' : 'false'}
-      design={ownIsEmpty ? 'Information' : 'Critical'}
+      data-active="true"
+      design="Information"
       hideCloseButton
     >
-      <InheritedFromText source={inheritedFrom} />
-      {summary && <span>: {summary}</span>}
-      <div className={styles.inheritedHint}>
-        {ownIsEmpty ? t('SupportInfo.inheritedFormHint') : t('SupportInfo.inheritedOverriddenHint')}
+      <div className={styles.inheritedBlock}>
+        <span className={styles.inheritedSource}>
+          <Trans
+            i18nKey="SupportInfo.inheritedFrom"
+            values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
+            components={{ b: <b /> }}
+          />
+        </span>
+        <div className={styles.inheritedFields}>
+          {info.supportLandscape && (
+            <div className={styles.inheritedRow}>
+              <span className={styles.inheritedLabel}>{t('SupportInfo.purposeLabel')}</span>
+              <Tag design="Set2" colorScheme={purposeColorScheme(info.supportLandscape)} hideStateIcon>
+                {purposeLabel(t, info.supportLandscape)}
+              </Tag>
+            </div>
+          )}
+          <InheritedField label={t('SupportInfo.serviceIds')} value={info.supportServiceIds} />
+          <InheritedField label={t('SupportInfo.securityContacts')} value={info.supportSecurityContacts} />
+          <InheritedField label={t('SupportInfo.opsContacts')} value={info.supportOpsContacts} />
+        </div>
+        <span className={styles.inheritedHint}>{t('SupportInfo.inheritedFormHint')}</span>
       </div>
     </MessageStrip>
   );
