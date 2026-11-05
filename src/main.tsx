@@ -8,6 +8,7 @@ import App from './App';
 import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
 import { SWRConfigWithTokenRefresh } from './components/SWRConfigWithTokenRefresh.tsx';
 import { ThemeManager } from './components/ThemeManager.tsx';
+import { BrandingManager } from './components/BrandingManager.tsx';
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { Infobox } from './components/Ui/Infobox/Infobox.tsx';
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
@@ -75,6 +76,7 @@ export function createApp() {
                                 <App />
                               </ApolloClientProvider>
                               <ThemeManager />
+                              <BrandingManager />
                             </SWRConfigWithTokenRefresh>
                           </CopyButtonProvider>
                         </ToastProvider>

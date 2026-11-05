@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useControlPlaneV2Query } from '../../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { CreateControlPlaneV2WizardContainer, WizardStepType } from './CreateControlPlaneV2WizardContainer.tsx';
+import type { ServiceKey } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import styles from '../CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.module.css';
 
 export type EditManagedControlPlaneV2WizardDataLoaderProps = {
@@ -12,6 +13,7 @@ export type EditManagedControlPlaneV2WizardDataLoaderProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   initialSection?: WizardStepType;
+  initialService?: ServiceKey;
 };
 
 function parseNamespaceString(namespace: string): { projectName: string; workspaceName: string } {
@@ -32,6 +34,7 @@ export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2Wiz
   isOpen,
   setIsOpen,
   initialSection,
+  initialService,
 }) => {
   const { t } = useTranslation();
   const { data, error } = useControlPlaneV2Query(isOpen ? resourceName : undefined, isOpen ? namespace : undefined);
@@ -79,6 +82,7 @@ export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2Wiz
       isEditMode
       initialData={stableData}
       initialSection={initialSection}
+      initialService={initialService}
     />
   );
 };

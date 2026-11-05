@@ -5,19 +5,16 @@ import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/information';
 import '@ui5/webcomponents-icons/dist/nav-back';
-import '@ui5/webcomponents-icons/dist/overflow';
 import '@ui5/webcomponents-icons/dist/upload';
 import {
   Avatar,
+  Bar,
   Button,
   ButtonDomRef,
   Label,
   List,
   ListItemStandard,
   ListItemStandardDomRef,
-  Menu,
-  MenuDomRef,
-  MenuItem,
   Popover,
   PopoverDomRef,
   ShellBar,
@@ -26,15 +23,17 @@ import {
   Switch,
   Text,
   TextAreaDomRef,
+  Title,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { ListItemBaseClickEventDetail } from '@ui5/webcomponents/dist/ListItemBase.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { RefObject, useRef, useState } from 'react';
+import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import SapLogo from '../../assets/images/sap-logo.svg';
 import { Routes } from '../../Routes.ts';
+import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
@@ -49,6 +48,8 @@ import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 
@@ -59,6 +60,7 @@ export function ShellBarComponent({
 } = {}) {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
+  const { branding } = useFrontendConfig();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const infoButtonRef = useRef<ButtonDomRef | null>(null);
@@ -89,8 +91,8 @@ export function ShellBarComponent({
     <>
       <ShellBar
         hidden={window.location.href.includes('compact-mode')}
-        logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
-        primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
+        logo={branding.logo ? <img src={branding.logo} alt={branding.appName} className={styles.logo} /> : undefined}
+        primaryTitle={mcpDisplayName ?? mcpName ?? branding.appName}
         profile={
           <Avatar
             colorScheme={avatarColorSchemeForEmail(auth.user?.email)}
@@ -111,14 +113,15 @@ export function ShellBarComponent({
         content={[
           ...(mcpName && mcpStatus && project && workspace
             ? [
-                <MCPHealthPopoverButton
-                  key="status"
-                  mcpStatus={mcpStatus}
-                  projectName={project}
-                  workspaceName={workspace}
-                  mcpName={mcpName}
-                  source="detail"
-                />,
+                <div key="status">
+                  <MCPHealthPopoverButton
+                    mcpStatus={mcpStatus}
+                    projectName={project}
+                    workspaceName={workspace}
+                    mcpName={mcpName}
+                    source="detail"
+                  />
+                </div>,
               ]
             : []),
           ...(mcpName
@@ -136,7 +139,6 @@ export function ShellBarComponent({
           <ShellBarSpacer key="spacer" />,
           <div key="content" className={styles.shellBarContent}>
             <UploadYamlShellBarButton />
-            {mode === 'open-source' && <OverflowMenuButton />}
             {mcpName && (
               <div className={styles.switchWrapper}>
                 <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
@@ -181,10 +183,27 @@ function ControlPlaneInfoPopover({
   open: boolean;
   setOpen: (v: boolean) => void;
 }) {
-  const { mcpName, mcpDisplayName, project, workspace, mcpCreationTimestamp, mcpCreatedBy, roleBindings, kubeconfig } =
-    useShellBarMcpActions();
+  const {
+    mcpName,
+    mcpDisplayName,
+    project,
+    workspace,
+    namespace,
+    resourceType,
+    mcpCreationTimestamp,
+    mcpCreatedBy,
+    roleBindings,
+    kubeconfig,
+    onEditMcp,
+  } = useShellBarMcpActions();
   const { t } = useTranslation();
   const { mode } = useViewMode();
+  const { isAsideVisible } = useSplitter();
+
+  // Close the popover once the YAML side panel opens, since YamlViewButton has no onClick hook.
+  useEffect(() => {
+    if (isAsideVisible) setOpen(false);
+  }, [isAsideVisible, setOpen]);
 
   if (!mcpName) return null;
 
@@ -204,7 +223,35 @@ function ControlPlaneInfoPopover({
       ref={ref}
       placement={PopoverPlacement.Bottom}
       open={open}
-      headerText={mcpDisplayName ?? mcpName}
+      header={
+        <Bar
+          startContent={<Title level={TitleLevel.H5}>{mcpDisplayName ?? mcpName}</Title>}
+          endContent={
+            <div className={styles.infoPopoverHeaderActions}>
+              {resourceType && (
+                <YamlViewButton
+                  variant="loader"
+                  workspaceName={namespace}
+                  resourceType={resourceType}
+                  resourceName={mcpName}
+                  withoutApiConfig
+                />
+              )}
+              {onEditMcp && (
+                <Button
+                  design="Transparent"
+                  icon="edit"
+                  tooltip={t('ShellBar.controlPlaneInfoEditButton')}
+                  onClick={() => {
+                    setOpen(false);
+                    onEditMcp();
+                  }}
+                />
+              )}
+            </div>
+          }
+        />
+      }
       onClose={() => setOpen(false)}
     >
       <div className={styles.infoPopoverContent}>
@@ -285,46 +332,6 @@ function KubeconfigPopoverButtons({ kubeconfig, mcpName }: { kubeconfig: string;
         {t('CopyKubeconfigButton.menuCopy')}
       </Button>
     </div>
-  );
-}
-
-function OverflowMenuButton() {
-  const { onEditMcp, onOpenYaml } = useShellBarMcpActions();
-  const { t } = useTranslation();
-  const menuRef = useRef<MenuDomRef | null>(null);
-  const buttonRef = useRef<ButtonDomRef | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  if (!onEditMcp && !onOpenYaml) return null;
-
-  return (
-    <>
-      <Button
-        ref={buttonRef}
-        design="Transparent"
-        icon="overflow"
-        onClick={() => {
-          if (menuRef.current && buttonRef.current) {
-            menuRef.current.opener = buttonRef.current;
-            setMenuOpen((prev) => !prev);
-          }
-        }}
-      />
-      <Menu
-        ref={menuRef}
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onItemClick={(event) => {
-          const action = event.detail.item.dataset.action;
-          if (action === 'edit') onEditMcp?.();
-          else if (action === 'yaml') onOpenYaml?.();
-          setMenuOpen(false);
-        }}
-      >
-        {onEditMcp && <MenuItem text={t('ShellBar.overflowEditMcp')} data-action="edit" icon="edit" />}
-        {onOpenYaml && <MenuItem text={t('ShellBar.overflowViewYaml')} data-action="yaml" icon="source-code" />}
-      </Menu>
-    </>
   );
 }
 
