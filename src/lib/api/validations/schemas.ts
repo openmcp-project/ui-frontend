@@ -58,6 +58,7 @@ export function createManagedControlPlaneSchema(t: TFunction) {
       chargingTarget: z.string().optional(),
       chargingTargetType: z.string().optional(),
       members: z.array(member),
+      staticEgressIp: z.boolean().optional(),
     })
     .superRefine(createValidateChargingTarget(t));
 }

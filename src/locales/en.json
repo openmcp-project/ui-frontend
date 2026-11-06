@@ -840,5 +840,16 @@
     "inheritedTooltip": "Inherited from {{kind}} {{name}}",
     "inheritedFormHint": "Leave all fields empty to keep using these values.",
     "inheritedOverriddenHint": "Your values override the ones from {{kind}} <b>{{name}}</b>. Clear all fields to inherit again."
+  },
+  "StaticEgressIp": {
+    "label": "Static Egress IP",
+    "checkboxLabel": "Give static IP address",
+    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist controlplane on databases and other services. Once activated, this cannot be disabled!",
+    "lockedHint": "A static egress IP is reserved for this control plane. It stays reserved until the control plane is deleted.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "pending": "Reserving…",
+    "pendingWithReason": "Reserving… ({{reason}})",
+    "copyTooltip": "Copy IP address"
   }
 }

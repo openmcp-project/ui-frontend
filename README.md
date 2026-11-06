@@ -23,6 +23,8 @@ cp .env.template .env                                  # fill OIDC values
 npm run dev                                            # http://localhost:5173
 ```
 
+The dev server listens on port `5173` by default. Set the `PORT` environment variable to run on another port (for example `PORT=5174 npm run dev`) — useful for running multiple worktrees side by side. When changing the port, update `OIDC_REDIRECT_URI` and `POST_LOGIN_REDIRECT` in `.env` to match (and register the redirect URI with your IdP).
+
 See the [Contributor Guide](docs/contributor/index.md) for full setup, build, and testing instructions.
 
 ## Generating GraphQL Types

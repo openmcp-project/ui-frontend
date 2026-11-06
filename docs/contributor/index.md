@@ -32,6 +32,8 @@ cp .env.template .env                                  # fill OIDC values and se
 npm run dev                                            # http://localhost:5173
 ```
 
+> **Running on a different port** — the dev server defaults to `5173`. Set the `PORT` environment variable to change it, e.g. `PORT=5174 npm run dev`. This lets you run several worktrees in parallel. Keep `OIDC_REDIRECT_URI` and `POST_LOGIN_REDIRECT` in `.env` pointing at the same port (and register the redirect URI with your IdP), or the login flow will fail.
+
 > **Safari on localhost** — cookies and CSP behave differently. See the [Safari Support](../../README.md#safari-support) section in the README for the manual workaround. Do not commit those edits.
 
 ### Headlamp (local dev cluster)
