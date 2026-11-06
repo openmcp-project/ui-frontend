@@ -15,6 +15,7 @@ import {
   List,
   ListItemStandard,
   ListItemStandardDomRef,
+  ObjectStatus,
   Popover,
   PopoverDomRef,
   ShellBar,
@@ -40,6 +41,7 @@ import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useYamlApply } from '../../context/YamlApplyContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { EgressIpInfo } from '../../lib/egressIp.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
@@ -192,6 +194,7 @@ function ControlPlaneInfoPopover({
     resourceType,
     mcpCreationTimestamp,
     mcpCreatedBy,
+    egressIp,
     roleBindings,
     kubeconfig,
     onEditMcp,
@@ -282,6 +285,12 @@ function ControlPlaneInfoPopover({
               <Text>{mcpCreatedBy}</Text>
             </>
           )}
+          {egressIp && (
+            <>
+              <Label>{t('StaticEgressIp.label')}</Label>
+              <EgressIpValue egressIp={egressIp} />
+            </>
+          )}
         </div>
 
         {members.length > 0 && (
@@ -301,6 +310,36 @@ function ControlPlaneInfoPopover({
         )}
       </div>
     </Popover>
+  );
+}
+
+function EgressIpValue({ egressIp }: { egressIp: EgressIpInfo }) {
+  const { t } = useTranslation();
+  const { copyToClipboard } = useCopyToClipboard();
+
+  if (!egressIp.ready || !egressIp.ip) {
+    return (
+      <ObjectStatus state="Information" data-testid="egress-ip-pending">
+        {egressIp.reason
+          ? t('StaticEgressIp.pendingWithReason', { reason: egressIp.reason })
+          : t('StaticEgressIp.pending')}
+      </ObjectStatus>
+    );
+  }
+
+  return (
+    <div className={styles.egressIpValue}>
+      <Text className={styles.egressIpText} data-testid="egress-ip-value">
+        {egressIp.ip}
+      </Text>
+      <Button
+        design="Transparent"
+        icon="copy"
+        tooltip={t('StaticEgressIp.copyTooltip')}
+        accessibleName={t('StaticEgressIp.copyTooltip')}
+        onClick={() => void copyToClipboard(egressIp.ip!)}
+      />
+    </div>
   );
 }
 
