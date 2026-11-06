@@ -1,0 +1,17 @@
+.container {
+  gap: 0.25rem;
+}
+
+/* Same footprint as the service logos so the row lines up with the cards above. */
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--sapContent_IconColor);
+}
+
+.hint {
+  /* Aligns with the checkbox label text (icon + gap + checkbox box). */
+  padding-left: 5rem;
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}

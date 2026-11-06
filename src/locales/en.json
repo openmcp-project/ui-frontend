@@ -128,6 +128,7 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
+    "forceDeleteConfirmationDialog": "Force deletion triggered. Blocking service finalizers will be removed; external resources may need manual cleanup. The list will refresh automatically once completed.",
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
@@ -262,7 +263,11 @@
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
     "deleteMessage": "You are about to delete the resource",
-    "typeToConfirm": "Type the name to confirm"
+    "typeToConfirm": "Type the name to confirm",
+    "forceDeleteButton": "Force Delete",
+    "forceDeleteToggle": "Deletion is stuck? Enable force delete",
+    "forceDeleteWarning": "Force delete bypasses the normal cleanup by removing finalizers from blocking service instances. External resources managed by those services (for example DNS records, cloud resources, or load balancers) may be left behind and must be cleaned up manually. This cannot be undone. Only use this when the regular deletion is stuck.",
+    "forceDeleteAcknowledge": "I understand the risks and want to force delete this control plane"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -840,5 +845,16 @@
     "inheritedTooltip": "Inherited from {{kind}} {{name}}",
     "inheritedFormHint": "Leave all fields empty to keep using these values.",
     "inheritedOverriddenHint": "Your values override the ones from {{kind}} <b>{{name}}</b>. Clear all fields to inherit again."
+  },
+  "StaticEgressIp": {
+    "label": "Static Egress IP",
+    "checkboxLabel": "Give static IP address",
+    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist controlplane on databases and other services. Once activated, this cannot be disabled!",
+    "lockedHint": "A static egress IP is reserved for this control plane. It stays reserved until the control plane is deleted.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "pending": "Reserving…",
+    "pendingWithReason": "Reserving… ({{reason}})",
+    "copyTooltip": "Copy IP address"
   }
 }

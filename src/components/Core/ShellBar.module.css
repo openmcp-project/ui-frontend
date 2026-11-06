@@ -52,6 +52,16 @@
   align-items: baseline;
 }
 
+.egressIpValue {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.egressIpText {
+  font-family: 'Roboto Mono', monospace;
+}
+
 .infoSection {
   display: flex;
   flex-direction: column;

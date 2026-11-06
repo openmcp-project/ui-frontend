@@ -1,11 +1,22 @@
 import { ReactNode, useState } from 'react';
-import { Bar, Button, Dialog, InputDomRef } from '@ui5/webcomponents-react';
+import { Bar, Button, CheckBox, Dialog, InputDomRef, MessageStrip } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useTranslation } from 'react-i18next';
 import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
 
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import { DeleteConfirmationForm } from './DeleteConfirmationForm.tsx';
+import styles from './DeleteConfirmationDialog.module.css';
+
+/**
+ * Optional "force delete" escalation. When provided, the dialog offers an exceptional deletion path
+ * (behind an extra acknowledgement) for resources whose regular deletion is stuck. The regular
+ * deletion remains the primary action; force deletion must be explicitly opted into.
+ */
+interface ForceDeleteConfig {
+  /** Invoked instead of `onDeletionConfirmed` once the user opts into and acknowledges force delete. */
+  onForceDeletionConfirmed: () => Promise<void> | void;
+}
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -14,6 +25,7 @@ interface DeleteConfirmationDialogProps {
   kubectlDialog?: (props: { isOpen: boolean; onClose: () => void }) => ReactNode;
   onDeletionConfirmed?: () => Promise<void> | void;
   onCanceled?: () => void;
+  forceDelete?: ForceDeleteConfig;
 }
 
 export function DeleteConfirmationDialog({
@@ -23,16 +35,48 @@ export function DeleteConfirmationDialog({
   onDeletionConfirmed,
   onCanceled,
   kubectlDialog,
+  forceDelete,
 }: DeleteConfirmationDialogProps) {
   const [confirmationText, setConfirmationText] = useState('');
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
+  // Exceptional path state. Both reset whenever the dialog closes (see resetState).
+  const [forceDeleteSelected, setForceDeleteSelected] = useState(false);
+  const [forceDeleteAcknowledged, setForceDeleteAcknowledged] = useState(false);
   const { t } = useTranslation();
 
   const onConfirmationInputChange = (event: Ui5CustomEvent<InputDomRef>) => {
     setConfirmationText(event.target.value);
   };
 
-  const isConfirmed = confirmationText === resourceName;
+  const resetState = () => {
+    setIsKubectlDialogOpen(false);
+    setForceDeleteSelected(false);
+    setForceDeleteAcknowledged(false);
+    setConfirmationText('');
+  };
+
+  const closeDialog = () => {
+    setIsOpen(false);
+    resetState();
+  };
+
+  const isNameConfirmed = confirmationText === resourceName;
+  const isForceActive = !!forceDelete && forceDeleteSelected;
+  // Force delete additionally requires the explicit acknowledgement of the risk.
+  const isConfirmed = isNameConfirmed && (!isForceActive || forceDeleteAcknowledged);
+
+  const handleConfirm = async () => {
+    try {
+      if (isForceActive) {
+        await forceDelete?.onForceDeletionConfirmed();
+      } else {
+        await onDeletionConfirmed?.();
+      }
+      closeDialog();
+    } catch {
+      // toast already shown by the hook; keep dialog open
+    }
+  };
 
   return (
     <>
@@ -49,27 +93,16 @@ export function DeleteConfirmationDialog({
                 <Button
                   design={ButtonDesign.Transparent}
                   onClick={() => {
-                    setIsOpen(false);
-                    setIsKubectlDialogOpen(false);
+                    closeDialog();
                     onCanceled && onCanceled();
                   }}
                 >
                   {t('DeleteConfirmationDialog.cancelButton')}
                 </Button>
-                <Button
-                  design={ButtonDesign.Negative}
-                  disabled={!isConfirmed}
-                  onClick={async () => {
-                    try {
-                      await onDeletionConfirmed?.();
-                      setIsOpen(false);
-                      setIsKubectlDialogOpen(false);
-                    } catch {
-                      // toast already shown by the hook; keep dialog open
-                    }
-                  }}
-                >
-                  {t('DeleteConfirmationDialog.deleteButton')}
+                <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleConfirm}>
+                  {isForceActive
+                    ? t('DeleteConfirmationDialog.forceDeleteButton')
+                    : t('DeleteConfirmationDialog.deleteButton')}
                 </Button>
               </>
             }
@@ -82,6 +115,36 @@ export function DeleteConfirmationDialog({
           deleteMessageKey="DeleteConfirmationDialog.deleteMessage"
           onConfirmationInputChange={onConfirmationInputChange}
         />
+
+        {forceDelete ? (
+          <div className={styles.forceDeleteSection}>
+            <CheckBox
+              data-testid="force-delete-toggle"
+              checked={forceDeleteSelected}
+              text={t('DeleteConfirmationDialog.forceDeleteToggle')}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setForceDeleteSelected(checked);
+                // Acknowledgement only matters while force delete is selected; clear it when toggled off.
+                if (!checked) setForceDeleteAcknowledged(false);
+              }}
+            />
+
+            {forceDeleteSelected ? (
+              <div className={styles.forceDeleteDetails}>
+                <MessageStrip data-testid="force-delete-warning" design="Negative" hideCloseButton>
+                  {t('DeleteConfirmationDialog.forceDeleteWarning')}
+                </MessageStrip>
+                <CheckBox
+                  data-testid="force-delete-acknowledge"
+                  checked={forceDeleteAcknowledged}
+                  text={t('DeleteConfirmationDialog.forceDeleteAcknowledge')}
+                  onChange={(event) => setForceDeleteAcknowledged(event.target.checked)}
+                />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </Dialog>
       {kubectlDialog
         ? kubectlDialog({
