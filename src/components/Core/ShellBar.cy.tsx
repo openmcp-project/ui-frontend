@@ -321,6 +321,39 @@ describe('ShellBar', () => {
     cy.get('ui5-popover[open]').should('not.exist');
   });
 
+  it('shows the ControlPlane kind in the info popover for a v2 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'controlplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('not.exist');
+  });
+
+  it('shows the ManagedControlPlane kind with a deprecated badge for a v1 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'managedcontrolplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ManagedControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('contain.text', 'Deprecated');
+  });
+
+  it('does not show the kind row when resourceType is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('[data-testid="control-plane-kind"]').should('not.exist');
+  });
+
   it('shows the static egress IP in the info popover when reserved', () => {
     mountComponent({
       mcpName: 'my-control-plane',

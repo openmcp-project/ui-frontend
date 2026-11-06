@@ -22,6 +22,7 @@ import {
   ShellBarDomRef,
   ShellBarSpacer,
   Switch,
+  Tag,
   Text,
   TextAreaDomRef,
   Title,
@@ -221,6 +222,9 @@ function ControlPlaneInfoPopover({
   const members = roleBindings ? convertRoleBindingsToMembers(roleBindings) : [];
   const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
 
+  const isManagedControlPlane = resourceType === 'managedcontrolplanes';
+  const kind = resourceType ? (isManagedControlPlane ? 'ManagedControlPlane' : 'ControlPlane') : undefined;
+
   return (
     <Popover
       ref={ref}
@@ -269,6 +273,24 @@ function ControlPlaneInfoPopover({
             <>
               <Label>{t('Entities.Workspace')}</Label>
               <Text>{workspace}</Text>
+            </>
+          )}
+          {kind && (
+            <>
+              <Label>{t('McpHeader.kindLabel')}</Label>
+              <div className={styles.kindValue} data-testid="control-plane-kind">
+                <Text>{kind}</Text>
+                {isManagedControlPlane && (
+                  <Tag
+                    design="Neutral"
+                    hideStateIcon
+                    className={styles.deprecatedTag}
+                    data-testid="control-plane-kind-deprecated"
+                  >
+                    {t('common.deprecated')}
+                  </Tag>
+                )}
+              </div>
             </>
           )}
           {created && (
