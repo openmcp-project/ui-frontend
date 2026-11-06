@@ -209,9 +209,10 @@ fastify.get('/', function (req, reply) {
 });
 
 await fastify.vite.ready();
+const port = process.env.PORT ? Number(process.env.PORT) : 5173;
 fastify.listen(
   {
-    port: 5173,
+    port,
     host: '0.0.0.0',
   },
   // @ts-ignore

@@ -10,7 +10,7 @@ Node `^24.0.0` and npm `^11.0.0` are required (`package.json` `engines`).
 
 ## Stack — non-obvious points
 
-- **Fastify BFF, not static Vite.** Entry is `server.ts` (TS) → builds to `dist/server.js`. Dev = `tsx ./server.ts --local-dev` (Fastify with `@fastify/vite` middleware on `http://localhost:5173`). Prod = `node dist/server.js` serving `dist/client/`. The client always talks to `/api/...` on the BFF; the BFF proxies to the real backend (`server/plugins/http-proxy.ts`) and handles encrypted cookie sessions + OIDC auth callbacks (`server/routes/auth-*.ts`). Never call the backend directly from the client.
+- **Fastify BFF, not static Vite.** Entry is `server.ts` (TS) → builds to `dist/server.js`. Dev = `tsx ./server.ts --local-dev` (Fastify with `@fastify/vite` middleware on `http://localhost:5173`; override with the `PORT` env var, e.g. `PORT=5174 npm run dev`, to run multiple worktrees in parallel). Prod = `node dist/server.js` serving `dist/client/`. The client always talks to `/api/...` on the BFF; the BFF proxies to the real backend (`server/plugins/http-proxy.ts`) and handles encrypted cookie sessions + OIDC auth callbacks (`server/routes/auth-*.ts`). Never call the backend directly from the client.
 - **`@ui5/webcomponents-react` is the design system.** Before building any button / input / dialog / table / form layout, look it up in `@ui5/webcomponents-react` or `@ui5/webcomponents-fiori`. Custom primitives are reserved for things UI5 genuinely doesn't offer (and even then, look in `src/components/Ui/` first). Charts come from `@ui5/webcomponents-react-charts`.
 - **Apollo Client 4 + GraphQL codegen.** The onboarding space (`src/spaces/onboarding/`) uses Apollo against `/api/onboarding/graphql`. **All GraphQL response types are generated** into `src/types/__generated__/graphql/` by `@graphql-codegen/client-preset` using `graphql.config.yaml`. Do not hand-write GraphQL response types — regenerate with `npm run generate-graphql-types -- <token>` (token is prefixed with `Bearer` and used to fetch the remote schema).
 - **REST + SWR for MCP space.** `src/spaces/mcp/` and shared `src/lib/api/useApiResource.ts` use SWR. Routing headers (`X-project`, `X-workspace`, `X-mcp`, `X-use-crate`, `X-jq` for server-side jq filtering) are how the BFF routes a single fetch to the right cluster. State is **SWR cache + Apollo cache** — there is no Redux/Zustand/MobX. Don't introduce one.
@@ -82,6 +82,8 @@ cp frontend-config.json public/frontend-config.json   # edit backendUrl
 cp .env.template .env                                 # fill OIDC, secrets, etc.
 npm run dev                                           # http://localhost:5173
 ```
+
+The dev server defaults to port `5173`; set `PORT` (e.g. `PORT=5174 npm run dev`) to run it elsewhere, which is handy for parallel worktrees. Keep `OIDC_REDIRECT_URI` / `POST_LOGIN_REDIRECT` in sync with the chosen port.
 
 Safari on `localhost` has a cookie/CSP quirk — see README.md ("Safari Support") for the manual `secure: false` + helmet workaround. Do not commit those edits.
 
