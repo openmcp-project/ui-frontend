@@ -11,7 +11,7 @@ import {
   Text,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
@@ -27,13 +27,14 @@ export interface CrossplaneProviderPickerProps {
   providers: ProviderRowState[];
   catalog: CrossplaneProvider[];
   disabled?: boolean;
+  disabledHint?: string;
   onToggle: (name: string) => void;
   onVersionChange: (name: string, version: string) => void;
   getError?: (name: string) => string | undefined;
 }
 
 const PROVIDER_PREFIX = 'provider-';
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 function stripProviderPrefix(name: string): string {
   return name.startsWith(PROVIDER_PREFIX) ? name.slice(PROVIDER_PREFIX.length) : name;
@@ -43,6 +44,7 @@ export function CrossplaneProviderPicker({
   providers,
   catalog,
   disabled = false,
+  disabledHint,
   onToggle,
   onVersionChange,
   getError,
@@ -52,14 +54,22 @@ export function CrossplaneProviderPicker({
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [requestedPage, setRequestedPage] = useState(1);
 
+  const selectRefsMap = useRef<Map<string, SelectDomRef | null>>(new Map());
+  const prevProvidersRef = useRef<ProviderRowState[]>([]);
+
   const displayProviders = useMemo(
     () => providers.map((provider) => ({ ...provider, label: stripProviderPrefix(provider.name) })),
     [providers],
   );
 
   const filteredProviders = useMemo(() => {
-    const lowerSearch = searchTerm.toLowerCase();
-    return displayProviders.filter((provider) => provider.label.toLowerCase().includes(lowerSearch));
+    const lowerSearch = searchTerm.trim().toLowerCase();
+    // Match on the stripped label (e.g. "btp") or the full name (e.g. "provider-btp") so
+    // users who paste kubectl output can still find what they're looking for.
+    return displayProviders.filter(
+      (provider) =>
+        provider.label.toLowerCase().includes(lowerSearch) || provider.name.toLowerCase().includes(lowerSearch),
+    );
   }, [displayProviders, searchTerm]);
 
   const sortedProviders = useMemo(
@@ -77,8 +87,22 @@ export function CrossplaneProviderPicker({
     [sortedProviders, currentPage],
   );
 
+  const selectedCount = providers.filter((p) => p.isSelected).length;
+
+  // Focus the version Select when exactly one provider transitions to selected.
+  // The single-change guard prevents misfiring during bulk resets (e.g. dialog open in edit mode).
+  useEffect(() => {
+    const newlySelected = providers.filter(
+      (p) => p.isSelected && !prevProvidersRef.current.find((pp) => pp.name === p.name)?.isSelected,
+    );
+    if (newlySelected.length === 1) {
+      selectRefsMap.current.get(newlySelected[0].name)?.focus();
+    }
+    prevProvidersRef.current = providers;
+  });
+
   const handleSearch = (e: Ui5CustomEvent<InputDomRef, never>) => {
-    setSearchTerm(e.target.value.trim());
+    setSearchTerm(e.target.value);
     setRequestedPage(1);
   };
 
@@ -87,10 +111,16 @@ export function CrossplaneProviderPicker({
     setRequestedPage(1);
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setRequestedPage(1);
+  };
+
   return (
     <div>
       <FlexBox alignItems="Center" justifyContent="SpaceBetween" className={styles.providerHeader}>
         <Button
+          data-testid="sort-providers"
           design="Transparent"
           endIcon={sortDirection === 'asc' ? 'sort-ascending' : 'sort-descending'}
           aria-label={
@@ -104,7 +134,7 @@ export function CrossplaneProviderPicker({
         </Button>
         <Input
           placeholder={t('ComponentInstallDialog.searchProviders')}
-          id="provider-search"
+          data-testid="provider-search"
           showClearIcon
           icon={<Icon name="search" />}
           value={searchTerm}
@@ -114,8 +144,20 @@ export function CrossplaneProviderPicker({
         />
       </FlexBox>
 
+      <span className={styles.visuallyHidden} aria-live="polite">
+        {t('ComponentInstallDialog.providersSelectedCount', { count: filteredProviders.length })}
+      </span>
+
+      {disabled && disabledHint && <Text className={styles.disabledHint}>{disabledHint}</Text>}
+
+      {selectedCount > 0 && (
+        <Text className={styles.selectedCount}>
+          {t('ComponentInstallDialog.providersSelectedCount', { count: selectedCount })}
+        </Text>
+      )}
+
       {pageProviders.length > 0 ? (
-        <div className={styles.providerList}>
+        <div className={styles.providerList} role="list">
           {pageProviders.map((provider) => {
             const providerVersions = catalog.find((p) => p.name === provider.name)?.versions ?? [];
             const currentVersion = provider.selectedVersion;
@@ -127,6 +169,7 @@ export function CrossplaneProviderPicker({
             return (
               <FlexBox
                 key={provider.name}
+                role="listitem"
                 justifyContent="SpaceBetween"
                 alignItems="Center"
                 className={styles.providerRow}
@@ -138,25 +181,30 @@ export function CrossplaneProviderPicker({
                   disabled={disabled}
                   onChange={() => onToggle(provider.name)}
                 />
-                <Select
-                  data-cy={`provider-version-select-${provider.name}`}
-                  data-name={provider.name}
-                  className={styles.providerVersionSelect}
-                  accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.name })}
-                  disabled={!provider.isSelected}
-                  value={provider.selectedVersion}
-                  valueState={versionError ? 'Negative' : 'None'}
-                  valueStateMessage={versionError ? <span>{versionError}</span> : undefined}
-                  onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
-                    onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
-                  }
-                >
-                  {versionOptions.map(({ version }) => (
-                    <Option key={version} value={version}>
-                      {version}
-                    </Option>
-                  ))}
-                </Select>
+                <div className={!provider.isSelected ? styles.versionSelectDisabled : undefined}>
+                  <Select
+                    ref={(el: SelectDomRef | null) => {
+                      selectRefsMap.current.set(provider.name, el);
+                    }}
+                    data-cy={`provider-version-select-${provider.name}`}
+                    data-name={provider.name}
+                    className={styles.providerVersionSelect}
+                    accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.label })}
+                    disabled={!provider.isSelected}
+                    value={provider.selectedVersion}
+                    valueState={versionError ? 'Negative' : 'None'}
+                    valueStateMessage={versionError ? <span>{versionError}</span> : undefined}
+                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                      onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
+                    }
+                  >
+                    {versionOptions.map(({ version }) => (
+                      <Option key={version} value={version}>
+                        {version}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
               </FlexBox>
             );
           })}
@@ -164,6 +212,9 @@ export function CrossplaneProviderPicker({
       ) : (
         <Infobox fullWidth variant="normal" icon="search">
           <Text>{t('ComponentInstallDialog.noProvidersFound')}</Text>
+          <Button design="Transparent" onClick={handleClearSearch}>
+            {t('ComponentInstallDialog.clearSearch')}
+          </Button>
         </Infobox>
       )}
 
@@ -187,6 +238,7 @@ export function CrossplaneProviderPicker({
             </Button>
           ))}
           <Button
+            data-testid="pagination-next"
             design="Transparent"
             icon="navigation-right-arrow"
             disabled={currentPage === totalPages}

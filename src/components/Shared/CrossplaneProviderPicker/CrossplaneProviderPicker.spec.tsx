@@ -57,7 +57,7 @@ describe('CrossplaneProviderPicker', () => {
       />,
     );
 
-    const sortButton = container.querySelector('ui5-button');
+    const sortButton = container.querySelector('[data-testid="sort-providers"]');
     expect(sortButton).not.toBeNull();
     fireEvent(sortButton as Element, new CustomEvent('click', { bubbles: true }));
 
@@ -81,7 +81,7 @@ describe('CrossplaneProviderPicker', () => {
       />,
     );
 
-    const searchInput = container.querySelector('#provider-search') as HTMLInputElement & {
+    const searchInput = container.querySelector('[data-testid="provider-search"]') as HTMLInputElement & {
       value: string;
     };
     act(() => {
@@ -105,7 +105,7 @@ describe('CrossplaneProviderPicker', () => {
       />,
     );
 
-    const searchInput = container.querySelector('#provider-search') as HTMLInputElement & {
+    const searchInput = container.querySelector('[data-testid="provider-search"]') as HTMLInputElement & {
       value: string;
     };
     act(() => {
@@ -118,8 +118,8 @@ describe('CrossplaneProviderPicker', () => {
     expect(getByText('ComponentInstallDialog.noProvidersFound')).not.toBeNull();
   });
 
-  it('paginates the list, showing 5 providers per page', () => {
-    const names = Array.from({ length: 7 }, (_, i) => `provider-${String(i).padStart(2, '0')}`);
+  it('paginates the list, showing 10 providers per page', () => {
+    const names = Array.from({ length: 14 }, (_, i) => `provider-${String(i).padStart(2, '0')}`);
     const providers = buildProviders(names);
     const { container } = render(
       <CrossplaneProviderPicker
@@ -130,12 +130,11 @@ describe('CrossplaneProviderPicker', () => {
       />,
     );
 
-    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(5);
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(10);
 
-    const pageButtons = container.querySelectorAll('ui5-button');
-    const nextButton = pageButtons[pageButtons.length - 1];
-    fireEvent(nextButton, new CustomEvent('click', { bubbles: true }));
+    const nextButton = container.querySelector('[data-testid="pagination-next"]');
+    fireEvent(nextButton as Element, new CustomEvent('click', { bubbles: true }));
 
-    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(2);
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(4);
   });
 });
