@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
+import { EgressIpInfo } from '../lib/egressIp.ts';
 import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
 
 export interface McpActions {
@@ -17,6 +18,8 @@ export interface McpActions {
   navigateBack?: () => void;
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
+  // Static Egress IP (v2 only); undefined when the feature is not enabled on the control plane.
+  egressIp?: EgressIpInfo;
   mcpStatus?: {
     status?: string | null;
     phase?: string | null;

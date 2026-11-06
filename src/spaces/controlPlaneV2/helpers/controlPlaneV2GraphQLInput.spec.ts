@@ -171,4 +171,16 @@ describe('buildMcpV2GraphQLInput', () => {
       'meta.orchestrate.cloud.sap/landscape': '',
     });
   });
+
+  it('writes the static egress IP enable annotation when opted in', () => {
+    const result = buildMcpV2GraphQLInput({ ...baseInput, staticEgressIp: true });
+    expect(result.metadata?.annotations).toEqual({
+      'egress-ip.platform.open-control-plane.io/enabled': 'true',
+    });
+  });
+
+  it('omits the static egress IP annotation when not opted in', () => {
+    const result = buildMcpV2GraphQLInput({ ...baseInput, staticEgressIp: false });
+    expect(result.metadata).not.toHaveProperty('annotations');
+  });
 });
