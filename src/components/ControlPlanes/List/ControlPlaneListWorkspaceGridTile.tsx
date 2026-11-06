@@ -359,7 +359,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                 onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
-              {!shouldCollapsePanel && (
+              {!shouldCollapsePanel && !!managedControlPlanes?.length && (
                 <CreateControlPlaneButton
                   onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                   onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
