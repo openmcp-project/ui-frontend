@@ -57,7 +57,6 @@ export function ControlPlaneListToolbar({
           onClick={() => setMenuOpen((prev) => !prev)}
         />
         <ToolbarButton
-          design="Emphasized"
           icon="add"
           text={t('ControlPlaneListToolbar.buttonText')}
           onClick={() => setDialogIsOpen(true)}
