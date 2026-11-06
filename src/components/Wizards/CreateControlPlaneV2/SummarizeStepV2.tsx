@@ -1,4 +1,4 @@
-import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
+import { Grid, Icon } from '@ui5/webcomponents-react';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
@@ -111,13 +111,20 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   return (
     <div className={styles.wrapper}>
       <Grid defaultSpan="XL6 L6 M6 S6">
-        <div>
-          <List headerText={t('common.metadata')}>
-            <ListItemStandard text={t('common.name')} additionalText={rawInput.name} />
-            <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
-          </List>
-          <br />
-          <List headerText={t('common.members')}>
+        <div className={styles.sectionStack}>
+          <div className={styles.coloredList}>
+            <div className={styles.coloredListHeader}>{t('common.metadata')}</div>
+            <div className={styles.coloredListItem}>
+              <span className={styles.coloredListItemText}>{t('common.name')}</span>
+              <span className={styles.coloredListItemValue}>{rawInput.name}</span>
+            </div>
+            <div className={styles.coloredListItem}>
+              <span className={styles.coloredListItemText}>{t('common.namespace')}</span>
+              <span className={styles.coloredListItemValue}>{rawInput.namespace}</span>
+            </div>
+          </div>
+          <div className={styles.coloredList}>
+            <div className={styles.coloredListHeader}>{t('common.members')}</div>
             {rawInput.roleBindings
               .flatMap((rb) =>
                 rb.subjects.map((subject) => ({
@@ -126,37 +133,35 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                 })),
               )
               .map((subject) => (
-                <ListItemStandard
-                  key={`${subject.kind}:${subject.name}:${subject.role}`}
-                  text={subject.name}
-                  additionalText={`${subject.kind} · ${subject.role}`}
-                />
+                <div key={`${subject.kind}:${subject.name}:${subject.role}`} className={styles.coloredListItem}>
+                  <span className={styles.coloredListItemText}>{subject.name}</span>
+                  <span className={styles.coloredListItemValue}>{`${subject.kind} · ${subject.role}`}</span>
+                </div>
               ))}
-          </List>
+          </div>
           {rawInput.extraProviders.map((provider) => (
-            <div key={provider.name}>
-              <br />
-              <List headerText={provider.name}>
-                {provider.roleBindings
-                  .flatMap((rb) =>
-                    rb.subjects.map((subject) => ({
-                      ...subject,
-                      role: rb.roleRefs[0]?.name ?? '',
-                    })),
-                  )
-                  .map((subject) => (
-                    <ListItemStandard
-                      key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
-                      text={subject.name}
-                      additionalText={`${subject.kind} · ${subject.role}`}
-                    />
-                  ))}
-              </List>
+            <div key={provider.name} className={styles.coloredList}>
+              <div className={styles.coloredListHeader}>{provider.name}</div>
+              {provider.roleBindings
+                .flatMap((rb) =>
+                  rb.subjects.map((subject) => ({
+                    ...subject,
+                    role: rb.roleRefs[0]?.name ?? '',
+                  })),
+                )
+                .map((subject) => (
+                  <div
+                    key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
+                    className={styles.coloredListItem}
+                  >
+                    <span className={styles.coloredListItemText}>{subject.name}</span>
+                    <span className={styles.coloredListItemValue}>{`${subject.kind} · ${subject.role}`}</span>
+                  </div>
+                ))}
             </div>
           ))}
           {serviceEntries.length > 0 && (
             <>
-              <br />
               <div className={styles.coloredList}>
                 <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
                 {serviceEntries.map(({ key, label, entry, action }) => (
@@ -170,37 +175,34 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                 ))}
               </div>
               {(showProviders || removedProviders.length > 0) && (
-                <>
-                  <br />
-                  <div className={styles.coloredList}>
-                    <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
-                    {(services?.crossplane?.providers ?? []).map((provider) => {
-                      const wasInstalled = initialCrossplaneProviders?.some((p) => p.name === provider.name) ?? false;
-                      const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
-                      return (
-                        <div
-                          key={provider.name}
-                          className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
-                        >
-                          <Icon name={actionToIcon(action)} />
-                          <span className={styles.coloredListItemText}>{provider.name}</span>
-                          <span className={styles.coloredListItemVersion}>
-                            {provider.version || t('ServiceSelectionStep.versionPlaceholder')}
-                          </span>
-                        </div>
-                      );
-                    })}
-                    {removedProviders.map((p) => (
-                      <div key={`removed-${p.name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
-                        <Icon name="decline" />
-                        <span className={styles.coloredListItemText}>{p.name}</span>
+                <div className={styles.coloredList}>
+                  <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
+                  {(services?.crossplane?.providers ?? []).map((provider) => {
+                    const wasInstalled = initialCrossplaneProviders?.some((p) => p.name === provider.name) ?? false;
+                    const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
+                    return (
+                      <div
+                        key={provider.name}
+                        className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
+                      >
+                        <Icon name={actionToIcon(action)} />
+                        <span className={styles.coloredListItemText}>{provider.name}</span>
                         <span className={styles.coloredListItemVersion}>
-                          {p.version || t('ServiceSelectionStep.versionPlaceholder')}
+                          {provider.version || t('ServiceSelectionStep.versionPlaceholder')}
                         </span>
                       </div>
-                    ))}
-                  </div>
-                </>
+                    );
+                  })}
+                  {removedProviders.map((p) => (
+                    <div key={`removed-${p.name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
+                      <Icon name="decline" />
+                      <span className={styles.coloredListItemText}>{p.name}</span>
+                      <span className={styles.coloredListItemVersion}>
+                        {p.version || t('ServiceSelectionStep.versionPlaceholder')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
             </>
           )}
