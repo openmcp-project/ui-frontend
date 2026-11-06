@@ -85,7 +85,6 @@ describe('ShellBar', () => {
       branding,
       featureToggles: {
         markMcpV1asDeprecated: false,
-        enableMcpV2: false,
         enableHeadlamp,
         showLandscaperCard: false,
       },

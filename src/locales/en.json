@@ -107,11 +107,7 @@
     "createControlPlane": "Control Plane",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
-    "createNewControlPlane": "Create Control Plane (v2)",
-    "defaultBadge": "Default",
-    "previewV2Badge": "Preview: V2",
-    "deprecatedBadge": "Deprecated"
+    "createNewControlPlane": "Create Control Plane"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",

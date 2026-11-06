@@ -18,7 +18,7 @@ const frontendConfig = {
   feedbackUrl: null,
   githubBaseUrl: '',
   branding: defaultBranding,
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: true, enableHeadlamp: false, showLandscaperCard: false },
+  featureToggles: { markMcpV1asDeprecated: false, enableHeadlamp: false, showLandscaperCard: false },
 };
 
 const frontendConfigWithLandscaper = {
