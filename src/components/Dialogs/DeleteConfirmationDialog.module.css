@@ -1,0 +1,15 @@
+.forceDeleteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--sapGroup_ContentBorderColor);
+}
+
+.forceDeleteDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-inline-start: 1.75rem;
+}

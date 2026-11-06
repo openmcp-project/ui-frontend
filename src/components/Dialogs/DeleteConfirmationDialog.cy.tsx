@@ -127,6 +127,72 @@ describe('DeleteConfirmationDialog', () => {
     });
   });
 
+  describe('force delete', () => {
+    const mountForceDialog = (props = {}) => {
+      cy.mount(
+        <DeleteConfirmationDialog
+          isOpen={true}
+          setIsOpen={cy.stub().as('setIsOpen')}
+          resourceName="test-resource"
+          forceDelete={{ onForceDeletionConfirmed: cy.stub().as('onForceDeletionConfirmed') }}
+          onDeletionConfirmed={cy.stub().as('onDeletionConfirmed')}
+          {...props}
+        />,
+      );
+    };
+
+    it('does not show the force-delete option when no forceDelete config is provided', () => {
+      mountDialog();
+
+      cy.get('[data-testid="force-delete-toggle"]').should('not.exist');
+    });
+
+    it('reveals the warning and acknowledgement only after enabling force delete', () => {
+      mountForceDialog();
+
+      cy.get('[data-testid="force-delete-warning"]').should('not.exist');
+      cy.get('[data-testid="force-delete-acknowledge"]').should('not.exist');
+
+      cy.get('[data-testid="force-delete-toggle"]').find('input').check({ force: true });
+
+      cy.get('[data-testid="force-delete-warning"]').should('be.visible');
+      cy.get('[data-testid="force-delete-acknowledge"]').should('be.visible');
+      cy.get('ui5-button').contains('Force Delete').should('be.visible');
+    });
+
+    it('keeps the action disabled until the name is typed and the risk is acknowledged', () => {
+      mountForceDialog();
+
+      cy.get('[data-testid="force-delete-toggle"]').find('input').check({ force: true });
+
+      // name typed but not acknowledged
+      cy.get('ui5-input[id*="delete-confirm-input"]')
+        .find(' input[id*="inner"]')
+        .type('test-resource', { force: true });
+      cy.get('ui5-button').contains('Force Delete').should('have.attr', 'disabled');
+
+      // acknowledged -> enabled
+      cy.get('[data-testid="force-delete-acknowledge"]').find('input').check({ force: true });
+      cy.get('ui5-button').contains('Force Delete').should('not.have.attr', 'disabled');
+    });
+
+    it('calls onForceDeletionConfirmed (not the regular deletion) when force delete is confirmed', () => {
+      mountForceDialog();
+
+      cy.get('[data-testid="force-delete-toggle"]').find('input').check({ force: true });
+      cy.get('ui5-input[id*="delete-confirm-input"]')
+        .find(' input[id*="inner"]')
+        .type('test-resource', { force: true });
+      cy.get('[data-testid="force-delete-acknowledge"]').find('input').check({ force: true });
+
+      cy.get('ui5-button').contains('Force Delete').click();
+
+      cy.get('@onForceDeletionConfirmed').should('have.been.calledOnce');
+      cy.get('@onDeletionConfirmed').should('not.have.been.called');
+      cy.get('@setIsOpen').should('have.been.calledWith', false);
+    });
+  });
+
   describe('kubectl learn button dialogs', () => {
     it('opens Delete Workspace kubectl dialog only after clicking Learn button', () => {
       cy.mount(

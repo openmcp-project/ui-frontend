@@ -35,6 +35,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { extractSupportInfo, resolveSupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { useForceDeleteControlPlaneV2GraphQL as _useForceDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useForceDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
@@ -63,6 +64,7 @@ interface Props {
   parentSupportInfo?: SupportInfoCandidate;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
+  useForceDeleteManagedControlPlaneV2GraphQL?: typeof _useForceDeleteManagedControlPlaneV2GraphQL;
   /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
    * `undefined` while that fetch is still loading. */
   v2Components?: McpV2Components;
@@ -91,6 +93,7 @@ export const ControlPlaneCard = ({
   parentSupportInfo,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
+  useForceDeleteManagedControlPlaneV2GraphQL = _useForceDeleteManagedControlPlaneV2GraphQL,
   v2Components,
   isLoadingV2Components = false,
 }: Props) => {
@@ -118,6 +121,11 @@ export const ControlPlaneCard = ({
   const { deleteManagedControlPlaneV2 } = useDeleteManagedControlPlaneV2GraphQL(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
+  );
+  const { forceDeleteManagedControlPlaneV2 } = useForceDeleteManagedControlPlaneV2GraphQL(
+    controlPlane.metadata.namespace,
+    controlPlane.metadata.name,
+    controlPlane.metadata.annotations,
   );
   const telemetry = useTelemetry();
 
@@ -457,6 +465,12 @@ export const ControlPlaneCard = ({
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
+          forceDelete={{
+            onForceDeletionConfirmed: async () => {
+              telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
+              await forceDeleteManagedControlPlaneV2();
+            },
+          }}
           onDeletionConfirmed={async () => {
             telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-card' });
             await deleteManagedControlPlaneV2();

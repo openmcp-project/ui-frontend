@@ -24,3 +24,10 @@ export type SupportLandscape = (typeof SUPPORT_LANDSCAPE_VALUES)[number];
 export const EGRESS_IP_ENABLED_ANNOTATION = 'egress-ip.platform.open-control-plane.io/enabled';
 export const EGRESS_IP_ANNOTATION = 'egress-ip.platform.open-control-plane.io/egress-ip';
 export const EGRESS_IP_READY_CONDITION = 'EgressIPReady';
+
+// Exceptional deletion: when set on a ControlPlane, the operator strips finalizers from blocking
+// service instances so a stuck deletion can complete. This can leak external resources (e.g. DNS
+// records) managed by those instances. Accepts "true" (immediate) or a go-parsable duration.
+// See https://github.com/openmcp-project/openmcp-operator/pull/387.
+export const FORCE_DELETE_ANNOTATION = 'open-control-plane.io/force-delete';
+export const FORCE_DELETE_CONDITION = 'ForceDeletion';
