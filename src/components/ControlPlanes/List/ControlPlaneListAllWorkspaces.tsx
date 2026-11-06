@@ -3,9 +3,11 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoSearchResults.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SupportInfo } from '../../../lib/supportInfo.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
+import { useProjectMembers as _useProjectMembers } from '../../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
@@ -23,6 +25,7 @@ interface Props {
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
   useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
+  useProjectMembers?: typeof _useProjectMembers;
 }
 
 export default function ControlPlaneListAllWorkspaces({
@@ -35,9 +38,17 @@ export default function ControlPlaneListAllWorkspaces({
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
   useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
+  useProjectMembers = _useProjectMembers,
 }: Props) {
   const { workspaceCreationGuide } = useLink();
   const { t } = useTranslation();
+
+  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts } =
+    useProjectMembers(projectName);
+  const projectSupportInfo = useMemo<SupportInfo>(
+    () => ({ supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts }),
+    [supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts],
+  );
 
   const query = search.trim().toLowerCase();
 
@@ -117,6 +128,7 @@ export default function ControlPlaneListAllWorkspaces({
         <ControlPlaneListWorkspaceGridTile
           key={`${projectName}-${workspace.metadata.name}`}
           projectName={projectName}
+          projectSupportInfo={projectSupportInfo}
           workspace={workspace}
           search={search}
           isExpanded={expandedWorkspaces.has(workspace.metadata.name)}

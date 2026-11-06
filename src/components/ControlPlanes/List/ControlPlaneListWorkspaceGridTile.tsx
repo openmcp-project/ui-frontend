@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
-import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { extractSupportInfo, resolveSupportInfo, SupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MemberKind, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
@@ -32,6 +32,7 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
+import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
@@ -40,6 +41,7 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   projectName: string;
+  projectSupportInfo?: SupportInfo;
   workspace: Workspace;
   search?: string;
   isExpanded?: boolean;
@@ -54,6 +56,7 @@ interface Props {
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
+  projectSupportInfo,
   workspace,
   search = '',
   isExpanded,
@@ -67,7 +70,6 @@ export function ControlPlaneListWorkspaceGridTile({
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
-  const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
@@ -222,9 +224,22 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
-  const supportInfo = useMemo(
-    () => extractSupportInfo(workspace.metadata.annotations),
-    [workspace.metadata.annotations],
+  const resolvedSupportInfo = useMemo(
+    () =>
+      resolveSupportInfo(
+        extractSupportInfo(workspace.metadata.annotations),
+        projectSupportInfo ? [{ kind: 'Project', name: projectName, info: projectSupportInfo }] : [],
+      ),
+    [workspace.metadata.annotations, projectSupportInfo, projectName],
+  );
+
+  const parentSupportInfoForMcps = useMemo<SupportInfoCandidate>(
+    () => ({
+      kind: resolvedSupportInfo.inheritedFrom?.kind ?? 'Workspace',
+      name: resolvedSupportInfo.inheritedFrom?.name ?? workspaceName,
+      info: resolvedSupportInfo.info,
+    }),
+    [resolvedSupportInfo, workspaceName],
   );
 
   if (hidden) return null;
@@ -305,7 +320,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <WorkspaceSupportInfoTag
               workspaceName={workspaceName}
               namespace={projectNamespace}
-              supportInfo={supportInfo}
+              resolved={resolvedSupportInfo}
             />
             <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
@@ -325,11 +340,17 @@ export function ControlPlaneListWorkspaceGridTile({
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
-                setInitialTemplateName={setInitialTemplateName}
-                setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 disabled={isForbidden}
+                showCreateActions={shouldCollapsePanel}
+                onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
+              {!shouldCollapsePanel && (
+                <CreateControlPlaneButton
+                  onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
+                  onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
+              )}
             </FlexBox>
           </div>
 
@@ -391,6 +412,7 @@ export function ControlPlaneListWorkspaceGridTile({
                           controlPlane={mcp}
                           projectName={projectName}
                           workspace={workspace}
+                          parentSupportInfo={parentSupportInfoForMcps}
                           // A CP with nothing installed gets no `componentsByName` entry, which by
                           // key presence alone looks the same as "not fetched yet". Once the fetch
                           // finishes, default a missing entry to `{}` (ControlPlaneCard reads
@@ -446,7 +468,7 @@ export function ControlPlaneListWorkspaceGridTile({
           setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
+          initialTemplateName={undefined}
         />
       ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
@@ -455,7 +477,7 @@ export function ControlPlaneListWorkspaceGridTile({
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
+          initialTemplateName={undefined}
         />
       ) : null}
     </div>

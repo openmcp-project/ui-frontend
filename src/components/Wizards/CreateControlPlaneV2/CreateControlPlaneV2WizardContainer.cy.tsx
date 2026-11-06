@@ -228,6 +228,73 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('[data-testid="service-landscaper-checkbox"]').should('exist');
   });
 
+  // ── Services YAML preview ────────────────────────────────────────────────
+
+  describe('services YAML preview', () => {
+    const goToServicesStep = () => {
+      cy.get('#name').typeIntoUi5Input('my-new-mcp');
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    };
+
+    it('shows the first service (Crossplane) by default', () => {
+      mountWizard();
+      goToServicesStep();
+
+      cy.get('[data-testid="services-yaml-preview"]').should('exist');
+      cy.get('[data-testid="services-yaml-tab-crossplane"]').invoke('prop', 'selected').should('equal', true);
+      cy.get('[data-testid="services-yaml-content-crossplane"]').should('exist');
+    });
+
+    it('follows the service the user last changed and renders its YAML', () => {
+      mountWizard();
+      goToServicesStep();
+
+      cy.get('[data-testid="service-flux-checkbox"]').toggleUi5Checkbox();
+
+      cy.get('[data-testid="services-yaml-tab-flux"]').invoke('prop', 'selected').should('equal', true);
+      cy.get('[data-testid="services-yaml-content-flux"]').should(
+        'contain.text',
+        'flux.services.open-control-plane.io',
+      );
+      cy.get('[data-testid="service-flux-card"]')
+        .invoke('attr', 'class')
+        .should('match', /rowActive/);
+    });
+
+    it('switches the preview via the YAML button on a service card', () => {
+      mountWizard();
+      goToServicesStep();
+
+      cy.get('[data-testid="service-ocm-yaml-button"]').click();
+
+      cy.get('[data-testid="services-yaml-tab-ocm"]').invoke('prop', 'selected').should('equal', true);
+      cy.get('[data-testid="services-yaml-content-ocm"]').should('exist');
+    });
+
+    it('switches the preview via the tabs', () => {
+      mountWizard();
+      goToServicesStep();
+
+      cy.get('[data-testid="services-yaml-tabs"]').then(($el) => {
+        const kroTab = $el[0].querySelector('[data-service-key="kro"]');
+        $el[0].dispatchEvent(new CustomEvent('tab-select', { detail: { tab: kroTab, tabIndex: 0 } }));
+      });
+
+      cy.get('[data-testid="services-yaml-content-kro"]').should('exist');
+      cy.get('[data-testid="service-kro-card"]')
+        .invoke('attr', 'class')
+        .should('match', /rowActive/);
+    });
+
+    it('opens on the requested service when initialService is set', () => {
+      mountWizard({ initialService: 'externalSecretsOperator' });
+      goToServicesStep();
+
+      cy.get('[data-testid="services-yaml-content-externalSecretsOperator"]').should('exist');
+    });
+  });
+
   // ── Edit mode ─────────────────────────────────────────────────────────────
 
   const existingMcp: ManagedControlPlaneV2 = {
