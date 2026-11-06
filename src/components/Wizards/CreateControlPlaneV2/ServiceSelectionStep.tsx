@@ -1,5 +1,5 @@
 import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CrossplaneProviderPicker,
@@ -28,6 +28,8 @@ interface ServiceSelectionStepProps {
   resourceName: string;
   resourceNamespace: string;
   useManagedServicesQuery?: typeof _useManagedServicesQuery;
+  /** Rendered as the last item of the service list (e.g. control-plane-level options). */
+  footer?: ReactNode;
 }
 
 export function ServiceSelectionStep({
@@ -39,6 +41,7 @@ export function ServiceSelectionStep({
   resourceName,
   resourceNamespace,
   useManagedServicesQuery = _useManagedServicesQuery,
+  footer,
 }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
@@ -227,6 +230,7 @@ export function ServiceSelectionStep({
               </div>
             );
           })}
+          {footer && <div className={styles.row}>{footer}</div>}
         </div>
       </div>
       <div className={styles.preview}>
