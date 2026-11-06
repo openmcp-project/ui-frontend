@@ -11,11 +11,15 @@ type Feature<C extends string, A extends string, P extends Record<string, string
 
 export type TelemetryFeature =
   // Kubeconfig
-  | Feature<'kubeconfig', 'copied', { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' }>
+  | Feature<
+      'kubeconfig',
+      'copied',
+      { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' | 'controlplane-info-popover' }
+    >
   | Feature<
       'kubeconfig',
       'downloaded',
-      { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' }
+      { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' | 'controlplane-info-popover' }
     >
   // Control Plane connection
   | Feature<'controlplane', 'connected', { idp: 'system' | 'custom' }>

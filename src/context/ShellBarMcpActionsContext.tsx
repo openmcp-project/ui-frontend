@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
 
 export interface McpActions {
   kubeconfig?: string;
@@ -8,9 +9,19 @@ export interface McpActions {
   roleBindings?: RoleBinding[];
   project?: string;
   workspace?: string;
+  // k8s namespace of the control plane resource (distinct from `workspace`,
+  // which holds the openmcp Workspace name) — used to load its YAML.
+  namespace?: string;
+  resourceType?: 'controlplanes' | 'managedcontrolplanes';
   onEditMcp?: () => void;
-  onOpenYaml?: () => void;
   navigateBack?: () => void;
+  mcpCreationTimestamp?: string;
+  mcpCreatedBy?: string;
+  mcpStatus?: {
+    status?: string | null;
+    phase?: string | null;
+    conditions?: ControlPlaneCondition[] | null;
+  } | null;
 }
 
 export interface ShellBarMcpActionsContextType extends McpActions {
@@ -27,7 +38,6 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setActions({
       ...next,
       onEditMcp: next.onEditMcp ? () => next.onEditMcp!() : undefined,
-      onOpenYaml: next.onOpenYaml ? () => next.onOpenYaml!() : undefined,
       navigateBack: next.navigateBack ? () => next.navigateBack!() : undefined,
     });
   }, []);

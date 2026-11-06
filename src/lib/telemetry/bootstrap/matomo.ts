@@ -3,6 +3,8 @@
 
 interface Matomo {
   push(events: ['trackEvent', string, string, string?, number?]): void; // ['trackEvent', category, action, name, value]
+  push(events: ['setCustomUrl', string]): void; // ['setCustomUrl', url]
+  push(events: ['trackPageView']): void;
   push(events: ['setUserId', string]): void; // ['setUserId', userId]
   push(events: ['resetUserId']): void; // ['resetUserId']
 }

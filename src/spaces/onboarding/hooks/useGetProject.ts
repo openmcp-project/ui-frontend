@@ -8,7 +8,7 @@ import { Member } from '../../../lib/api/types/shared/members';
 import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
 
-const GetProjectQuery = graphql(`
+export const GetProjectQuery = graphql(`
   query GetProject($name: String!) {
     core_openmcp_cloud {
       v1alpha1 {

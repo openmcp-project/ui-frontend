@@ -283,6 +283,49 @@ describe('useMcpsQuery', () => {
     expect(result.current.data.map((mcp) => mcp.metadata.name)).toEqual(['mcp-v1', 'mcp-v2']);
   });
 
+  it('keeps both v1 and v2 items when they share the same name and namespace', () => {
+    useFeatureToggleMock.mockReturnValue({
+      enableMcpV2: true,
+      markMcpV1asDeprecated: false,
+      showLandscaperCard: false,
+    });
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: {
+          v1alpha1: {
+            ManagedControlPlanes: {
+              items: [
+                {
+                  metadata: { name: 'my-cp', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
+              ],
+            },
+          },
+        },
+        core_open_control_plane_io: {
+          v2alpha1: {
+            ControlPlanes: {
+              items: [
+                {
+                  metadata: { name: 'my-cp', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
+              ],
+            },
+          },
+        },
+      },
+    } as ReturnType<typeof useQuery>);
+
+    const { result } = renderHook(() => useMcpsQuery('ns'));
+
+    expect(result.current.data).toHaveLength(2);
+    expect(result.current.data.map((mcp) => mcp.version)).toEqual(['v1', 'v2']);
+    expect(result.current.data.map((mcp) => mcp.clientId)).toEqual(['v1/ns/my-cp', 'v2/ns/my-cp']);
+  });
+
   it('filters out and reports malformed items to telemetry', () => {
     useQueryMock.mockReturnValue({
       ...baseQueryResult,

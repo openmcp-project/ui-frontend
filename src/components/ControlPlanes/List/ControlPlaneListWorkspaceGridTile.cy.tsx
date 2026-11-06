@@ -5,7 +5,7 @@ import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { APIError } from '../../../lib/api/error.ts';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
-import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../../context/FrontendConfigContext.tsx';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -28,6 +28,7 @@ const workspace: Workspace = {
 
 const fakeManagedControlPlanes: ControlPlaneListItem[] = [
   {
+    clientId: 'v1/project-webapp-playground--ws-workspaceName/mcp-a',
     version: 'v1',
     metadata: {
       name: 'mcp-a',
@@ -38,6 +39,7 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
   },
   {
+    clientId: 'v1/project-test--ws-workspaceName/test-cp-b',
     version: 'v1',
     metadata: {
       annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
@@ -48,6 +50,7 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
   },
   {
+    clientId: 'v1/project-test--ws-workspaceName/flux',
     version: 'v1',
     metadata: {
       annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
@@ -81,8 +84,10 @@ const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
 
 const frontendConfig = {
   documentationBaseUrl: '',
+  feedbackUrl: null,
   githubBaseUrl: '',
   githubApps: [],
+  branding: defaultBranding,
   featureToggles: {
     markMcpV1asDeprecated: false,
     enableMcpV2: false,
@@ -219,6 +224,37 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
+  });
+
+  it('shows the Create Control Plane button in the header when workspace is populated', () => {
+    mountTile({ isExpanded: true });
+    cy.get('[data-testid="create-control-plane-button"]').should('exist');
+  });
+
+  it('does not show the Create Control Plane button when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
+  });
+
+  it('offers the create action in the overflow menu when the workspace is collapsed', () => {
+    mountTile({ isExpanded: false });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('exist');
+  });
+
+  it('does not offer the create action in the overflow menu when the workspace is expanded', () => {
+    mountTile({ isExpanded: true });
+    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
+    cy.contains('Create Managed Control Plane').should('not.exist');
+  });
+
+  it('does not show the Create Control Plane button when the user is forbidden', () => {
+    const ws: Workspace = {
+      metadata: { name: 'workspaceName', namespace: 'project-webapp-playground', annotations: {} },
+      spec: { members: [] },
+    };
+    mountForbiddenTile(ws);
+    cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
   });
 
   describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {

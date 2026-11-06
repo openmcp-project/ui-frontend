@@ -1,8 +1,8 @@
 import styles from './YamlIcon.module.css';
-export const YamlIcon = () => {
+export const YamlIcon = ({ className }: { className?: string }) => {
   return (
     <svg
-      className={styles.svg}
+      className={className ? `${styles.svg} ${className}` : styles.svg}
       width="32"
       height="16"
       viewBox="0 0 32 16"

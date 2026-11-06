@@ -4,7 +4,7 @@ import { graphql } from '../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input } from '../types/__generated__/graphql/graphql';
 import type { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane';
 
-const CreateManagedControlPlaneMutation = graphql(`
+export const CreateManagedControlPlaneMutation = graphql(`
   mutation CreateManagedControlPlane($namespace: String, $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!) {
     core_openmcp_cloud {
       v1alpha1 {

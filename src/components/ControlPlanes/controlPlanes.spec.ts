@@ -14,11 +14,12 @@ const createCondition = (overrides: Partial<Condition>): Condition => ({
   ...overrides,
 });
 
-const createControlPlane = (conditions: Condition[]): ControlPlaneListItem => ({
+const createControlPlane = (conditions: Condition[], name = '', namespace = ''): ControlPlaneListItem => ({
+  clientId: `v1/${namespace}/${name}`,
   version: 'v1',
   metadata: {
-    name: '',
-    namespace: '',
+    name,
+    namespace,
     creationTimestamp: '2024-01-01T00:00:00Z',
     annotations: {},
   },
@@ -83,6 +84,7 @@ describe('canConnectToMCP', () => {
 
   it('returns false when status field is missing', () => {
     const controlPlane: ControlPlaneListItem = {
+      clientId: 'v1//',
       version: 'v1',
       metadata: {
         name: '',

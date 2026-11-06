@@ -16,7 +16,7 @@ const fakeUseProjectsQuery: typeof _useProjectsQuery = () => ({
   refetch: () => Promise.resolve([] as string[]),
 });
 
-const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) => ({
+const fakeUseProjectMembers: typeof _useProjectMembers = (projectName) => ({
   members: [],
   displayName:
     projectName === 'alpha-project'

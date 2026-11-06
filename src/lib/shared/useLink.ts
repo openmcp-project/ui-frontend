@@ -14,7 +14,8 @@ export function useLink() {
     serviceAccoutsGuide: createLink(
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
     ),
-    identityProviderGuide: 'https://open-control-plane.io/operators/quickstart#configure-an-identity-provider',
+    identityProviderGuide: createLink('/operators/quickstart#configure-an-identity-provider'),
+    projectsGuide: createLink('/users/concepts/projects-and-workspaces/'),
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
     contributeLink: githubBaseUrl,
   };

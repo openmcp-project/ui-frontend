@@ -16,11 +16,13 @@ import Loading from '../../../components/Shared/Loading.tsx';
 import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError, isUnauthorizedError } from '../../../lib/api/error.ts';
 import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
@@ -35,6 +37,14 @@ export default function ProjectPage() {
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+
+  useDocumentTitle(projectName);
+
+  useEffect(() => {
+    setMcpActions({ navigateBack: () => navigate(Routes.Projects) });
+    return () => clearMcpActions();
+  }, [navigate, setMcpActions, clearMcpActions]);
 
   const [expandedWorkspaces, setExpandedWorkspacesState] = useState<Set<string>>(() =>
     getExpandedWorkspaces(projectName ?? ''),

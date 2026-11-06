@@ -34,6 +34,10 @@ vi.mock('../components/Projects/ProjectListToolbar.tsx', () => ({
   ProjectListToolbar: () => null,
 }));
 
+vi.mock('../lib/shared/useLink.ts', () => ({
+  useLink: () => ({ projectsGuide: 'https://example.test/projects-guide' }),
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
 }));
