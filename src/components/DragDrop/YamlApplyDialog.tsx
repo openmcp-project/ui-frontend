@@ -35,7 +35,6 @@ import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
 import { useTelemetry as _useTelemetry } from '../../lib/telemetry/telemetry';
 import type { YamlApplyErrorType, YamlUploadMethod } from '../../lib/telemetry/features';
-import { sanitizeKind } from '../../lib/telemetry/yamlApplyHelpers';
 import {
   type ParsedResource,
   type ValidationError,
@@ -398,7 +397,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       telemetry.track({
         category: 'yaml-apply',
         action: 'resource-applied',
-        kind: sanitizeKind(resource.kind),
+        kind: resource.kind,
       });
       advanceAfterApply(index);
     } catch (err) {
@@ -410,7 +409,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       telemetry.track({
         category: 'yaml-apply',
         action: 'resource-apply-failed',
-        kind: sanitizeKind(resource.kind),
+        kind: resource.kind,
       });
     }
   }, [
@@ -511,7 +510,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           telemetry.track({
             category: 'yaml-apply',
             action: 'resource-applied',
-            kind: sanitizeKind(resource.kind),
+            kind: resource.kind,
           });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
@@ -520,7 +519,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           telemetry.track({
             category: 'yaml-apply',
             action: 'resource-apply-failed',
-            kind: sanitizeKind(resource.kind),
+            kind: resource.kind,
           });
         }
       }
@@ -617,7 +616,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       });
       setCurrentIndex((prev) => nextIndexAfterRemove(index, prev, resources.length));
       if (removedKind) {
-        telemetry.track({ category: 'yaml-apply', action: 'resource-removed', kind: sanitizeKind(removedKind) });
+        telemetry.track({ category: 'yaml-apply', action: 'resource-removed', kind: removedKind });
       }
     },
     [itemState, isApplyingAll, resources, ids, telemetry],
