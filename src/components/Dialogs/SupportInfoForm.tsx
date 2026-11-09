@@ -1,10 +1,9 @@
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import { Label, MessageStrip, Option, Select, SelectDomRef, Tag, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import { Label, MessageStrip, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
-import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
 import { useInheritedSupportInfo } from '../../spaces/onboarding/hooks/useInheritedSupportInfo.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
@@ -26,33 +25,6 @@ interface SupportInfoFormProps {
   useGetWorkspace?: typeof _useGetWorkspace;
 }
 
-function InheritedChips({ value }: { value?: string }) {
-  const items = (value ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (items.length === 0) return null;
-  return (
-    <div className={styles.inheritedChips}>
-      {items.map((item) => (
-        <Tag key={item} design="Neutral" hideStateIcon>
-          {item}
-        </Tag>
-      ))}
-    </div>
-  );
-}
-
-function InheritedField({ label, value }: { label: string; value?: string }) {
-  if (!value) return null;
-  return (
-    <div className={styles.inheritedRow}>
-      <span className={styles.inheritedLabel}>{label}</span>
-      <InheritedChips value={value} />
-    </div>
-  );
-}
-
 function InheritedSupportInfoHint({
   projectName,
   workspaceName,
@@ -71,7 +43,7 @@ function InheritedSupportInfoHint({
     {},
     { projectName, workspaceName, useProjectMembers, useGetWorkspace },
   );
-  const { inheritedFrom, info } = parentDefaults;
+  const { inheritedFrom } = parentDefaults;
   if (!inheritedFrom) return null;
 
   if (!ownIsEmpty) {
@@ -100,29 +72,11 @@ function InheritedSupportInfoHint({
       design="Information"
       hideCloseButton
     >
-      <div className={styles.inheritedBlock}>
-        <span className={styles.inheritedSource}>
-          <Trans
-            i18nKey="SupportInfo.inheritedFrom"
-            values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
-            components={{ b: <b /> }}
-          />
-        </span>
-        <div className={styles.inheritedFields}>
-          {info.supportLandscape && (
-            <div className={styles.inheritedRow}>
-              <span className={styles.inheritedLabel}>{t('SupportInfo.purposeLabel')}</span>
-              <Tag design="Set2" colorScheme={purposeColorScheme(info.supportLandscape)} hideStateIcon>
-                {purposeLabel(t, info.supportLandscape)}
-              </Tag>
-            </div>
-          )}
-          <InheritedField label={t('SupportInfo.serviceIds')} value={info.supportServiceIds} />
-          <InheritedField label={t('SupportInfo.securityContacts')} value={info.supportSecurityContacts} />
-          <InheritedField label={t('SupportInfo.opsContacts')} value={info.supportOpsContacts} />
-        </div>
-        <span className={styles.inheritedHint}>{t('SupportInfo.inheritedFormHint')}</span>
-      </div>
+      <Trans
+        i18nKey="SupportInfo.inheritedFrom"
+        values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
+        components={{ b: <b /> }}
+      />
     </MessageStrip>
   );
 }
