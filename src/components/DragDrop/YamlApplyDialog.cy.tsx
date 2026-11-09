@@ -181,7 +181,7 @@ describe('YamlApplyDialog — telemetry', () => {
     cy.get('@track').should('not.have.been.calledWithMatch', { action: 'dialog-opened' });
   });
 
-  it('tracks resource-removed with a sanitized kind (unknown kinds become "custom")', () => {
+  it('tracks resource-removed with the actual kind', () => {
     mountWithTelemetry({
       files: [yamlFile('a.yaml', 'AcmeInternalThing', 'a'), yamlFile('b.yaml', 'ConfigMap', 'cm-b')],
     });
@@ -192,7 +192,7 @@ describe('YamlApplyDialog — telemetry', () => {
     cy.get('@track').should('have.been.calledWithMatch', {
       category: 'yaml-apply',
       action: 'resource-removed',
-      kind: 'custom',
+      kind: 'AcmeInternalThing',
     });
   });
 
