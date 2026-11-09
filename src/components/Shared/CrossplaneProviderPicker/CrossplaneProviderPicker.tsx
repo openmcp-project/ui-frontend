@@ -1,20 +1,22 @@
+import '@ui5/webcomponents-fiori/dist/illustrations/NoSearchResults.js';
 import {
   Button,
   CheckBox,
   FlexBox,
   Icon,
+  IllustratedMessage,
   Input,
   InputDomRef,
   Option,
   Select,
   SelectDomRef,
   Text,
+  ToggleButton,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
-import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CrossplaneProviderPicker.module.css';
 
 export interface ProviderRowState {
@@ -52,6 +54,7 @@ export function CrossplaneProviderPicker({
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
   const [requestedPage, setRequestedPage] = useState(1);
 
   const selectRefsMap = useRef<Map<string, SelectDomRef | null>>(new Map());
@@ -68,9 +71,12 @@ export function CrossplaneProviderPicker({
     // users who paste kubectl output can still find what they're looking for.
     return displayProviders.filter(
       (provider) =>
-        provider.label.toLowerCase().includes(lowerSearch) || provider.name.toLowerCase().includes(lowerSearch),
+        (!showSelectedOnly || provider.isSelected) &&
+        (!lowerSearch ||
+          provider.label.toLowerCase().includes(lowerSearch) ||
+          provider.name.toLowerCase().includes(lowerSearch)),
     );
-  }, [displayProviders, searchTerm]);
+  }, [displayProviders, searchTerm, showSelectedOnly]);
 
   const sortedProviders = useMemo(
     () =>
@@ -116,22 +122,38 @@ export function CrossplaneProviderPicker({
     setRequestedPage(1);
   };
 
+  const toggleShowSelectedOnly = () => {
+    setShowSelectedOnly((prev) => !prev);
+    setRequestedPage(1);
+  };
+
   return (
     <div>
       <FlexBox alignItems="Center" justifyContent="SpaceBetween" className={styles.providerHeader}>
-        <Button
-          data-testid="sort-providers"
-          design="Transparent"
-          endIcon={sortDirection === 'asc' ? 'sort-ascending' : 'sort-descending'}
-          aria-label={
-            sortDirection === 'asc'
-              ? t('ComponentInstallDialog.sortAscending')
-              : t('ComponentInstallDialog.sortDescending')
-          }
-          onClick={toggleSortDirection}
-        >
-          {t('ComponentInstallDialog.providerNameHeader')}
-        </Button>
+        <FlexBox alignItems="Center">
+          <Button
+            data-testid="sort-providers"
+            design="Transparent"
+            endIcon={sortDirection === 'asc' ? 'sort-ascending' : 'sort-descending'}
+            aria-label={
+              sortDirection === 'asc'
+                ? t('ComponentInstallDialog.sortAscending')
+                : t('ComponentInstallDialog.sortDescending')
+            }
+            onClick={toggleSortDirection}
+          >
+            {t('ComponentInstallDialog.providerNameHeader')}
+          </Button>
+          <ToggleButton
+            data-testid="filter-selected-providers"
+            design="Transparent"
+            icon="multiselect"
+            pressed={showSelectedOnly}
+            onClick={toggleShowSelectedOnly}
+          >
+            {t('ComponentInstallDialog.filterSelected')}
+          </ToggleButton>
+        </FlexBox>
         <Input
           placeholder={t('ComponentInstallDialog.searchProviders')}
           data-testid="provider-search"
@@ -210,12 +232,15 @@ export function CrossplaneProviderPicker({
           })}
         </div>
       ) : (
-        <Infobox fullWidth variant="normal" icon="search">
-          <Text>{t('ComponentInstallDialog.noProvidersFound')}</Text>
+        <IllustratedMessage
+          design="Small"
+          name="NoSearchResults"
+          titleText={t('ComponentInstallDialog.noProvidersFound')}
+        >
           <Button design="Transparent" onClick={handleClearSearch}>
             {t('ComponentInstallDialog.clearSearch')}
           </Button>
-        </Infobox>
+        </IllustratedMessage>
       )}
 
       {totalPages > 1 && (

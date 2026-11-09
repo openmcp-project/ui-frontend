@@ -209,6 +209,7 @@
     "providersDisabledHint": "Select a Crossplane version above to enable provider selection.",
     "providersSelectedCount_one": "{{count}} provider selected",
     "providersSelectedCount_other": "{{count}} providers selected",
+    "filterSelected": "Selected",
     "install": "Install Crossplane",
     "successMessage": "{{component}} has been successfully installed.",
     "errorMessage": "Failed to install {{component}}. Check your connection and try again, or contact your administrator.",

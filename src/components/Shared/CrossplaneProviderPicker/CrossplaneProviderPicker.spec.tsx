@@ -96,7 +96,7 @@ describe('CrossplaneProviderPicker', () => {
   it('shows an empty state when the search matches nothing', () => {
     const names = ['provider-kubernetes', 'provider-btp'];
     const providers = buildProviders(names);
-    const { container, getByText } = render(
+    const { container } = render(
       <CrossplaneProviderPicker
         providers={providers}
         catalog={buildCatalog(names)}
@@ -114,11 +114,10 @@ describe('CrossplaneProviderPicker', () => {
     });
 
     expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(0);
-    // eslint-disable-next-line jest-dom/prefer-in-document -- @testing-library/jest-dom is not installed in this project
-    expect(getByText('ComponentInstallDialog.noProvidersFound')).not.toBeNull();
+    expect(container.querySelector('[title-text="ComponentInstallDialog.noProvidersFound"]')).not.toBeNull();
   });
 
-  it('paginates the list, showing 10 providers per page', () => {
+  it('paginates the list, showing 8 providers per page', () => {
     const names = Array.from({ length: 14 }, (_, i) => `provider-${String(i).padStart(2, '0')}`);
     const providers = buildProviders(names);
     const { container } = render(
@@ -130,11 +129,43 @@ describe('CrossplaneProviderPicker', () => {
       />,
     );
 
-    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(10);
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(8);
 
     const nextButton = container.querySelector('[data-testid="pagination-next"]');
     fireEvent(nextButton as Element, new CustomEvent('click', { bubbles: true }));
 
-    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(4);
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(6);
+  });
+
+  it('shows only selected providers when the selected-only filter is toggled', () => {
+    const names = ['provider-btp', 'provider-helm', 'provider-vault'];
+    const providers = [
+      { name: 'provider-btp', isSelected: true, selectedVersion: 'v1.0.0' },
+      { name: 'provider-helm', isSelected: false, selectedVersion: '' },
+      { name: 'provider-vault', isSelected: true, selectedVersion: 'v1.0.0' },
+    ];
+    const { container } = render(
+      <CrossplaneProviderPicker
+        providers={providers}
+        catalog={buildCatalog(names)}
+        onToggle={() => {}}
+        onVersionChange={() => {}}
+      />,
+    );
+
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(3);
+
+    const filterButton = container.querySelector('[data-testid="filter-selected-providers"]');
+    act(() => {
+      fireEvent(filterButton as Element, new CustomEvent('click', { bubbles: true }));
+    });
+
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(2);
+
+    act(() => {
+      fireEvent(filterButton as Element, new CustomEvent('click', { bubbles: true }));
+    });
+
+    expect(container.querySelectorAll('ui5-checkbox')).toHaveLength(3);
   });
 });
