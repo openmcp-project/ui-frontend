@@ -1,0 +1,30 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+  min-width: 18rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.375rem 0.75rem;
+  align-items: baseline;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.headerActions > span > button {
+  width: 2rem;
+}
