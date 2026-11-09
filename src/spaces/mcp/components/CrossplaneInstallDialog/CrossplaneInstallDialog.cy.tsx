@@ -454,7 +454,9 @@ describe('CrossplaneInstallDialog', () => {
 
     cy.get('ui5-button').contains('Install Crossplane').click();
 
-    cy.contains('Failed to install Crossplane. Check your connection and try again, or contact your administrator.').should('be.visible');
+    cy.contains(
+      'Failed to install Crossplane. Check your connection and try again, or contact your administrator.',
+    ).should('be.visible');
     cy.wrap(onClose).should('not.have.been.called');
   });
 
@@ -489,7 +491,9 @@ describe('CrossplaneInstallDialog', () => {
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
-    cy.contains('Failed to update Crossplane. Check your connection and try again, or contact your administrator.').should('be.visible');
+    cy.contains(
+      'Failed to update Crossplane. Check your connection and try again, or contact your administrator.',
+    ).should('be.visible');
     cy.wrap(onClose).should('not.have.been.called');
   });
 
