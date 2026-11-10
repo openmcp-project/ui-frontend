@@ -359,7 +359,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                 onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
-              {!shouldCollapsePanel && (
+              {!shouldCollapsePanel && !!managedControlPlanes?.length && (
                 <CreateControlPlaneButton
                   onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                   onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
@@ -395,7 +395,7 @@ export function ControlPlaneListWorkspaceGridTile({
                       <Button
                         className={styles.createButton}
                         icon={'add'}
-                        design={'Emphasized'}
+                        design={enableMcpV2 ? 'Default' : 'Emphasized'}
                         onClick={() => {
                           setIsCreateManagedControlPlaneWizardOpen(true);
                         }}
@@ -406,6 +406,7 @@ export function ControlPlaneListWorkspaceGridTile({
                       {enableMcpV2 && (
                         <Button
                           className={styles.createButton}
+                          design={'Emphasized'}
                           icon={'add'}
                           onClick={() => {
                             setIsCreateManagedControlPlaneWizardOpenV2(true);
