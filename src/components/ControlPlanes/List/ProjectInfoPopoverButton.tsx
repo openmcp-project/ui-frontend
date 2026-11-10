@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
+import { useProjectMembers as _useProjectMembers } from '../../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
@@ -15,12 +16,14 @@ type ProjectInfoPopoverButtonProps = {
   projectName: string;
   useDeleteProject?: typeof _useDeleteProject;
   useNavigate?: typeof _useNavigate;
+  useProjectMembers?: typeof _useProjectMembers;
 };
 
 export function ProjectInfoPopoverButton({
   projectName,
   useDeleteProject = _useDeleteProject,
   useNavigate = _useNavigate,
+  useProjectMembers = _useProjectMembers,
 }: ProjectInfoPopoverButtonProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [dialogDeleteOpen, setDialogDeleteOpen] = useState(false);
@@ -57,6 +60,7 @@ export function ProjectInfoPopoverButton({
         opener={buttonId}
         open={popoverOpen}
         projectName={projectName}
+        useProjectMembers={useProjectMembers}
         onClose={() => setPopoverOpen(false)}
         onDeleteClick={() => setDialogDeleteOpen(true)}
         onEditClick={() => setDialogEditOpen(true)}
