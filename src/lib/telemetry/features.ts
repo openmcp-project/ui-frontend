@@ -65,7 +65,7 @@ export type TelemetryFeature =
   | Feature<
       'members',
       'viewed',
-      { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' | 'controlplane-card' }
+      { source: 'project-list' | 'project-popover' | 'workspace-grid' | 'controlplane-detail' | 'controlplane-card' }
     >
   // Misc UI
   | Feature<

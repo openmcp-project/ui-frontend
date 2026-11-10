@@ -9,8 +9,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
+import { ProjectInfoPopoverButton } from '../../../components/ControlPlanes/List/ProjectInfoPopoverButton.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
-import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
@@ -24,7 +24,6 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
-import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 import styles from './ProjectPage.module.css';
 
@@ -199,7 +198,7 @@ export default function ProjectPage() {
                     }
                   }}
                 />
-                <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
+                <ProjectInfoPopoverButton projectName={projectName ?? ''} />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}
