@@ -7,6 +7,7 @@ import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackH
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 
 import { Routes } from '../Routes.ts';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
 import { useRememberedProject } from '../hooks/useRememberedProject.ts';
 import { useLink } from '../lib/shared/useLink.ts';
 
@@ -21,6 +22,8 @@ export default function ProjectsListView() {
   // Capture noRedirect at mount time so the redirect effect is not re-triggered
   // when the cleanup effect strips the param and causes a re-render with noRedirect=false.
   const suppressRedirect = useRef(noRedirect);
+
+  useDocumentTitle(t('ProjectsListView.title'));
 
   useEffect(() => {
     if (rememberedProject && !suppressRedirect.current) {

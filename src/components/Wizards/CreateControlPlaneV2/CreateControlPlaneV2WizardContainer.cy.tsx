@@ -193,6 +193,60 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     });
   });
 
+  it('sends staticEgressIp when the checkbox is checked', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('[data-testid="static-egress-ip-checkbox"]').should('not.have.attr', 'disabled');
+    cy.get('[data-testid="static-egress-ip-checkbox"]').toggleUi5Checkbox();
+    cy.get('[data-testid="static-egress-ip-checkbox"]').invoke('prop', 'checked').should('equal', true);
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
+    cy.get('ui5-button').contains('Create').click();
+
+    cy.then(() => cy.wrap(createPayload!.staticEgressIp).should('eq', true));
+  });
+
+  it('does not send staticEgressIp by default', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Create').click();
+
+    cy.then(() => cy.wrap(createPayload!.staticEgressIp).should('eq', false));
+  });
+
+  it('shows Static Egress IP as Enabled in the summarize step when checked', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('[data-testid="static-egress-ip-checkbox"]').toggleUi5Checkbox();
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
+
+    cy.get('ui5-list').contains('Static Egress IP').should('be.visible');
+  });
+
+  it('does not show Static Egress IP row in the summarize step when not checked', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
+
+    cy.get('ui5-list').contains('Static Egress IP').should('not.exist');
+  });
+
   it('shows the success step after a successful create', () => {
     mountWizard();
 
@@ -467,6 +521,38 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     ]);
 
     cy.get('#name').should('have.value', 'existing-mcp');
+  });
+
+  it('shows the static egress IP checkbox checked and locked when already enabled', () => {
+    mountWizard(
+      {
+        isEditMode: true,
+        initialData: {
+          ...existingMcp,
+          metadata: {
+            ...existingMcp.metadata,
+            annotations: {
+              ...existingMcp.metadata.annotations,
+              'egress-ip.platform.open-control-plane.io/enabled': 'true',
+            },
+          },
+        },
+      },
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        notInstalledLandscaperMock,
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+        notInstalledMetricsOperatorMock,
+      ],
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('[data-testid="static-egress-ip-checkbox"]').invoke('prop', 'checked').should('equal', true);
+    cy.get('[data-testid="static-egress-ip-checkbox"]').invoke('prop', 'disabled').should('equal', true);
   });
 
   it('pre-fills members from initialData roleBindings in edit mode', () => {
@@ -824,7 +910,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('ui5-button').contains('Next').click(); // members → componentSelection
 
       // Deselect provider-btp so it becomes a removal
-      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+      cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
 
       cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
       cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
@@ -1069,7 +1155,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('[data-testid="service-crossplane-checkbox"]').should('have.attr', 'checked');
       cy.contains('provider-btp').should('exist');
-      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+      cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();
