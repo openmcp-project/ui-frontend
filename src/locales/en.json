@@ -423,7 +423,8 @@
   "McpHeader": {
     "nameLabel": "Name",
     "createdByLabel": "Created By",
-    "createdOnLabel": "Created On"
+    "createdOnLabel": "Created On",
+    "kindLabel": "Kind"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -863,7 +864,7 @@
   "StaticEgressIp": {
     "label": "Static Egress IP",
     "checkboxLabel": "Give static IP address",
-    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist controlplane on databases and other services. Once activated, this cannot be disabled!",
+    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist the control plane on databases and other services. Once activated, this cannot be disabled!",
     "lockedHint": "A static egress IP is reserved for this control plane. It stays reserved until the control plane is deleted.",
     "enabled": "Enabled",
     "disabled": "Disabled",

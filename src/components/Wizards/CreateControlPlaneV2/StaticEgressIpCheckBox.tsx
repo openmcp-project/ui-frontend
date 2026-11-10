@@ -1,6 +1,6 @@
 import '@ui5/webcomponents-icons/dist/globe';
 import { CheckBox, CheckBoxDomRef, FlexBox, Icon, Text, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './StaticEgressIpCheckBox.module.css';
 
@@ -15,8 +15,8 @@ export const StaticEgressIpCheckBox: FC<StaticEgressIpCheckBoxProps> = ({ checke
   const { t } = useTranslation();
 
   return (
-    <FlexBox direction="Column" className={styles.container}>
-      <FlexBox alignItems="Center" gap={12}>
+    <div className={styles.container}>
+      <FlexBox alignItems="Center" gap={12} className={styles.iconRow}>
         <Icon name="globe" className={styles.icon} accessibleName={t('StaticEgressIp.label')} />
         <CheckBox
           checked={checked}
@@ -27,6 +27,6 @@ export const StaticEgressIpCheckBox: FC<StaticEgressIpCheckBoxProps> = ({ checke
         />
       </FlexBox>
       <Text className={styles.hint}>{locked ? t('StaticEgressIp.lockedHint') : t('StaticEgressIp.checkboxHint')}</Text>
-    </FlexBox>
+    </div>
   );
 };
