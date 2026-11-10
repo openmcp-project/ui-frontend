@@ -34,6 +34,7 @@ import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { SupportInfoForm } from '../../Dialogs/SupportInfoForm.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { isEgressIpEnabled } from '../../../lib/egressIp.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
@@ -102,6 +103,7 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
+import { StaticEgressIpCheckBox } from './StaticEgressIpCheckBox.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
@@ -266,6 +268,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: '',
       supportSecurityContacts: '',
       supportOpsContacts: '',
+      staticEgressIp: false,
     },
     mode: 'onChange',
   });
@@ -477,6 +480,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const supportServiceIds = useWatch({ control, name: 'supportServiceIds' });
   const supportSecurityContacts = useWatch({ control, name: 'supportSecurityContacts' });
   const supportOpsContacts = useWatch({ control, name: 'supportOpsContacts' });
+  const staticEgressIp = useWatch({ control, name: 'staticEgressIp' });
+  // The platform ignores removing the enable annotation from a running ControlPlane, so once it
+  // is set the opt-in cannot be revoked from the wizard.
+  const isStaticEgressIpLocked = isEditMode && isEgressIpEnabled(initialData?.metadata.annotations);
 
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members ?? [], extraProviders),
@@ -500,6 +507,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds,
       supportSecurityContacts,
       supportOpsContacts,
+      staticEgressIp,
     };
   }, [
     name,
@@ -513,6 +521,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     supportServiceIds,
     supportSecurityContacts,
     supportOpsContacts,
+    staticEgressIp,
   ]);
 
   const originalYamlString = useMemo(() => {
@@ -532,6 +541,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: initSupport.supportServiceIds,
       supportSecurityContacts: initSupport.supportSecurityContacts,
       supportOpsContacts: initSupport.supportOpsContacts,
+      staticEgressIp: isEgressIpEnabled(initialData.metadata.annotations),
     };
     return stringify(stripEmptyAnnotations(buildMcpV2GraphQLInput(originalInput)));
   }, [isEditMode, initialData]);
@@ -580,6 +590,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           supportServiceIds: rawInput.supportServiceIds,
           supportSecurityContacts: rawInput.supportSecurityContacts,
           supportOpsContacts: rawInput.supportOpsContacts,
+          staticEgressIp: rawInput.staticEgressIp,
         });
       } else {
         await createMcp(rawInput);
@@ -903,6 +914,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: support.supportServiceIds ?? '',
       supportSecurityContacts: support.supportSecurityContacts ?? '',
       supportOpsContacts: support.supportOpsContacts ?? '',
+      staticEgressIp: isEgressIpEnabled(annotations),
     });
 
     setExtraProviders(prefilledProviders);
@@ -1104,6 +1116,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                 resourceName={isEditMode ? editName : rawInput.name}
                 resourceNamespace={isEditMode ? editNs : rawInput.namespace}
                 useManagedServicesQuery={useManagedServicesQuery}
+                footer={
+                  <StaticEgressIpCheckBox
+                    checked={!!staticEgressIp}
+                    locked={isStaticEgressIpLocked}
+                    onChange={(checked) =>
+                      setValue('staticEgressIp', checked, { shouldValidate: true, shouldDirty: true })
+                    }
+                  />
+                }
                 onServicesChange={setServices}
                 onActiveServiceChange={setActiveService}
               />

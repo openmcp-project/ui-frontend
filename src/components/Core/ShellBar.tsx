@@ -15,12 +15,14 @@ import {
   List,
   ListItemStandard,
   ListItemStandardDomRef,
+  ObjectStatus,
   Popover,
   PopoverDomRef,
   ShellBar,
   ShellBarDomRef,
   ShellBarSpacer,
   Switch,
+  Tag,
   Text,
   TextAreaDomRef,
   Title,
@@ -40,6 +42,7 @@ import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useYamlApply } from '../../context/YamlApplyContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import type { EgressIpInfo } from '../../lib/egressIp.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
@@ -192,6 +195,7 @@ function ControlPlaneInfoPopover({
     resourceType,
     mcpCreationTimestamp,
     mcpCreatedBy,
+    egressIp,
     roleBindings,
     kubeconfig,
     onEditMcp,
@@ -217,6 +221,9 @@ function ControlPlaneInfoPopover({
 
   const members = roleBindings ? convertRoleBindingsToMembers(roleBindings) : [];
   const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
+
+  const isManagedControlPlane = resourceType === 'managedcontrolplanes';
+  const kind = resourceType ? (isManagedControlPlane ? 'ManagedControlPlane' : 'ControlPlane') : undefined;
 
   return (
     <Popover
@@ -268,6 +275,24 @@ function ControlPlaneInfoPopover({
               <Text>{workspace}</Text>
             </>
           )}
+          {kind && (
+            <>
+              <Label>{t('McpHeader.kindLabel')}</Label>
+              <div className={styles.kindValue} data-testid="control-plane-kind">
+                <Text>{kind}</Text>
+                {isManagedControlPlane && (
+                  <Tag
+                    design="Neutral"
+                    hideStateIcon
+                    className={styles.deprecatedTag}
+                    data-testid="control-plane-kind-deprecated"
+                  >
+                    {t('common.deprecated')}
+                  </Tag>
+                )}
+              </div>
+            </>
+          )}
           {created && (
             <>
               <Label>{t('McpHeader.createdOnLabel')}</Label>
@@ -280,6 +305,12 @@ function ControlPlaneInfoPopover({
             <>
               <Label>{t('McpHeader.createdByLabel')}</Label>
               <Text>{mcpCreatedBy}</Text>
+            </>
+          )}
+          {egressIp && (
+            <>
+              <Label>{t('StaticEgressIp.label')}</Label>
+              <EgressIpValue egressIp={egressIp} />
             </>
           )}
         </div>
@@ -301,6 +332,36 @@ function ControlPlaneInfoPopover({
         )}
       </div>
     </Popover>
+  );
+}
+
+function EgressIpValue({ egressIp }: { egressIp: EgressIpInfo }) {
+  const { t } = useTranslation();
+  const { copyToClipboard } = useCopyToClipboard();
+
+  if (!egressIp.ready || !egressIp.ip) {
+    return (
+      <ObjectStatus state="Information" data-testid="egress-ip-pending">
+        {egressIp.reason
+          ? t('StaticEgressIp.pendingWithReason', { reason: egressIp.reason })
+          : t('StaticEgressIp.pending')}
+      </ObjectStatus>
+    );
+  }
+
+  return (
+    <div className={styles.egressIpValue}>
+      <Text className={styles.egressIpText} data-testid="egress-ip-value">
+        {egressIp.ip}
+      </Text>
+      <Button
+        design="Transparent"
+        icon="copy"
+        tooltip={t('StaticEgressIp.copyTooltip')}
+        accessibleName={t('StaticEgressIp.copyTooltip')}
+        onClick={() => egressIp.ip && void copyToClipboard(egressIp.ip)}
+      />
+    </div>
   );
 }
 
