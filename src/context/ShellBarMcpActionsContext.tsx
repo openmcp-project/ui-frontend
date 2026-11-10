@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
-import { EgressIpInfo } from '../lib/egressIp.ts';
+import type { EgressIpInfo } from '../lib/egressIp.ts';
 import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
 
 export interface McpActions {

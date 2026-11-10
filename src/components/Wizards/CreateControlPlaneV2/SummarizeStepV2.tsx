@@ -118,10 +118,9 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
           <List headerText={t('common.metadata')}>
             <ListItemStandard text={t('common.name')} additionalText={rawInput.name} />
             <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
-            <ListItemStandard
-              text={t('StaticEgressIp.label')}
-              additionalText={rawInput.staticEgressIp ? t('StaticEgressIp.enabled') : t('StaticEgressIp.disabled')}
-            />
+            {rawInput.staticEgressIp && (
+              <ListItemStandard text={t('StaticEgressIp.label')} additionalText={t('StaticEgressIp.enabled')} />
+            )}
           </List>
           <br />
           <List headerText={t('common.members')}>

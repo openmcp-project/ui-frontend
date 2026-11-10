@@ -222,6 +222,31 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.then(() => cy.wrap(createPayload!.staticEgressIp).should('eq', false));
   });
 
+  it('shows Static Egress IP as Enabled in the summarize step when checked', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('[data-testid="static-egress-ip-checkbox"]').toggleUi5Checkbox();
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
+
+    cy.get('ui5-list').contains('Static Egress IP').should('be.visible');
+  });
+
+  it('does not show Static Egress IP row in the summarize step when not checked', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click();
+    cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
+
+    cy.get('ui5-list').contains('Static Egress IP').should('not.exist');
+  });
+
   it('shows the success step after a successful create', () => {
     mountWizard();
 
