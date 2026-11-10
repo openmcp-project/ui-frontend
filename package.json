@@ -68,7 +68,7 @@
     "graphql": "17.0.2",
     "graphql-config": "6.0.0",
     "graphql-sse": "2.6.3",
-    "i18next": "26.4.2",
+    "i18next": "27.0.0",
     "javascript-time-ago": "2.6.4",
     "js-yaml": "5.4.3",
     "monaco-editor": "0.57.0",
