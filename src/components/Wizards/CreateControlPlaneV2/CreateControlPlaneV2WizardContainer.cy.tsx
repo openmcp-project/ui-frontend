@@ -824,7 +824,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('ui5-button').contains('Next').click(); // members → componentSelection
 
       // Deselect provider-btp so it becomes a removal
-      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+      cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
 
       cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
       cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
@@ -1069,7 +1069,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
       cy.get('[data-testid="service-crossplane-checkbox"]').should('have.attr', 'checked');
       cy.contains('provider-btp').should('exist');
-      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+      cy.get('[ui5-checkbox][text="btp"]').toggleUi5Checkbox();
 
       cy.get('ui5-button').contains('Next').click();
       cy.get('ui5-button').contains('Next').click();

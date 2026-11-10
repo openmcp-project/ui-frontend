@@ -30,7 +30,6 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
     return (
       <Button
         data-testid="create-control-plane-button"
-        design="Emphasized"
         disabled={disabled}
         icon="add"
         tooltip={compact ? t('ControlPlaneListToolbar.createControlPlane') : undefined}
@@ -45,7 +44,6 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
     <>
       <Button
         data-testid="create-control-plane-button"
-        design="Emphasized"
         disabled={disabled}
         icon="add"
         icon-end
