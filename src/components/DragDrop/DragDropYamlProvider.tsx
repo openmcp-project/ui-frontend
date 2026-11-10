@@ -8,7 +8,8 @@ interface Props {
 }
 
 export const DragDropYamlProvider: FC<Props> = ({ children }) => {
-  const { activeMcp, pendingFiles, requestApplyFiles, clearPendingFiles, registerAppendHandler } = useYamlApply();
+  const { activeMcp, pendingFiles, pendingMethod, requestApplyFiles, clearPendingFiles, registerAppendHandler } =
+    useYamlApply();
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
   const dialogOpen = pendingFiles.length > 0;
@@ -42,7 +43,7 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
       const files = e.dataTransfer?.files;
       if (!files || files.length === 0) return;
       // Appends to an open dialog's queue, or starts a new flow (shared path with Upload button).
-      requestApplyFiles(Array.from(files));
+      requestApplyFiles(Array.from(files), 'drag-and-drop');
     },
     [requestApplyFiles],
   );
@@ -89,6 +90,7 @@ export const DragDropYamlProvider: FC<Props> = ({ children }) => {
           targetApiConfig={activeMcp?.apiConfig ?? null}
           targetName={activeMcp?.name ?? 'Onboarding API'}
           isExternalDragActive={isDragging}
+          openMethod={pendingMethod}
           onClose={clearPendingFiles}
           onRegisterAppend={registerAppendHandler}
         />
