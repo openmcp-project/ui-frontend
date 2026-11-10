@@ -23,18 +23,16 @@ import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
-import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
 import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
-import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceInfoPopover } from './WorkspaceInfoPopover.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -89,6 +87,8 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
+  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
+  const infoButtonId = `workspace-info-btn-${workspaceName}`;
 
   const mcpNamespace = `project-${projectName}--ws-${workspaceName}`;
 
@@ -315,14 +315,34 @@ export function ControlPlaneListWorkspaceGridTile({
                 </Title>
               </button>
             )}
-            <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
             <WorkspaceSupportInfoTag
               workspaceName={workspaceName}
               namespace={projectNamespace}
               resolved={resolvedSupportInfo}
             />
-            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
+            <Button
+              id={infoButtonId}
+              design="Transparent"
+              icon="information"
+              tooltip={t('WorkspaceInfoPopover.infoButton')}
+              onClick={() => setInfoPopoverOpen((prev) => !prev)}
+            />
+            <WorkspaceInfoPopover
+              opener={infoButtonId}
+              open={infoPopoverOpen}
+              workspaceName={workspaceName}
+              workspaceDisplayName={showDisplayName ? workspaceDisplayName : undefined}
+              namespace={workspace.status?.namespace || '-'}
+              projectNamespace={projectNamespace}
+              members={uniqueMembers}
+              isForbidden={isForbidden}
+              onClose={() => setInfoPopoverOpen(false)}
+              onEditClick={() => {
+                setInfoPopoverOpen(false);
+                setDialogEditWsIsOpen(true);
+              }}
+            />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>
@@ -331,12 +351,6 @@ export function ControlPlaneListWorkspaceGridTile({
                   </Button>
                 </a>
               )}
-              <YamlViewButton
-                variant="loader"
-                workspaceName={workspace.metadata.namespace}
-                resourceName={workspaceName}
-                resourceType={'workspaces'}
-              />
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}

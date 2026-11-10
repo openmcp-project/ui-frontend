@@ -57,7 +57,10 @@ import {
   buildRoleBindingsForProviderMembers,
   normalizeMcpV2Role,
 } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
-import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
+import {
+  buildMcpV2GraphQLInput,
+  stripEmptyAnnotations,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -540,13 +543,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportOpsContacts: initSupport.supportOpsContacts,
       staticEgressIp: isEgressIpEnabled(initialData.metadata.annotations),
     };
-    return stringify(buildMcpV2GraphQLInput(originalInput));
+    return stringify(stripEmptyAnnotations(buildMcpV2GraphQLInput(originalInput)));
   }, [isEditMode, initialData]);
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
     const res = buildMcpV2GraphQLInput(rawInput);
     return {
-      yamlString: stringify(res),
+      yamlString: stringify(stripEmptyAnnotations(res)),
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);

@@ -66,3 +66,20 @@ export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2
     },
   };
 }
+
+/** Strips empty-string annotation values from a built input before YAML display.
+ * Use only for diff/preview — the submission path must keep empty strings to clear server values. */
+export function stripEmptyAnnotations(input: ManagedControlPlaneV2Input): ManagedControlPlaneV2Input {
+  const annotations = input.metadata?.annotations;
+  if (!annotations) return input;
+  const kept = Object.fromEntries(Object.entries(annotations).filter(([, v]) => v !== ''));
+  // Destructure annotations out first so the spread below doesn't re-introduce an empty key.
+  const { annotations: _removed, ...metaRest } = input.metadata as Record<string, unknown>;
+  return {
+    ...input,
+    metadata: {
+      ...metaRest,
+      ...(Object.keys(kept).length ? { annotations: kept } : {}),
+    } as typeof input.metadata,
+  };
+}
