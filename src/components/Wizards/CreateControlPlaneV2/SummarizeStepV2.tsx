@@ -2,7 +2,10 @@ import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
+import {
+  buildMcpV2GraphQLInput,
+  stripEmptyAnnotations,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import {
   resolveServiceMutationAction,
@@ -63,7 +66,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
     const res = buildMcpV2GraphQLInput(rawInput);
     return {
-      yamlString: stringify(res),
+      yamlString: stringify(stripEmptyAnnotations(res)),
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);
