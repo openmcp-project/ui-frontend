@@ -48,7 +48,6 @@
 .coloredListItemValue {
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSize);
-  text-align: right;
 }
 
 .coloredListItemVersion {
