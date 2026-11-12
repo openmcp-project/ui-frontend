@@ -69,3 +69,24 @@
   display: block;
   margin-bottom: 0.5rem;
 }
+
+.updateHintPatch {
+  font-size: 0.75rem;
+  color: var(--sapPositiveColor, #188918);
+  white-space: nowrap;
+  cursor: default;
+}
+
+.updateHintMinor {
+  font-size: 0.75rem;
+  color: #f0ab00;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.updateHintMajor {
+  font-size: 0.75rem;
+  color: #f97316;
+  white-space: nowrap;
+  cursor: default;
+}

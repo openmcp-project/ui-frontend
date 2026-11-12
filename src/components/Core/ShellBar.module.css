@@ -52,6 +52,26 @@
   align-items: baseline;
 }
 
+.egressIpValue {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.egressIpText {
+  font-family: monospace;
+}
+
+.kindValue {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deprecatedTag {
+  opacity: 0.7;
+}
+
 .infoSection {
   display: flex;
   flex-direction: column;

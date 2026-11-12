@@ -31,6 +31,7 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { EgressIpInfo, extractEgressIpInfo } from '../../../lib/egressIp.ts';
 import { useInheritedSupportInfo as _useInheritedSupportInfo } from '../../onboarding/hooks/useInheritedSupportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
@@ -93,6 +94,7 @@ function OpenSourceHeadlamp({
   controlPlaneName,
   mcpCreationTimestamp,
   mcpCreatedBy,
+  egressIp,
   mcpStatus,
   roleBindings,
   onEditMcp,
@@ -102,6 +104,7 @@ function OpenSourceHeadlamp({
   controlPlaneName: string;
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
+  egressIp?: EgressIpInfo;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
   roleBindings?: MemberRoleBinding[];
   onEditMcp: () => void;
@@ -203,6 +206,7 @@ function OpenSourceHeadlamp({
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
+      egressIp,
       mcpStatus,
       onEditMcp,
     });
@@ -222,6 +226,7 @@ function OpenSourceHeadlamp({
     clearMcpActions,
     mcpCreationTimestamp,
     mcpCreatedBy,
+    egressIp,
     mcpStatus,
     onEditMcp,
   ]);
@@ -407,6 +412,7 @@ function LegacyModeShellBarSync({
   projectName,
   workspaceName,
   namespace,
+  egressIp,
   mcpStatus,
   onEditMcp,
 }: {
@@ -414,6 +420,7 @@ function LegacyModeShellBarSync({
   projectName: string;
   workspaceName: string;
   namespace?: string;
+  egressIp?: EgressIpInfo;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
   onEditMcp: () => void;
 }) {
@@ -425,13 +432,24 @@ function LegacyModeShellBarSync({
       workspace: workspaceName,
       namespace,
       resourceType: 'controlplanes',
+      egressIp,
       mcpStatus,
       onEditMcp,
     });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
+  }, [
+    controlPlaneName,
+    projectName,
+    workspaceName,
+    namespace,
+    egressIp,
+    mcpStatus,
+    onEditMcp,
+    setMcpActions,
+    clearMcpActions,
+  ]);
   return null;
 }
 
@@ -520,6 +538,10 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
   useDocumentTitle(displayName ?? controlPlaneName);
 
   const roleBindings = useMemo(() => flattenOidcRoleBindings(mcp?.spec?.iam?.oidc), [mcp?.spec?.iam?.oidc]);
+  const egressIp = useMemo(
+    () => extractEgressIpInfo(mcp?.metadata?.annotations, mcp?.status?.conditions),
+    [mcp?.metadata?.annotations, mcp?.status?.conditions],
+  );
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
@@ -579,6 +601,7 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
                 mcpCreatedBy={
                   (mcp.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by']
                 }
+                egressIp={egressIp}
                 mcpStatus={
                   mcp?.metadata?.deletionTimestamp
                     ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
@@ -620,6 +643,7 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
               projectName={projectName}
               workspaceName={workspaceName}
               namespace={mcp?.metadata?.namespace}
+              egressIp={egressIp}
               mcpStatus={
                 mcp?.metadata?.deletionTimestamp
                   ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }

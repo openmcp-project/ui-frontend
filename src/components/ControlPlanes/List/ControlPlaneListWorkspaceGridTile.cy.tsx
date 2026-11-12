@@ -90,7 +90,6 @@ const frontendConfig = {
   branding: defaultBranding,
   featureToggles: {
     markMcpV1asDeprecated: false,
-    enableMcpV2: false,
     enableHeadlamp: false,
     enableGitHub: false,
     showLandscaperCard: false,
@@ -239,13 +238,13 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
   it('offers the create action in the overflow menu when the workspace is collapsed', () => {
     mountTile({ isExpanded: false });
     cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Create Managed Control Plane').should('exist');
+    cy.contains('Create Control Plane').should('exist');
   });
 
   it('does not offer the create action in the overflow menu when the workspace is expanded', () => {
     mountTile({ isExpanded: true });
     cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Create Managed Control Plane').should('not.exist');
+    cy.contains('Create Control Plane').should('not.exist');
   });
 
   it('does not show the Create Control Plane button when the user is forbidden', () => {

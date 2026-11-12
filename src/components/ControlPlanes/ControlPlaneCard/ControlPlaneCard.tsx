@@ -5,6 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/arrow-top.js';
 import '@ui5/webcomponents-icons/dist/edit.js';
 import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
@@ -46,6 +47,8 @@ import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarVi
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
+import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { latestAvailableVersion, getVersionDiff, VersionDiff } from '../../../utils/componentsVersions.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -82,7 +85,19 @@ interface ComponentInfo {
   phase?: string | null;
   /** V2 only: identifies the service for the YAML side panel and the edit wizard. */
   serviceKey?: ServiceKey;
+  /** V2 only: type of version bump available from catalog, or null if up-to-date. */
+  updateDiff?: VersionDiff | null;
 }
+
+/** Maps McpV2Components keys to ManagedService catalog names. */
+const SERVICE_CATALOG_NAME: Record<string, string> = {
+  crossplane: 'crossplane',
+  flux: 'flux',
+  landscaper: 'landscaper',
+  externalSecretsOperator: 'external-secrets-operator',
+  ocm: 'ocm',
+  kro: 'kro',
+};
 
 export const ControlPlaneCard = ({
   controlPlane,
@@ -95,6 +110,7 @@ export const ControlPlaneCard = ({
   isLoadingV2Components = false,
 }: Props) => {
   const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
+  const { services: catalogServices } = useManagedServicesQuery();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
   // Service to focus when the V2 edit wizard is opened from a service's YAML panel.
@@ -144,6 +160,16 @@ export const ControlPlaneCard = ({
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
+    const getUpdateDiff = (componentKey: string, componentStatus: { version?: string | null } | undefined) => {
+      if (!componentStatus?.version) return null;
+      const catalogName = SERVICE_CATALOG_NAME[componentKey];
+      const catalogVersions = catalogServices.find((s) => s.name === catalogName)?.versions.map((v) => v.version) ?? [];
+      const newerVersion = latestAvailableVersion(componentStatus.version, catalogVersions, {
+        sameMajorOnly: catalogName === 'crossplane',
+      });
+      return newerVersion ? getVersionDiff(componentStatus.version, newerVersion) : null;
+    };
+
     if (isV2) {
       return [
         {
@@ -152,6 +178,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
           serviceKey: 'crossplane',
+          updateDiff: getUpdateDiff('crossplane', mcpV2Components?.crossplane),
         },
         {
           name: 'Flux',
@@ -159,6 +186,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.flux,
           phase: mcpV2Components?.flux?.phase,
           serviceKey: 'flux',
+          updateDiff: getUpdateDiff('flux', mcpV2Components?.flux),
         },
         ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
@@ -168,6 +196,7 @@ export const ControlPlaneCard = ({
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
                 serviceKey: 'landscaper' as const,
+                updateDiff: getUpdateDiff('landscaper', mcpV2Components?.landscaper),
               },
             ]
           : []),
@@ -177,6 +206,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
           serviceKey: 'externalSecretsOperator',
+          updateDiff: getUpdateDiff('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
         },
         {
           name: 'OCM',
@@ -184,6 +214,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.ocm,
           phase: mcpV2Components?.ocm?.phase,
           serviceKey: 'ocm',
+          updateDiff: getUpdateDiff('ocm', mcpV2Components?.ocm),
         },
         {
           name: 'KRO',
@@ -191,6 +222,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.kro,
           phase: mcpV2Components?.kro?.phase,
           serviceKey: 'kro',
+          updateDiff: getUpdateDiff('kro', mcpV2Components?.kro),
         },
       ];
     }
@@ -203,7 +235,7 @@ export const ControlPlaneCard = ({
       { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
       { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
     ];
-  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
+  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard, catalogServices]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
@@ -331,6 +363,20 @@ export const ControlPlaneCard = ({
                                     ? 'ControlPlaneCard.serviceReady'
                                     : 'ControlPlaneCard.serviceUnknown',
                             )}
+                            showTooltip
+                          />
+                        )}
+                        {component.updateDiff && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
+                          <Icon
+                            name="arrow-top"
+                            className={
+                              component.updateDiff === 'major'
+                                ? styles.updateBadgeMajor
+                                : component.updateDiff === 'minor'
+                                  ? styles.updateBadgeMinor
+                                  : styles.updateBadgePatch
+                            }
+                            accessibleName={t('ControlPlaneCard.updatesAvailable')}
                             showTooltip
                           />
                         )}

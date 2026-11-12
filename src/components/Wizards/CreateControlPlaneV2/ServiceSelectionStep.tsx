@@ -1,5 +1,5 @@
 import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CrossplaneProviderPicker,
@@ -12,7 +12,7 @@ import {
   getVisibleControlPlaneV2Services,
   ServiceKey,
 } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
-import { getHighestVersion } from '../../../utils/componentsVersions.ts';
+import { getHighestVersion, getVersionDiff, latestAvailableVersion } from '../../../utils/componentsVersions.ts';
 import { YamlViewToggleButton } from '../../Yaml/YamlViewToggleButton.tsx';
 import { ServicesYamlPreview } from './ServicesYamlPreview.tsx';
 import styles from './ServiceSelectionStep.module.css';
@@ -28,6 +28,8 @@ interface ServiceSelectionStepProps {
   resourceName: string;
   resourceNamespace: string;
   useManagedServicesQuery?: typeof _useManagedServicesQuery;
+  /** Rendered as the last item of the service list (e.g. control-plane-level options). */
+  footer?: ReactNode;
 }
 
 export function ServiceSelectionStep({
@@ -39,6 +41,7 @@ export function ServiceSelectionStep({
   resourceName,
   resourceNamespace,
   useManagedServicesQuery = _useManagedServicesQuery,
+  footer,
 }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders, isLoading } = useManagedServicesQuery();
@@ -166,6 +169,11 @@ export function ServiceSelectionStep({
               currentVersion && !versions.some((v) => v.version === currentVersion)
                 ? [{ version: currentVersion }, ...versions]
                 : versions;
+            const newerVersion = latestAvailableVersion(
+              currentVersion,
+              versions.map((v) => v.version),
+              { sameMajorOnly: key === 'crossplane' },
+            );
             return (
               <div
                 key={key}
@@ -210,6 +218,20 @@ export function ServiceSelectionStep({
                         </Option>
                       ))}
                     </Select>
+                    {newerVersion && (
+                      <span
+                        className={
+                          getVersionDiff(currentVersion, newerVersion) === 'major'
+                            ? styles.updateHintMajor
+                            : getVersionDiff(currentVersion, newerVersion) === 'minor'
+                              ? styles.updateHintMinor
+                              : styles.updateHintPatch
+                        }
+                        title={t('ServiceSelectionStep.updateAvailableTooltip', { version: newerVersion })}
+                      >
+                        ↑ {newerVersion}
+                      </span>
+                    )}
                   </FlexBox>
                 )}
                 {key === 'crossplane' && selected && (
@@ -227,6 +249,7 @@ export function ServiceSelectionStep({
               </div>
             );
           })}
+          {footer && <div className={styles.row}>{footer}</div>}
         </div>
       </div>
       <div className={styles.preview}>
