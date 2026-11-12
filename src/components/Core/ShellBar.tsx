@@ -230,6 +230,7 @@ function ControlPlaneInfoPopover({
       ref={ref}
       placement={PopoverPlacement.Bottom}
       open={open}
+      preventInitialFocus
       header={
         <Bar
           startContent={<Title level={TitleLevel.H5}>{mcpDisplayName ?? mcpName}</Title>}
@@ -244,20 +245,30 @@ function ControlPlaneInfoPopover({
                   withoutApiConfig
                 />
               )}
-              {onEditMcp && (
+            </div>
+          }
+        />
+      }
+      footer={
+        onEditMcp ? (
+          <Bar
+            design="Footer"
+            endContent={
+              <div className={styles.infoFooterActions}>
                 <Button
                   design="Transparent"
                   icon="edit"
-                  tooltip={t('ShellBar.controlPlaneInfoEditButton')}
                   onClick={() => {
                     setOpen(false);
                     onEditMcp();
                   }}
-                />
-              )}
-            </div>
-          }
-        />
+                >
+                  {t('ShellBar.controlPlaneInfoEditButton')}
+                </Button>
+              </div>
+            }
+          />
+        ) : undefined
       }
       onClose={() => setOpen(false)}
     >

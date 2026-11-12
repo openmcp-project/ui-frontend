@@ -37,6 +37,7 @@ export function ProjectInfoPopover({
       opener={opener}
       placement={PopoverPlacement.Bottom}
       open={open}
+      preventInitialFocus
       header={
         <Bar
           design="Header"
@@ -44,6 +45,15 @@ export function ProjectInfoPopover({
           endContent={
             <div className={styles.headerActions}>
               <YamlViewButton variant="loader" resourceType="projects" resourceName={projectName} />
+            </div>
+          }
+        />
+      }
+      footer={
+        <Bar
+          design="Footer"
+          endContent={
+            <div className={styles.footerActions}>
               <Button
                 design="Transparent"
                 icon="edit"
@@ -57,6 +67,7 @@ export function ProjectInfoPopover({
               <Button
                 design="Transparent"
                 icon="delete"
+                className={styles.deleteButton}
                 onClick={() => {
                   onClose();
                   onDeleteClick();
@@ -78,7 +89,11 @@ export function ProjectInfoPopover({
             <Label>{t('Entities.Project')}</Label>
             <Text>{projectName}</Text>
             <Label>{t('common.namespace')}</Label>
-            <CopyButton text={projectnameToNamespace(projectName)} source="project-namespace" />
+            <CopyButton
+              className={styles.copyValue}
+              text={projectnameToNamespace(projectName)}
+              source="project-namespace"
+            />
           </div>
           {members.length > 0 && (
             <div className={styles.section}>

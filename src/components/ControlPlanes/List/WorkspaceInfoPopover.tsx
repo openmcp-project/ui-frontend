@@ -39,6 +39,7 @@ export function WorkspaceInfoPopover({
       opener={opener}
       placement={PopoverPlacement.Bottom}
       open={open}
+      preventInitialFocus
       header={
         <Bar
           design="Header"
@@ -51,14 +52,30 @@ export function WorkspaceInfoPopover({
                 resourceName={workspaceName}
                 resourceType="workspaces"
               />
-              {!isForbidden && (
-                <Button design="Transparent" icon="edit" onClick={onEditClick}>
-                  {t('WorkspaceInfoPopover.editButton')}
-                </Button>
-              )}
             </div>
           }
         />
+      }
+      footer={
+        !isForbidden ? (
+          <Bar
+            design="Footer"
+            endContent={
+              <div className={styles.footerActions}>
+                <Button
+                  design="Transparent"
+                  icon="edit"
+                  onClick={() => {
+                    onClose();
+                    onEditClick();
+                  }}
+                >
+                  {t('WorkspaceInfoPopover.editButton')}
+                </Button>
+              </div>
+            }
+          />
+        ) : undefined
       }
       onClose={onClose}
     >
@@ -67,7 +84,7 @@ export function WorkspaceInfoPopover({
           <Label>{t('Entities.Workspace')}</Label>
           <Text>{workspaceName}</Text>
           <Label>{t('common.namespace')}</Label>
-          <CopyButton text={namespace} source="workspace-namespace" />
+          <CopyButton className={styles.copyValue} text={namespace} source="workspace-namespace" />
         </div>
 
         {members.length > 0 && (
