@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
+import { getVersionDiff } from '../../../../utils/componentsVersions.ts';
 import styles from './ComponentCard.module.css';
 import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 
@@ -142,7 +143,13 @@ export function ComponentCardV2({
             isInstalled && latestVersion ? (
               <span className={styles.versionWithUpgrade}>
                 <span
-                  className={styles.updateHint}
+                  className={
+                    getVersionDiff(version ?? '', latestVersion) === 'major'
+                      ? styles.updateHintMajor
+                      : getVersionDiff(version ?? '', latestVersion) === 'minor'
+                        ? styles.updateHintMinor
+                        : styles.updateHintPatch
+                  }
                   title={t('ComponentCard.updateAvailableTooltip', { version: latestVersion })}
                 >
                   ↑ {latestVersion}

@@ -40,11 +40,20 @@ export const getHighestVersion = (versions: string[]): string | undefined => {
   return versions[highestIndex];
 };
 
-export const latestAvailableVersion = (current: string, available: string[]): string | undefined => {
+export const latestAvailableVersion = (
+  current: string,
+  available: string[],
+  { sameMajorOnly = false }: { sameMajorOnly?: boolean } = {},
+): string | undefined => {
   if (!current || available.length === 0) return undefined;
   const normalize = (v: string) => (v.startsWith('v') ? v : `v${v}`);
   const normalizedCurrent = normalize(current);
-  const highest = getHighestVersion([normalizedCurrent, ...available.map(normalize)]);
+  const currentMajor = parseManagedServiceVersion(normalizedCurrent)?.major;
+  const candidates =
+    sameMajorOnly && currentMajor !== undefined
+      ? available.map(normalize).filter((v) => parseManagedServiceVersion(v)?.major === currentMajor)
+      : available.map(normalize);
+  const highest = getHighestVersion([normalizedCurrent, ...candidates]);
   return highest && highest !== normalizedCurrent ? highest : undefined;
 };
 

@@ -110,6 +110,9 @@ export function ComponentsDashboardV2({
     return latestAvailableVersion(
       currentVersion ?? '',
       catalogVersions.map((v) => v.version),
+      {
+        sameMajorOnly: serviceName === 'crossplane',
+      },
     );
   };
 

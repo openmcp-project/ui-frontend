@@ -15,7 +15,7 @@ import IllustratedError from '../Shared/IllustratedError';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
-import { latestAvailableVersion } from '../../utils/componentsVersions.ts';
+import { getVersionDiff, latestAvailableVersion } from '../../utils/componentsVersions.ts';
 import { useManagedServicesQuery } from '../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
@@ -63,12 +63,14 @@ export function Providers() {
         accessor: 'version',
         Cell: (cellData) => {
           const row = cellData.cell.row.original as ProvidersRow;
+          const diff = getVersionDiff(row.version, row.latestAvailable ?? '');
           return (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               {row.latestAvailable && (
                 <span
                   style={{
-                    color: 'var(--sapPositiveColor)',
+                    color:
+                      diff === 'major' ? '#f97316' : diff === 'minor' ? '#f0ab00' : 'var(--sapPositiveColor, #188918)',
                     fontSize: '0.75rem',
                     whiteSpace: 'nowrap',
                     cursor: 'default',

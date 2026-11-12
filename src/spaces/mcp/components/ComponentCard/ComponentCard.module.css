@@ -43,8 +43,18 @@
   align-items: center;
 }
 
-.updateHint {
-  color: var(--sapPositiveColor);
+.updateHintPatch {
+  color: var(--sapPositiveColor, #188918);
+  cursor: default;
+}
+
+.updateHintMinor {
+  color: #f0ab00;
+  cursor: default;
+}
+
+.updateHintMajor {
+  color: #f97316;
   cursor: default;
 }
 

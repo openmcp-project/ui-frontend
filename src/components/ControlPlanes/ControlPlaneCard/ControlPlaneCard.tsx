@@ -48,7 +48,7 @@ import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
-import { getVersionDiff } from '../../../utils/componentsVersions.ts';
+import { latestAvailableVersion, getVersionDiff, VersionDiff } from '../../../utils/componentsVersions.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -85,8 +85,8 @@ interface ComponentInfo {
   phase?: string | null;
   /** V2 only: identifies the service for the YAML side panel and the edit wizard. */
   serviceKey?: ServiceKey;
-  /** V2 only: whether a newer catalog version is available for the installed version. */
-  hasUpdate?: boolean;
+  /** V2 only: type of version bump available from catalog, or null if up-to-date. */
+  updateDiff?: VersionDiff | null;
 }
 
 /** Maps McpV2Components keys to ManagedService catalog names. */
@@ -160,11 +160,14 @@ export const ControlPlaneCard = ({
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
-    const hasUpdate = (componentKey: string, componentStatus: { version?: string | null } | undefined) => {
-      if (!componentStatus?.version) return false;
+    const getUpdateDiff = (componentKey: string, componentStatus: { version?: string | null } | undefined) => {
+      if (!componentStatus?.version) return null;
       const catalogName = SERVICE_CATALOG_NAME[componentKey];
-      const latestVersion = catalogServices.find((s) => s.name === catalogName)?.versions[0]?.version;
-      return !!latestVersion && !!getVersionDiff(componentStatus.version, latestVersion);
+      const catalogVersions = catalogServices.find((s) => s.name === catalogName)?.versions.map((v) => v.version) ?? [];
+      const newerVersion = latestAvailableVersion(componentStatus.version, catalogVersions, {
+        sameMajorOnly: catalogName === 'crossplane',
+      });
+      return newerVersion ? getVersionDiff(componentStatus.version, newerVersion) : null;
     };
 
     if (isV2) {
@@ -175,7 +178,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
           serviceKey: 'crossplane',
-          hasUpdate: hasUpdate('crossplane', mcpV2Components?.crossplane),
+          updateDiff: getUpdateDiff('crossplane', mcpV2Components?.crossplane),
         },
         {
           name: 'Flux',
@@ -183,7 +186,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.flux,
           phase: mcpV2Components?.flux?.phase,
           serviceKey: 'flux',
-          hasUpdate: hasUpdate('flux', mcpV2Components?.flux),
+          updateDiff: getUpdateDiff('flux', mcpV2Components?.flux),
         },
         ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
@@ -193,7 +196,7 @@ export const ControlPlaneCard = ({
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
                 serviceKey: 'landscaper' as const,
-                hasUpdate: hasUpdate('landscaper', mcpV2Components?.landscaper),
+                updateDiff: getUpdateDiff('landscaper', mcpV2Components?.landscaper),
               },
             ]
           : []),
@@ -203,7 +206,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
           serviceKey: 'externalSecretsOperator',
-          hasUpdate: hasUpdate('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
+          updateDiff: getUpdateDiff('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
         },
         {
           name: 'OCM',
@@ -211,7 +214,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.ocm,
           phase: mcpV2Components?.ocm?.phase,
           serviceKey: 'ocm',
-          hasUpdate: hasUpdate('ocm', mcpV2Components?.ocm),
+          updateDiff: getUpdateDiff('ocm', mcpV2Components?.ocm),
         },
         {
           name: 'KRO',
@@ -219,7 +222,7 @@ export const ControlPlaneCard = ({
           installed: !!mcpV2Components?.kro,
           phase: mcpV2Components?.kro?.phase,
           serviceKey: 'kro',
-          hasUpdate: hasUpdate('kro', mcpV2Components?.kro),
+          updateDiff: getUpdateDiff('kro', mcpV2Components?.kro),
         },
       ];
     }
@@ -363,10 +366,16 @@ export const ControlPlaneCard = ({
                             showTooltip
                           />
                         )}
-                        {component.hasUpdate && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
+                        {component.updateDiff && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
                           <Icon
                             name="arrow-top"
-                            className={styles.updateBadge}
+                            className={
+                              component.updateDiff === 'major'
+                                ? styles.updateBadgeMajor
+                                : component.updateDiff === 'minor'
+                                  ? styles.updateBadgeMinor
+                                  : styles.updateBadgePatch
+                            }
                             accessibleName={t('ControlPlaneCard.updatesAvailable')}
                             showTooltip
                           />

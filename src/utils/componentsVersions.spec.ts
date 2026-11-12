@@ -133,4 +133,16 @@ describe('latestAvailableVersion', () => {
   it('returns undefined when current and available are equal after normalisation', () => {
     expect(latestAvailableVersion('1.2.0', ['v1.2.0'])).toBeUndefined();
   });
+
+  it('with sameMajorOnly: does not suggest a cross-major upgrade', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v1.18.0', 'v2.0.0', 'v2.1.0'], { sameMajorOnly: true })).toBe('v1.18.0');
+  });
+
+  it('with sameMajorOnly: returns undefined when only cross-major versions are available', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v2.0.0', 'v2.1.0'], { sameMajorOnly: true })).toBeUndefined();
+  });
+
+  it('without sameMajorOnly: suggests cross-major upgrade', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v1.18.0', 'v2.0.0'])).toBe('v2.0.0');
+  });
 });

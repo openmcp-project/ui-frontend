@@ -18,8 +18,15 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
-import { latestAvailableVersion } from '../../../utils/componentsVersions.ts';
+import { getVersionDiff, latestAvailableVersion } from '../../../utils/componentsVersions.ts';
 import styles from './CrossplaneProviderPicker.module.css';
+
+const updateHintClass = (current: string, newer: string) => {
+  const diff = getVersionDiff(current, newer);
+  if (diff === 'major') return styles.updateHintMajor;
+  if (diff === 'minor') return styles.updateHintMinor;
+  return styles.updateHintPatch;
+};
 
 export interface ProviderRowState {
   name: string;
@@ -232,7 +239,7 @@ export function CrossplaneProviderPicker({
                 <FlexBox alignItems="Center" gap={8}>
                   {newerVersion && provider.isSelected && (
                     <span
-                      className={styles.updateHint}
+                      className={updateHintClass(currentVersion, newerVersion)}
                       title={t('CrossplaneProviderPicker.updateAvailableTooltip', { version: newerVersion })}
                     >
                       ↑ {newerVersion}
