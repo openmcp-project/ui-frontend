@@ -138,6 +138,8 @@
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
     "serviceUnknown": "Unknown",
+    "serviceError": "Error",
+    "reconcilingFor": "Reconciling for {{duration}}",
     "updatesAvailable": "Updates available"
   },
   "VersionUpdateTag": {
