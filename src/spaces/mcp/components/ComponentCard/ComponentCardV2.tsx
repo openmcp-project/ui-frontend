@@ -82,6 +82,7 @@ export type ComponentCardV2Props = {
   logoImgSrc: string;
   status: ComponentCardV2Status;
   version?: string;
+  latestVersion?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
   onEditButtonClick?: () => void;
@@ -96,6 +97,7 @@ export function ComponentCardV2({
   logoImgSrc,
   status,
   version,
+  latestVersion,
   onNavigateToComponentSection,
   onInstallButtonClick,
   onEditButtonClick,
@@ -129,7 +131,26 @@ export function ComponentCardV2({
           avatar={<img alt="" className={styles.avatar} src={logoImgSrc} />}
           subtitleText={description}
           interactive={canNavigateToComponentDetails}
-          additionalText={isInstalled ? prefixedVersion : t('ComponentCard.notInstalledLabel')}
+          additionalText={
+            isInstalled && !latestVersion
+              ? prefixedVersion
+              : isInstalled
+                ? undefined
+                : t('ComponentCard.notInstalledLabel')
+          }
+          action={
+            isInstalled && latestVersion ? (
+              <span className={styles.versionWithUpgrade}>
+                <span
+                  className={styles.updateHint}
+                  title={t('ComponentCard.updateAvailableTooltip', { version: latestVersion })}
+                >
+                  ↑ {latestVersion}
+                </span>
+                {prefixedVersion}
+              </span>
+            ) : undefined
+          }
         />
       }
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}

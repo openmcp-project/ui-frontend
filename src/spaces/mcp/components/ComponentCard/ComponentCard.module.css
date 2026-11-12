@@ -42,3 +42,16 @@
   display: flex;
   align-items: center;
 }
+
+.updateHint {
+  color: var(--sapPositiveColor);
+  cursor: default;
+}
+
+.versionWithUpgrade {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}

@@ -1,4 +1,5 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/NoSearchResults.js';
+import '@ui5/webcomponents-icons/dist/arrow-top.js';
 import {
   Button,
   CheckBox,
@@ -17,6 +18,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CrossplaneProvider } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { latestAvailableVersion } from '../../../utils/componentsVersions.ts';
 import styles from './CrossplaneProviderPicker.module.css';
 
 export interface ProviderRowState {
@@ -55,6 +57,7 @@ export function CrossplaneProviderPicker({
   const [searchTerm, setSearchTerm] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const [showNeedsUpdateOnly, setShowNeedsUpdateOnly] = useState(false);
   const [requestedPage, setRequestedPage] = useState(1);
 
   const selectRefsMap = useRef<Map<string, SelectDomRef | null>>(new Map());
@@ -69,14 +72,19 @@ export function CrossplaneProviderPicker({
     const lowerSearch = searchTerm.trim().toLowerCase();
     // Match on the stripped label (e.g. "btp") or the full name (e.g. "provider-btp") so
     // users who paste kubectl output can still find what they're looking for.
-    return displayProviders.filter(
-      (provider) =>
-        (!showSelectedOnly || provider.isSelected) &&
-        (!lowerSearch ||
-          provider.label.toLowerCase().includes(lowerSearch) ||
-          provider.name.toLowerCase().includes(lowerSearch)),
-    );
-  }, [displayProviders, searchTerm, showSelectedOnly]);
+    return displayProviders.filter((provider) => {
+      if (showSelectedOnly && !provider.isSelected) return false;
+      if (showNeedsUpdateOnly) {
+        const catalogVersions = catalog.find((p) => p.name === provider.name)?.versions.map((v) => v.version) ?? [];
+        if (!latestAvailableVersion(provider.selectedVersion, catalogVersions)) return false;
+      }
+      return (
+        !lowerSearch ||
+        provider.label.toLowerCase().includes(lowerSearch) ||
+        provider.name.toLowerCase().includes(lowerSearch)
+      );
+    });
+  }, [displayProviders, searchTerm, showSelectedOnly, showNeedsUpdateOnly, catalog]);
 
   const sortedProviders = useMemo(
     () =>
@@ -127,6 +135,11 @@ export function CrossplaneProviderPicker({
     setRequestedPage(1);
   };
 
+  const toggleShowNeedsUpdateOnly = () => {
+    setShowNeedsUpdateOnly((prev) => !prev);
+    setRequestedPage(1);
+  };
+
   return (
     <div>
       <FlexBox alignItems="Center" justifyContent="SpaceBetween" className={styles.providerHeader}>
@@ -152,6 +165,15 @@ export function CrossplaneProviderPicker({
             onClick={toggleShowSelectedOnly}
           >
             {t('ComponentInstallDialog.filterSelected')}
+          </ToggleButton>
+          <ToggleButton
+            data-testid="filter-needs-update-providers"
+            design="Transparent"
+            icon="arrow-top"
+            pressed={showNeedsUpdateOnly}
+            onClick={toggleShowNeedsUpdateOnly}
+          >
+            {t('ComponentInstallDialog.filterNeedsUpdate')}
           </ToggleButton>
         </FlexBox>
         <Input
@@ -188,6 +210,10 @@ export function CrossplaneProviderPicker({
                 ? [{ version: currentVersion }, ...providerVersions]
                 : providerVersions;
             const versionError = getError?.(provider.name);
+            const newerVersion = latestAvailableVersion(
+              currentVersion,
+              providerVersions.map((v) => v.version),
+            );
             return (
               <FlexBox
                 key={provider.name}
@@ -203,30 +229,40 @@ export function CrossplaneProviderPicker({
                   disabled={disabled}
                   onChange={() => onToggle(provider.name)}
                 />
-                <div className={!provider.isSelected ? styles.versionSelectDisabled : undefined}>
-                  <Select
-                    ref={(el: SelectDomRef | null) => {
-                      selectRefsMap.current.set(provider.name, el);
-                    }}
-                    data-cy={`provider-version-select-${provider.name}`}
-                    data-name={provider.name}
-                    className={styles.providerVersionSelect}
-                    accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.label })}
-                    disabled={!provider.isSelected}
-                    value={provider.selectedVersion}
-                    valueState={versionError ? 'Negative' : 'None'}
-                    valueStateMessage={versionError ? <span>{versionError}</span> : undefined}
-                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
-                      onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
-                    }
-                  >
-                    {versionOptions.map(({ version }) => (
-                      <Option key={version} value={version}>
-                        {version}
-                      </Option>
-                    ))}
-                  </Select>
-                </div>
+                <FlexBox alignItems="Center" gap={8}>
+                  {newerVersion && provider.isSelected && (
+                    <span
+                      className={styles.updateHint}
+                      title={t('CrossplaneProviderPicker.updateAvailableTooltip', { version: newerVersion })}
+                    >
+                      ↑ {newerVersion}
+                    </span>
+                  )}
+                  <div className={!provider.isSelected ? styles.versionSelectDisabled : undefined}>
+                    <Select
+                      ref={(el: SelectDomRef | null) => {
+                        selectRefsMap.current.set(provider.name, el);
+                      }}
+                      data-cy={`provider-version-select-${provider.name}`}
+                      data-name={provider.name}
+                      className={styles.providerVersionSelect}
+                      accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.label })}
+                      disabled={!provider.isSelected}
+                      value={provider.selectedVersion}
+                      valueState={versionError ? 'Negative' : 'None'}
+                      valueStateMessage={versionError ? <span>{versionError}</span> : undefined}
+                      onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                        onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
+                      }
+                    >
+                      {versionOptions.map(({ version }) => (
+                        <Option key={version} value={version}>
+                          {version}
+                        </Option>
+                      ))}
+                    </Select>
+                  </div>
+                </FlexBox>
               </FlexBox>
             );
           })}
@@ -272,6 +308,7 @@ export function CrossplaneProviderPicker({
           />
         </FlexBox>
       )}
+      <p className={styles.disclaimer}>{t('CrossplaneProviderPicker.testingDisclaimer')}</p>
     </div>
   );
 }

@@ -12,7 +12,7 @@ import {
   getVisibleControlPlaneV2Services,
   ServiceKey,
 } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
-import { getHighestVersion } from '../../../utils/componentsVersions.ts';
+import { getHighestVersion, latestAvailableVersion } from '../../../utils/componentsVersions.ts';
 import { YamlViewToggleButton } from '../../Yaml/YamlViewToggleButton.tsx';
 import { ServicesYamlPreview } from './ServicesYamlPreview.tsx';
 import styles from './ServiceSelectionStep.module.css';
@@ -169,6 +169,10 @@ export function ServiceSelectionStep({
               currentVersion && !versions.some((v) => v.version === currentVersion)
                 ? [{ version: currentVersion }, ...versions]
                 : versions;
+            const newerVersion = latestAvailableVersion(
+              currentVersion,
+              versions.map((v) => v.version),
+            );
             return (
               <div
                 key={key}
@@ -213,6 +217,14 @@ export function ServiceSelectionStep({
                         </Option>
                       ))}
                     </Select>
+                    {newerVersion && (
+                      <span
+                        className={styles.updateHint}
+                        title={t('ServiceSelectionStep.updateAvailableTooltip', { version: newerVersion })}
+                      >
+                        ↑ {newerVersion}
+                      </span>
+                    )}
                   </FlexBox>
                 )}
                 {key === 'crossplane' && selected && (

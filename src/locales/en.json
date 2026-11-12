@@ -24,7 +24,8 @@
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
     "installButton": "Install {{component}}",
-    "notInstalledLabel": "not installed"
+    "notInstalledLabel": "not installed",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ComponentHealthPopoverButton": {
     "pendingStatus": "Pending",
@@ -140,7 +141,13 @@
     "serviceInstalling": "Installing",
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
-    "serviceUnknown": "Unknown"
+    "serviceUnknown": "Unknown",
+    "updatesAvailable": "Updates available"
+  },
+  "VersionUpdateTag": {
+    "majorUpdate": "Major update available",
+    "minorUpdate": "Minor update available",
+    "patchUpdate": "Patch update available"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
@@ -155,7 +162,8 @@
     "kro": "KRO",
     "metricsOperator": "Metrics Operator",
     "yamlPreviewNotSelectedTitle": "{{service}} is not selected",
-    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML."
+    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML.",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -215,12 +223,17 @@
     "providersSelectedCount_one": "{{count}} provider selected",
     "providersSelectedCount_other": "{{count}} providers selected",
     "filterSelected": "Selected",
+    "filterNeedsUpdate": "Needs Update",
     "install": "Install Crossplane",
     "successMessage": "{{component}} has been successfully installed.",
     "errorMessage": "Failed to install {{component}}. Check your connection and try again, or contact your administrator.",
     "successMessageEdit": "{{component}} has been successfully updated.",
     "errorMessageEdit": "Failed to update {{component}}. Check your connection and try again, or contact your administrator.",
     "yamlPreview": "YAML Preview"
+  },
+  "CrossplaneProviderPicker": {
+    "updateAvailableTooltip": "{{version}} available — consider upgrading",
+    "testingDisclaimer": "Should be tested in a non-production environment — check provider changelogs for details."
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
@@ -523,7 +536,8 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
-    "tableHeaderHealthy": "Healthy"
+    "tableHeaderHealthy": "Healthy",
+    "updateAvailable": "{{version}} available — consider upgrading"
   },
   "Graphs": {
     "colorsProvider": "Provider",

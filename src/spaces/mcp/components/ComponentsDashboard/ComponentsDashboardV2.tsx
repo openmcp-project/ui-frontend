@@ -9,6 +9,8 @@ import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import LogoOcm from '../../../../assets/images/logo-ocm.svg';
 import LogoKro from '../../../../assets/images/logo-kro.svg';
 import LogoMetricsOperator from '../../../../assets/images/logo-metrics.svg';
+import { latestAvailableVersion } from '../../../../utils/componentsVersions.ts';
+import { useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import { useComponentCardStatus } from '../../hooks/useComponentCardStatus.ts';
 import { useCreateEso } from '../../hooks/useCreateEso.ts';
 import { useCreateFlux } from '../../hooks/useCreateFlux.ts';
@@ -100,6 +102,16 @@ export function ComponentsDashboardV2({
   const toast = useToast();
   const { showLandscaperCard } = useFeatureToggle();
   const telemetry = useTelemetry();
+
+  const { services: catalogServices } = useManagedServicesQuery();
+
+  const latestServiceVersion = (serviceName: string, currentVersion: string | undefined) => {
+    const catalogVersions = catalogServices.find((s) => s.name === serviceName)?.versions ?? [];
+    return latestAvailableVersion(
+      currentVersion ?? '',
+      catalogVersions.map((v) => v.version),
+    );
+  };
 
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
   const [crossplaneDialogMode, setCrossplaneDialogMode] = useState<'install' | 'edit'>('install');
@@ -268,6 +280,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoCrossplane}
           status={crossplaneStatus}
           version={crossplaneVersion}
+          latestVersion={latestServiceVersion('crossplane', crossplaneVersion)}
           yamlViewButton={
             isCrossplaneInstalled && crossplaneResource ? (
               <YamlViewButton
@@ -305,6 +318,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoFlux}
           status={fluxStatus}
           version={fluxVersion}
+          latestVersion={latestServiceVersion('flux', fluxVersion)}
           yamlViewButton={
             isFluxInstalled && fluxResource ? (
               <YamlViewButton
@@ -343,6 +357,7 @@ export function ComponentsDashboardV2({
             logoImgSrc={LogoLandscaper}
             status={landscaperStatus}
             version={landscaperVersion}
+            latestVersion={latestServiceVersion('landscaper', landscaperVersion)}
             yamlViewButton={
               isLandscaperInstalled && landscaperResource ? (
                 <YamlViewButton
@@ -381,6 +396,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoEso}
           status={esoStatus}
           version={esoVersion}
+          latestVersion={latestServiceVersion('external-secrets-operator', esoVersion)}
           yamlViewButton={
             isEsoInstalled && esoResource ? (
               <YamlViewButton
@@ -418,6 +434,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoOcm}
           status={ocmStatus}
           version={ocmVersion}
+          latestVersion={latestServiceVersion('ocm', ocmVersion)}
           yamlViewButton={
             isOcmInstalled && ocmResource ? (
               <YamlViewButton
@@ -455,6 +472,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoKro}
           status={kroStatus}
           version={kroVersion}
+          latestVersion={latestServiceVersion('kro', kroVersion)}
           yamlViewButton={
             isKroInstalled && kroResource ? (
               <YamlViewButton
@@ -492,6 +510,7 @@ export function ComponentsDashboardV2({
           logoImgSrc={LogoMetricsOperator}
           status={metricsOperatorStatus}
           version={metricsOperatorVersion}
+          latestVersion={latestServiceVersion('metrics-operator', metricsOperatorVersion)}
           yamlViewButton={
             isMetricsOperatorInstalled && metricsOperatorResource ? (
               <YamlViewButton
