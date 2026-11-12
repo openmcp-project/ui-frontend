@@ -55,7 +55,10 @@ describe('WorkspaceSupportInfoTag', () => {
     cy.get('[data-testid="workspace-support-info-tag"]')
       .should('have.attr', 'data-inherited', 'true')
       .and('contain', 'Staging')
-      .click();
+      .and('have.attr', 'title')
+      .and('match', /parent-project/);
+    cy.get('ui5-icon[name="sys-help"]').should('not.exist');
+    cy.get('[data-testid="workspace-support-info-tag"]').click();
     cy.get('[data-testid="support-info-inherited-from"]').should('contain', 'parent-project');
     cy.contains('PARENT-ID').should('exist');
     cy.get('[data-testid="support-info-edit-button"]').should('contain', 'Override');
