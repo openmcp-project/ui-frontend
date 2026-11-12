@@ -94,12 +94,182 @@ describe('useMcpV2ComponentsListQuery', () => {
     const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
 
     expect(result.current.componentsByName['cp-a']).toEqual({
-      crossplane: { phase: 'Progressing', version: '1.14.0' },
-      flux: { phase: 'Ready', version: '2.3.0' },
+      crossplane: { phase: 'Progressing', version: '1.14.0', errorMessage: null, reconcilingSince: null },
+      flux: { phase: 'Ready', version: '2.3.0', errorMessage: null, reconcilingSince: null },
     });
     // A service with no status reports a null phase (not installed elsewhere).
-    expect(result.current.componentsByName['cp-b']).toEqual({ ocm: { phase: null, version: 'v0.3.0' } });
+    expect(result.current.componentsByName['cp-b']).toEqual({
+      ocm: { phase: null, version: 'v0.3.0', errorMessage: null, reconcilingSince: null },
+    });
     expect(result.current.componentsByName['cp-c']).toBeUndefined();
+  });
+
+  it('captures a failing Ready condition as the error message, even while phase is Progressing', () => {
+    useQueryMock.mockReturnValue(
+      makeQueryResult({
+        ocm_services_open_control_plane_io: {
+          v1alpha1: {
+            OCMs: {
+              items: [
+                {
+                  metadata: { name: 'cp-a' },
+                  spec: { version: 'v0.3.0' },
+                  status: {
+                    phase: 'Progressing',
+                    conditions: [
+                      {
+                        type: 'Ready',
+                        status: 'False',
+                        reason: 'ReconcileError',
+                        message: 'invalid user input: requested version is not available: "v0.3.0"',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
+
+    expect(result.current.componentsByName['cp-a']).toEqual({
+      ocm: {
+        phase: 'Progressing',
+        version: 'v0.3.0',
+        errorMessage: 'invalid user input: requested version is not available: "v0.3.0"',
+        reconcilingSince: null,
+      },
+    });
+  });
+
+  it('leaves errorMessage null when the Ready condition is True', () => {
+    useQueryMock.mockReturnValue(
+      makeQueryResult({
+        ocm_services_open_control_plane_io: {
+          v1alpha1: {
+            OCMs: {
+              items: [
+                {
+                  metadata: { name: 'cp-a' },
+                  spec: { version: 'v0.3.0' },
+                  status: {
+                    phase: 'Ready',
+                    conditions: [{ type: 'Ready', status: 'True', reason: 'ReconcileSuccess', message: 'all good' }],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
+
+    expect(result.current.componentsByName['cp-a']).toEqual({
+      ocm: { phase: 'Ready', version: 'v0.3.0', errorMessage: null, reconcilingSince: null },
+    });
+  });
+
+  it('treats a benign in-progress Ready: False (reason Reconciling) as installing, not an error', () => {
+    useQueryMock.mockReturnValue(
+      makeQueryResult({
+        ocm_services_open_control_plane_io: {
+          v1alpha1: {
+            OCMs: {
+              items: [
+                {
+                  metadata: { name: 'cp-a' },
+                  spec: { version: 'v0.19.0' },
+                  status: {
+                    phase: 'Progressing',
+                    conditions: [
+                      {
+                        type: 'Ready',
+                        status: 'False',
+                        reason: 'Reconciling',
+                        message: 'Waiting for managed resources to become ready',
+                        lastTransitionTime: '2026-11-12T10:00:00.000Z',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
+
+    expect(result.current.componentsByName['cp-a']).toEqual({
+      ocm: {
+        phase: 'Progressing',
+        version: 'v0.19.0',
+        errorMessage: null,
+        reconcilingSince: '2026-11-12T10:00:00.000Z',
+      },
+    });
+  });
+
+  it('detects an error from a non-Ready readiness condition (CrossplaneReady: False, reason Unhealthy)', () => {
+    useQueryMock.mockReturnValue(
+      makeQueryResult({
+        crossplane_services_open_control_plane_io: {
+          v1alpha1: {
+            Crossplanes: {
+              items: [
+                {
+                  metadata: { name: 'cp-a' },
+                  spec: { version: 'v1.20.1-1' },
+                  status: {
+                    phase: 'Progressing',
+                    conditions: [
+                      {
+                        type: 'CrossplaneReady',
+                        status: 'False',
+                        reason: 'Unhealthy',
+                        message: 'artifact revision v1.20.1-1 does not match chart version 1.20.1',
+                        lastTransitionTime: '2026-11-10T16:13:29Z',
+                      },
+                      {
+                        type: 'ProviderHelmReady',
+                        status: 'True',
+                        reason: 'Healthy',
+                        message: 'ProviderHelm is healthy.',
+                      },
+                      {
+                        type: 'Reconciled',
+                        status: 'False',
+                        reason: 'ComponentReconcileFailed',
+                        message: 'Not all components are ready',
+                        lastTransitionTime: '2026-11-10T16:13:29Z',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
+
+    // The first failing condition's message is surfaced; reconcilingSince stays null (it's an error).
+    expect(result.current.componentsByName['cp-a']).toEqual({
+      crossplane: {
+        phase: 'Progressing',
+        version: 'v1.20.1-1',
+        errorMessage: 'artifact revision v1.20.1-1 does not match chart version 1.20.1',
+        reconcilingSince: null,
+      },
+    });
   });
 
   it('ignores items with no version (not actually installed) and items with no name', () => {

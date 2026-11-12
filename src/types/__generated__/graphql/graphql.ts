@@ -1948,7 +1948,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -1959,7 +1968,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -1970,7 +1988,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -1981,7 +2008,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -1992,7 +2028,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -2003,7 +2048,16 @@ export type GetMcpV2ComponentsListQuery = {
         items: Array<{
           metadata: { name: string | null } | null;
           spec: { version: string | null } | null;
-          status: { phase: string | null } | null;
+          status: {
+            phase: string | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
+          } | null;
         }>;
       };
     } | null;
@@ -4136,7 +4190,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4203,7 +4273,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4270,7 +4356,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4337,7 +4439,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4404,7 +4522,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4471,7 +4605,23 @@ export const GetMcpV2ComponentsListDocument = {
                                     name: { kind: 'Name', value: 'status' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'phase' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'conditions' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
