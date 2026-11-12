@@ -3,6 +3,7 @@ import {
   AuthConfigurationError,
   AuthUpstreamError,
   ExpectedAuthError,
+  UpstreamUnavailableError,
   createMcpConfigurationFetchError,
   isExpiredSessionError,
 } from '../auth/errors.js';
@@ -45,7 +46,7 @@ async function authPlugin(fastify) {
         },
       });
     } catch (cause) {
-      throw new AuthUpstreamError('MCP configuration request failed.', {
+      throw new UpstreamUnavailableError('MCP configuration request failed.', {
         code: 'mcp_configuration_request_failed',
         statusCode: 503,
         publicMessage: 'Unable to load MCP configuration.',
