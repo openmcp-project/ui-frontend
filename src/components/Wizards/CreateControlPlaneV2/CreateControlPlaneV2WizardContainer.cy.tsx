@@ -142,7 +142,6 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     branding: defaultBranding,
     featureToggles: {
       markMcpV1asDeprecated: false,
-      enableMcpV2: false,
       enableHeadlamp: false,
       showLandscaperCard,
     },

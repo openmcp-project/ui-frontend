@@ -7,7 +7,6 @@ import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { GetMcPsListQuery, GetMcPsListQueryVariables } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema, ReadyStatus } from '../types/ControlPlane';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export type McpsQueryMode = 'full' | 'minimal' | 'skip';
@@ -240,7 +239,6 @@ const MCP_V2_SUBSCRIPTION = graphql(`
 `);
 
 export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: McpsQueryMode }) {
-  const { enableMcpV2 } = useFeatureToggle();
   const mode = options?.mode ?? 'full';
   const skipAll = !workspaceNamespace || mode === 'skip';
   const telemetry = useTelemetry();
@@ -270,7 +268,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
 
   const { data: v2SubData } = useSubscription(MCP_V2_SUBSCRIPTION, {
     variables: { namespace: workspaceNamespace ?? '' },
-    skip: skipAll || mode !== 'full' || !enableMcpV2 || !isReadyForSubscriptions,
+    skip: skipAll || mode !== 'full' || !isReadyForSubscriptions,
   });
 
   // Single debounce timer shared by both subscriptions — coalesces burst events from
@@ -301,7 +299,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
 
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);
-    const v2 = enableMcpV2 ? (v2Items ?? []).map(toV2Input) : [];
+    const v2 = (v2Items ?? []).map(toV2Input);
     const seen = new Set<string>();
     return [...v1, ...v2].flatMap((item) => {
       const result = ControlPlaneListItemSchema.safeParse(item);
@@ -317,7 +315,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
       seen.add(key);
       return [result.data];
     });
-  }, [v1Items, v2Items, enableMcpV2, telemetry]);
+  }, [v1Items, v2Items, telemetry]);
 
   const isPending =
     (mode === 'full' && queryResult.loading && queryResult.networkStatus === NetworkStatus.loading) ||
