@@ -66,3 +66,32 @@
   white-space: nowrap;
   border: 0;
 }
+
+.updateHintPatch {
+  font-size: 0.75rem;
+  color: var(--sapPositiveColor, #188918);
+  white-space: nowrap;
+  cursor: default;
+}
+
+.updateHintMinor {
+  font-size: 0.75rem;
+  color: #f0ab00;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.updateHintMajor {
+  font-size: 0.75rem;
+  color: #f97316;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.disclaimer {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--sapContent_LabelColor);
+  border-top: 1px solid var(--sapList_BorderColor);
+}

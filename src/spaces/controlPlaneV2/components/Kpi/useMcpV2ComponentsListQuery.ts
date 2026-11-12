@@ -120,6 +120,8 @@ const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
 export interface McpV2ComponentStatus {
   /** Raw `status.phase` reported by the service resource (e.g. `Progressing`, `Terminating`, `Ready`). */
   phase?: string | null;
+  /** Installed version from `spec.version`. */
+  version?: string | null;
 }
 
 export interface McpV2Components {
@@ -143,7 +145,7 @@ function indexByName(items: ListItems, key: keyof McpV2Components, index: Record
   for (const item of items ?? []) {
     const name = item?.metadata?.name;
     if (!name || !item?.spec?.version) continue;
-    (index[name] ??= {})[key] = { phase: item.status?.phase ?? null };
+    (index[name] ??= {})[key] = { phase: item.status?.phase ?? null, version: item.spec.version };
   }
 }
 
