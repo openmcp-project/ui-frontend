@@ -6,7 +6,7 @@ describe('ComponentsDashboard', () => {
     const components = {} as unknown as ComponentsDashboardProps['components'];
 
     cy.mount(
-      <FeatureToggleContext.Provider value={{ markMcpV1asDeprecated: false, enableMcpV2: false, showLandscaperCard }}>
+      <FeatureToggleContext.Provider value={{ markMcpV1asDeprecated: false, showLandscaperCard }}>
         <ComponentsDashboard
           components={components}
           onInstallButtonClick={() => {}}

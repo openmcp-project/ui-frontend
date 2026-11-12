@@ -2,17 +2,12 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery, useSubscription } from '@apollo/client/react';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { useMcpsQuery } from './useMcpsQuery';
 import { ReadyStatus } from '../types/ControlPlane';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
   useSubscription: vi.fn(),
-}));
-
-vi.mock('../../../context/FeatureToggleContext', () => ({
-  useFeatureToggle: vi.fn(),
 }));
 
 const reportMock = vi.fn();
@@ -22,7 +17,6 @@ vi.mock('../../../lib/telemetry/telemetry.ts', () => ({
 
 const useQueryMock = vi.mocked(useQuery);
 const useSubscriptionMock = vi.mocked(useSubscription);
-const useFeatureToggleMock = vi.mocked(useFeatureToggle);
 
 const baseQueryResult = {
   loading: false,
@@ -37,11 +31,6 @@ describe('useMcpsQuery', () => {
     useSubscriptionMock.mockReset();
     useSubscriptionMock.mockReturnValue({} as ReturnType<typeof useSubscription>);
     reportMock.mockReset();
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: false,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
   });
 
   it('passes namespace as a variable and skips the query when namespace is undefined', () => {
@@ -143,12 +132,7 @@ describe('useMcpsQuery', () => {
     expect(mcp.status?.access).toEqual({ key: 'my-key', name: 'my-secret', namespace: 'my-ns' });
   });
 
-  it('maps a v2 ManagedControlPlaneV2 to the expected shape when enableMcpV2 is true', () => {
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: true,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
+  it('maps a v2 ManagedControlPlaneV2 to the expected shape', () => {
     const accessObj = { key: 'k2', name: 'n2', namespace: 'ns2' };
 
     useQueryMock.mockReturnValue({
@@ -199,54 +183,7 @@ describe('useMcpsQuery', () => {
     expect(mcp.status?.access).toEqual({ key: 'k2', name: 'n2', namespace: 'ns2' });
   });
 
-  it('excludes v2 items when enableMcpV2 feature flag is off', () => {
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: false,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
-    useQueryMock.mockReturnValue({
-      ...baseQueryResult,
-      data: {
-        core_openmcp_cloud: {
-          v1alpha1: {
-            ManagedControlPlanes: {
-              items: [
-                {
-                  metadata: { name: 'mcp-v1', namespace: 'ns', creationTimestamp: '', annotations: {} },
-                  status: null,
-                },
-              ],
-            },
-          },
-        },
-        core_open_control_plane_io: {
-          v2alpha1: {
-            ControlPlanes: {
-              items: [
-                {
-                  metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} },
-                  status: null,
-                },
-              ],
-            },
-          },
-        },
-      },
-    } as ReturnType<typeof useQuery>);
-
-    const { result } = renderHook(() => useMcpsQuery('ns'));
-
-    expect(result.current.data).toHaveLength(1);
-    expect(result.current.data[0].metadata.name).toBe('mcp-v1');
-  });
-
-  it('merges v1 and v2 items when enableMcpV2 feature flag is on', () => {
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: true,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
+  it('merges v1 and v2 items', () => {
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
@@ -284,11 +221,6 @@ describe('useMcpsQuery', () => {
   });
 
   it('keeps both v1 and v2 items when they share the same name and namespace', () => {
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: true,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
@@ -430,11 +362,6 @@ describe('useMcpsQuery', () => {
 
   it('refetches when the v2 subscription receives an event', () => {
     vi.useFakeTimers();
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: true,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
     const refetch = vi.fn();
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
@@ -457,11 +384,6 @@ describe('useMcpsQuery', () => {
 
   it('coalesces simultaneous v1 and v2 subscription events into a single refetch', () => {
     vi.useFakeTimers();
-    useFeatureToggleMock.mockReturnValue({
-      enableMcpV2: true,
-      markMcpV1asDeprecated: false,
-      showLandscaperCard: false,
-    });
     const refetch = vi.fn();
     useQueryMock.mockReturnValue({
       ...baseQueryResult,

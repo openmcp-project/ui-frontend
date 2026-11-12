@@ -82,13 +82,11 @@ const FrontendConfigSchema = z.object({
   featureToggles: z
     .object({
       markMcpV1asDeprecated: z.boolean().default(false),
-      enableMcpV2: z.boolean().default(false),
       enableHeadlamp: z.boolean().default(false),
       showLandscaperCard: z.boolean().default(false),
     })
     .default({
       markMcpV1asDeprecated: false,
-      enableMcpV2: false,
       enableHeadlamp: false,
       showLandscaperCard: false,
     }),
