@@ -1,0 +1,46 @@
+/* Clickable page-title that opens the project info popover. Mirrors the app
+   header's title/logo: a subtle rounded hover highlight, no button chrome. */
+.titleButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin-inline-start: -0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.titleButton:hover {
+  background: var(--sapButton_Lite_Hover_Background, var(--sapList_Hover_Background, rgba(0, 0, 0, 0.06)));
+}
+
+.titleButton:active {
+  background: var(--sapButton_Lite_Active_Background, var(--sapList_Active_Background, rgba(0, 0, 0, 0.1)));
+}
+
+.titleButton:focus-visible {
+  outline: var(--sapContent_FocusWidth, 1px) var(--sapContent_FocusStyle, dotted) var(--sapContent_FocusColor, #000);
+  outline-offset: 1px;
+}
+
+/* Match the ObjectPage header title the plain <Title> used to render as, so the
+   clickable title doesn't look smaller/"lost" than the surrounding page chrome. */
+.title {
+  cursor: pointer;
+  font-family: var(--sapObjectHeader_Title_FontFamily, var(--sapFontHeaderFamily));
+  font-size: var(--sapObjectHeader_Title_FontSize, 1.375rem);
+  color: var(--sapObjectHeader_Title_TextColor, var(--sapGroup_TitleTextColor));
+}
+
+/* Subtle, grayish outlined info hint sitting next to the title. */
+.infoButton {
+  margin-inline-start: -0.25rem;
+  color: var(--sapContent_LabelColor);
+}
+
+.infoButton::part(icon) {
+  color: var(--sapContent_LabelColor);
+}

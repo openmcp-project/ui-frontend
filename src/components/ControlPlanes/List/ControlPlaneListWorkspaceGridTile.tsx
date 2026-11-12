@@ -2,8 +2,8 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/hint';
 import '@ui5/webcomponents-icons/dist/locked.js';
-import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
 import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -260,7 +260,6 @@ export function ControlPlaneListWorkspaceGridTile({
                   onClick={() => setForbiddenPopoverOpen((o) => !o)}
                 >
                   <Icon name="locked" className={styles.workspaceIcon} />
-                  <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
                   <Title level="H3" className={styles.workspaceTitle}>
                     {showDisplayName ? workspaceDisplayName : workspaceName}
                   </Title>
@@ -287,29 +286,46 @@ export function ControlPlaneListWorkspaceGridTile({
             ) : isMember === null ? (
               <div className={styles.workspaceToggle}>
                 <BusyIndicator active delay={0} size="S" />
-                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
                 <Title level="H3" className={styles.workspaceTitle}>
                   {showDisplayName ? workspaceDisplayName : workspaceName}
                 </Title>
               </div>
             ) : (
-              <button
-                type="button"
-                className={styles.workspaceToggle}
-                aria-expanded={!shouldCollapsePanel}
-                onClick={onToggleExpanded}
-              >
-                <Icon
-                  name="slim-arrow-right"
-                  className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+              <div className={styles.workspaceTitleRow}>
+                <button
+                  type="button"
+                  className={styles.workspaceExpandButton}
+                  aria-expanded={!shouldCollapsePanel}
+                  aria-label={t('ControlPlaneListWorkspaceGridTile.toggleWorkspace', {
+                    name: showDisplayName ? workspaceDisplayName : workspaceName,
+                  })}
+                  onClick={onToggleExpanded}
+                >
+                  <Icon
+                    name="slim-arrow-right"
+                    className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  className={styles.workspaceTitleButton}
+                  title={t('WorkspaceInfoPopover.infoButton')}
+                  onClick={() => setInfoPopoverOpen((prev) => !prev)}
+                >
+                  <Title level="H3" className={styles.workspaceTitle}>
+                    {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                    {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                  </Title>
+                </button>
+                <Button
+                  id={infoButtonId}
+                  design="Transparent"
+                  icon="hint"
+                  className={styles.workspaceInfoButton}
+                  tooltip={t('WorkspaceInfoPopover.infoButton')}
+                  onClick={() => setInfoPopoverOpen((prev) => !prev)}
                 />
-                <Icon name="product" className={styles.workspaceIcon} />
-                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
-                <Title level="H3" className={styles.workspaceTitle}>
-                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-                </Title>
-              </button>
+              </div>
             )}
             <div className={styles.headerSpacer} />
             <FlexBox alignItems={'Center'} className={styles.workspaceActions} gap={'1rem'}>
@@ -319,13 +335,6 @@ export function ControlPlaneListWorkspaceGridTile({
                 resolved={resolvedSupportInfo}
               />
 
-              <Button
-                id={infoButtonId}
-                design="Transparent"
-                icon="information"
-                tooltip={t('WorkspaceInfoPopover.infoButton')}
-                onClick={() => setInfoPopoverOpen((prev) => !prev)}
-              />
               <WorkspaceInfoPopover
                 opener={infoButtonId}
                 open={infoPopoverOpen}

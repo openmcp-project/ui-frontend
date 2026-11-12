@@ -40,6 +40,76 @@
   outline-offset: -2px;
 }
 
+/* Neutral container for the chevron + clickable title; the hover affordance
+   lives on the individual inner buttons, not the whole row. */
+.workspaceTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+/* Chevron-only expand/collapse trigger sitting next to the title. */
+.workspaceExpandButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.workspaceExpandButton:hover {
+  background: var(--sapList_Hover_Background, rgba(0, 0, 0, 0.04));
+}
+
+.workspaceExpandButton:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, currentColor);
+  outline-offset: -2px;
+}
+
+/* Clickable workspace title that opens the info popover. Mirrors the app
+   header's title: a subtle rounded hover highlight, no button chrome. */
+.workspaceTitleButton {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.workspaceTitleButton:hover {
+  background: var(--sapButton_Lite_Hover_Background, var(--sapList_Hover_Background, rgba(0, 0, 0, 0.06)));
+}
+
+.workspaceTitleButton:active {
+  background: var(--sapButton_Lite_Active_Background, var(--sapList_Active_Background, rgba(0, 0, 0, 0.1)));
+}
+
+.workspaceTitleButton:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, currentColor);
+  outline-offset: -2px;
+}
+
+/* Info button sitting right after the title: outlined "hint" glyph tinted a
+   muted gray so it reads as a subtle hint rather than a prominent action. */
+.workspaceInfoButton {
+  margin-inline-start: -0.25rem;
+  color: var(--sapContent_LabelColor);
+}
+
+.workspaceInfoButton::part(icon) {
+  color: var(--sapContent_LabelColor);
+}
+
 .headerSpacer {
   flex: 1 1 auto;
   min-width: 0;
@@ -68,13 +138,6 @@
   color: var(--sapContent_LabelColor);
   width: 1rem;
   height: 1rem;
-}
-
-.workspaceEyebrow {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--sapContent_LabelColor);
-  white-space: nowrap;
 }
 
 .workspaceTitle {
