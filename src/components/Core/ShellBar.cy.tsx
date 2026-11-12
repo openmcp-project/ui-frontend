@@ -11,6 +11,7 @@ import { clearRememberedProject, setRememberedProject } from '../../utils/rememb
 import { ShellBarComponent } from './ShellBar.tsx';
 import { FrontendConfigContext, defaultBranding } from '../../context/FrontendConfigContext.tsx';
 import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
+import type { EgressIpInfo } from '../../lib/egressIp.ts';
 
 function McpActionsSetter({
   mcpName,
@@ -20,6 +21,7 @@ function McpActionsSetter({
   namespace,
   resourceType,
   mcpStatus,
+  egressIp,
 }: {
   mcpName: string;
   onEditMcp?: () => void;
@@ -28,10 +30,11 @@ function McpActionsSetter({
   namespace?: string;
   resourceType?: 'controlplanes' | 'managedcontrolplanes';
   mcpStatus?: { status?: string | null };
+  egressIp?: EgressIpInfo;
 }) {
   const { setMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName, onEditMcp, project, workspace, namespace, resourceType, mcpStatus });
+    setMcpActions({ mcpName, onEditMcp, project, workspace, namespace, resourceType, mcpStatus, egressIp });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;
@@ -64,6 +67,7 @@ describe('ShellBar', () => {
     namespace,
     resourceType,
     mcpStatus,
+    egressIp,
     branding = defaultBranding,
   }: {
     enableHeadlamp?: boolean;
@@ -74,6 +78,7 @@ describe('ShellBar', () => {
     namespace?: string;
     resourceType?: 'controlplanes' | 'managedcontrolplanes';
     mcpStatus?: { status?: string | null };
+    egressIp?: EgressIpInfo;
     branding?: typeof defaultBranding;
   } = {}) => {
     const fakeConfig = {
@@ -105,6 +110,7 @@ describe('ShellBar', () => {
                         namespace={namespace}
                         resourceType={resourceType}
                         mcpStatus={mcpStatus}
+                        egressIp={egressIp}
                         onEditMcp={onEditMcp}
                       />
                     )}
@@ -312,5 +318,71 @@ describe('ShellBar', () => {
     cy.get('ui5-popover ui5-button[aria-label="View resource"]').click({ force: true });
 
     cy.get('ui5-popover[open]').should('not.exist');
+  });
+
+  it('shows the ControlPlane kind in the info popover for a v2 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'controlplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('not.exist');
+  });
+
+  it('shows the ManagedControlPlane kind with a deprecated badge for a v1 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'managedcontrolplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ManagedControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('contain.text', 'Deprecated');
+  });
+
+  it('does not show the kind row when resourceType is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('[data-testid="control-plane-kind"]').should('not.exist');
+  });
+
+  it('shows the static egress IP in the info popover when reserved', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      egressIp: { enabled: true, ready: true, ip: '34.90.123.45' },
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('Static Egress IP').should('be.visible');
+    cy.get('[data-testid="egress-ip-value"]').should('contain.text', '34.90.123.45');
+  });
+
+  it('shows a pending state in the info popover while the egress IP is not ready', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      egressIp: { enabled: true, ready: false, reason: 'ClusterNotReady' },
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="egress-ip-pending"]').should('contain.text', 'ClusterNotReady');
+    cy.get('[data-testid="egress-ip-value"]').should('not.exist');
+  });
+
+  it('does not show the static egress IP row when the feature is not enabled', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('ui5-popover').contains('Static Egress IP').should('not.exist');
   });
 });
