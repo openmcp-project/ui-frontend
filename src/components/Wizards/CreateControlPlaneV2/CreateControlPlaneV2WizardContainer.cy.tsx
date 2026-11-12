@@ -231,7 +231,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click(); // componentSelection → supportInfo
     cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
 
-    cy.get('ui5-list').contains('Static Egress IP').should('be.visible');
+    cy.contains('Static Egress IP').should('be.visible');
   });
 
   it('does not show Static Egress IP row in the summarize step when not checked', () => {
@@ -243,7 +243,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Next').click();
     cy.get('ui5-button').contains('Next').click(); // supportInfo → summarize
 
-    cy.get('ui5-list').contains('Static Egress IP').should('not.exist');
+    cy.contains('Static Egress IP').should('not.exist');
   });
 
   it('shows the success step after a successful create', () => {

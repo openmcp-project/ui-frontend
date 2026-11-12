@@ -312,34 +312,35 @@ export function ControlPlaneListWorkspaceGridTile({
               </button>
             )}
             <div className={styles.headerSpacer} />
-            <WorkspaceSupportInfoTag
-              workspaceName={workspaceName}
-              namespace={projectNamespace}
-              resolved={resolvedSupportInfo}
-            />
-            <Button
-              id={infoButtonId}
-              design="Transparent"
-              icon="information"
-              tooltip={t('WorkspaceInfoPopover.infoButton')}
-              onClick={() => setInfoPopoverOpen((prev) => !prev)}
-            />
-            <WorkspaceInfoPopover
-              opener={infoButtonId}
-              open={infoPopoverOpen}
-              workspaceName={workspaceName}
-              workspaceDisplayName={showDisplayName ? workspaceDisplayName : undefined}
-              namespace={workspace.status?.namespace || '-'}
-              projectNamespace={projectNamespace}
-              members={uniqueMembers}
-              isForbidden={isForbidden}
-              onClose={() => setInfoPopoverOpen(false)}
-              onEditClick={() => {
-                setInfoPopoverOpen(false);
-                setDialogEditWsIsOpen(true);
-              }}
-            />
-            <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+            <FlexBox alignItems={'Center'} className={styles.workspaceActions} gap={'1rem'}>
+              <WorkspaceSupportInfoTag
+                workspaceName={workspaceName}
+                namespace={projectNamespace}
+                resolved={resolvedSupportInfo}
+              />
+
+              <Button
+                id={infoButtonId}
+                design="Transparent"
+                icon="information"
+                tooltip={t('WorkspaceInfoPopover.infoButton')}
+                onClick={() => setInfoPopoverOpen((prev) => !prev)}
+              />
+              <WorkspaceInfoPopover
+                opener={infoButtonId}
+                open={infoPopoverOpen}
+                workspaceName={workspaceName}
+                workspaceDisplayName={showDisplayName ? workspaceDisplayName : undefined}
+                namespace={workspace.status?.namespace || '-'}
+                projectNamespace={projectNamespace}
+                members={uniqueMembers}
+                isForbidden={isForbidden}
+                onClose={() => setInfoPopoverOpen(false)}
+                onEditClick={() => {
+                  setInfoPopoverOpen(false);
+                  setDialogEditWsIsOpen(true);
+                }}
+              />
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>
                   <Button design="Transparent" icon="email">
