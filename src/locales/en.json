@@ -127,7 +127,8 @@
   },
   "WorkspaceInfoPopover": {
     "infoButton": "Workspace information",
-    "editButton": "Edit"
+    "editButton": "Edit",
+    "deleteButton": "Delete"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",

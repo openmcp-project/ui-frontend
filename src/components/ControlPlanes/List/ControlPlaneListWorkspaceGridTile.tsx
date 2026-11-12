@@ -29,7 +29,6 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
 import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
-import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { WorkspaceInfoPopover } from './WorkspaceInfoPopover.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
@@ -349,6 +348,10 @@ export function ControlPlaneListWorkspaceGridTile({
                   setInfoPopoverOpen(false);
                   setDialogEditWsIsOpen(true);
                 }}
+                onDeleteClick={() => {
+                  setInfoPopoverOpen(false);
+                  setDialogDeleteWsIsOpen(true);
+                }}
               />
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>
@@ -357,15 +360,11 @@ export function ControlPlaneListWorkspaceGridTile({
                   </Button>
                 </a>
               )}
-              <ControlPlanesListMenu
-                setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
-                setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                disabled={isForbidden}
-                showCreateActions={shouldCollapsePanel}
-                onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
-              />
               {!shouldCollapsePanel && (
-                <CreateControlPlaneButton onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)} />
+                <CreateControlPlaneButton
+                  disabled={isForbidden}
+                  onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
               )}
             </FlexBox>
           </div>

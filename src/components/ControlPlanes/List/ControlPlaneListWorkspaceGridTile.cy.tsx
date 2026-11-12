@@ -217,8 +217,8 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       }),
     });
 
-    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Delete workspace').click({ force: true });
+    cy.get('#workspace-info-btn-workspaceName').click();
+    cy.get('ui5-popover[open]').contains('Delete').click({ force: true });
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('workspaceName');
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
@@ -233,18 +233,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
   it('does not show the Create Control Plane button when the workspace is collapsed', () => {
     mountTile({ isExpanded: false });
     cy.get('[data-testid="create-control-plane-button"]').should('not.exist');
-  });
-
-  it('offers the create action in the overflow menu when the workspace is collapsed', () => {
-    mountTile({ isExpanded: false });
-    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Create Control Plane').should('exist');
-  });
-
-  it('does not offer the create action in the overflow menu when the workspace is expanded', () => {
-    mountTile({ isExpanded: true });
-    cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Create Control Plane').should('not.exist');
   });
 
   it('does not show the Create Control Plane button when the user is forbidden', () => {

@@ -38,3 +38,12 @@
   align-items: center;
   gap: 0.25rem;
 }
+
+/* Subtle (transparent) destructive button: red text/icon, no filled background. */
+.deleteButton {
+  color: var(--sapNegativeTextColor);
+}
+
+.deleteButton::part(icon) {
+  color: var(--sapNegativeTextColor);
+}

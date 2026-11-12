@@ -1,3 +1,5 @@
+import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/edit';
 import { Bar, Button, Label, Popover, Text, Title } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +19,7 @@ interface Props {
   projectNamespace: string;
   members: Member[];
   onEditClick: () => void;
+  onDeleteClick: () => void;
   isForbidden?: boolean;
 }
 
@@ -30,6 +33,7 @@ export function WorkspaceInfoPopover({
   projectNamespace,
   members,
   onEditClick,
+  onDeleteClick,
   isForbidden = false,
 }: Props) {
   const { t } = useTranslation();
@@ -71,6 +75,17 @@ export function WorkspaceInfoPopover({
                   }}
                 >
                   {t('WorkspaceInfoPopover.editButton')}
+                </Button>
+                <Button
+                  design="Transparent"
+                  icon="delete"
+                  className={styles.deleteButton}
+                  onClick={() => {
+                    onClose();
+                    onDeleteClick();
+                  }}
+                >
+                  {t('WorkspaceInfoPopover.deleteButton')}
                 </Button>
               </div>
             }
