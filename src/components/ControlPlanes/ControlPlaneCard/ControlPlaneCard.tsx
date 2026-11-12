@@ -1,11 +1,6 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
-import '@ui5/webcomponents-icons/dist/accept.js';
-import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/question-mark.js';
-import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
-import '@ui5/webcomponents-icons/dist/arrow-top.js';
 import '@ui5/webcomponents-icons/dist/edit.js';
 import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
@@ -42,7 +37,7 @@ import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
-import { getServiceLifecycle, SERVICE_LIFECYCLE_ICON } from './serviceLifecycleIndicator.ts';
+import { ServiceIcon } from './ServiceIcon.tsx';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -83,6 +78,10 @@ interface ComponentInfo {
   installed: boolean;
   /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
   phase?: string | null;
+  /** V2 only: message from a failing `Ready` condition; drives the error state and its tooltip. */
+  errorMessage?: string | null;
+  /** V2 only: ISO timestamp since the service began reconciling (benign in-progress), for the tooltip. */
+  reconcilingSince?: string | null;
   /** V2 only: identifies the service for the YAML side panel and the edit wizard. */
   serviceKey?: ServiceKey;
   /** V2 only: type of version bump available from catalog, or null if up-to-date. */
@@ -177,6 +176,8 @@ export const ControlPlaneCard = ({
           logo: LogoCrossplane,
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
+          errorMessage: mcpV2Components?.crossplane?.errorMessage,
+          reconcilingSince: mcpV2Components?.crossplane?.reconcilingSince,
           serviceKey: 'crossplane',
           updateDiff: getUpdateDiff('crossplane', mcpV2Components?.crossplane),
         },
@@ -185,6 +186,8 @@ export const ControlPlaneCard = ({
           logo: LogoFlux,
           installed: !!mcpV2Components?.flux,
           phase: mcpV2Components?.flux?.phase,
+          errorMessage: mcpV2Components?.flux?.errorMessage,
+          reconcilingSince: mcpV2Components?.flux?.reconcilingSince,
           serviceKey: 'flux',
           updateDiff: getUpdateDiff('flux', mcpV2Components?.flux),
         },
@@ -195,6 +198,8 @@ export const ControlPlaneCard = ({
                 logo: LogoLandscaper,
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
+                errorMessage: mcpV2Components?.landscaper?.errorMessage,
+                reconcilingSince: mcpV2Components?.landscaper?.reconcilingSince,
                 serviceKey: 'landscaper' as const,
                 updateDiff: getUpdateDiff('landscaper', mcpV2Components?.landscaper),
               },
@@ -205,6 +210,8 @@ export const ControlPlaneCard = ({
           logo: LogoEso,
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
+          errorMessage: mcpV2Components?.externalSecretsOperator?.errorMessage,
+          reconcilingSince: mcpV2Components?.externalSecretsOperator?.reconcilingSince,
           serviceKey: 'externalSecretsOperator',
           updateDiff: getUpdateDiff('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
         },
@@ -213,6 +220,8 @@ export const ControlPlaneCard = ({
           logo: LogoOcm,
           installed: !!mcpV2Components?.ocm,
           phase: mcpV2Components?.ocm?.phase,
+          errorMessage: mcpV2Components?.ocm?.errorMessage,
+          reconcilingSince: mcpV2Components?.ocm?.reconcilingSince,
           serviceKey: 'ocm',
           updateDiff: getUpdateDiff('ocm', mcpV2Components?.ocm),
         },
@@ -221,6 +230,8 @@ export const ControlPlaneCard = ({
           logo: LogoKro,
           installed: !!mcpV2Components?.kro,
           phase: mcpV2Components?.kro?.phase,
+          errorMessage: mcpV2Components?.kro?.errorMessage,
+          reconcilingSince: mcpV2Components?.kro?.reconcilingSince,
           serviceKey: 'kro',
           updateDiff: getUpdateDiff('kro', mcpV2Components?.kro),
         },
@@ -322,67 +333,28 @@ export const ControlPlaneCard = ({
                 </>
               ) : (
                 <>
-                  {installedComponents.map((component) => {
-                    const lifecycle = isV2 ? getServiceLifecycle(component.phase) : null;
-                    return (
-                      <button
-                        key={component.name}
-                        className={styles.componentIcon}
-                        title={component.name}
-                        data-testid={`component-icon-${component.name}`}
-                        onClick={() => {
-                          if (isV2 && component.serviceKey) {
-                            openServiceYamlPanel(component.serviceKey);
-                          } else if (isV2) {
-                            openEditV2Wizard();
-                          } else {
-                            handleIsManagedControlPlaneWizardOpen(true, 'edit');
-                          }
-                        }}
-                      >
-                        <img src={component.logo} alt={component.name} className={styles.componentLogo} />
-                        {(lifecycle === 'installing' || lifecycle === 'deleting') && (
-                          <Icon
-                            name={SERVICE_LIFECYCLE_ICON[lifecycle]}
-                            className={`${styles.statusBadge} ${
-                              lifecycle === 'installing'
-                                ? styles.statusBadgeInstalling
-                                : lifecycle === 'deleting'
-                                  ? styles.statusBadgeDeleting
-                                  : lifecycle === 'ready'
-                                    ? styles.statusBadgeReady
-                                    : styles.statusBadgeUnknown
-                            }`}
-                            data-testid={`service-status-${component.name}`}
-                            accessibleName={t(
-                              lifecycle === 'installing'
-                                ? 'ControlPlaneCard.serviceInstalling'
-                                : lifecycle === 'deleting'
-                                  ? 'ControlPlaneCard.serviceDeleting'
-                                  : lifecycle === 'ready'
-                                    ? 'ControlPlaneCard.serviceReady'
-                                    : 'ControlPlaneCard.serviceUnknown',
-                            )}
-                            showTooltip
-                          />
-                        )}
-                        {component.updateDiff && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
-                          <Icon
-                            name="arrow-top"
-                            className={
-                              component.updateDiff === 'major'
-                                ? styles.updateBadgeMajor
-                                : component.updateDiff === 'minor'
-                                  ? styles.updateBadgeMinor
-                                  : styles.updateBadgePatch
-                            }
-                            accessibleName={t('ControlPlaneCard.updatesAvailable')}
-                            showTooltip
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+                  {installedComponents.map((component) => (
+                    <ServiceIcon
+                      key={component.name}
+                      name={component.name}
+                      logo={component.logo}
+                      phase={component.phase}
+                      errorMessage={component.errorMessage}
+                      reconcilingSince={component.reconcilingSince}
+                      updateDiff={component.updateDiff}
+                      lifecycleEnabled={isV2}
+                      title={component.name}
+                      onClick={() => {
+                        if (isV2 && component.serviceKey) {
+                          openServiceYamlPanel(component.serviceKey);
+                        } else if (isV2) {
+                          openEditV2Wizard();
+                        } else {
+                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                        }
+                      }}
+                    />
+                  ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== undefined : true) && (
                     <button
                       className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}

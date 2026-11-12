@@ -1,0 +1,196 @@
+/*
+ * Service icon with lifecycle-driven motion. The tile keeps the same 3rem
+ * footprint and button affordance as the rest of the card; the state lives
+ * entirely inside the icon stage so the layout never shifts between phases.
+ */
+
+.icon {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.5rem;
+  background: var(--sapTile_Background, #f5f6f7);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  appearance: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.icon:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* The square the logo lives in; both the color image and the tinted silhouette
+   are stacked here and sized identically so they register pixel-for-pixel. */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.logo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ─────────────────────────────── installing ───────────────────────────────
+ * "Coming to life": the logo fades in from nothing, then
+ * snaps back to invisible and fades in again — a looping sawtooth that reads as
+ * "appearing". */
+.installing {
+  border-color: color-mix(in srgb, var(--sapInformativeColor, #0070f2) 45%, transparent);
+  background: color-mix(in srgb, var(--sapInformativeColor, #0070f2) 6%, var(--sapTile_Background, #f5f6f7));
+}
+
+.installing .logo {
+  animation: logo-fade-in 1.6s linear infinite;
+}
+
+/* Fade in across the cycle, then snap back to 0 at the very end. */
+@keyframes logo-fade-in {
+  0% { opacity: 0; }
+  92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ──────────────────────────────── deleting ────────────────────────────────
+ * "Dematerializing": the logo fades out to nothing, then
+ * snaps back to full and fades out again — a looping sawtooth that reads as
+ * "disappearing", behind a restrained red destructive wash on the tile. */
+.deleting {
+  border-color: color-mix(in srgb, var(--sapNegativeColor, #f53232) 40%, transparent);
+  background: color-mix(in srgb, var(--sapNegativeColor, #f53232) 6%, var(--sapTile_Background, #f5f6f7));
+}
+
+.deleting .logo {
+  animation: logo-fade-out 1.6s linear infinite;
+}
+
+/* Fade out across the cycle, then snap back to full opacity at the very end. */
+@keyframes logo-fade-out {
+  0% { opacity: 1; }
+  92% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ──────────────────────────────── unknown ─────────────────────────────────
+ * "Awaiting word": the logo breathes slowly in place — present but
+ * unconfirmed. Quiet, not alarming. */
+.unknown {
+  border-color: color-mix(in srgb, var(--sapNeutralColor, #788fa6) 28%, transparent);
+}
+
+.unknown .logo {
+  animation: await-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes await-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.85; }
+}
+
+/* ───────────────────────────────── error ──────────────────────────────────
+ * "Needs you": a hard, user-actionable reconcile error (e.g. an unavailable
+ * requested version). The logo stays static and fully visible — no wash over it —
+ * so the service is still recognizable; a bold red alert badge in the corner and
+ * the red tile border carry the alarm, and the hover tooltip holds the full
+ * message. No motion — errors should read as a steady alarm, not a loop. */
+.error {
+  border-color: var(--sapNegativeColor, #f53232);
+}
+
+.errorBadge {
+  position: absolute;
+  right: -0.1875rem;
+  top: -0.1875rem;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  border-radius: 50%;
+  color: var(--sapNegativeColor, #f53232);
+  --sapContent_IconColor: var(--sapNegativeColor, #f53232);
+  background: var(--sapBaseColor, #ffffff);
+  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ───────────────────────────── update badge ───────────────────────────── */
+.updateBadgeBase {
+  position: absolute;
+  right: -0.125rem;
+  top: -0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0.0625rem;
+  border-radius: 50%;
+  background: var(--sapBaseColor, #ffffff);
+  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.updateBadgePatch {
+  composes: updateBadgeBase;
+  color: var(--sapNeutralColor, #6a6d70);
+  --sapContent_IconColor: var(--sapNeutralColor, #6a6d70);
+}
+
+.updateBadgeMinor {
+  composes: updateBadgeBase;
+  color: #f0ab00;
+  --sapContent_IconColor: #f0ab00;
+}
+
+.updateBadgeMajor {
+  composes: updateBadgeBase;
+  color: #f97316;
+  --sapContent_IconColor: #f97316;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─────────────────────────── reduced motion ───────────────────────────────
+ * Keep the meaning (a clear static read of the state) but drop all looping
+ * movement. */
+@media (prefers-reduced-motion: reduce) {
+  .installing .logo,
+  .deleting .logo,
+  .unknown .logo {
+    animation: none !important;
+  }
+
+  /* installing: a half-present logo reads as "appearing". */
+  .installing .logo {
+    opacity: 0.55;
+  }
+
+  /* deleting: a faded logo reads as "disappearing". */
+  .deleting .logo {
+    opacity: 0.45;
+  }
+
+  .unknown .logo {
+    opacity: 0.55;
+  }
+}

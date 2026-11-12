@@ -128,54 +128,6 @@
   100% { background-position: -200% 0; }
 }
 
-.componentLogo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Tiny per-service lifecycle badge overlaid on the bottom-right of a service icon (V2 only). */
-.statusBadge {
-  position: absolute;
-  right: -0.125rem;
-  bottom: -0.125rem;
-  width: 0.75rem;
-  height: 0.75rem;
-  padding: 0.0625rem;
-  border-radius: 50%;
-  background: var(--sapBaseColor, #ffffff);
-  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Critical (orange), matching ComponentCardV2's PHASE_VISUALS for the same Progressing phase. */
-.statusBadgeInstalling {
-  color: var(--sapCriticalColor, #e76500);
-  --sapContent_IconColor: var(--sapCriticalColor, #e76500);
-}
-
-/* Negative (red), matching both ComponentCardV2's PHASE_VISUALS for Terminating and this app's
-   delete-button convention (DeleteConfirmationDialog uses ButtonDesign.Negative) — a destructive,
-   in-progress removal reads differently from a benign install. */
-.statusBadgeDeleting {
-  color: var(--sapNegativeColor, #f53232);
-  --sapContent_IconColor: var(--sapNegativeColor, #f53232);
-}
-
-/* Positive (green) — service is fully ready. */
-.statusBadgeReady {
-  color: var(--sapPositiveColor, #188918);
-  --sapContent_IconColor: var(--sapPositiveColor, #188918);
-}
-
-/* Neutral (gray) — phase is unknown or not yet reported. */
-.statusBadgeUnknown {
-  color: var(--sapNeutralColor, #788fa6);
-  --sapContent_IconColor: var(--sapNeutralColor, #788fa6);
-}
-
 .addComponentPlaceholder {
   box-sizing: border-box;
   appearance: none;
@@ -184,40 +136,6 @@
   cursor: pointer;
   background: none;
   --sapContent_IconColor: var(--sapButton_Emphasized_Background, #0070f2);
-}
-
-/* Update available badge (top-right on service logo). Base layout shared, color per severity. */
-.updateBadgeBase {
-  position: absolute;
-  right: -0.125rem;
-  top: -0.125rem;
-  width: 0.75rem;
-  height: 0.75rem;
-  padding: 0.0625rem;
-  border-radius: 50%;
-  background: var(--sapBaseColor, #ffffff);
-  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.updateBadgePatch {
-  composes: updateBadgeBase;
-  color: var(--sapPositiveColor, #188918);
-  --sapContent_IconColor: var(--sapPositiveColor, #188918);
-}
-
-.updateBadgeMinor {
-  composes: updateBadgeBase;
-  color: #f0ab00;
-  --sapContent_IconColor: #f0ab00;
-}
-
-.updateBadgeMajor {
-  composes: updateBadgeBase;
-  color: #f97316;
-  --sapContent_IconColor: #f97316;
 }
 
 .addComponentPlaceholder:hover {

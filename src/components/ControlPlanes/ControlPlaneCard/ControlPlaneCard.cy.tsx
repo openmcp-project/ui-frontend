@@ -182,6 +182,16 @@ const v2ComponentsMixedLifecycle: McpV2Components = {
   crossplane: { phase: 'Progressing' },
   flux: { phase: 'Terminating' },
 };
+// A control plane where OCM is stuck on a hard, user-actionable reconcile error while still
+// reporting `Progressing`; the error message must win over the phase and reach the tooltip.
+const v2ComponentsWithError: McpV2Components = {
+  crossplane: { phase: 'Ready' },
+  ocm: {
+    phase: 'Progressing',
+    version: 'v0.3.0',
+    errorMessage: 'invalid user input: requested version is not available: "v0.3.0"',
+  },
+};
 
 const mountCard = (controlPlane: ControlPlaneListItem) => {
   cy.mount(
@@ -530,7 +540,7 @@ describe('ControlPlaneCard', () => {
   });
 
   describe('per-service lifecycle badge (v2 only)', () => {
-    it('shows an installing badge for a Progressing service and a deleting badge for a Terminating one', () => {
+    it('encodes installing and deleting lifecycles on the service icon (v2)', () => {
       cy.mount(
         <MockedProvider mocks={[]}>
           <MemoryRouter>
@@ -551,8 +561,39 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('[data-testid="service-status-Crossplane"]').should('have.attr', 'name', 'synchronize');
-      cy.get('[data-testid="service-status-Flux"]').should('have.attr', 'name', 'delete');
+      cy.get('[data-testid="component-icon-Crossplane"]').should('have.attr', 'data-lifecycle', 'installing');
+      cy.get('[data-testid="component-icon-Flux"]').should('have.attr', 'data-lifecycle', 'deleting');
+      cy.get('[data-testid="service-status-Crossplane"]').should('exist');
+      cy.get('[data-testid="service-status-Flux"]').should('exist');
+    });
+
+    it('flags a service with a failing Ready condition as error and surfaces the full message (v2)', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    v2Components={v2ComponentsWithError}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      // The error overrides the raw `Progressing` phase.
+      cy.get('[data-testid="component-icon-OCM"]')
+        .should('have.attr', 'data-lifecycle', 'error')
+        .and('have.attr', 'title', 'invalid user input: requested version is not available: "v0.3.0"');
+      // The healthy service beside it stays ready (no status badge).
+      cy.get('[data-testid="component-icon-Crossplane"]').should('have.attr', 'data-lifecycle', 'ready');
     });
 
     it('shows no badge when every installed service is Ready', () => {
