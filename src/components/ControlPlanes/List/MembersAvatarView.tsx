@@ -17,9 +17,17 @@ interface Props {
   hideNamespaceColumn?: boolean;
   source: MembersViewedSource;
   maxWidth?: string;
+  // ControlPlane (v2) members: roles are Kubernetes RBAC role refs — see MemberTable.
+  clusterRoles?: boolean;
 }
 
-export function MembersAvatarView({ members, hideNamespaceColumn = false, source, maxWidth = '200px' }: Props) {
+export function MembersAvatarView({
+  members,
+  hideNamespaceColumn = false,
+  source,
+  maxWidth = '200px',
+  clusterRoles = false,
+}: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
@@ -74,6 +82,7 @@ export function MembersAvatarView({ members, hideNamespaceColumn = false, source
                 members={members}
                 requireAtLeastOneMember={false}
                 hideNamespaceColumn={hideNamespaceColumn}
+                clusterRoles={clusterRoles}
               />
             )}
           </Suspense>

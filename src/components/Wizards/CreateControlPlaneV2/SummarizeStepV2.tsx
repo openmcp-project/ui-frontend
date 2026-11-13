@@ -114,7 +114,9 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   const members = rawInput.roleBindings.flatMap((rb) =>
     rb.subjects.map((subject) => ({
       ...subject,
-      role: rb.roleRefs[0]?.name ?? '',
+      role: rb.roleRefs
+        .map((ref) => (ref.kind === 'Role' && ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name))
+        .join(', '),
     })),
   );
 
@@ -162,7 +164,9 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
             const providerSubjects = provider.roleBindings.flatMap((rb) =>
               rb.subjects.map((subject) => ({
                 ...subject,
-                role: rb.roleRefs[0]?.name ?? '',
+                role: rb.roleRefs
+                  .map((ref) => (ref.kind === 'Role' && ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name))
+                  .join(', '),
               })),
             );
             if (providerSubjects.length === 0) return null;

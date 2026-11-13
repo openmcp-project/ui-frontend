@@ -4,13 +4,8 @@ import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext.tsx';
-import {
-  areMembersEqual,
-  MCP_V2_DEFAULT_ROLE,
-  MCP_V2_VIEWER_ROLE,
-  mcpV2RoleOptions,
-  Member,
-} from '../../lib/api/types/shared/members';
+import { mapMemberRoleToClusterRole } from '../../lib/api/types/shared/clusterRoles.ts';
+import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
@@ -125,18 +120,11 @@ export const EditMembers: FC<EditMembersProps> = ({
           return;
         }
 
-        const normalizeV2Role = (roleInput?: string | null): string => {
-          const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-          if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
-            return MCP_V2_VIEWER_ROLE;
-          }
-          return MCP_V2_DEFAULT_ROLE;
-        };
-
         const normalized = isV2
           ? {
               ...importedMember,
-              roles: [normalizeV2Role(importedMember.roles?.[0])],
+              // Project/workspace members carry `admin` / `view`; translate them to ClusterRoles.
+              roles: [mapMemberRoleToClusterRole(importedMember.roles?.[0])],
               namespace: importedMember.kind === 'ServiceAccount' ? importedMember.namespace : undefined,
             }
           : importedMember;
@@ -214,7 +202,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         memberToEdit={memberToEdit}
         accountTypeOptions={accountTypeOptions}
         testIdPrefix={testIdPrefix}
-        {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
+        clusterRoles={isV2}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
@@ -233,6 +221,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
+        clusterRoles={isV2}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}
         onEditMember={handleEditMember}

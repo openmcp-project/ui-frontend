@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
-import { Activity, FC, useEffect, useMemo } from 'react';
+import { Activity, FC, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { ClusterRolesSelect } from './ClusterRolesSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import styles from './Members.module.css';
 
@@ -17,8 +19,9 @@ interface AddEditMemberDialogProps {
   existingMembers: Member[];
   memberToEdit?: Member;
   accountTypeOptions?: RadioButtonsSelectOption[];
-  roleOptions?: RadioButtonsSelectOption[];
-  defaultRole?: string;
+  // ControlPlane (v2): members are bound to one or more Kubernetes ClusterRoles instead of a single
+  // project/workspace role.
+  clusterRoles?: boolean;
   testIdPrefix?: string;
 }
 
@@ -26,6 +29,8 @@ type MemberFormData = {
   accountType: AccountType;
   name: string;
   role: string;
+  // clusterRoles mode only
+  roles: string[];
   namespace?: string;
 };
 
@@ -36,8 +41,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   existingMembers,
   memberToEdit,
   accountTypeOptions,
-  roleOptions,
-  defaultRole,
+  clusterRoles = false,
   testIdPrefix,
 }) => {
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
@@ -50,7 +54,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     [allowedAccountTypes],
   );
   const effectiveRoleOptions = useMemo((): RadioButtonsSelectOption[] => {
-    const base = roleOptions ?? memberRolesOptions;
+    const base = memberRolesOptions;
     if (!memberToEdit) return base;
     const editedRole = memberToEdit.roles?.[0];
     if (!editedRole || base.some((o) => o.value === editedRole)) return base;
@@ -59,8 +63,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     // pre-fills correctly instead of showing a blank selection.
     const existing = MemberRolesDetailed[editedRole];
     return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
-  }, [roleOptions, memberToEdit]);
-  const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
+  }, [memberToEdit]);
+  const effectiveDefaultRole = MemberRoles.view;
+  const [hasInvalidRoleInput, setHasInvalidRoleInput] = useState(false);
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
   const { serviceAccoutsGuide } = useLink();
@@ -72,9 +77,18 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           accountType: z.enum(['User', 'Group', 'ServiceAccount']),
           name: z.string(),
           role: z.string(),
+          roles: z.array(z.string()),
           namespace: z.string().optional(),
         })
         .superRefine((data, ctx) => {
+          if (clusterRoles && data.roles.length === 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['roles'],
+              message: t('ClusterRoles.atLeastOneRole'),
+            });
+          }
+
           if (!allowedAccountTypes.includes(data.accountType)) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
@@ -99,7 +113,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             });
           }
         }),
-    [t, existingMembers, memberToEdit, allowedAccountTypes],
+    [t, existingMembers, memberToEdit, allowedAccountTypes, clusterRoles],
   );
 
   const {
@@ -116,12 +130,14 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       accountType: allowedAccountTypes[0] ?? 'User',
       name: '',
       role: effectiveDefaultRole,
+      roles: [DEFAULT_CLUSTER_ROLE],
       namespace: '',
     },
   });
 
   const accountType = useWatch({ control, name: 'accountType' });
   const role = useWatch({ control, name: 'role' });
+  const roles = useWatch({ control, name: 'roles' });
 
   useEffect(() => {
     if (open) {
@@ -132,6 +148,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         reset({
           name: memberToEdit.name,
           role: memberToEdit.roles?.[0] || effectiveDefaultRole,
+          roles: memberToEdit.roles?.length ? uniqueRoles(memberToEdit.roles) : [DEFAULT_CLUSTER_ROLE],
           accountType,
           namespace: accountType === 'ServiceAccount' ? (memberToEdit?.namespace ?? '') : '',
         });
@@ -140,24 +157,32 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           accountType: allowedAccountTypes[0] ?? 'User',
           name: '',
           role: effectiveDefaultRole,
+          roles: [DEFAULT_CLUSTER_ROLE],
           namespace: '',
         });
       }
     }
   }, [open, memberToEdit, reset, effectiveDefaultRole, allowedAccountTypes]);
 
+  const handleClose = () => {
+    setHasInvalidRoleInput(false);
+    onClose();
+  };
+
   const onFormSubmit = (data: MemberFormData) => {
+    // Text left in the custom-role input that is not a valid ClusterRole name must not be dropped silently.
+    if (clusterRoles && hasInvalidRoleInput) return;
     const trimmedName = data.name.trim();
 
     const newMember: Member = {
       name: trimmedName,
-      roles: [data.role],
+      roles: clusterRoles ? uniqueRoles(data.roles) : [data.role],
       kind: data.accountType,
       ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
     };
 
     onSave(newMember, isEdit);
-    onClose();
+    handleClose();
   };
 
   const dialogHeader = memberToEdit
@@ -169,7 +194,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       design="Footer"
       endContent={
         <>
-          <Button design="Transparent" onClick={onClose}>
+          <Button design="Transparent" onClick={handleClose}>
             {t('buttons.cancel')}
           </Button>
           <Button
@@ -188,7 +213,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   );
 
   return (
-    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={onClose}>
+    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={handleClose}>
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
@@ -214,7 +239,18 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           />
         </FlexBox>
         <FlexBox alignItems="Stretch" direction={'Column'}>
-          {effectiveRoleOptions.length > 1 && (
+          {clusterRoles && open && (
+            <div className={styles.wrapper}>
+              <ClusterRolesSelect
+                roles={roles}
+                errorMessage={errors.roles?.message}
+                testIdPrefix={testIdPrefix}
+                onChange={(next) => setValue('roles', next, { shouldValidate: true, shouldDirty: true })}
+                onInvalidInputChange={setHasInvalidRoleInput}
+              />
+            </div>
+          )}
+          {!clusterRoles && effectiveRoleOptions.length > 1 && (
             <div className={styles.wrapper}>
               <RadioButtonsSelect
                 selectedValue={role}

@@ -320,7 +320,12 @@ function ControlPlaneInfoPopover({
             <Label>
               {t('common.members')} ({members.length})
             </Label>
-            <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-detail" />
+            <MembersAvatarView
+              members={members}
+              hideNamespaceColumn
+              source="controlplane-detail"
+              clusterRoles={resourceType === 'controlplanes'}
+            />
           </div>
         )}
 

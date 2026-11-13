@@ -593,8 +593,12 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.wrap(updatePayload).should('not.be.null');
       cy.wrap(updatePayload!.name).should('eq', 'existing-mcp');
       cy.wrap(updatePayload!.namespace).should('eq', 'project-my-project--ws-my-workspace');
-      // two role bindings — admin and view
+      // two role bindings — the ClusterRoles of the existing bindings are written back unchanged
       cy.wrap(updatePayload!.roleBindings).should('have.length', 2);
+      cy.wrap(updatePayload!.roleBindings.map((rb) => rb.roleRefs.map((ref) => ref.name))).should('deep.equal', [
+        ['admin'],
+        ['view'],
+      ]);
     });
     cy.then(() => cy.wrap(createPayload).should('be.null'));
   });

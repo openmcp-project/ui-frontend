@@ -350,6 +350,21 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
+  "ClusterRoles": {
+    "label": "ClusterRoles",
+    "customLabel": "Other ClusterRoles",
+    "customPlaceholder": "ClusterRole name, then Enter",
+    "namespacedRoleToken": "{{role}} (Role)",
+    "invalidName": "Not a valid ClusterRole name. Names must not contain spaces, '/' or '%'.",
+    "atLeastOneRole": "Select at least one role.",
+    "hint": "A member can have several roles, their permissions add up. cluster-admin, admin, edit and view exist in every control plane. Any other ClusterRole must already exist in the control plane, otherwise the binding has no effect. <link1>Kubernetes RBAC documentation</link1>",
+    "presets": {
+      "clusterAdmin": "Full access to every resource in the control plane, including RBAC itself.",
+      "admin": "Read/write access to namespaced resources in all namespaces, including Roles and RoleBindings. No access to cluster-scoped resources.",
+      "edit": "Read/write access to most namespaced resources in all namespaces, including Secrets. Cannot view or change Roles and RoleBindings.",
+      "view": "Read-only access to most namespaced resources in all namespaces. Cannot view Secrets, Roles or RoleBindings."
+    }
+  },
   "IdentityProviders": {
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
     "defaultProviderGroupTitle": "Default identity provider",

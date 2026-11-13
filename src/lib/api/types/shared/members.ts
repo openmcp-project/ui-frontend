@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_CLUSTER_ROLE } from './clusterRoles.ts';
 import { RadioButtonsSelectOption } from '../../../../components/Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 
 export enum MemberRoles {
@@ -11,20 +12,12 @@ export const memberRolesOptions: RadioButtonsSelectOption[] = [
   { label: 'Admin', value: MemberRoles.admin, icon: 'shield' },
 ];
 
-export const MCP_V2_DEFAULT_ROLE = 'cluster-admin';
-export const MCP_V2_VIEWER_ROLE = 'viewer';
-
-export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
-  { value: 'cluster-admin', label: 'Cluster Admin', icon: 'badge' },
-  // TODO: re-enable once the viewer ClusterRole is provisioned on all managed clusters.
-  // { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
-];
+// ControlPlane (v2) members carry Kubernetes RBAC role refs instead of the roles above — see ./clusterRoles.ts.
+export const MCP_V2_DEFAULT_ROLE = DEFAULT_CLUSTER_ROLE;
 
 export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {
   [MemberRoles.view]: { value: MemberRoles.view, displayValue: 'Viewer' },
   [MemberRoles.admin]: { value: MemberRoles.admin, displayValue: 'Administrator' },
-  [MCP_V2_DEFAULT_ROLE]: { value: MCP_V2_DEFAULT_ROLE, displayValue: 'Cluster Admin' },
-  [MCP_V2_VIEWER_ROLE]: { value: MCP_V2_VIEWER_ROLE, displayValue: 'Viewer' },
 };
 
 export enum MemberKind {

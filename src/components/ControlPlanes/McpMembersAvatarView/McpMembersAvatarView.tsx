@@ -7,14 +7,24 @@ import styles from './McpMembersAvatarView.module.css';
 interface Props {
   roleBindings?: { role: string; subjects: { kind: string; name: string }[]; provider?: string }[];
   compact?: boolean;
+  // ControlPlane (v2): `role` values are Kubernetes RBAC role refs.
+  clusterRoles?: boolean;
 }
 
-export function McpMembersAvatarView({ roleBindings, compact = false }: Props) {
+export function McpMembersAvatarView({ roleBindings, compact = false, clusterRoles = false }: Props) {
   const members = convertRoleBindingsToMembers(roleBindings);
   const { t } = useTranslation();
 
   if (compact) {
-    return <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-card" maxWidth="7rem" />;
+    return (
+      <MembersAvatarView
+        members={members}
+        hideNamespaceColumn
+        source="controlplane-card"
+        maxWidth="7rem"
+        clusterRoles={clusterRoles}
+      />
+    );
   }
 
   return (
@@ -22,7 +32,12 @@ export function McpMembersAvatarView({ roleBindings, compact = false }: Props) {
       <Text className={styles.membersTitle}>
         {t('common.members')} ({members.length}):
       </Text>
-      <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-detail" />
+      <MembersAvatarView
+        members={members}
+        hideNamespaceColumn
+        source="controlplane-detail"
+        clusterRoles={clusterRoles}
+      />
     </FlexBox>
   );
 }

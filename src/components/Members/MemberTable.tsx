@@ -17,14 +17,20 @@ import {
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/role';
+import {
+  clusterRoleIcon,
+  DEFAULT_CLUSTER_ROLE,
+  formatRoleRef,
+  uniqueRoles,
+} from '../../lib/api/types/shared/clusterRoles.ts';
 import {
   isUnnamedProvider,
-  MCP_V2_DEFAULT_ROLE,
   Member,
   memberRolesOptions,
   MemberRoles,
   MemberRolesDetailed,
-  mcpV2RoleOptions,
 } from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
@@ -34,6 +40,8 @@ type MemberTableRow = {
   email: string;
   role: string;
   roleValue: string;
+  // clusterRoles mode: every role the member is bound to (encoded role refs).
+  roleValues: string[];
   kind: string;
   namespace: string;
   _member: Member;
@@ -46,18 +54,20 @@ type MemberTableProps = {
   isValidationError?: boolean;
   requireAtLeastOneMember: boolean;
   hideNamespaceColumn?: boolean;
+  // ControlPlane (v2) members: `roles` are Kubernetes RBAC role refs (possibly several per member),
+  // shown by their real names instead of the project/workspace role labels.
+  clusterRoles?: boolean;
 };
 
 // Icon per role value, reusing the same options arrays the role-picker dropdowns use — one
 // source of truth instead of a badge-only copy that could drift from them.
 const ROLE_ICON_BY_VALUE: Record<string, string> = Object.fromEntries(
-  [...memberRolesOptions, ...mcpV2RoleOptions].map(({ value, icon }) => [value, icon ?? 'show']),
+  memberRolesOptions.map(({ value, icon }) => [value, icon ?? 'show']),
 );
 
 // Badge severity has no other owner in the codebase — it's purely a table presentation choice.
 const ROLE_STATE_BY_VALUE: Record<string, ValueState> = {
   [MemberRoles.admin]: ValueState.Critical,
-  [MCP_V2_DEFAULT_ROLE]: ValueState.Negative,
 };
 
 const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
@@ -65,12 +75,20 @@ const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
   state: ROLE_STATE_BY_VALUE[roleValue] ?? ValueState.None,
 });
 
-const toRow = (m: Member): MemberTableRow => {
+// cluster-admin is unrestricted access to the whole ControlPlane — keep it visually distinct.
+const clusterRoleState = (role: string): ValueState =>
+  role === DEFAULT_CLUSTER_ROLE ? ValueState.Negative : ValueState.None;
+
+const toRow = (m: Member, clusterRoles: boolean): MemberTableRow => {
   const roleValue = m.roles?.[0] ?? '';
+  const roleValues = uniqueRoles(m.roles ?? []);
   return {
     email: m.name,
-    role: MemberRolesDetailed[roleValue]?.displayValue ?? m.roles?.toString(),
+    role: clusterRoles
+      ? roleValues.map(formatRoleRef).join(', ')
+      : (MemberRolesDetailed[roleValue]?.displayValue ?? m.roles?.toString()),
     roleValue,
+    roleValues,
     kind: m.kind,
     namespace: m.namespace ?? '',
     _member: m,
@@ -108,6 +126,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   isValidationError = false,
   requireAtLeastOneMember,
   hideNamespaceColumn = false,
+  clusterRoles = false,
 }) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
@@ -140,9 +159,25 @@ export const MemberTable: FC<MemberTableProps> = ({
       {
         Header: t('MemberTable.columnRoleHeader'),
         accessor: 'role',
-        width: 125,
+        ...(clusterRoles ? { minWidth: 160 } : { width: 125 }),
         Cell: (instance) => {
           const row = instance.cell.row.original as MemberTableRow;
+          if (clusterRoles) {
+            return (
+              <FlexBox gap="0.25rem" title={row.role}>
+                {row.roleValues.map((role) => (
+                  <ObjectStatus
+                    key={role}
+                    state={clusterRoleState(role)}
+                    icon={<Icon name={clusterRoleIcon(role)} />}
+                    inverted
+                  >
+                    {formatRoleRef(role)}
+                  </ObjectStatus>
+                ))}
+              </FlexBox>
+            );
+          }
           const meta = roleMeta(row.roleValue);
           return (
             <ObjectStatus state={meta.state} icon={<Icon name={meta.icon} />} inverted>
@@ -193,7 +228,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     }
 
     return cols;
-  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember]);
+  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles]);
 
   const providerLabel = useCallback(
     (provider?: string): string => {
@@ -215,7 +250,7 @@ export const MemberTable: FC<MemberTableProps> = ({
 
     const groups = new Map<string | undefined, MemberTableRow[]>();
     for (const m of members) {
-      const row = toRow(m);
+      const row = toRow(m, clusterRoles);
       if (!matchesQuery(row)) continue;
       if (!groups.has(m.provider)) groups.set(m.provider, []);
       groups.get(m.provider)!.push(row);
@@ -225,7 +260,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       groups.set(undefined, []);
     }
     return [...groups.entries()].map(([provider, rows]) => ({ provider, rows }));
-  }, [members, search, providerLabel]);
+  }, [members, search, providerLabel, clusterRoles]);
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (

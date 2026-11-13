@@ -44,3 +44,15 @@
 .serviceAccountContainerHidden {
   opacity: 0;
 }
+
+.hint {
+  color: var(--sapContent_LabelColor);
+  max-width: 465px;
+  text-wrap: wrap;
+}
+
+.errorText {
+  color: var(--sapNegativeTextColor);
+  font-size: var(--sapFontSmallSize);
+  margin-top: 0.25rem;
+}

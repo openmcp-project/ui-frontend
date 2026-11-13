@@ -700,7 +700,7 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView roleBindings={roleBindings} />
+                    <McpMembersAvatarView roleBindings={roleBindings} clusterRoles />
 
                     <FlexBox direction="Column">
                       <Text className={styles.supportInfoText}>{t('SupportInfo.sectionLabel')}</Text>
