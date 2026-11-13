@@ -6,9 +6,15 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext.tsx';
 import { mapMemberRoleToClusterRole } from '../../lib/api/types/shared/clusterRoles.ts';
 import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
+import { useLink } from '../../lib/shared/useLink.ts';
+import {
+  useClusterRoles as _useClusterRoles,
+  type ClusterRolesLookup,
+} from '../../spaces/controlPlaneV2/hooks/useClusterRoles.ts';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
+import { resolveExistingClusterRoles } from './memberRoles.ts';
 import styles from './Members.module.css';
 import { MemberTable } from './MemberTable.tsx';
 
@@ -29,6 +35,8 @@ export interface EditMembersProps {
   testIdPrefix?: string;
   // V2-only: ClusterRoles that exist in the control plane (undefined while unknown/loading).
   existingClusterRoles?: string[];
+  // Injectable for tests (CLAUDE.md "Injectable hooks"); defaults to the real lookup.
+  useClusterRoles?: () => ClusterRolesLookup;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -65,8 +73,22 @@ export const EditMembers: FC<EditMembersProps> = ({
   providerName,
   testIdPrefix,
   existingClusterRoles,
+  useClusterRoles = _useClusterRoles,
 }) => {
   const { t } = useTranslation();
+  const { mcpOnboardingAuthDocs } = useLink();
+  // Runs a request only inside a control-plane context (mcpConfig set); 'unknown' everywhere else,
+  // which skips the lookup without triggering a login. See useClusterRoles.
+  const lookup = useClusterRoles();
+  const clusterRolesActive = isV2;
+  // `existingClusterRoles` passed from above wins (e.g. a precomputed value); otherwise use the
+  // lookup, and only once it is 'ready' — an empty array would wrongly flag every role.
+  const effectiveExistingClusterRoles = resolveExistingClusterRoles(
+    isV2,
+    lookup.state,
+    lookup.all,
+    existingClusterRoles,
+  );
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
   const usesUserGroupAccountTypes = useMemo(
     () =>
@@ -206,6 +228,12 @@ export const EditMembers: FC<EditMembersProps> = ({
         accountTypeOptions={accountTypeOptions}
         testIdPrefix={testIdPrefix}
         clusterRoles={isV2}
+        availableCustomRoles={clusterRolesActive ? lookup.selectable : undefined}
+        customRolesState={clusterRolesActive ? lookup.state : undefined}
+        platformDocsUrl={clusterRolesActive ? mcpOnboardingAuthDocs : undefined}
+        aggregatedRoles={clusterRolesActive ? lookup.aggregated : undefined}
+        canManageRoles={clusterRolesActive && (lookup.state === 'ready' || lookup.state === 'error')}
+        onRoleApplied={lookup.refresh}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
@@ -225,7 +253,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
         clusterRoles={isV2}
-        existingClusterRoles={existingClusterRoles}
+        existingClusterRoles={effectiveExistingClusterRoles}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}
         onEditMember={handleEditMember}

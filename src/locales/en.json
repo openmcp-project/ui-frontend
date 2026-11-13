@@ -380,7 +380,11 @@
       "create": "Create role",
       "upload": "Upload YAML",
       "loadError": "Roles could not be loaded, so they are not checked.",
-      "notFoundSuffix": "{{role}} (not found)"
+      "notFoundSuffix": "{{role}} (not found)",
+      "statusExists": "Exists",
+      "statusNotFound": "Not found",
+      "rowView": "View",
+      "rowCreate": "Create"
     },
     "roles": {
       "clusterAdmin": {
@@ -405,6 +409,24 @@
       "summary_one": "{{count}} assigned role does not exist in the control plane and grants no access: {{roles}}",
       "summary_other": "{{count}} assigned roles do not exist in the control plane and grant no access: {{roles}}"
     }
+  },
+  "ClusterRoleDialog": {
+    "titleView": "ClusterRole: {{name}}",
+    "titleEdit": "Edit ClusterRole: {{name}}",
+    "titleCreate": "Create ClusterRole",
+    "edit": "Edit",
+    "create": "Create",
+    "save": "Save",
+    "immediate": "Changes to a role take effect in the control plane immediately, independent of saving this member or the wizard.",
+    "readOnlyReason": "Built-in, system and aggregated roles are managed by Kubernetes and cannot be edited.",
+    "loadError": "This role could not be loaded.",
+    "loadForbidden": "You are not allowed to read this role.",
+    "applied": "ClusterRole {{name}} saved.",
+    "errorWrongType": "Only a ClusterRole (apiVersion rbac.authorization.k8s.io/v1, kind ClusterRole) can be created here.",
+    "errorMultiDoc": "Provide exactly one ClusterRole document.",
+    "errorInvalidName": "The role name is not a valid ClusterRole name.",
+    "errorRenamed": "The role name cannot be changed. It must stay \"{{name}}\".",
+    "errorParse": "The YAML could not be parsed: {{detail}}"
   },
   "IdentityProviders": {
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",

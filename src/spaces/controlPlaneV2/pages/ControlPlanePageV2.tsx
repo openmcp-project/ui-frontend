@@ -40,6 +40,7 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { useClusterRoles } from '../hooks/useClusterRoles.ts';
 import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
 import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
@@ -111,6 +112,9 @@ function OpenSourceHeadlamp({
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  // Runs inside the control-plane session, so the ShellBar popover (which is outside it) can mark
+  // roles that do not exist. Handed over through setMcpActions.
+  const clusterRolesLookup = useClusterRoles();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
@@ -203,6 +207,7 @@ function OpenSourceHeadlamp({
       workspace: workspaceName,
       namespace: mcpNamespace,
       resourceType: 'controlplanes',
+      existingClusterRoles: clusterRolesLookup.state === 'ready' ? clusterRolesLookup.all : undefined,
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
@@ -217,6 +222,8 @@ function OpenSourceHeadlamp({
     mcp.kubeconfig,
     mcp.name,
     roleBindings,
+    clusterRolesLookup.state,
+    clusterRolesLookup.all,
     projectName,
     workspaceName,
     mcpNamespace,

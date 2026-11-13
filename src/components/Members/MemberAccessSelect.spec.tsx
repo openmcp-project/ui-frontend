@@ -123,4 +123,35 @@ describe('MemberAccessSelect', () => {
     expect(onCreateRole).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByTestId('upload-custom-role')).toHaveLength(0);
   });
+
+  it('lists a View action for an existing custom role and a Create action for a not-found one', () => {
+    const onViewRole = vi.fn();
+    const onCreateRole = vi.fn();
+    render(
+      <MemberAccessSelect
+        roles={['crossplane-view', 'missing-role']}
+        availableCustomRoles={['crossplane-view']}
+        customRolesState="ready"
+        onChange={() => {}}
+        onViewRole={onViewRole}
+        onCreateRole={onCreateRole}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('custom-role-view-crossplane-view'));
+    expect(onViewRole).toHaveBeenCalledWith('crossplane-view');
+    fireEvent.click(screen.getByTestId('custom-role-create-missing-role'));
+    expect(onCreateRole).toHaveBeenCalledWith('missing-role');
+  });
+
+  it('shows no per-role status or action while the roles are unknown', () => {
+    render(
+      <MemberAccessSelect
+        roles={['crossplane-view']}
+        customRolesState="unknown"
+        onChange={() => {}}
+        onViewRole={() => {}}
+      />,
+    );
+    expect(screen.queryAllByTestId('custom-roles-list')).toHaveLength(0);
+  });
 });

@@ -51,7 +51,10 @@ export interface MemberAccessSelectProps {
   availableCustomRoles?: string[];
   customRolesState?: CustomRolesState;
   platformDocsUrl?: string;
-  onCreateRole?: () => void;
+  /** Opens the create-role dialog, optionally prefilled with a not-found role's name. */
+  onCreateRole?: (name?: string) => void;
+  /** Opens the view-role dialog for an existing role. */
+  onViewRole?: (name: string) => void;
   onUploadRole?: () => void;
   errorMessage?: string;
   testIdPrefix?: string;
@@ -64,6 +67,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   customRolesState = 'unknown',
   platformDocsUrl,
   onCreateRole,
+  onViewRole,
   onUploadRole,
   errorMessage,
   testIdPrefix,
@@ -233,6 +237,50 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
               <SuggestionItem key={role} text={role} />
             ))}
           </MultiInput>
+          {customSelected.length > 0 && (customRolesState === 'ready' || customRolesState === 'error') && (
+            <FlexBox direction="Column" gap={2} data-testid={withTestId('custom-roles-list')}>
+              {customSelected.map((role) => {
+                const notFound = isNotFound(role);
+                return (
+                  <FlexBox
+                    key={role}
+                    alignItems="Center"
+                    justifyContent="SpaceBetween"
+                    className={styles.customRoleRow}
+                  >
+                    <Text>{formatRoleRef(role)}</Text>
+                    <FlexBox alignItems="Center" gap={8}>
+                      {notFound ? (
+                        <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.statusNotFound')}</Text>
+                      ) : (
+                        !isNamespacedRole(role) && (
+                          <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.statusExists')}</Text>
+                        )
+                      )}
+                      {notFound && onCreateRole && (
+                        <Button
+                          design="Transparent"
+                          data-testid={withTestId(`custom-role-create-${role}`)}
+                          onClick={() => onCreateRole(role)}
+                        >
+                          {t('MemberAccess.custom.rowCreate')}
+                        </Button>
+                      )}
+                      {!notFound && !isNamespacedRole(role) && onViewRole && (
+                        <Button
+                          design="Transparent"
+                          data-testid={withTestId(`custom-role-view-${role}`)}
+                          onClick={() => onViewRole(role)}
+                        >
+                          {t('MemberAccess.custom.rowView')}
+                        </Button>
+                      )}
+                    </FlexBox>
+                  </FlexBox>
+                );
+              })}
+            </FlexBox>
+          )}
           {customRolesState === 'loading' && <BusyIndicator active delay={0} size="S" />}
           {customRolesState === 'unknown' && (
             <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.unknown')}</Text>
@@ -252,7 +300,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
                   design="Transparent"
                   icon="add"
                   data-testid={withTestId('create-custom-role')}
-                  onClick={onCreateRole}
+                  onClick={() => onCreateRole()}
                 >
                   {t('MemberAccess.custom.create')}
                 </Button>

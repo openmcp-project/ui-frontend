@@ -19,6 +19,8 @@ interface Props {
   maxWidth?: string;
   // ControlPlane (v2) members: roles are Kubernetes RBAC role refs — see MemberTable.
   clusterRoles?: boolean;
+  // ControlPlane (v2): ClusterRoles that exist, so missing roles are marked in the read-only table.
+  existingClusterRoles?: string[];
 }
 
 export function MembersAvatarView({
@@ -27,6 +29,7 @@ export function MembersAvatarView({
   source,
   maxWidth = '200px',
   clusterRoles = false,
+  existingClusterRoles,
 }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
@@ -83,6 +86,7 @@ export function MembersAvatarView({
                 requireAtLeastOneMember={false}
                 hideNamespaceColumn={hideNamespaceColumn}
                 clusterRoles={clusterRoles}
+                existingClusterRoles={existingClusterRoles}
               />
             )}
           </Suspense>

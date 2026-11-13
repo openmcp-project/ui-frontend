@@ -105,6 +105,11 @@
   margin-top: 0.5rem;
 }
 
+.customRoleRow {
+  border-top: 1px solid var(--sapList_BorderColor);
+  padding: 0.25rem 0;
+}
+
 .accessCovered {
   color: var(--sapContent_LabelColor);
   display: block;

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
-import { Activity, FC, useEffect, useMemo } from 'react';
+import { Activity, FC, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -8,6 +8,7 @@ import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/cl
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { ClusterRoleDialog, ClusterRoleDialogMode } from './ClusterRoleDialog.tsx';
 import { CustomRolesState, MemberAccessSelect } from './MemberAccessSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { AccountTypeLabel, ChoiceOption, RoleBadge } from './MemberBadges.tsx';
@@ -26,8 +27,13 @@ interface AddEditMemberDialogProps {
   availableCustomRoles?: string[];
   customRolesState?: CustomRolesState;
   platformDocsUrl?: string;
-  onCreateRole?: () => void;
-  onUploadRole?: () => void;
+  // Names of ClusterRoles carrying an aggregationRule (controller-managed, not editable).
+  aggregatedRoles?: string[];
+  // Role management (view/create/upload) is only possible with a control-plane session: the lookup
+  // state is 'ready' or 'error'. Otherwise the buttons stay hidden and names stay free text.
+  canManageRoles?: boolean;
+  // Refresh the ClusterRoles lookup after a role was created or edited.
+  onRoleApplied?: () => void;
   testIdPrefix?: string;
 }
 
@@ -51,8 +57,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   availableCustomRoles,
   customRolesState,
   platformDocsUrl,
-  onCreateRole,
-  onUploadRole,
+  aggregatedRoles = [],
+  canManageRoles = false,
+  onRoleApplied,
   testIdPrefix,
 }) => {
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
@@ -148,6 +155,31 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const accountType = useWatch({ control, name: 'accountType' });
   const role = useWatch({ control, name: 'role' });
   const roles = useWatch({ control, name: 'roles' });
+
+  // ClusterRoleDialog (view/create/edit a role without leaving the member dialog).
+  const [roleDialog, setRoleDialog] = useState<{ mode: ClusterRoleDialogMode; name: string; yaml?: string } | null>(
+    null,
+  );
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const addRoleToSelection = (next: string[]) => setValue('roles', next, { shouldValidate: true, shouldDirty: true });
+
+  const handleCreateRole = (name?: string) => setRoleDialog({ mode: 'create', name: name ?? '' });
+  const handleViewRole = (name: string) => setRoleDialog({ mode: 'view', name });
+
+  const handleUploadRole = () => uploadInputRef.current?.click();
+  const handleUploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    file.text().then((content) => setRoleDialog({ mode: 'create', name: '', yaml: content }));
+  };
+
+  const handleRoleApplied = (appliedName: string) => {
+    // The created/edited role is live immediately; select it for the member and refresh the lookup.
+    addRoleToSelection(uniqueRoles([...roles, appliedName]));
+    onRoleApplied?.();
+  };
 
   useEffect(() => {
     if (open) {
@@ -265,8 +297,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                 errorMessage={errors.roles?.message}
                 testIdPrefix={testIdPrefix}
                 onChange={(next) => setValue('roles', next, { shouldValidate: true, shouldDirty: true })}
-                onCreateRole={onCreateRole}
-                onUploadRole={onUploadRole}
+                onCreateRole={canManageRoles ? handleCreateRole : undefined}
+                onViewRole={canManageRoles ? handleViewRole : undefined}
+                onUploadRole={canManageRoles ? handleUploadRole : undefined}
               />
             </div>
           )}
@@ -328,6 +361,27 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           </div>
         </FlexBox>
       </div>
+      {clusterRoles && (
+        <input
+          ref={uploadInputRef}
+          type="file"
+          accept=".yaml,.yml"
+          style={{ display: 'none' }}
+          data-testid={withTestId('upload-role-input')}
+          onChange={handleUploadFile}
+        />
+      )}
+      {roleDialog && (
+        <ClusterRoleDialog
+          mode={roleDialog.mode}
+          roleName={roleDialog.name}
+          initialYaml={roleDialog.yaml}
+          aggregatedRoles={aggregatedRoles}
+          testIdPrefix={testIdPrefix}
+          onClose={() => setRoleDialog(null)}
+          onApplied={handleRoleApplied}
+        />
+      )}
     </Dialog>
   );
 };
