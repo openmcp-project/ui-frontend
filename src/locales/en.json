@@ -336,6 +336,9 @@
   "EditMembers": {
     "addButton": "Add User or ServiceAccount",
     "addButtonUserGroup": "Add User or Group",
+    "addButtonUser": "Add User",
+    "addButtonGroup": "Add Group",
+    "addButtonServiceAccount": "Add ServiceAccount",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",
     "addHeader": "Add Member",

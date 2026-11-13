@@ -245,9 +245,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             icon={'sap-icon://add-employee'}
             onClick={() => handleSubmit(onFormSubmit)()}
           >
-            {memberToEdit
-              ? t('EditMembers.saveButton')
-              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
+            {memberToEdit ? t('EditMembers.saveButton') : t(`EditMembers.addButton${accountType}`)}
           </Button>
         </>
       }
