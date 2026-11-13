@@ -24,7 +24,8 @@
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
     "installButton": "Install {{component}}",
-    "notInstalledLabel": "not installed"
+    "notInstalledLabel": "not installed",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ComponentHealthPopoverButton": {
     "pendingStatus": "Pending",
@@ -107,11 +108,7 @@
     "createControlPlane": "Control Plane",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
-    "createNewControlPlane": "Create Control Plane (v2)",
-    "defaultBadge": "Default",
-    "previewV2Badge": "Preview: V2",
-    "deprecatedBadge": "Deprecated"
+    "createNewControlPlane": "Create Control Plane"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
@@ -121,6 +118,15 @@
     "accessRequestSubject": "Access request: workspace {{workspaceName}} in project {{projectName}}",
     "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
+  },
+  "ProjectInfoPopover": {
+    "infoButton": "Project information",
+    "editButton": "Edit",
+    "deleteButton": "Delete"
+  },
+  "WorkspaceInfoPopover": {
+    "infoButton": "Workspace information",
+    "editButton": "Edit"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
@@ -132,7 +138,13 @@
     "serviceInstalling": "Installing",
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
-    "serviceUnknown": "Unknown"
+    "serviceUnknown": "Unknown",
+    "updatesAvailable": "Updates available"
+  },
+  "VersionUpdateTag": {
+    "majorUpdate": "Major update available",
+    "minorUpdate": "Minor update available",
+    "patchUpdate": "Patch update available"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
@@ -147,7 +159,8 @@
     "kro": "KRO",
     "metricsOperator": "Metrics Operator",
     "yamlPreviewNotSelectedTitle": "{{service}} is not selected",
-    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML."
+    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML.",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -194,11 +207,30 @@
     "versionLabel": "{{component}} Version",
     "providers": "Providers",
     "providerVersionLabel": "{{provider}} version",
+    "searchProviders": "Search providers…",
+    "providerNameHeader": "Provider",
+    "sortAscending": "Sort providers descending",
+    "sortDescending": "Sort providers ascending",
+    "noProvidersFound": "No providers match your search.",
+    "clearSearch": "Clear search",
+    "paginationPrevious": "Previous page",
+    "paginationNext": "Next page",
+    "paginationPage": "Page {{page}}",
+    "providersDisabledHint": "Select a Crossplane version above to enable provider selection.",
+    "providersSelectedCount_one": "{{count}} provider selected",
+    "providersSelectedCount_other": "{{count}} providers selected",
+    "filterSelected": "Selected",
+    "filterNeedsUpdate": "Needs Update",
+    "install": "Install Crossplane",
     "successMessage": "{{component}} has been successfully installed.",
-    "errorMessage": "Failed to install {{component}}. Please try again.",
+    "errorMessage": "Failed to install {{component}}. Check your connection and try again, or contact your administrator.",
     "successMessageEdit": "{{component}} has been successfully updated.",
-    "errorMessageEdit": "Failed to update {{component}}. Please try again.",
+    "errorMessageEdit": "Failed to update {{component}}. Check your connection and try again, or contact your administrator.",
     "yamlPreview": "YAML Preview"
+  },
+  "CrossplaneProviderPicker": {
+    "updateAvailableTooltip": "{{version}} available — consider upgrading",
+    "testingDisclaimer": "Should be tested in a non-production environment — check provider changelogs for details."
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
@@ -405,7 +437,8 @@
   "McpHeader": {
     "nameLabel": "Name",
     "createdByLabel": "Created By",
-    "createdOnLabel": "Created On"
+    "createdOnLabel": "Created On",
+    "kindLabel": "Kind"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -504,7 +537,8 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
-    "tableHeaderHealthy": "Healthy"
+    "tableHeaderHealthy": "Healthy",
+    "updateAvailable": "{{version}} available — consider upgrading"
   },
   "Graphs": {
     "colorsProvider": "Provider",
@@ -845,7 +879,7 @@
   "StaticEgressIp": {
     "label": "Static Egress IP",
     "checkboxLabel": "Give static IP address",
-    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist controlplane on databases and other services. Once activated, this cannot be disabled!",
+    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist the control plane on databases and other services. Once activated, this cannot be disabled!",
     "lockedHint": "A static egress IP is reserved for this control plane. It stays reserved until the control plane is deleted.",
     "enabled": "Enabled",
     "disabled": "Disabled",

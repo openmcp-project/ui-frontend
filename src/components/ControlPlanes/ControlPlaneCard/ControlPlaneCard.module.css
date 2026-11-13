@@ -186,6 +186,40 @@
   --sapContent_IconColor: var(--sapButton_Emphasized_Background, #0070f2);
 }
 
+/* Update available badge (top-right on service logo). Base layout shared, color per severity. */
+.updateBadgeBase {
+  position: absolute;
+  right: -0.125rem;
+  top: -0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0.0625rem;
+  border-radius: 50%;
+  background: var(--sapBaseColor, #ffffff);
+  box-shadow: 0 0 0 1px var(--sapBaseColor, #ffffff), 0 0 0 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.updateBadgePatch {
+  composes: updateBadgeBase;
+  color: var(--sapPositiveColor, #188918);
+  --sapContent_IconColor: var(--sapPositiveColor, #188918);
+}
+
+.updateBadgeMinor {
+  composes: updateBadgeBase;
+  color: #f0ab00;
+  --sapContent_IconColor: #f0ab00;
+}
+
+.updateBadgeMajor {
+  composes: updateBadgeBase;
+  color: #f97316;
+  --sapContent_IconColor: #f97316;
+}
+
 .addComponentPlaceholder:hover {
   background: color-mix(in srgb, var(--sapButton_Emphasized_Background, #0070f2) 8%, transparent);
   border-color: var(--sapButton_Emphasized_Hover_Background, #0064d9);

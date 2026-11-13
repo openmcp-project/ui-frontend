@@ -1,8 +1,11 @@
-import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
+import { Grid, Icon } from '@ui5/webcomponents-react';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
+import {
+  buildMcpV2GraphQLInput,
+  stripEmptyAnnotations,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import {
   resolveServiceMutationAction,
@@ -63,7 +66,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
     const res = buildMcpV2GraphQLInput(rawInput);
     return {
-      yamlString: stringify(res),
+      yamlString: stringify(stripEmptyAnnotations(res)),
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);
@@ -108,82 +111,110 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
     return initialCrossplaneProviders.filter((p) => !currentNames.has(p.name));
   }, [isEditMode, initialCrossplaneProviders, crossplaneAction, services?.crossplane?.providers]);
 
+  const members = rawInput.roleBindings.flatMap((rb) =>
+    rb.subjects.map((subject) => ({
+      ...subject,
+      role: rb.roleRefs[0]?.name ?? '',
+    })),
+  );
+
   return (
     <div className={styles.wrapper}>
       <Grid defaultSpan="XL6 L6 M6 S6">
-        <div>
-          <List headerText={t('common.metadata')}>
-            <ListItemStandard text={t('common.name')} additionalText={rawInput.name} />
-            <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
-            <ListItemStandard
-              text={t('StaticEgressIp.label')}
-              additionalText={rawInput.staticEgressIp ? t('StaticEgressIp.enabled') : t('StaticEgressIp.disabled')}
-            />
-          </List>
-          <br />
-          <List headerText={t('common.members')}>
-            {rawInput.roleBindings
-              .flatMap((rb) =>
-                rb.subjects.map((subject) => ({
-                  ...subject,
-                  role: rb.roleRefs[0]?.name ?? '',
-                })),
-              )
-              .map((subject) => (
-                <ListItemStandard
-                  key={`${subject.kind}:${subject.name}:${subject.role}`}
-                  text={subject.name}
-                  additionalText={`${subject.kind} · ${subject.role}`}
-                />
-              ))}
-          </List>
-          {rawInput.extraProviders.map((provider) => (
-            <div key={provider.name}>
-              <br />
-              <List headerText={provider.name}>
-                {provider.roleBindings
-                  .flatMap((rb) =>
-                    rb.subjects.map((subject) => ({
-                      ...subject,
-                      role: rb.roleRefs[0]?.name ?? '',
-                    })),
-                  )
-                  .map((subject) => (
-                    <ListItemStandard
-                      key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
-                      text={subject.name}
-                      additionalText={`${subject.kind} · ${subject.role}`}
-                    />
-                  ))}
-              </List>
+        <div className={styles.sectionStack}>
+          <div className={styles.coloredList}>
+            <div className={styles.coloredListHeader}>{t('common.metadata')}</div>
+            <div role="list" aria-label={t('common.metadata')}>
+              <div role="listitem" className={styles.coloredListItem}>
+                <span className={styles.coloredListItemText}>{t('common.name')}</span>
+                <span className={styles.coloredListItemValue}>{rawInput.name}</span>
+              </div>
+              <div role="listitem" className={styles.coloredListItem}>
+                <span className={styles.coloredListItemText}>{t('common.namespace')}</span>
+                <span className={styles.coloredListItemValue}>{rawInput.namespace}</span>
+              </div>
+              {rawInput.staticEgressIp && (
+                <div role="listitem" className={styles.coloredListItem}>
+                  <span className={styles.coloredListItemText}>{t('StaticEgressIp.label')}</span>
+                  <span className={styles.coloredListItemValue}>{t('StaticEgressIp.enabled')}</span>
+                </div>
+              )}
             </div>
-          ))}
-          {serviceEntries.length > 0 && (
-            <>
-              <br />
-              <div className={styles.coloredList}>
-                <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
-                {serviceEntries.map(({ key, label, entry, action }) => (
-                  <div key={key} className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}>
-                    <Icon name={actionToIcon(action)} />
-                    <span className={styles.coloredListItemText}>{label}</span>
-                    <span className={styles.coloredListItemVersion}>
-                      {entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
-                    </span>
+          </div>
+          {members.length > 0 && (
+            <div className={styles.coloredList}>
+              <div className={styles.coloredListHeader}>{t('common.members')}</div>
+              <div role="list" aria-label={t('common.members')}>
+                {members.map((subject) => (
+                  <div
+                    key={`${subject.kind}:${subject.name}:${subject.role}`}
+                    role="listitem"
+                    className={styles.coloredListItem}
+                  >
+                    <span className={styles.coloredListItemText}>{subject.name}</span>
+                    <span className={styles.coloredListItemValue}>{`${subject.kind} · ${subject.role}`}</span>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+          {rawInput.extraProviders.map((provider) => {
+            const providerSubjects = provider.roleBindings.flatMap((rb) =>
+              rb.subjects.map((subject) => ({
+                ...subject,
+                role: rb.roleRefs[0]?.name ?? '',
+              })),
+            );
+            if (providerSubjects.length === 0) return null;
+            return (
+              <div key={provider.name} className={styles.coloredList}>
+                <div className={styles.coloredListHeader}>{provider.name}</div>
+                <div role="list" aria-label={provider.name}>
+                  {providerSubjects.map((subject) => (
+                    <div
+                      key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
+                      role="listitem"
+                      className={styles.coloredListItem}
+                    >
+                      <span className={styles.coloredListItemText}>{subject.name}</span>
+                      <span className={styles.coloredListItemValue}>{`${subject.kind} · ${subject.role}`}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          {serviceEntries.length > 0 && (
+            <>
+              <div className={styles.coloredList}>
+                <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
+                <div role="list" aria-label={t('ServiceSelectionStep.stepTitle')}>
+                  {serviceEntries.map(({ key, label, entry, action }) => (
+                    <div
+                      key={key}
+                      role="listitem"
+                      className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
+                    >
+                      <Icon name={actionToIcon(action)} />
+                      <span className={styles.coloredListItemText}>{label}</span>
+                      <span className={styles.coloredListItemVersion}>
+                        {entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
               {(showProviders || removedProviders.length > 0) && (
-                <>
-                  <br />
-                  <div className={styles.coloredList}>
-                    <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
+                <div className={styles.coloredList}>
+                  <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
+                  <div role="list" aria-label={t('ComponentInstallDialog.providers')}>
                     {(services?.crossplane?.providers ?? []).map((provider) => {
                       const wasInstalled = initialCrossplaneProviders?.some((p) => p.name === provider.name) ?? false;
                       const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
                       return (
                         <div
                           key={provider.name}
+                          role="listitem"
                           className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
                         >
                           <Icon name={actionToIcon(action)} />
@@ -195,7 +226,11 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                       );
                     })}
                     {removedProviders.map((p) => (
-                      <div key={`removed-${p.name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
+                      <div
+                        key={`removed-${p.name}`}
+                        role="listitem"
+                        className={`${styles.coloredListItem} ${styles.removedItem}`}
+                      >
                         <Icon name="decline" />
                         <span className={styles.coloredListItemText}>{p.name}</span>
                         <span className={styles.coloredListItemVersion}>
@@ -204,7 +239,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                       </div>
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </>
           )}

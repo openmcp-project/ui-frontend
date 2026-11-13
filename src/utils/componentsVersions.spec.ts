@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getHighestVersion, sortVersions } from './componentsVersions.ts';
+import { getHighestVersion, latestAvailableVersion, sortVersions } from './componentsVersions.ts';
 
 describe('sortVersions', () => {
   it('sorts mixed v-prefixed versions and numeric build suffixes newest first', () => {
@@ -102,5 +102,47 @@ describe('getHighestVersion', () => {
     const copy = [...input];
     getHighestVersion(input);
     expect(input).toEqual(copy);
+  });
+});
+
+describe('latestAvailableVersion', () => {
+  it('returns undefined when no available version is newer', () => {
+    expect(latestAvailableVersion('v1.2.0', ['v1.2.0', 'v1.1.0'])).toBeUndefined();
+  });
+
+  it('returns the highest available version when it is newer than current', () => {
+    expect(latestAvailableVersion('v1.2.0', ['v1.3.0', 'v1.1.0'])).toBe('v1.3.0');
+  });
+
+  it('normalises missing v-prefix in current', () => {
+    expect(latestAvailableVersion('1.2.0', ['v1.3.0'])).toBe('v1.3.0');
+  });
+
+  it('normalises missing v-prefix in available', () => {
+    expect(latestAvailableVersion('v1.2.0', ['1.3.0'])).toBe('v1.3.0');
+  });
+
+  it('returns undefined for an empty available array', () => {
+    expect(latestAvailableVersion('v1.2.0', [])).toBeUndefined();
+  });
+
+  it('returns undefined for an empty current string', () => {
+    expect(latestAvailableVersion('', ['v1.3.0'])).toBeUndefined();
+  });
+
+  it('returns undefined when current and available are equal after normalisation', () => {
+    expect(latestAvailableVersion('1.2.0', ['v1.2.0'])).toBeUndefined();
+  });
+
+  it('with sameMajorOnly: does not suggest a cross-major upgrade', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v1.18.0', 'v2.0.0', 'v2.1.0'], { sameMajorOnly: true })).toBe('v1.18.0');
+  });
+
+  it('with sameMajorOnly: returns undefined when only cross-major versions are available', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v2.0.0', 'v2.1.0'], { sameMajorOnly: true })).toBeUndefined();
+  });
+
+  it('without sameMajorOnly: suggests cross-major upgrade', () => {
+    expect(latestAvailableVersion('v1.17.0', ['v1.18.0', 'v2.0.0'])).toBe('v2.0.0');
   });
 });

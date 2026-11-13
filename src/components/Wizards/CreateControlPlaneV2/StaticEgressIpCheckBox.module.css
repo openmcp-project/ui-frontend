@@ -1,5 +1,12 @@
+/* Grid so the hint sits in the same column as the checkbox without fragile padding math. */
 .container {
-  gap: 0.25rem;
+  display: grid;
+  grid-template-columns: calc(1.5rem + 0.75rem) 1fr; /* icon-width + gap */
+  row-gap: 0.25rem;
+}
+
+.iconRow {
+  grid-column: 1 / -1;
 }
 
 /* Same footprint as the service logos so the row lines up with the cards above. */
@@ -10,8 +17,7 @@
 }
 
 .hint {
-  /* Aligns with the checkbox label text (icon + gap + checkbox box). */
-  padding-left: 5rem;
+  grid-column: 2;
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSmallSize);
 }

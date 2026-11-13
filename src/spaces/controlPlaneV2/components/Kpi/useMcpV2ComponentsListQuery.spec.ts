@@ -94,11 +94,11 @@ describe('useMcpV2ComponentsListQuery', () => {
     const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
 
     expect(result.current.componentsByName['cp-a']).toEqual({
-      crossplane: { phase: 'Progressing' },
-      flux: { phase: 'Ready' },
+      crossplane: { phase: 'Progressing', version: '1.14.0' },
+      flux: { phase: 'Ready', version: '2.3.0' },
     });
     // A service with no status reports a null phase (not installed elsewhere).
-    expect(result.current.componentsByName['cp-b']).toEqual({ ocm: { phase: null } });
+    expect(result.current.componentsByName['cp-b']).toEqual({ ocm: { phase: null, version: 'v0.3.0' } });
     expect(result.current.componentsByName['cp-c']).toBeUndefined();
   });
 
