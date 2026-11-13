@@ -128,9 +128,14 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   const redundancyNote = (role: StandardRole | 'custom') => {
     const broader = coveredBy(role);
     return broader ? (
-      <Text className={styles.accessCovered} data-testid={withTestId(`access-${role}-covered`)}>
+      <MessageStrip
+        className={styles.accessCovered}
+        design="Information"
+        hideCloseButton
+        data-testid={withTestId(`access-${role}-covered`)}
+      >
         {t('MemberAccess.coveredBy', { role: broader })}
-      </Text>
+      </MessageStrip>
     ) : null;
   };
 
