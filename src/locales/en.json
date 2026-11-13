@@ -350,19 +350,50 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
-  "ClusterRoles": {
-    "label": "ClusterRoles",
-    "customLabel": "Other ClusterRoles",
-    "customPlaceholder": "ClusterRole name, then Enter",
-    "namespacedRoleToken": "{{role}} (Role)",
-    "invalidName": "Not a valid ClusterRole name. Names must not contain spaces, '/' or '%'.",
+  "MemberAccess": {
+    "label": "Access",
+    "hint": "Pick one or more roles. Permissions add up.",
+    "coveredBy": "No extra effect: already included in {{role}}.",
+    "learnMore": "Learn more",
     "atLeastOneRole": "Select at least one role.",
-    "hint": "A member can have several roles, their permissions add up. cluster-admin, admin, edit and view exist in every control plane. Any other ClusterRole must already exist in the control plane, otherwise the binding has no effect. <link1>Kubernetes RBAC documentation</link1>",
-    "presets": {
-      "clusterAdmin": "Full access to every resource in the control plane, including RBAC itself.",
-      "admin": "Read/write access to namespaced resources in all namespaces, including Roles and RoleBindings. No access to cluster-scoped resources.",
-      "edit": "Read/write access to most namespaced resources in all namespaces, including Secrets. Cannot view or change Roles and RoleBindings.",
-      "view": "Read-only access to most namespaced resources in all namespaces. Cannot view Secrets, Roles or RoleBindings."
+    "platform": {
+      "title": "Platform role",
+      "description": "Owns and operates the control plane."
+    },
+    "kubernetes": {
+      "title": "Kubernetes role",
+      "description": "Works with resources in the control plane."
+    },
+    "custom": {
+      "title": "Custom roles",
+      "description": "Your own roles for specific needs.",
+      "placeholder": "Role name",
+      "invalidName": "Not a valid role name. No spaces, '/' or '%'.",
+      "unknown": "Not checked: roles can only be verified from the control plane's own page.",
+      "notFoundHint": "A role that is not found grants no access until it is created.",
+      "create": "Create role",
+      "upload": "Upload YAML",
+      "loadError": "Roles could not be loaded, so they are not checked.",
+      "notFoundSuffix": "{{role}} (not found)"
+    },
+    "roles": {
+      "clusterAdmin": {
+        "title": "Cluster admin",
+        "bullets": ["Full access to everything", "Manages who has access"]
+      },
+      "admin": {
+        "title": "Admin",
+        "bullets": ["Read and write in all namespaces", "Manages access within namespaces", "No cluster-wide settings"]
+      },
+      "view": {
+        "title": "View",
+        "bullets": ["Read-only in all namespaces", "No secrets, no access settings"]
+      }
+    },
+    "missing": {
+      "tooltip": "This role does not exist in the control plane. It grants no access.",
+      "summary_one": "{{count}} assigned role does not exist in the control plane and grants no access: {{roles}}",
+      "summary_other": "{{count}} assigned roles do not exist in the control plane and grant no access: {{roles}}"
     }
   },
   "IdentityProviders": {

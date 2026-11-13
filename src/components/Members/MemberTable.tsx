@@ -1,4 +1,5 @@
 import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
+import '@ui5/webcomponents-icons/dist/alert';
 import '@ui5/webcomponents-icons/dist/badge';
 import '@ui5/webcomponents-icons/dist/search';
 import '@ui5/webcomponents-icons/dist/shield';
@@ -10,6 +11,7 @@ import {
   Icon,
   Input,
   InputDomRef,
+  MessageStrip,
   ObjectStatus,
   Text,
   Ui5CustomEvent,
@@ -21,6 +23,7 @@ import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/role';
 import {
   clusterRoleIcon,
+  isNamespacedRole,
   DEFAULT_CLUSTER_ROLE,
   formatRoleRef,
   uniqueRoles,
@@ -57,6 +60,10 @@ type MemberTableProps = {
   // ControlPlane (v2) members: `roles` are Kubernetes RBAC role refs (possibly several per member),
   // shown by their real names instead of the project/workspace role labels.
   clusterRoles?: boolean;
+  // clusterRoles mode: names of the ClusterRoles that exist in the control plane, once the (async)
+  // lookup has finished. `undefined` = not checked (yet) — nothing is flagged. A binding to a role
+  // that does not exist is accepted by the platform but grants nothing.
+  existingClusterRoles?: string[];
 };
 
 // Icon per role value, reusing the same options arrays the role-picker dropdowns use — one
@@ -74,6 +81,12 @@ const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
   icon: ROLE_ICON_BY_VALUE[roleValue] ?? 'show',
   state: ROLE_STATE_BY_VALUE[roleValue] ?? ValueState.None,
 });
+
+const CLUSTER_ROLE_LABEL_KEYS: Record<string, string> = {
+  [DEFAULT_CLUSTER_ROLE]: 'MemberAccess.roles.clusterAdmin.title',
+  admin: 'MemberAccess.roles.admin.title',
+  view: 'MemberAccess.roles.view.title',
+};
 
 // cluster-admin is unrestricted access to the whole ControlPlane — keep it visually distinct.
 const clusterRoleState = (role: string): ValueState =>
@@ -127,9 +140,21 @@ export const MemberTable: FC<MemberTableProps> = ({
   requireAtLeastOneMember,
   hideNamespaceColumn = false,
   clusterRoles = false,
+  existingClusterRoles,
 }) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+
+  // Only ClusterRoles can be verified; namespaced Roles are left alone.
+  const isMissingRole = useCallback(
+    (role: string) =>
+      clusterRoles && !!existingClusterRoles && !isNamespacedRole(role) && !existingClusterRoles.includes(role),
+    [clusterRoles, existingClusterRoles],
+  );
+  const missingRoles = useMemo(
+    () => uniqueRoles(members.flatMap((m) => m.roles ?? [])).filter(isMissingRole),
+    [members, isMissingRole],
+  );
 
   const hasNamespaceData = useMemo(() => members.some((m) => !!m.namespace), [members]);
   // Based on the unfiltered member set — otherwise searching down to a single remaining
@@ -165,16 +190,29 @@ export const MemberTable: FC<MemberTableProps> = ({
           if (clusterRoles) {
             return (
               <FlexBox gap="0.25rem" title={row.role}>
-                {row.roleValues.map((role) => (
-                  <ObjectStatus
-                    key={role}
-                    state={clusterRoleState(role)}
-                    icon={<Icon name={clusterRoleIcon(role)} />}
-                    inverted
-                  >
-                    {formatRoleRef(role)}
-                  </ObjectStatus>
-                ))}
+                {row.roleValues.map((role) =>
+                  isMissingRole(role) ? (
+                    <ObjectStatus
+                      key={role}
+                      state={ValueState.Critical}
+                      icon={<Icon name="alert" />}
+                      title={t('MemberAccess.missing.tooltip')}
+                      data-testid={`missing-role-${role}`}
+                      inverted
+                    >
+                      {formatRoleRef(role)}
+                    </ObjectStatus>
+                  ) : (
+                    <ObjectStatus
+                      key={role}
+                      state={clusterRoleState(role)}
+                      icon={<Icon name={clusterRoleIcon(role)} />}
+                      inverted
+                    >
+                      {CLUSTER_ROLE_LABEL_KEYS[role] ? t(CLUSTER_ROLE_LABEL_KEYS[role]) : formatRoleRef(role)}
+                    </ObjectStatus>
+                  ),
+                )}
               </FlexBox>
             );
           }
@@ -228,7 +266,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     }
 
     return cols;
-  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles]);
+  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles, isMissingRole]);
 
   const providerLabel = useCallback(
     (provider?: string): string => {
@@ -300,6 +338,19 @@ export const MemberTable: FC<MemberTableProps> = ({
           />
         </FlexBox>
       ))}
+      {missingRoles.length > 0 && (
+        <MessageStrip
+          className={styles.missingRoles}
+          design="Critical"
+          data-testid="missing-roles-warning"
+          hideCloseButton
+        >
+          {t('MemberAccess.missing.summary', {
+            count: missingRoles.length,
+            roles: missingRoles.map(formatRoleRef).join(', '),
+          })}
+        </MessageStrip>
+      )}
     </FlexBox>
   );
 };

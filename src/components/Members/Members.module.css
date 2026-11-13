@@ -56,3 +56,51 @@
   font-size: var(--sapFontSmallSize);
   margin-top: 0.25rem;
 }
+
+.accessGroup {
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+  padding: 0.75rem 1rem 0.5rem;
+  max-width: 465px;
+  box-sizing: border-box;
+}
+
+.accessGroupDescription {
+  color: var(--sapContent_LabelColor);
+  display: block;
+  margin: 0.125rem 0 0.25rem;
+  text-wrap: wrap;
+}
+
+.accessOption {
+  margin-left: -0.625rem;
+}
+
+.accessOptionBody {
+  /* aligns with the radio button's label */
+  margin: -0.375rem 0 0.25rem 2.75rem;
+}
+
+.accessBullets {
+  margin: 0;
+  padding-left: 1.125rem;
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
+  color: var(--sapTextColor);
+  line-height: 1.4;
+}
+
+.accessCustom {
+  margin-top: 0.5rem;
+}
+
+.missingRoles {
+  margin-top: 0.5rem;
+}
+
+.accessCovered {
+  color: var(--sapContent_LabelColor);
+  display: block;
+  font-style: italic;
+  margin-top: 0.125rem;
+}

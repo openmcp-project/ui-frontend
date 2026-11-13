@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
-import { Activity, FC, useEffect, useMemo, useState } from 'react';
+import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -8,7 +8,7 @@ import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/cl
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import { ClusterRolesSelect } from './ClusterRolesSelect.tsx';
+import { CustomRolesState, MemberAccessSelect } from './MemberAccessSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import styles from './Members.module.css';
 
@@ -22,6 +22,11 @@ interface AddEditMemberDialogProps {
   // ControlPlane (v2): members are bound to one or more Kubernetes ClusterRoles instead of a single
   // project/workspace role.
   clusterRoles?: boolean;
+  availableCustomRoles?: string[];
+  customRolesState?: CustomRolesState;
+  platformDocsUrl?: string;
+  onCreateRole?: () => void;
+  onUploadRole?: () => void;
   testIdPrefix?: string;
 }
 
@@ -42,6 +47,11 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   memberToEdit,
   accountTypeOptions,
   clusterRoles = false,
+  availableCustomRoles,
+  customRolesState,
+  platformDocsUrl,
+  onCreateRole,
+  onUploadRole,
   testIdPrefix,
 }) => {
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
@@ -65,7 +75,6 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
   }, [memberToEdit]);
   const effectiveDefaultRole = MemberRoles.view;
-  const [hasInvalidRoleInput, setHasInvalidRoleInput] = useState(false);
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
   const { serviceAccoutsGuide } = useLink();
@@ -85,7 +94,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['roles'],
-              message: t('ClusterRoles.atLeastOneRole'),
+              message: t('MemberAccess.atLeastOneRole'),
             });
           }
 
@@ -164,14 +173,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     }
   }, [open, memberToEdit, reset, effectiveDefaultRole, allowedAccountTypes]);
 
-  const handleClose = () => {
-    setHasInvalidRoleInput(false);
-    onClose();
-  };
-
   const onFormSubmit = (data: MemberFormData) => {
-    // Text left in the custom-role input that is not a valid ClusterRole name must not be dropped silently.
-    if (clusterRoles && hasInvalidRoleInput) return;
     const trimmedName = data.name.trim();
 
     const newMember: Member = {
@@ -182,7 +184,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     };
 
     onSave(newMember, isEdit);
-    handleClose();
+    onClose();
   };
 
   const dialogHeader = memberToEdit
@@ -194,7 +196,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       design="Footer"
       endContent={
         <>
-          <Button design="Transparent" onClick={handleClose}>
+          <Button design="Transparent" onClick={onClose}>
             {t('buttons.cancel')}
           </Button>
           <Button
@@ -213,7 +215,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   );
 
   return (
-    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={handleClose}>
+    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={onClose}>
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
@@ -241,12 +243,16 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         <FlexBox alignItems="Stretch" direction={'Column'}>
           {clusterRoles && open && (
             <div className={styles.wrapper}>
-              <ClusterRolesSelect
+              <MemberAccessSelect
                 roles={roles}
+                availableCustomRoles={availableCustomRoles}
+                customRolesState={customRolesState}
+                platformDocsUrl={platformDocsUrl}
                 errorMessage={errors.roles?.message}
                 testIdPrefix={testIdPrefix}
                 onChange={(next) => setValue('roles', next, { shouldValidate: true, shouldDirty: true })}
-                onInvalidInputChange={setHasInvalidRoleInput}
+                onCreateRole={onCreateRole}
+                onUploadRole={onUploadRole}
               />
             </div>
           )}

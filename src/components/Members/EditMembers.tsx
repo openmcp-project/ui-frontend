@@ -27,6 +27,8 @@ export interface EditMembersProps {
   providerName?: string;
   // Scopes data-testid so multiple instances can be mounted at once.
   testIdPrefix?: string;
+  // V2-only: ClusterRoles that exist in the control plane (undefined while unknown/loading).
+  existingClusterRoles?: string[];
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -62,6 +64,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   fitContentAddButton = false,
   providerName,
   testIdPrefix,
+  existingClusterRoles,
 }) => {
   const { t } = useTranslation();
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
@@ -222,6 +225,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
         clusterRoles={isV2}
+        existingClusterRoles={existingClusterRoles}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}
         onEditMember={handleEditMember}
