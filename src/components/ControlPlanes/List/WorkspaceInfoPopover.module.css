@@ -13,9 +13,6 @@
   align-items: center;
 }
 
-/* Keep interactive values (the copy-namespace button) flush with the column's
-   left edge so their content lines up with the plain-text values in the same
-   column instead of being inset by the button's default padding. */
 /* Pull the copy button so its leading icon lines up with the column's left
    edge, aligning it with the plain-text values in the same column. The inset
    cancels the UI5 button's 1px border + 0.5625rem content padding. */
