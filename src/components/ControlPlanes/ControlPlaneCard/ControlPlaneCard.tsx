@@ -10,7 +10,7 @@ import '@ui5/webcomponents-icons/dist/edit.js';
 import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useContext, useState, useMemo } from 'react';
+import { useCallback, useContext, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ControlPlaneListItem,
@@ -36,6 +36,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { extractSupportInfo, resolveSupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { useForceDeleteControlPlaneV2GraphQL as _useForceDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useForceDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
@@ -66,6 +67,7 @@ interface Props {
   parentSupportInfo?: SupportInfoCandidate;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
+  useForceDeleteManagedControlPlaneV2GraphQL?: typeof _useForceDeleteManagedControlPlaneV2GraphQL;
   /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
    * `undefined` while that fetch is still loading. */
   v2Components?: McpV2Components;
@@ -106,6 +108,7 @@ export const ControlPlaneCard = ({
   parentSupportInfo,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
+  useForceDeleteManagedControlPlaneV2GraphQL = _useForceDeleteManagedControlPlaneV2GraphQL,
   v2Components,
   isLoadingV2Components = false,
 }: Props) => {
@@ -135,7 +138,17 @@ export const ControlPlaneCard = ({
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
+  const { forceDeleteManagedControlPlaneV2 } = useForceDeleteManagedControlPlaneV2GraphQL(
+    controlPlane.metadata.namespace,
+    controlPlane.metadata.name,
+    controlPlane.metadata.annotations,
+  );
   const telemetry = useTelemetry();
+
+  const onForceDeletionConfirmed = useCallback(async () => {
+    await forceDeleteManagedControlPlaneV2();
+    telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
+  }, [forceDeleteManagedControlPlaneV2, telemetry]);
 
   const name = controlPlane.metadata.name;
   const { t } = useTranslation();
@@ -503,6 +516,7 @@ export const ControlPlaneCard = ({
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
+          forceDelete={{ onForceDeletionConfirmed }}
           onDeletionConfirmed={async () => {
             telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-card' });
             await deleteManagedControlPlaneV2();
