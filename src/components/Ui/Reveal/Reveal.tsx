@@ -13,7 +13,7 @@ interface RevealProps {
  */
 export function Reveal({ isVisible, className, children }: PropsWithChildren<RevealProps>): ReactNode {
   return (
-    <div className={cx(styles.wrapper, isVisible && styles.open)} aria-hidden={!isVisible}>
+    <div className={cx(styles.wrapper, isVisible && styles.open)} aria-hidden={!isVisible} inert={!isVisible}>
       <div className={cx(styles.inner, className)}>{children}</div>
     </div>
   );

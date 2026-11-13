@@ -146,8 +146,8 @@ export const ControlPlaneCard = ({
   const telemetry = useTelemetry();
 
   const onForceDeletionConfirmed = useCallback(async () => {
-    telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
     await forceDeleteManagedControlPlaneV2();
+    telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
   }, [forceDeleteManagedControlPlaneV2, telemetry]);
 
   const name = controlPlane.metadata.name;

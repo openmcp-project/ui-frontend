@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../context/ToastContext.tsx';
@@ -24,9 +24,9 @@ export function useForceDeleteControlPlaneV2GraphQL(
 ) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [updateMutation] = useMutation(UpdateManagedControlPlaneV2Mutation, {
-    refetchQueries: ['GetMCPsList', 'GetMCPv2'],
-  });
+  const existingAnnotationsRef = useRef(existingAnnotations);
+  existingAnnotationsRef.current = existingAnnotations;
+  const [updateMutation] = useMutation(UpdateManagedControlPlaneV2Mutation);
   const [deleteMutation] = useMutation(DeleteManagedControlPlaneV2Mutation, {
     refetchQueries: ['GetMCPsList'],
   });
@@ -44,7 +44,7 @@ export function useForceDeleteControlPlaneV2GraphQL(
               name,
               namespace,
               annotations: {
-                ...(existingAnnotations ?? {}),
+                ...(existingAnnotationsRef.current ?? {}),
                 [FORCE_DELETE_ANNOTATION]: 'true',
               },
             },
@@ -62,7 +62,7 @@ export function useForceDeleteControlPlaneV2GraphQL(
       toast.show(message);
       throw error;
     }
-  }, [updateMutation, deleteMutation, name, namespace, existingAnnotations, toast, t]);
+  }, [updateMutation, deleteMutation, name, namespace, toast, t]);
 
   return { forceDeleteManagedControlPlaneV2 };
 }

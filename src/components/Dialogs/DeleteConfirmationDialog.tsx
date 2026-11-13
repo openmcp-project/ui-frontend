@@ -55,6 +55,7 @@ export function DeleteConfirmationDialog({
     setForceDeleteSelected(false);
     setForceDeleteAcknowledged(false);
     setConfirmationText('');
+    setIsSubmitting(false);
   };
 
   const closeDialog = () => {
@@ -98,6 +99,7 @@ export function DeleteConfirmationDialog({
                 {kubectlDialog ? <KubectlInfoButton onClick={() => setIsKubectlDialogOpen(true)} /> : null}
                 <Button
                   design={ButtonDesign.Transparent}
+                  disabled={isSubmitting}
                   onClick={() => {
                     closeDialog();
                     onCanceled && onCanceled();
