@@ -591,7 +591,7 @@ describe('ControlPlaneCard', () => {
       // The error overrides the raw `Progressing` phase.
       cy.get('[data-testid="component-icon-OCM"]')
         .should('have.attr', 'data-lifecycle', 'error')
-        .and('have.attr', 'title', 'invalid user input: requested version is not available: "v0.3.0"');
+        .and('have.attr', 'title', 'OCM - Error invalid user input: requested version is not available: "v0.3.0"');
       // The healthy service beside it stays ready (no status badge).
       cy.get('[data-testid="component-icon-Crossplane"]').should('have.attr', 'data-lifecycle', 'ready');
     });

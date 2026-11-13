@@ -140,7 +140,8 @@
     "serviceUnknown": "Unknown",
     "serviceError": "Error",
     "reconcilingFor": "Reconciling for {{duration}}",
-    "updatesAvailable": "Updates available"
+    "serviceErrorTooltip": "{{service}} - Error {{message}}",
+    "serviceUpdateAvailableTooltip": "{{service}} - {{severity}} update available"
   },
   "VersionUpdateTag": {
     "majorUpdate": "Major update available",

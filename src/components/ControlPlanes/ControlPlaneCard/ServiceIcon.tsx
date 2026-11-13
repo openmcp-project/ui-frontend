@@ -84,14 +84,27 @@ export function ServiceIcon({
 
   const stateClass = isReady ? '' : LIFECYCLE_CLASS[lifecycle];
 
-  // Error tooltip = the full actionable message; installing tooltip = how long it has been
-  // reconciling without issues ("Reconciling for 2h"); otherwise just the service name.
+  // Error tooltip = "{service} - Error {message}" (or just the state label when no message);
+  // installing tooltip = how long it has been reconciling without issues ("Reconciling for 2h");
+  // otherwise just the service name.
   const reconcilingFor = lifecycle === 'installing' ? formatCompactDurationSince(reconcilingSince) : '';
+  const errorText = errorMessage?.trim();
+  const errorTooltip = errorText
+    ? t('ControlPlaneCard.serviceErrorTooltip', {
+        service: title,
+        message: errorText,
+        interpolation: { escapeValue: false },
+      })
+    : `${title} — ${t(LIFECYCLE_LABEL_KEY.error)}`;
   const tooltip = isError
-    ? errorMessage?.trim() || `${title} — ${t(LIFECYCLE_LABEL_KEY.error)}`
+    ? errorTooltip
     : reconcilingFor
       ? t('ControlPlaneCard.reconcilingFor', { duration: reconcilingFor })
       : title;
+
+  const updateBadgeTooltip = updateDiff
+    ? t('ControlPlaneCard.serviceUpdateAvailableTooltip', { service: title, severity: updateDiff })
+    : '';
 
   return (
     <button
@@ -112,9 +125,7 @@ export function ServiceIcon({
         </span>
       )}
 
-      {isError && (
-        <Icon name="error" className={styles.errorBadge} accessibleName={t(LIFECYCLE_LABEL_KEY.error)} showTooltip />
-      )}
+      {isError && <Icon name="error" className={styles.errorBadge} accessibleName={tooltip} showTooltip />}
 
       {showUpdateBadge && (
         <Icon
@@ -126,7 +137,7 @@ export function ServiceIcon({
                 ? styles.updateBadgeMinor
                 : styles.updateBadgePatch
           }
-          accessibleName={t('ControlPlaneCard.updatesAvailable')}
+          accessibleName={updateBadgeTooltip}
           showTooltip
         />
       )}
