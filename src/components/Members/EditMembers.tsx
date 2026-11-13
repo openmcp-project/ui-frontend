@@ -38,6 +38,9 @@ export interface EditMembersProps {
   testIdPrefix?: string;
   // V2-only: ClusterRoles that exist in the control plane (undefined while unknown/loading).
   existingClusterRoles?: string[];
+  // V2-only: this control plane's name, used to link to its roles in Headlamp from edit contexts
+  // where useMcp() is empty (the create/edit wizard). Undefined in the create wizard (no CP yet).
+  controlPlaneName?: string;
   // Injectable for tests (CLAUDE.md "Injectable hooks"); defaults to the real lookup.
   useClusterRoles?: () => ClusterRolesLookup;
 }
@@ -76,6 +79,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   providerName,
   testIdPrefix,
   existingClusterRoles,
+  controlPlaneName,
   useClusterRoles = _useClusterRoles,
 }) => {
   const { t } = useTranslation();
@@ -84,18 +88,22 @@ export const EditMembers: FC<EditMembersProps> = ({
   // which skips the lookup without triggering a login. See useClusterRoles.
   const lookup = useClusterRoles();
   const clusterRolesActive = isV2;
-  // Link to this control plane's roles in the embedded Headlamp view. Only available when a control
-  // plane context exists (not in the create wizard, where useMcp() is empty). HashRouter URL.
+  // Link to this control plane's roles in the embedded Headlamp view. Built from the explicit
+  // props when present (the create/edit wizard, where useMcp() is empty), otherwise from the
+  // control-plane context. Undefined in the create wizard (no control plane name yet). HashRouter URL.
   const mcp = useMcp();
   const rolesViewUrl = useMemo(() => {
-    if (!clusterRolesActive || !mcp.project || !mcp.workspace || !mcp.name) return undefined;
+    const cpProject = projectName || mcp.project;
+    const cpWorkspace = workspaceName || mcp.workspace;
+    const cpName = controlPlaneName || mcp.name;
+    if (!clusterRolesActive || !cpProject || !cpWorkspace || !cpName) return undefined;
     const path = generatePath(Routes.McpV2, {
-      projectName: mcp.project,
-      workspaceName: mcp.workspace,
-      controlPlaneName: mcp.name,
+      projectName: cpProject,
+      workspaceName: cpWorkspace,
+      controlPlaneName: cpName,
     });
     return `#${path}?${SearchParams.HeadlampPath}=${encodeURIComponent('/clusterroles')}`;
-  }, [clusterRolesActive, mcp.project, mcp.workspace, mcp.name]);
+  }, [clusterRolesActive, projectName, workspaceName, controlPlaneName, mcp.project, mcp.workspace, mcp.name]);
   // `existingClusterRoles` passed from above wins (e.g. a precomputed value); otherwise use the
   // lookup, and only once it is 'ready' — an empty array would wrongly flag every role.
   const effectiveExistingClusterRoles = resolveExistingClusterRoles(

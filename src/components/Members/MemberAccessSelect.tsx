@@ -134,12 +134,20 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
     ) : null;
   };
 
-  const option = (role: StandardRole, title: string) => (
+  // Bullet lists are string arrays in the locale file; fall back to a single line if a locale
+  // provides a plain string (or the key is missing).
+  const bullets = (key: string): string[] => {
+    const value: unknown = t(key, { returnObjects: true });
+    return Array.isArray(value) ? value.map(String) : [String(value)];
+  };
+
+  const option = (role: StandardRole, title: string, points: string[]) => (
     <ChoiceOption
       type="checkbox"
       checked={roles.includes(role)}
       badge={<RoleBadge role={role} clusterRole />}
       accessibleName={title}
+      points={points}
       note={roles.includes(role) ? redundancyNote(role) : null}
       testId={withTestId(`access-${role}`)}
       onToggle={() => toggle(role)}
@@ -178,7 +186,11 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         t('MemberAccess.platform.title'),
         t('MemberAccess.platform.description'),
         platformDocsUrl,
-        option(DEFAULT_CLUSTER_ROLE, t('MemberAccess.roles.clusterAdmin.title')),
+        option(
+          DEFAULT_CLUSTER_ROLE,
+          t('MemberAccess.roles.clusterAdmin.title'),
+          bullets('MemberAccess.roles.clusterAdmin.bullets'),
+        ),
       )}
 
       {group(
@@ -186,9 +198,9 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         t('MemberAccess.kubernetes.description'),
         KUBERNETES_RBAC_DOCS_URL,
         <>
-          {option('admin', t('MemberAccess.roles.admin.title'))}
-          {option('edit', t('MemberAccess.roles.edit.title'))}
-          {option('view', t('MemberAccess.roles.view.title'))}
+          {option('admin', t('MemberAccess.roles.admin.title'), bullets('MemberAccess.roles.admin.bullets'))}
+          {option('edit', t('MemberAccess.roles.edit.title'), bullets('MemberAccess.roles.edit.bullets'))}
+          {option('view', t('MemberAccess.roles.view.title'), bullets('MemberAccess.roles.view.bullets'))}
         </>,
       )}
 

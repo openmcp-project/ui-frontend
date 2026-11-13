@@ -24,6 +24,8 @@ export interface IdentityProvidersStepProps {
   isValidationError?: boolean;
   workspaceName?: string;
   projectName?: string;
+  // The control plane's name, used to link to its roles in Headlamp. Present in edit mode only.
+  controlPlaneName?: string;
 }
 
 export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
@@ -34,6 +36,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   isValidationError = false,
   workspaceName,
   projectName,
+  controlPlaneName,
 }) => {
   const { t } = useTranslation();
   const { identityProviderGuide } = useLink();
@@ -154,6 +157,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
               requireAtLeastOneMember={false}
               workspaceName={workspaceName}
               projectName={projectName}
+              controlPlaneName={controlPlaneName}
               type="mcp"
               isV2
               fitContentAddButton
@@ -194,6 +198,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 showImportButton={false}
                 fitContentAddButton
                 providerName={provider.name}
+                controlPlaneName={controlPlaneName}
                 testIdPrefix={`provider-${provider.name}`}
                 onMemberChanged={(updatedSlice) => handleProviderMembersChange(provider.name, updatedSlice)}
               />

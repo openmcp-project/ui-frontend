@@ -385,16 +385,20 @@
     },
     "roles": {
       "clusterAdmin": {
-        "title": "Cluster admin"
+        "title": "Cluster admin",
+        "bullets": ["Full access to everything", "Manages who has access"]
       },
       "admin": {
-        "title": "Admin"
+        "title": "Admin",
+        "bullets": ["Read and write in all namespaces", "Manages access within namespaces", "No cluster-wide settings"]
       },
       "edit": {
-        "title": "Edit"
+        "title": "Edit",
+        "bullets": ["Read and write in all namespaces", "Cannot manage access"]
       },
       "view": {
-        "title": "View"
+        "title": "View",
+        "bullets": ["Read-only in all namespaces", "No secrets, no access settings"]
       }
     },
     "missing": {

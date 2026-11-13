@@ -1087,6 +1087,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
+              controlPlaneName={isEditMode ? name : undefined}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
             />
