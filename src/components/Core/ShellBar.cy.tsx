@@ -218,10 +218,31 @@ describe('ShellBar', () => {
     });
   });
 
+  it('opens the control plane info popover when the title is clicked', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-shellbar').shadow().find('.ui5-shellbar-title').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+  });
+
+  it('does not navigate home when the control plane title is clicked', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.window().then((win) => {
+      win.location.hash = '#/projects/some-project';
+    });
+
+    cy.get('ui5-shellbar').shadow().find('.ui5-shellbar-title').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.window().its('location.hash').should('eq', '#/projects/some-project');
+  });
+
   it('shows an edit button in the control plane info popover header when onEditMcp is set', () => {
     mountComponent({ mcpName: 'my-control-plane', onEditMcp: () => {} });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
     cy.get('ui5-popover').find('ui5-button[icon="edit"]').should('exist');
@@ -230,7 +251,7 @@ describe('ShellBar', () => {
   it('does not show an edit button in the info popover when onEditMcp is not set', () => {
     mountComponent({ mcpName: 'my-control-plane' });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
     cy.get('ui5-popover').find('ui5-button[icon="edit"]').should('not.exist');
@@ -245,7 +266,7 @@ describe('ShellBar', () => {
       },
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
     cy.get('ui5-popover').find('ui5-button[icon="edit"]').click({ force: true });
 
     cy.wrap(null).should(() => {
@@ -262,7 +283,7 @@ describe('ShellBar', () => {
       mcpStatus: { status: 'Ready' },
     });
 
-    cy.get('ui5-button[icon="information"]').should('be.visible');
+    cy.get('ui5-button[icon="hint"]').should('be.visible');
     cy.get('[data-testid="mcp-health-button"]').should('be.visible');
   });
 
@@ -283,7 +304,7 @@ describe('ShellBar', () => {
       onEditMcp: () => {},
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     // YAML stays in the header; Edit moved to the footer bar.
     cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('exist');
@@ -294,7 +315,7 @@ describe('ShellBar', () => {
   it('does not show a YAML button in the info popover when resourceType is not set', () => {
     mountComponent({ mcpName: 'my-control-plane', onEditMcp: () => {} });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('not.exist');
   });
@@ -307,7 +328,7 @@ describe('ShellBar', () => {
       onEditMcp: () => {},
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
     cy.get('ui5-popover ui5-button[aria-label="View resource"]').click({ force: true });
 
     cy.get('ui5-popover[open]').should('not.exist');
@@ -319,7 +340,7 @@ describe('ShellBar', () => {
       resourceType: 'controlplanes',
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ControlPlane');
     cy.get('[data-testid="control-plane-kind-deprecated"]').should('not.exist');
@@ -331,7 +352,7 @@ describe('ShellBar', () => {
       resourceType: 'managedcontrolplanes',
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ManagedControlPlane');
     cy.get('[data-testid="control-plane-kind-deprecated"]').should('contain.text', 'Deprecated');
@@ -340,7 +361,7 @@ describe('ShellBar', () => {
   it('does not show the kind row when resourceType is not set', () => {
     mountComponent({ mcpName: 'my-control-plane' });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
     cy.get('[data-testid="control-plane-kind"]').should('not.exist');
@@ -352,7 +373,7 @@ describe('ShellBar', () => {
       egressIp: { enabled: true, ready: true, ip: '34.90.123.45' },
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover').contains('Static Egress IP').should('be.visible');
     cy.get('[data-testid="egress-ip-value"]').should('contain.text', '34.90.123.45');
@@ -364,7 +385,7 @@ describe('ShellBar', () => {
       egressIp: { enabled: true, ready: false, reason: 'ClusterNotReady' },
     });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('[data-testid="egress-ip-pending"]').should('contain.text', 'ClusterNotReady');
     cy.get('[data-testid="egress-ip-value"]').should('not.exist');
@@ -373,7 +394,7 @@ describe('ShellBar', () => {
   it('does not show the static egress IP row when the feature is not enabled', () => {
     mountComponent({ mcpName: 'my-control-plane' });
 
-    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-button[icon="hint"]').click({ force: true });
 
     cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
     cy.get('ui5-popover').contains('Static Egress IP').should('not.exist');

@@ -3,7 +3,7 @@ import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/S
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/information';
+import '@ui5/webcomponents-icons/dist/hint';
 import '@ui5/webcomponents-icons/dist/nav-back';
 import '@ui5/webcomponents-icons/dist/upload';
 import {
@@ -31,6 +31,7 @@ import {
 import { ListItemBaseClickEventDetail } from '@ui5/webcomponents/dist/ListItemBase.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import PopoverHorizontalAlign from '@ui5/webcomponents/dist/types/PopoverHorizontalAlign.js';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +65,7 @@ export function ShellBarComponent({
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
   const { branding } = useFrontendConfig();
+  const shellBarRef = useRef<ShellBarDomRef | null>(null);
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const infoButtonRef = useRef<ButtonDomRef | null>(null);
@@ -76,6 +78,48 @@ export function ShellBarComponent({
   const onLogoClick = () => {
     window.location.hash = Routes.Home;
   };
+
+  // On control-plane routes the primary title shows the control-plane name. Make clicking
+  // that title open the info popover (mirroring the clickable project/workspace titles),
+  // while clicking the logo keeps navigating home. The title lives in the ShellBar's shadow
+  // DOM inside the logo area, so we intercept its click in the capture phase and stop it from
+  // bubbling into the logo-area's "go home" handler. The ShellBar renders asynchronously, so we
+  // watch its shadow DOM until the title appears before wiring up the listener.
+  useEffect(() => {
+    if (!mcpName) return;
+    const shellBar = shellBarRef.current;
+    if (!shellBar?.shadowRoot) return;
+    const shadowRoot = shellBar.shadowRoot;
+
+    let title: HTMLElement | null = null;
+
+    const openInfoPopover = (event: Event) => {
+      event.stopPropagation();
+      if (!infoPopoverRef.current || !title) return;
+      (infoPopoverRef.current as unknown as { opener: HTMLElement }).opener = title;
+      setInfoPopoverOpen((prev) => !prev);
+    };
+
+    const attach = () => {
+      const next = shadowRoot.querySelector<HTMLElement>('.ui5-shellbar-title');
+      if (next === title) return;
+      if (title) title.removeEventListener('click', openInfoPopover, { capture: true });
+      title = next;
+      if (title) {
+        title.style.cursor = 'pointer';
+        title.addEventListener('click', openInfoPopover, { capture: true });
+      }
+    };
+
+    attach();
+    const observer = new MutationObserver(attach);
+    observer.observe(shadowRoot, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (title) title.removeEventListener('click', openInfoPopover, { capture: true });
+    };
+  }, [mcpName, mcpDisplayName]);
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     if (!profilePopoverRef.current) return;
@@ -93,6 +137,7 @@ export function ShellBarComponent({
   return (
     <>
       <ShellBar
+        ref={shellBarRef}
         hidden={window.location.href.includes('compact-mode')}
         logo={branding.logo ? <img src={branding.logo} alt={branding.appName} className={styles.logo} /> : undefined}
         primaryTitle={mcpDisplayName ?? mcpName ?? branding.appName}
@@ -133,7 +178,8 @@ export function ShellBarComponent({
                   key="info"
                   ref={infoButtonRef}
                   design="Transparent"
-                  icon="information"
+                  icon="hint"
+                  className={styles.infoButton}
                   tooltip={t('ShellBar.controlPlaneInfoButton')}
                   onClick={handleInfoClick}
                 />,
@@ -229,6 +275,7 @@ function ControlPlaneInfoPopover({
     <Popover
       ref={ref}
       placement={PopoverPlacement.Bottom}
+      horizontalAlign={PopoverHorizontalAlign.Start}
       open={open}
       preventInitialFocus
       header={

@@ -36,6 +36,15 @@
   align-items: center;
 }
 
+/* Subtle, grayish info hint in the app bar — matches the project/workspace info buttons. */
+.infoButton {
+  color: var(--sapContent_LabelColor);
+}
+
+.infoButton::part(icon) {
+  color: var(--sapContent_LabelColor);
+}
+
 .infoPopoverContent {
   display: flex;
   flex-direction: column;
