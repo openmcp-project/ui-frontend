@@ -55,10 +55,7 @@ import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kp
 import { useMetricsOperatorQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery.ts';
 import { buildRoleBindingsForProviderMembers } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
-import {
-  buildMcpV2GraphQLInput,
-  stripEmptyAnnotations,
-} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
