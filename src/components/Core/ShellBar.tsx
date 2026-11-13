@@ -96,7 +96,7 @@ export function ShellBarComponent({
     const openInfoPopover = (event: Event) => {
       event.stopPropagation();
       if (!infoPopoverRef.current || !title) return;
-      (infoPopoverRef.current as unknown as { opener: HTMLElement }).opener = title;
+      infoPopoverRef.current.opener = title;
       setInfoPopoverOpen((prev) => !prev);
     };
 
