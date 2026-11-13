@@ -1,10 +1,15 @@
 import '@ui5/webcomponents-icons/dist/add';
+import '@ui5/webcomponents-icons/dist/badge';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/shield';
+import '@ui5/webcomponents-icons/dist/show';
 import '@ui5/webcomponents-icons/dist/upload';
 import {
   BusyIndicator,
   Button,
   CheckBox,
   FlexBox,
+  Icon,
   Label,
   Link,
   MessageStrip,
@@ -20,6 +25,7 @@ import type { MultiInputTokenDeleteEventDetail } from '@ui5/webcomponents/dist/M
 import { FC, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  clusterRoleIcon,
   DEFAULT_CLUSTER_ROLE,
   formatRoleRef,
   isNamespacedRole,
@@ -31,8 +37,9 @@ import styles from './Members.module.css';
 export const KUBERNETES_RBAC_DOCS_URL =
   'https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles';
 
-type StandardRole = typeof DEFAULT_CLUSTER_ROLE | 'admin' | 'view';
-const STANDARD_ROLES: readonly string[] = [DEFAULT_CLUSTER_ROLE, 'admin', 'view'];
+type StandardRole = typeof DEFAULT_CLUSTER_ROLE | 'admin' | 'edit' | 'view';
+// Kubernetes' built-in user-facing roles, broadest first: each one includes all that follow.
+const STANDARD_ROLES: readonly string[] = [DEFAULT_CLUSTER_ROLE, 'admin', 'edit', 'view'];
 
 // Whether the control plane's ClusterRoles are known:
 //   'unknown' – no lookup possible (control plane not created yet, or no session for it). Names are
@@ -72,12 +79,14 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   // Kubernetes permissions only ever add up, so any combination is valid — but a role that is fully
   // covered by a broader one changes nothing. Say so instead of forbidding it: such combinations can
   // be created through the API anyway and must stay editable here.
+  const standardTitle = (role: string) =>
+    t(`MemberAccess.roles.${role === DEFAULT_CLUSTER_ROLE ? 'clusterAdmin' : role}.title`);
+
   const coveredBy = (role: StandardRole | 'custom'): string | undefined => {
-    if (role !== DEFAULT_CLUSTER_ROLE && roles.includes(DEFAULT_CLUSTER_ROLE)) {
-      return t('MemberAccess.roles.clusterAdmin.title');
-    }
-    if (role === 'view' && roles.includes('admin')) return t('MemberAccess.roles.admin.title');
-    return undefined;
+    // cluster-admin covers everything, custom roles included; admin ⊇ edit ⊇ view.
+    const rank = role === 'custom' ? 1 : STANDARD_ROLES.indexOf(role);
+    const broader = STANDARD_ROLES.slice(0, rank).find((candidate) => roles.includes(candidate));
+    return broader ? standardTitle(broader) : undefined;
   };
 
   const customSelected = roles.filter((role) => !STANDARD_ROLES.includes(role));
@@ -132,12 +141,15 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
 
   const option = (role: StandardRole, title: string, points: string[]) => (
     <div className={styles.accessOption}>
-      <CheckBox
-        text={title}
-        checked={roles.includes(role)}
-        data-testid={withTestId(`access-${role}`)}
-        onChange={() => toggle(role)}
-      />
+      <FlexBox alignItems="Center">
+        <CheckBox
+          text={title}
+          checked={roles.includes(role)}
+          data-testid={withTestId(`access-${role}`)}
+          onChange={() => toggle(role)}
+        />
+        <Icon className={styles.accessIcon} name={clusterRoleIcon(role) ?? ''} />
+      </FlexBox>
       <div className={styles.accessOptionBody}>
         <ul className={styles.accessBullets}>
           {points.map((point) => (
@@ -195,6 +207,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         KUBERNETES_RBAC_DOCS_URL,
         <>
           {option('admin', t('MemberAccess.roles.admin.title'), bullets('MemberAccess.roles.admin.bullets'))}
+          {option('edit', t('MemberAccess.roles.edit.title'), bullets('MemberAccess.roles.edit.bullets'))}
           {option('view', t('MemberAccess.roles.view.title'), bullets('MemberAccess.roles.view.bullets'))}
         </>,
       )}
@@ -243,7 +256,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
             <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.loadError')}</Text>
           )}
           {customRolesState === 'ready' && customSelected.some(isNotFound) && (
-            <MessageStrip design="Critical" data-testid={withTestId('custom-roles-not-found')} hideCloseButton>
+            <MessageStrip design="Information" data-testid={withTestId('custom-roles-not-found')} hideCloseButton>
               {t('MemberAccess.custom.notFoundHint')}
             </MessageStrip>
           )}

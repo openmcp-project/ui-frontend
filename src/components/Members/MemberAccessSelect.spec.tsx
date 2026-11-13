@@ -28,6 +28,7 @@ describe('MemberAccessSelect', () => {
     render(<MemberAccessSelect roles={['admin', 'view', 'my-role']} onChange={() => {}} />);
     expect(isChecked('cluster-admin')).toBe(false);
     expect(isChecked('admin')).toBe(true);
+    expect(isChecked('edit')).toBe(false);
     expect(isChecked('view')).toBe(true);
   });
 
@@ -44,6 +45,17 @@ describe('MemberAccessSelect', () => {
     render(<MemberAccessSelect roles={['admin', 'view']} onChange={() => {}} />);
     expect(screen.queryAllByTestId('access-view-covered')).toHaveLength(1);
     expect(screen.queryAllByTestId('access-admin-covered')).toHaveLength(0);
+    cleanup();
+
+    render(<MemberAccessSelect roles={['edit', 'view']} onChange={() => {}} />);
+    expect(screen.queryAllByTestId('access-view-covered')).toHaveLength(1);
+    expect(screen.queryAllByTestId('access-edit-covered')).toHaveLength(0);
+    cleanup();
+
+    render(<MemberAccessSelect roles={['admin', 'edit', 'my-role']} onChange={() => {}} />);
+    expect(screen.queryAllByTestId('access-edit-covered')).toHaveLength(1);
+    // Only cluster-admin covers custom roles.
+    expect(screen.queryAllByTestId('access-custom-covered')).toHaveLength(0);
     cleanup();
 
     render(<MemberAccessSelect roles={['cluster-admin', 'admin', 'my-role']} onChange={() => {}} />);

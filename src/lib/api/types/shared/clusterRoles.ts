@@ -21,10 +21,10 @@ const NAMESPACED_ROLE_PREFIX = 'Role/';
 // (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles).
 // Anything else (e.g. a ClusterRole created inside the ControlPlane) is entered as a custom name.
 export const CLUSTER_ROLE_PRESETS = [
-  { name: DEFAULT_CLUSTER_ROLE, icon: 'badge', descriptionKey: 'ClusterRoles.presets.clusterAdmin' },
-  { name: 'admin', icon: 'shield', descriptionKey: 'ClusterRoles.presets.admin' },
-  { name: 'edit', icon: 'edit', descriptionKey: 'ClusterRoles.presets.edit' },
-  { name: 'view', icon: 'show', descriptionKey: 'ClusterRoles.presets.view' },
+  { name: DEFAULT_CLUSTER_ROLE, icon: 'badge' },
+  { name: 'admin', icon: 'shield' },
+  { name: 'edit', icon: 'edit' },
+  { name: 'view', icon: 'show' },
 ] as const;
 
 const PRESET_BY_NAME: Record<string, (typeof CLUSTER_ROLE_PRESETS)[number]> = Object.fromEntries(
@@ -35,8 +35,9 @@ export function isPresetClusterRole(role: string): boolean {
   return role in PRESET_BY_NAME;
 }
 
-export function clusterRoleIcon(role: string): string {
-  return PRESET_BY_NAME[role]?.icon ?? 'role';
+/** Only the built-in roles carry an icon; custom roles are shown by name alone. */
+export function clusterRoleIcon(role: string): string | undefined {
+  return PRESET_BY_NAME[role]?.icon;
 }
 
 export function encodeRoleRef(ref: {

@@ -1,4 +1,3 @@
-import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
 import '@ui5/webcomponents-icons/dist/alert';
 import '@ui5/webcomponents-icons/dist/badge';
 import '@ui5/webcomponents-icons/dist/search';
@@ -20,7 +19,6 @@ import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappe
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/role';
 import {
   clusterRoleIcon,
   isNamespacedRole,
@@ -28,13 +26,7 @@ import {
   formatRoleRef,
   uniqueRoles,
 } from '../../lib/api/types/shared/clusterRoles.ts';
-import {
-  isUnnamedProvider,
-  Member,
-  memberRolesOptions,
-  MemberRoles,
-  MemberRolesDetailed,
-} from '../../lib/api/types/shared/members';
+import { isUnnamedProvider, Member, memberRolesOptions, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
 import styles from './MemberTable.module.css';
@@ -72,25 +64,16 @@ const ROLE_ICON_BY_VALUE: Record<string, string> = Object.fromEntries(
   memberRolesOptions.map(({ value, icon }) => [value, icon ?? 'show']),
 );
 
-// Badge severity has no other owner in the codebase — it's purely a table presentation choice.
-const ROLE_STATE_BY_VALUE: Record<string, ValueState> = {
-  [MemberRoles.admin]: ValueState.Critical,
-};
-
-const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
-  icon: ROLE_ICON_BY_VALUE[roleValue] ?? 'show',
-  state: ROLE_STATE_BY_VALUE[roleValue] ?? ValueState.None,
-});
+// Role badges are deliberately neutral: a role is information, not a warning. The icon alone
+// tells the built-in roles apart.
+const roleIcon = (roleValue: string): string => ROLE_ICON_BY_VALUE[roleValue] ?? 'show';
 
 const CLUSTER_ROLE_LABEL_KEYS: Record<string, string> = {
   [DEFAULT_CLUSTER_ROLE]: 'MemberAccess.roles.clusterAdmin.title',
   admin: 'MemberAccess.roles.admin.title',
+  edit: 'MemberAccess.roles.edit.title',
   view: 'MemberAccess.roles.view.title',
 };
-
-// cluster-admin is unrestricted access to the whole ControlPlane — keep it visually distinct.
-const clusterRoleState = (role: string): ValueState =>
-  role === DEFAULT_CLUSTER_ROLE ? ValueState.Negative : ValueState.None;
 
 const toRow = (m: Member, clusterRoles: boolean): MemberTableRow => {
   const roleValue = m.roles?.[0] ?? '';
@@ -190,35 +173,27 @@ export const MemberTable: FC<MemberTableProps> = ({
           if (clusterRoles) {
             return (
               <FlexBox gap="0.25rem" title={row.role}>
-                {row.roleValues.map((role) =>
-                  isMissingRole(role) ? (
+                {row.roleValues.map((role) => {
+                  const missing = isMissingRole(role);
+                  const icon = missing ? 'alert' : clusterRoleIcon(role);
+                  return (
                     <ObjectStatus
                       key={role}
-                      state={ValueState.Critical}
-                      icon={<Icon name="alert" />}
-                      title={t('MemberAccess.missing.tooltip')}
-                      data-testid={`missing-role-${role}`}
-                      inverted
-                    >
-                      {formatRoleRef(role)}
-                    </ObjectStatus>
-                  ) : (
-                    <ObjectStatus
-                      key={role}
-                      state={clusterRoleState(role)}
-                      icon={<Icon name={clusterRoleIcon(role)} />}
+                      icon={icon ? <Icon name={icon} /> : undefined}
+                      title={missing ? t('MemberAccess.missing.tooltip') : undefined}
+                      data-testid={missing ? `missing-role-${role}` : undefined}
                       inverted
                     >
                       {CLUSTER_ROLE_LABEL_KEYS[role] ? t(CLUSTER_ROLE_LABEL_KEYS[role]) : formatRoleRef(role)}
                     </ObjectStatus>
-                  ),
-                )}
+                  );
+                })}
               </FlexBox>
             );
           }
-          const meta = roleMeta(row.roleValue);
+
           return (
-            <ObjectStatus state={meta.state} icon={<Icon name={meta.icon} />} inverted>
+            <ObjectStatus icon={<Icon name={roleIcon(row.roleValue)} />} inverted>
               {row.role}
             </ObjectStatus>
           );
@@ -341,7 +316,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       {missingRoles.length > 0 && (
         <MessageStrip
           className={styles.missingRoles}
-          design="Critical"
+          design="Information"
           data-testid="missing-roles-warning"
           hideCloseButton
         >

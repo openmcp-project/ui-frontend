@@ -104,3 +104,8 @@
   font-style: italic;
   margin-top: 0.125rem;
 }
+
+.accessIcon {
+  color: var(--sapContent_IconColor);
+  margin-left: 0.375rem;
+}

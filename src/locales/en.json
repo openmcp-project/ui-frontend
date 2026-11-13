@@ -385,6 +385,10 @@
         "title": "Admin",
         "bullets": ["Read and write in all namespaces", "Manages access within namespaces", "No cluster-wide settings"]
       },
+      "edit": {
+        "title": "Edit",
+        "bullets": ["Read and write in all namespaces", "Cannot manage access"]
+      },
       "view": {
         "title": "View",
         "bullets": ["Read-only in all namespaces", "No secrets, no access settings"]
