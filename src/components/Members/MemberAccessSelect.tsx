@@ -211,7 +211,6 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         data-testid={withTestId('custom-roles-panel')}
       >
         <FlexBox direction="Column" gap={8} className={styles.accessCustom}>
-          <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.description')}</Text>
           {customSelected.length > 0 && redundancyNote('custom')}
           <MultiInput
             className={styles.input}

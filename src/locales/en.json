@@ -371,7 +371,6 @@
     },
     "custom": {
       "title": "Custom roles",
-      "description": "Your own roles for specific needs.",
       "placeholder": "Role name",
       "invalidName": "Not a valid role name. No spaces, '/' or '%'.",
       "unknown": "Not checked: roles can only be verified from the control plane's own page.",
