@@ -352,14 +352,10 @@
   },
   "MemberAccess": {
     "label": "Access",
-    "hint": "Pick one or more roles. Permissions add up.",
     "coveredBy": "No extra effect: already included in {{role}}.",
     "learnMore": "Learn more",
     "accountType": {
-      "label": "Account type",
-      "User": "One person",
-      "Group": "Everyone in a group",
-      "ServiceAccount": "A technical account"
+      "label": "Account type"
     },
     "atLeastOneRole": "Select at least one role.",
     "platform": {
@@ -376,6 +372,7 @@
       "placeholder": "Role name",
       "invalidName": "Not a valid role name. No spaces, '/' or '%'.",
       "unknown": "Not checked: roles can only be verified from the control plane's own page.",
+      "openRolesView": "Open this control plane's roles in Headlamp",
       "notFoundHint": "A role that is not found grants no access until it is created.",
       "create": "Create role",
       "upload": "Upload YAML",
@@ -388,20 +385,16 @@
     },
     "roles": {
       "clusterAdmin": {
-        "title": "Cluster admin",
-        "bullets": ["Full access to everything", "Manages who has access"]
+        "title": "Cluster admin"
       },
       "admin": {
-        "title": "Admin",
-        "bullets": ["Read and write in all namespaces", "Manages access within namespaces", "No cluster-wide settings"]
+        "title": "Admin"
       },
       "edit": {
-        "title": "Edit",
-        "bullets": ["Read and write in all namespaces", "Cannot manage access"]
+        "title": "Edit"
       },
       "view": {
-        "title": "View",
-        "bullets": ["Read-only in all namespaces", "No secrets, no access settings"]
+        "title": "View"
       }
     },
     "missing": {

@@ -1,18 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
-import { Activity, FC, useEffect, useMemo, useRef, useState } from 'react';
+import { Activity, FC, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
-import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import { ClusterRoleDialog, ClusterRoleDialogMode } from './ClusterRoleDialog.tsx';
+import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import type { ClusterRoleDialogMode } from './ClusterRoleDialog.tsx';
 import { CustomRolesState, MemberAccessSelect } from './MemberAccessSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
-import { AccountTypeLabel, ChoiceOption, RoleBadge } from './MemberBadges.tsx';
+import { ChoiceOption, RoleBadge } from './MemberBadges.tsx';
 import styles from './Members.module.css';
+
+// Lazy so Monaco (the YAML editor) only loads when a user actually opens the role dialog, not with
+// every member dialog / wizard mount.
+const ClusterRoleDialog = lazy(() => import('./ClusterRoleDialog.tsx').then((m) => ({ default: m.ClusterRoleDialog })));
 
 interface AddEditMemberDialogProps {
   open: boolean;
@@ -27,6 +31,8 @@ interface AddEditMemberDialogProps {
   availableCustomRoles?: string[];
   customRolesState?: CustomRolesState;
   platformDocsUrl?: string;
+  // Link to this control plane's roles in the embedded Headlamp view (when a session exists).
+  rolesViewUrl?: string;
   // Names of ClusterRoles carrying an aggregationRule (controller-managed, not editable).
   aggregatedRoles?: string[];
   // Role management (view/create/upload) is only possible with a control-plane session: the lookup
@@ -57,6 +63,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   availableCustomRoles,
   customRolesState,
   platformDocsUrl,
+  rolesViewUrl,
   aggregatedRoles = [],
   canManageRoles = false,
   onRoleApplied,
@@ -252,25 +259,14 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-            <FlexBox direction="Column">
-              <Label>{t('MemberAccess.accountType.label')}</Label>
-              <FlexBox className={styles.accountTypes} role="radiogroup">
-                {effectiveAccountTypeOptions.map(({ value, label, disabled }) => (
-                  <ChoiceOption
-                    key={value}
-                    type="radio"
-                    name={withTestId('account-type')}
-                    checked={accountType === value}
-                    disabled={disabled}
-                    badge={<AccountTypeLabel kind={value} label={label} />}
-                    accessibleName={label}
-                    points={[t(`MemberAccess.accountType.${value}`)]}
-                    testId={withTestId(`account-type-${value}`)}
-                    onToggle={() => setValue('accountType', value as AccountType, { shouldValidate: true })}
-                  />
-                ))}
-              </FlexBox>
-            </FlexBox>
+            <div data-testid={withTestId('account-type')}>
+              <RadioButtonsSelect
+                label={t('MemberAccess.accountType.label')}
+                options={effectiveAccountTypeOptions}
+                selectedValue={accountType}
+                handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
+              />
+            </div>
           </FlexBox>
         </FlexBox>
         <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
@@ -294,6 +290,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                 availableCustomRoles={availableCustomRoles}
                 customRolesState={customRolesState}
                 platformDocsUrl={platformDocsUrl}
+                rolesViewUrl={rolesViewUrl}
                 errorMessage={errors.roles?.message}
                 testIdPrefix={testIdPrefix}
                 onChange={(next) => setValue('roles', next, { shouldValidate: true, shouldDirty: true })}
@@ -372,15 +369,17 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         />
       )}
       {roleDialog && (
-        <ClusterRoleDialog
-          mode={roleDialog.mode}
-          roleName={roleDialog.name}
-          initialYaml={roleDialog.yaml}
-          aggregatedRoles={aggregatedRoles}
-          testIdPrefix={testIdPrefix}
-          onClose={() => setRoleDialog(null)}
-          onApplied={handleRoleApplied}
-        />
+        <Suspense fallback={null}>
+          <ClusterRoleDialog
+            mode={roleDialog.mode}
+            roleName={roleDialog.name}
+            initialYaml={roleDialog.yaml}
+            aggregatedRoles={aggregatedRoles}
+            testIdPrefix={testIdPrefix}
+            onClose={() => setRoleDialog(null)}
+            onApplied={handleRoleApplied}
+          />
+        </Suspense>
       )}
     </Dialog>
   );

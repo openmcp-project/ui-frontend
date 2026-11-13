@@ -9,6 +9,7 @@ import {
   MessageStrip,
   MultiInput,
   MultiInputDomRef,
+  Panel,
   SuggestionItem,
   Text,
   Title,
@@ -51,6 +52,8 @@ export interface MemberAccessSelectProps {
   availableCustomRoles?: string[];
   customRolesState?: CustomRolesState;
   platformDocsUrl?: string;
+  /** Link to this control plane's roles in the embedded Headlamp view (when a session exists). */
+  rolesViewUrl?: string;
   /** Opens the create-role dialog, optionally prefilled with a not-found role's name. */
   onCreateRole?: (name?: string) => void;
   /** Opens the view-role dialog for an existing role. */
@@ -66,6 +69,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   availableCustomRoles = [],
   customRolesState = 'unknown',
   platformDocsUrl,
+  rolesViewUrl,
   onCreateRole,
   onViewRole,
   onUploadRole,
@@ -121,13 +125,6 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   const isNotFound = (role: string) =>
     customRolesState === 'ready' && !isNamespacedRole(role) && !availableCustomRoles.includes(role);
 
-  // Bullet lists are string arrays in the locale file; fall back to a single line if a locale
-  // provides a plain string (or the key is missing).
-  const bullets = (key: string): string[] => {
-    const value: unknown = t(key, { returnObjects: true });
-    return Array.isArray(value) ? value.map(String) : [String(value)];
-  };
-
   const redundancyNote = (role: StandardRole | 'custom') => {
     const broader = coveredBy(role);
     return broader ? (
@@ -137,13 +134,12 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
     ) : null;
   };
 
-  const option = (role: StandardRole, title: string, points: string[]) => (
+  const option = (role: StandardRole, title: string) => (
     <ChoiceOption
       type="checkbox"
       checked={roles.includes(role)}
       badge={<RoleBadge role={role} clusterRole />}
       accessibleName={title}
-      points={points}
       note={roles.includes(role) ? redundancyNote(role) : null}
       testId={withTestId(`access-${role}`)}
       onToggle={() => toggle(role)}
@@ -171,7 +167,6 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
     <FlexBox direction="Column" gap={12} data-testid={withTestId('member-access-select')}>
       <FlexBox direction="Column">
         <Label>{t('MemberAccess.label')}</Label>
-        <Text className={styles.accessGroupDescription}>{t('MemberAccess.hint')}</Text>
         {errorMessage && (
           <Text className={styles.errorText} data-testid={withTestId('member-access-error')}>
             {errorMessage}
@@ -183,11 +178,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         t('MemberAccess.platform.title'),
         t('MemberAccess.platform.description'),
         platformDocsUrl,
-        option(
-          DEFAULT_CLUSTER_ROLE,
-          t('MemberAccess.roles.clusterAdmin.title'),
-          bullets('MemberAccess.roles.clusterAdmin.bullets'),
-        ),
+        option(DEFAULT_CLUSTER_ROLE, t('MemberAccess.roles.clusterAdmin.title')),
       )}
 
       {group(
@@ -195,17 +186,20 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
         t('MemberAccess.kubernetes.description'),
         KUBERNETES_RBAC_DOCS_URL,
         <>
-          {option('admin', t('MemberAccess.roles.admin.title'), bullets('MemberAccess.roles.admin.bullets'))}
-          {option('edit', t('MemberAccess.roles.edit.title'), bullets('MemberAccess.roles.edit.bullets'))}
-          {option('view', t('MemberAccess.roles.view.title'), bullets('MemberAccess.roles.view.bullets'))}
+          {option('admin', t('MemberAccess.roles.admin.title'))}
+          {option('edit', t('MemberAccess.roles.edit.title'))}
+          {option('view', t('MemberAccess.roles.view.title'))}
         </>,
       )}
 
-      {group(
-        t('MemberAccess.custom.title'),
-        t('MemberAccess.custom.description'),
-        undefined,
+      <Panel
+        className={styles.accessGroup}
+        headerText={t('MemberAccess.custom.title')}
+        collapsed
+        data-testid={withTestId('custom-roles-panel')}
+      >
         <FlexBox direction="Column" gap={8} className={styles.accessCustom}>
+          <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.description')}</Text>
           {customSelected.length > 0 && redundancyNote('custom')}
           <MultiInput
             className={styles.input}
@@ -282,9 +276,16 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
             </FlexBox>
           )}
           {customRolesState === 'loading' && <BusyIndicator active delay={0} size="S" />}
-          {customRolesState === 'unknown' && (
-            <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.unknown')}</Text>
-          )}
+          {customRolesState === 'unknown' &&
+            (rolesViewUrl ? (
+              <Text className={styles.accessGroupDescription}>
+                <Link href={rolesViewUrl} target="_blank" data-testid={withTestId('roles-view-link')}>
+                  {t('MemberAccess.custom.openRolesView')}
+                </Link>
+              </Text>
+            ) : (
+              <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.unknown')}</Text>
+            ))}
           {customRolesState === 'error' && (
             <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.loadError')}</Text>
           )}
@@ -317,8 +318,8 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
               )}
             </FlexBox>
           )}
-        </FlexBox>,
-      )}
+        </FlexBox>
+      </Panel>
     </FlexBox>
   );
 };

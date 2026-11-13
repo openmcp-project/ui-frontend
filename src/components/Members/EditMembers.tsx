@@ -3,10 +3,13 @@ import { clsx } from 'clsx';
 import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { generatePath } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext.tsx';
 import { mapMemberRoleToClusterRole } from '../../lib/api/types/shared/clusterRoles.ts';
 import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
+import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useLink } from '../../lib/shared/useLink.ts';
+import { Routes, SearchParams } from '../../Routes.ts';
 import {
   useClusterRoles as _useClusterRoles,
   type ClusterRolesLookup,
@@ -81,6 +84,18 @@ export const EditMembers: FC<EditMembersProps> = ({
   // which skips the lookup without triggering a login. See useClusterRoles.
   const lookup = useClusterRoles();
   const clusterRolesActive = isV2;
+  // Link to this control plane's roles in the embedded Headlamp view. Only available when a control
+  // plane context exists (not in the create wizard, where useMcp() is empty). HashRouter URL.
+  const mcp = useMcp();
+  const rolesViewUrl = useMemo(() => {
+    if (!clusterRolesActive || !mcp.project || !mcp.workspace || !mcp.name) return undefined;
+    const path = generatePath(Routes.McpV2, {
+      projectName: mcp.project,
+      workspaceName: mcp.workspace,
+      controlPlaneName: mcp.name,
+    });
+    return `#${path}?${SearchParams.HeadlampPath}=${encodeURIComponent('/clusterroles')}`;
+  }, [clusterRolesActive, mcp.project, mcp.workspace, mcp.name]);
   // `existingClusterRoles` passed from above wins (e.g. a precomputed value); otherwise use the
   // lookup, and only once it is 'ready' — an empty array would wrongly flag every role.
   const effectiveExistingClusterRoles = resolveExistingClusterRoles(
@@ -231,6 +246,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         availableCustomRoles={clusterRolesActive ? lookup.selectable : undefined}
         customRolesState={clusterRolesActive ? lookup.state : undefined}
         platformDocsUrl={clusterRolesActive ? mcpOnboardingAuthDocs : undefined}
+        rolesViewUrl={rolesViewUrl}
         aggregatedRoles={clusterRolesActive ? lookup.aggregated : undefined}
         canManageRoles={clusterRolesActive && (lookup.state === 'ready' || lookup.state === 'error')}
         onRoleApplied={lookup.refresh}
