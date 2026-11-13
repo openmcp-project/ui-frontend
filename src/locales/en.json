@@ -375,7 +375,7 @@
       "placeholder": "Role name",
       "invalidName": "Not a valid role name. No spaces, '/' or '%'.",
       "unknown": "Not checked: roles can only be verified from the control plane's own page.",
-      "openRolesView": "Open this control plane's roles in Headlamp",
+      "openRolesView": "Show ClusterRoles",
       "notFoundHint": "A role that is not found grants no access until it is created.",
       "create": "Create role",
       "upload": "Upload YAML",
