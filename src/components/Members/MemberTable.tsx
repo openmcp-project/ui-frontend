@@ -11,7 +11,6 @@ import {
   Input,
   InputDomRef,
   MessageStrip,
-  ObjectStatus,
   Text,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
@@ -19,16 +18,11 @@ import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappe
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@ui5/webcomponents-icons/dist/edit';
-import {
-  clusterRoleIcon,
-  isNamespacedRole,
-  DEFAULT_CLUSTER_ROLE,
-  formatRoleRef,
-  uniqueRoles,
-} from '../../lib/api/types/shared/clusterRoles.ts';
-import { isUnnamedProvider, Member, memberRolesOptions, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import { isNamespacedRole, formatRoleRef, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
+import { isUnnamedProvider, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
+import { AccountTypeLabel, RoleBadge } from './MemberBadges.tsx';
 import styles from './MemberTable.module.css';
 
 type MemberTableRow = {
@@ -56,23 +50,6 @@ type MemberTableProps = {
   // lookup has finished. `undefined` = not checked (yet) — nothing is flagged. A binding to a role
   // that does not exist is accepted by the platform but grants nothing.
   existingClusterRoles?: string[];
-};
-
-// Icon per role value, reusing the same options arrays the role-picker dropdowns use — one
-// source of truth instead of a badge-only copy that could drift from them.
-const ROLE_ICON_BY_VALUE: Record<string, string> = Object.fromEntries(
-  memberRolesOptions.map(({ value, icon }) => [value, icon ?? 'show']),
-);
-
-// Role badges are deliberately neutral: a role is information, not a warning. The icon alone
-// tells the built-in roles apart.
-const roleIcon = (roleValue: string): string => ROLE_ICON_BY_VALUE[roleValue] ?? 'show';
-
-const CLUSTER_ROLE_LABEL_KEYS: Record<string, string> = {
-  [DEFAULT_CLUSTER_ROLE]: 'MemberAccess.roles.clusterAdmin.title',
-  admin: 'MemberAccess.roles.admin.title',
-  edit: 'MemberAccess.roles.edit.title',
-  view: 'MemberAccess.roles.view.title',
 };
 
 const toRow = (m: Member, clusterRoles: boolean): MemberTableRow => {
@@ -154,14 +131,11 @@ export const MemberTable: FC<MemberTableProps> = ({
       {
         Header: t('MemberTable.columnTypeHeader'),
         accessor: 'kind',
-        width: 78,
+        // Plain icon + text; 'Service Account' needs more room than 'User' / 'Group'.
+        width: members.some((m) => m.kind === 'ServiceAccount') ? 150 : 90,
         Cell: (instance) => {
           const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
-          return (
-            <ObjectStatus icon={<Icon name={kind?.icon ?? 'employee'} />} inverted>
-              {kind?.label}
-            </ObjectStatus>
-          );
+          return <AccountTypeLabel kind={instance.cell.row.original.kind} label={kind?.label} />;
         },
       },
       {
@@ -173,30 +147,14 @@ export const MemberTable: FC<MemberTableProps> = ({
           if (clusterRoles) {
             return (
               <FlexBox gap="0.25rem" title={row.role}>
-                {row.roleValues.map((role) => {
-                  const missing = isMissingRole(role);
-                  const icon = missing ? 'alert' : clusterRoleIcon(role);
-                  return (
-                    <ObjectStatus
-                      key={role}
-                      icon={icon ? <Icon name={icon} /> : undefined}
-                      title={missing ? t('MemberAccess.missing.tooltip') : undefined}
-                      data-testid={missing ? `missing-role-${role}` : undefined}
-                      inverted
-                    >
-                      {CLUSTER_ROLE_LABEL_KEYS[role] ? t(CLUSTER_ROLE_LABEL_KEYS[role]) : formatRoleRef(role)}
-                    </ObjectStatus>
-                  );
-                })}
+                {row.roleValues.map((role) => (
+                  <RoleBadge key={role} role={role} missing={isMissingRole(role)} clusterRole />
+                ))}
               </FlexBox>
             );
           }
 
-          return (
-            <ObjectStatus icon={<Icon name={roleIcon(row.roleValue)} />} inverted>
-              {row.role}
-            </ObjectStatus>
-          );
+          return <RoleBadge role={row.roleValue} />;
         },
       },
     ];
@@ -241,7 +199,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     }
 
     return cols;
-  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles, isMissingRole]);
+  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles, isMissingRole, members]);
 
   const providerLabel = useCallback(
     (provider?: string): string => {

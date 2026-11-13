@@ -7,9 +7,10 @@ import { z } from 'zod';
 import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
-import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { CustomRolesState, MemberAccessSelect } from './MemberAccessSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
+import { AccountTypeLabel, ChoiceOption, RoleBadge } from './MemberBadges.tsx';
 import styles from './Members.module.css';
 
 interface AddEditMemberDialogProps {
@@ -219,12 +220,25 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-            <RadioButtonsSelect
-              label={'Account type:'}
-              selectedValue={accountType}
-              options={effectiveAccountTypeOptions}
-              handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
-            />
+            <FlexBox direction="Column">
+              <Label>{t('MemberAccess.accountType.label')}</Label>
+              <FlexBox className={styles.accountTypes} role="radiogroup">
+                {effectiveAccountTypeOptions.map(({ value, label, disabled }) => (
+                  <ChoiceOption
+                    key={value}
+                    type="radio"
+                    name={withTestId('account-type')}
+                    checked={accountType === value}
+                    disabled={disabled}
+                    badge={<AccountTypeLabel kind={value} label={label} />}
+                    accessibleName={label}
+                    points={[t(`MemberAccess.accountType.${value}`)]}
+                    testId={withTestId(`account-type-${value}`)}
+                    onToggle={() => setValue('accountType', value as AccountType, { shouldValidate: true })}
+                  />
+                ))}
+              </FlexBox>
+            </FlexBox>
           </FlexBox>
         </FlexBox>
         <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
@@ -258,12 +272,24 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           )}
           {!clusterRoles && effectiveRoleOptions.length > 1 && (
             <div className={styles.wrapper}>
-              <RadioButtonsSelect
-                selectedValue={role}
-                options={effectiveRoleOptions}
-                handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
-                label={t('MemberTable.columnRoleHeader')}
-              />
+              <FlexBox direction="Column">
+                <Label>{t('MemberTable.columnRoleHeader')}</Label>
+                <FlexBox className={styles.accountTypes} role="radiogroup">
+                  {effectiveRoleOptions.map(({ value, label, disabled }) => (
+                    <ChoiceOption
+                      key={value}
+                      type="radio"
+                      name={withTestId('member-role')}
+                      checked={role === value}
+                      disabled={disabled}
+                      badge={<RoleBadge role={value} />}
+                      accessibleName={label}
+                      testId={withTestId(`member-role-${value}`)}
+                      onToggle={() => setValue('role', value, { shouldValidate: true })}
+                    />
+                  ))}
+                </FlexBox>
+              </FlexBox>
             </div>
           )}
 

@@ -1,15 +1,9 @@
 import '@ui5/webcomponents-icons/dist/add';
-import '@ui5/webcomponents-icons/dist/badge';
-import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/shield';
-import '@ui5/webcomponents-icons/dist/show';
 import '@ui5/webcomponents-icons/dist/upload';
 import {
   BusyIndicator,
   Button,
-  CheckBox,
   FlexBox,
-  Icon,
   Label,
   Link,
   MessageStrip,
@@ -25,13 +19,13 @@ import type { MultiInputTokenDeleteEventDetail } from '@ui5/webcomponents/dist/M
 import { FC, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  clusterRoleIcon,
   DEFAULT_CLUSTER_ROLE,
   formatRoleRef,
   isNamespacedRole,
   isValidClusterRoleName,
   uniqueRoles,
 } from '../../lib/api/types/shared/clusterRoles.ts';
+import { ChoiceOption, RoleBadge } from './MemberBadges.tsx';
 import styles from './Members.module.css';
 
 export const KUBERNETES_RBAC_DOCS_URL =
@@ -140,25 +134,16 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   };
 
   const option = (role: StandardRole, title: string, points: string[]) => (
-    <div className={styles.accessOption}>
-      <FlexBox alignItems="Center">
-        <CheckBox
-          text={title}
-          checked={roles.includes(role)}
-          data-testid={withTestId(`access-${role}`)}
-          onChange={() => toggle(role)}
-        />
-        <Icon className={styles.accessIcon} name={clusterRoleIcon(role) ?? ''} />
-      </FlexBox>
-      <div className={styles.accessOptionBody}>
-        <ul className={styles.accessBullets}>
-          {points.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-        {roles.includes(role) && redundancyNote(role)}
-      </div>
-    </div>
+    <ChoiceOption
+      type="checkbox"
+      checked={roles.includes(role)}
+      badge={<RoleBadge role={role} clusterRole />}
+      accessibleName={title}
+      points={points}
+      note={roles.includes(role) ? redundancyNote(role) : null}
+      testId={withTestId(`access-${role}`)}
+      onToggle={() => toggle(role)}
+    />
   );
 
   const group = (title: string, description: string, docsUrl: string | undefined, children: ReactNode) => (

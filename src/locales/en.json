@@ -355,6 +355,12 @@
     "hint": "Pick one or more roles. Permissions add up.",
     "coveredBy": "No extra effect: already included in {{role}}.",
     "learnMore": "Learn more",
+    "accountType": {
+      "label": "Account type",
+      "User": "One person",
+      "Group": "Everyone in a group",
+      "ServiceAccount": "A technical account"
+    },
     "atLeastOneRole": "Select at least one role.",
     "platform": {
       "title": "Platform role",
