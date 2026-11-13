@@ -38,7 +38,12 @@ describe('McpSupportInfoTag', () => {
       inheritedFrom: { kind: 'Workspace', name: 'parent-ws' },
     });
 
-    cy.get('[data-testid="mcp-support-info-tag"]').should('have.attr', 'data-inherited', 'true').click();
+    cy.get('[data-testid="mcp-support-info-tag"]')
+      .should('have.attr', 'data-inherited', 'true')
+      .and('have.attr', 'title')
+      .and('match', /parent-ws/);
+    cy.get('ui5-icon[name="sys-help"]').should('not.exist');
+    cy.get('[data-testid="mcp-support-info-tag"]').click();
     cy.get('[data-testid="support-info-inherited-from"]').should('contain', 'parent-ws');
     cy.get('[data-testid="support-info-edit-button"]').should('contain', 'Override');
   });
