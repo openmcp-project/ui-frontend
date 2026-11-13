@@ -2,9 +2,9 @@ import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import '@ui5/webcomponents-icons/dist/expand-all.js';
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
-import { Button, FlexBox, ObjectPage, ObjectPageSection, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import { Button, FlexBox, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
@@ -168,11 +168,7 @@ export default function ProjectPage() {
         preserveHeaderStateOnClick={true}
         titleArea={
           <ObjectPageTitle
-            header={
-              <Title>
-                <Trans i18nKey="ProjectsPage.header" components={{ span: <span className="mono-font" /> }} />
-              </Title>
-            }
+            header={<ProjectInfoPopoverButton projectName={projectName ?? ''} />}
             subHeader={
               <div
                 style={{
@@ -198,7 +194,6 @@ export default function ProjectPage() {
                     }
                   }}
                 />
-                <ProjectInfoPopoverButton projectName={projectName ?? ''} />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}

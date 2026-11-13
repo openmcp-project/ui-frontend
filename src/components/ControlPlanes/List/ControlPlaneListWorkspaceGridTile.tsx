@@ -2,8 +2,8 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/hint';
 import '@ui5/webcomponents-icons/dist/locked.js';
-import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
 import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -29,7 +29,6 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
 import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
-import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { WorkspaceInfoPopover } from './WorkspaceInfoPopover.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
@@ -260,7 +259,6 @@ export function ControlPlaneListWorkspaceGridTile({
                   onClick={() => setForbiddenPopoverOpen((o) => !o)}
                 >
                   <Icon name="locked" className={styles.workspaceIcon} />
-                  <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
                   <Title level="H3" className={styles.workspaceTitle}>
                     {showDisplayName ? workspaceDisplayName : workspaceName}
                   </Title>
@@ -287,29 +285,46 @@ export function ControlPlaneListWorkspaceGridTile({
             ) : isMember === null ? (
               <div className={styles.workspaceToggle}>
                 <BusyIndicator active delay={0} size="S" />
-                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
                 <Title level="H3" className={styles.workspaceTitle}>
                   {showDisplayName ? workspaceDisplayName : workspaceName}
                 </Title>
               </div>
             ) : (
-              <button
-                type="button"
-                className={styles.workspaceToggle}
-                aria-expanded={!shouldCollapsePanel}
-                onClick={onToggleExpanded}
-              >
-                <Icon
-                  name="slim-arrow-right"
-                  className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+              <div className={styles.workspaceTitleRow}>
+                <button
+                  type="button"
+                  className={styles.workspaceExpandButton}
+                  aria-expanded={!shouldCollapsePanel}
+                  aria-label={t('ControlPlaneListWorkspaceGridTile.toggleWorkspace', {
+                    name: showDisplayName ? workspaceDisplayName : workspaceName,
+                  })}
+                  onClick={onToggleExpanded}
+                >
+                  <Icon
+                    name="slim-arrow-right"
+                    className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  className={styles.workspaceTitleButton}
+                  title={t('WorkspaceInfoPopover.infoButton')}
+                  onClick={() => setInfoPopoverOpen((prev) => !prev)}
+                >
+                  <Title level="H3" className={styles.workspaceTitle}>
+                    {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                    {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                  </Title>
+                </button>
+                <Button
+                  id={infoButtonId}
+                  design="Transparent"
+                  icon="hint"
+                  className={styles.workspaceInfoButton}
+                  tooltip={t('WorkspaceInfoPopover.infoButton')}
+                  onClick={() => setInfoPopoverOpen((prev) => !prev)}
                 />
-                <Icon name="product" className={styles.workspaceIcon} />
-                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
-                <Title level="H3" className={styles.workspaceTitle}>
-                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-                </Title>
-              </button>
+              </div>
             )}
             <div className={styles.headerSpacer} />
             <FlexBox alignItems={'Center'} className={styles.workspaceActions} gap={'1rem'}>
@@ -319,13 +334,6 @@ export function ControlPlaneListWorkspaceGridTile({
                 resolved={resolvedSupportInfo}
               />
 
-              <Button
-                id={infoButtonId}
-                design="Transparent"
-                icon="information"
-                tooltip={t('WorkspaceInfoPopover.infoButton')}
-                onClick={() => setInfoPopoverOpen((prev) => !prev)}
-              />
               <WorkspaceInfoPopover
                 opener={infoButtonId}
                 open={infoPopoverOpen}
@@ -340,6 +348,10 @@ export function ControlPlaneListWorkspaceGridTile({
                   setInfoPopoverOpen(false);
                   setDialogEditWsIsOpen(true);
                 }}
+                onDeleteClick={() => {
+                  setInfoPopoverOpen(false);
+                  setDialogDeleteWsIsOpen(true);
+                }}
               />
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>
@@ -348,15 +360,11 @@ export function ControlPlaneListWorkspaceGridTile({
                   </Button>
                 </a>
               )}
-              <ControlPlanesListMenu
-                setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
-                setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                disabled={isForbidden}
-                showCreateActions={shouldCollapsePanel}
-                onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
-              />
               {!shouldCollapsePanel && (
-                <CreateControlPlaneButton onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)} />
+                <CreateControlPlaneButton
+                  disabled={isForbidden}
+                  onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
+                />
               )}
             </FlexBox>
           </div>

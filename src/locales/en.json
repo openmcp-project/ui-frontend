@@ -115,6 +115,7 @@
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
     "permissionErrorMessageSubtitle": "You need workspace membership to see control planes here.",
     "askAdminButton": "Request access",
+    "toggleWorkspace": "Toggle workspace {{name}}",
     "accessRequestSubject": "Access request: workspace {{workspaceName}} in project {{projectName}}",
     "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
@@ -126,7 +127,8 @@
   },
   "WorkspaceInfoPopover": {
     "infoButton": "Workspace information",
-    "editButton": "Edit"
+    "editButton": "Edit",
+    "deleteButton": "Delete"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",

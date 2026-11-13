@@ -1,5 +1,5 @@
-import '@ui5/webcomponents-icons/dist/information';
-import { Button } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/hint';
+import { Button, Title } from '@ui5/webcomponents-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogConta
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { ProjectInfoPopover } from './ProjectInfoPopover.tsx';
+import styles from './ProjectInfoPopoverButton.module.css';
 
 type ProjectInfoPopoverButtonProps = {
   projectName: string;
@@ -34,6 +35,7 @@ export function ProjectInfoPopoverButton({
   const telemetry = useTelemetry();
 
   const { deleteProject } = useDeleteProject(projectName);
+  const { displayName } = useProjectMembers(projectName);
 
   const handleDeleteProject = async () => {
     try {
@@ -47,11 +49,22 @@ export function ProjectInfoPopoverButton({
 
   return (
     <>
+      <button
+        type="button"
+        data-testid="project-info-button"
+        className={styles.titleButton}
+        title={t('ProjectInfoPopover.infoButton')}
+        onClick={() => setPopoverOpen((prev) => !prev)}
+      >
+        <Title level="H2" className={styles.title}>
+          {displayName || projectName}
+        </Title>
+      </button>
       <Button
         id={buttonId}
-        data-testid="project-info-button"
         design="Transparent"
-        icon="information"
+        icon="hint"
+        className={styles.infoButton}
         tooltip={t('ProjectInfoPopover.infoButton')}
         onClick={() => setPopoverOpen((prev) => !prev)}
       />
