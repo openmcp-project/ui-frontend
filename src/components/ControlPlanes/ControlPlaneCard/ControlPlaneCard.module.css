@@ -204,8 +204,8 @@
 
 .updateBadgePatch {
   composes: updateBadgeBase;
-  color: var(--sapPositiveColor, #188918);
-  --sapContent_IconColor: var(--sapPositiveColor, #188918);
+  color: var(--sapNeutralColor, #6a6d70);
+  --sapContent_IconColor: var(--sapNeutralColor, #6a6d70);
 }
 
 .updateBadgeMinor {

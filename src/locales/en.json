@@ -391,8 +391,8 @@
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:",
-    "pinProject": "Set as default project",
-    "unpinProject": "Clear default project"
+    "pinProject": "Pin to automatically open this project next time you visit",
+    "unpinProject": "Unpin to stop opening this project automatically"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
