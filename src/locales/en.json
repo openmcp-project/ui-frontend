@@ -138,7 +138,10 @@
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
     "serviceUnknown": "Unknown",
-    "updatesAvailable": "Updates available"
+    "serviceError": "Error",
+    "reconcilingFor": "Reconciling for {{duration}}",
+    "serviceErrorTooltip": "{{service}} - Error {{message}}",
+    "serviceUpdateAvailableTooltip": "{{service}} - {{severity}} update available"
   },
   "VersionUpdateTag": {
     "majorUpdate": "Major update available",

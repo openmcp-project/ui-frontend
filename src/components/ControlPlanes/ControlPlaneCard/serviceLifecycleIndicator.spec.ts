@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { getServiceLifecycle, SERVICE_LIFECYCLE_ICON } from './serviceLifecycleIndicator.ts';
+import { getServiceLifecycle } from './serviceLifecycleIndicator.ts';
 
 describe('getServiceLifecycle', () => {
-  it('maps empty or missing phase to unknown', () => {
-    expect(getServiceLifecycle('')).toBe('unknown');
-    expect(getServiceLifecycle(null)).toBe('unknown');
-    expect(getServiceLifecycle(undefined)).toBe('unknown');
+  it('maps empty or missing phase to ready (a settled service often reports no phase)', () => {
+    expect(getServiceLifecycle('')).toBe('ready');
+    expect(getServiceLifecycle(null)).toBe('ready');
+    expect(getServiceLifecycle(undefined)).toBe('ready');
   });
 
   it('maps Ready to ready', () => {
@@ -26,10 +26,15 @@ describe('getServiceLifecycle', () => {
     expect(getServiceLifecycle('Terminating')).toBe('deleting');
   });
 
-  it('exposes a static icon per lifecycle state', () => {
-    expect(SERVICE_LIFECYCLE_ICON.installing).toBe('synchronize');
-    expect(SERVICE_LIFECYCLE_ICON.deleting).toBe('delete');
-    expect(SERVICE_LIFECYCLE_ICON.ready).toBe('accept');
-    expect(SERVICE_LIFECYCLE_ICON.unknown).toBe('question-mark');
+  it('maps a non-empty error message to error regardless of phase', () => {
+    expect(getServiceLifecycle('Progressing', 'requested version is not available')).toBe('error');
+    expect(getServiceLifecycle('Ready', 'something failed')).toBe('error');
+    expect(getServiceLifecycle(null, 'something failed')).toBe('error');
+  });
+
+  it('ignores an empty error message and falls back to the phase state', () => {
+    expect(getServiceLifecycle('Progressing', '')).toBe('installing');
+    expect(getServiceLifecycle('Progressing', null)).toBe('installing');
+    expect(getServiceLifecycle('Ready', undefined)).toBe('ready');
   });
 });
