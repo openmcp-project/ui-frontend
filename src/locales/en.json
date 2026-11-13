@@ -294,7 +294,9 @@
     "typeToConfirm": "Type the name to confirm",
     "forceDeleteButton": "Force Delete",
     "forceDeleteToggle": "Deletion is stuck? Enable force delete",
-    "forceDeleteWarning": "Force delete bypasses the normal cleanup by removing finalizers from blocking service instances. External resources managed by those services (for example DNS records, cloud resources, or load balancers) may be left behind and must be cleaned up manually. This cannot be undone. Only use this when the regular deletion is stuck.",
+    "forceDeleteWarningTitle": "External resources may not be cleaned up",
+    "forceDeleteWarningBody": "Force delete removes finalizers from blocking service instances, bypassing normal cleanup. Resources such as DNS records, load balancers, and cloud volumes may be left behind and require manual removal.",
+    "forceDeleteWarningCannotUndo": "This cannot be undone. Only use this when the regular deletion is stuck.",
     "forceDeleteAcknowledge": "I understand the risks and want to force delete this control plane"
   },
   "Loading": {

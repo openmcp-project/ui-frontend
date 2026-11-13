@@ -10,7 +10,7 @@ import '@ui5/webcomponents-icons/dist/edit.js';
 import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useContext, useState, useMemo } from 'react';
+import { useCallback, useContext, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ControlPlaneListItem,
@@ -144,6 +144,11 @@ export const ControlPlaneCard = ({
     controlPlane.metadata.annotations,
   );
   const telemetry = useTelemetry();
+
+  const onForceDeletionConfirmed = useCallback(async () => {
+    telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
+    await forceDeleteManagedControlPlaneV2();
+  }, [forceDeleteManagedControlPlaneV2, telemetry]);
 
   const name = controlPlane.metadata.name;
   const { t } = useTranslation();
@@ -511,12 +516,7 @@ export const ControlPlaneCard = ({
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
-          forceDelete={{
-            onForceDeletionConfirmed: async () => {
-              telemetry.track({ category: 'controlplane', action: 'force-deleted', source: 'v2-card' });
-              await forceDeleteManagedControlPlaneV2();
-            },
-          }}
+          forceDelete={{ onForceDeletionConfirmed }}
           onDeletionConfirmed={async () => {
             telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-card' });
             await deleteManagedControlPlaneV2();

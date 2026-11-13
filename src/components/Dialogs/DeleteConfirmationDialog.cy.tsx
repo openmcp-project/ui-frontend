@@ -150,8 +150,8 @@ describe('DeleteConfirmationDialog', () => {
     it('reveals the warning and acknowledgement only after enabling force delete', () => {
       mountForceDialog();
 
-      cy.get('[data-testid="force-delete-warning"]').should('not.exist');
-      cy.get('[data-testid="force-delete-acknowledge"]').should('not.exist');
+      cy.get('[data-testid="force-delete-warning"]').should('not.be.visible');
+      cy.get('[data-testid="force-delete-acknowledge"]').should('not.be.visible');
 
       cy.get('[data-testid="force-delete-toggle"]').find('input').check({ force: true });
 

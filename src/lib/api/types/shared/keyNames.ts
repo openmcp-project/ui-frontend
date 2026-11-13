@@ -30,4 +30,3 @@ export const EGRESS_IP_READY_CONDITION = 'EgressIPReady';
 // records) managed by those instances. Accepts "true" (immediate) or a go-parsable duration.
 // See https://github.com/openmcp-project/openmcp-operator/pull/387.
 export const FORCE_DELETE_ANNOTATION = 'open-control-plane.io/force-delete';
-export const FORCE_DELETE_CONDITION = 'ForceDeletion';

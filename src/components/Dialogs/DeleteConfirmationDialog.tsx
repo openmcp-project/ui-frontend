@@ -6,6 +6,7 @@ import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
 
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import { DeleteConfirmationForm } from './DeleteConfirmationForm.tsx';
+import { Reveal } from '../Ui/Reveal/Reveal.tsx';
 import styles from './DeleteConfirmationDialog.module.css';
 
 /**
@@ -42,6 +43,7 @@ export function DeleteConfirmationDialog({
   // Exceptional path state. Both reset whenever the dialog closes (see resetState).
   const [forceDeleteSelected, setForceDeleteSelected] = useState(false);
   const [forceDeleteAcknowledged, setForceDeleteAcknowledged] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { t } = useTranslation();
 
   const onConfirmationInputChange = (event: Ui5CustomEvent<InputDomRef>) => {
@@ -66,21 +68,25 @@ export function DeleteConfirmationDialog({
   const isConfirmed = isNameConfirmed && (!isForceActive || forceDeleteAcknowledged);
 
   const handleConfirm = async () => {
+    setIsSubmitting(true);
     try {
       if (isForceActive) {
-        await forceDelete?.onForceDeletionConfirmed();
+        await forceDelete.onForceDeletionConfirmed();
       } else {
         await onDeletionConfirmed?.();
       }
       closeDialog();
     } catch {
       // toast already shown by the hook; keep dialog open
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
       <Dialog
+        className={styles.dialog}
         stretch={false}
         headerText={t('DeleteConfirmationDialog.header', { resourceName })}
         open={isOpen}
@@ -99,7 +105,12 @@ export function DeleteConfirmationDialog({
                 >
                   {t('DeleteConfirmationDialog.cancelButton')}
                 </Button>
-                <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleConfirm}>
+                <Button
+                  design={ButtonDesign.Negative}
+                  disabled={!isConfirmed || isSubmitting}
+                  loading={isSubmitting}
+                  onClick={handleConfirm}
+                >
                   {isForceActive
                     ? t('DeleteConfirmationDialog.forceDeleteButton')
                     : t('DeleteConfirmationDialog.deleteButton')}
@@ -129,11 +140,18 @@ export function DeleteConfirmationDialog({
                 if (!checked) setForceDeleteAcknowledged(false);
               }}
             />
-
-            {forceDeleteSelected ? (
+            <Reveal isVisible={forceDeleteSelected}>
               <div className={styles.forceDeleteDetails}>
                 <MessageStrip data-testid="force-delete-warning" design="Negative" hideCloseButton>
-                  {t('DeleteConfirmationDialog.forceDeleteWarning')}
+                  <div className={styles.warningContent}>
+                    <strong className={styles.warningTitle}>
+                      {t('DeleteConfirmationDialog.forceDeleteWarningTitle')}
+                    </strong>
+                    <span className={styles.warningBody}>{t('DeleteConfirmationDialog.forceDeleteWarningBody')}</span>
+                    <strong className={styles.warningCannotUndo}>
+                      {t('DeleteConfirmationDialog.forceDeleteWarningCannotUndo')}
+                    </strong>
+                  </div>
                 </MessageStrip>
                 <CheckBox
                   data-testid="force-delete-acknowledge"
@@ -142,7 +160,7 @@ export function DeleteConfirmationDialog({
                   onChange={(event) => setForceDeleteAcknowledged(event.target.checked)}
                 />
               </div>
-            ) : null}
+            </Reveal>
           </div>
         ) : null}
       </Dialog>
