@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../context/ToastContext.tsx';
@@ -25,7 +25,9 @@ export function useForceDeleteControlPlaneV2GraphQL(
   const { t } = useTranslation();
   const toast = useToast();
   const existingAnnotationsRef = useRef(existingAnnotations);
-  existingAnnotationsRef.current = existingAnnotations;
+  useEffect(() => {
+    existingAnnotationsRef.current = existingAnnotations;
+  }, [existingAnnotations]);
   const [updateMutation] = useMutation(UpdateManagedControlPlaneV2Mutation);
   const [deleteMutation] = useMutation(DeleteManagedControlPlaneV2Mutation, {
     refetchQueries: ['GetMCPsList'],
