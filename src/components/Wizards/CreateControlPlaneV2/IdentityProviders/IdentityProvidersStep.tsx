@@ -24,6 +24,8 @@ export interface IdentityProvidersStepProps {
   isValidationError?: boolean;
   workspaceName?: string;
   projectName?: string;
+  editMode?: boolean;
+  currentUserEmail?: string;
 }
 
 export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
@@ -34,6 +36,8 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   isValidationError = false,
   workspaceName,
   projectName,
+  editMode = false,
+  currentUserEmail,
 }) => {
   const { t } = useTranslation();
   const { identityProviderGuide } = useLink();
@@ -158,6 +162,8 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
               isV2
               fitContentAddButton
               testIdPrefix="default-provider"
+              editMode={editMode}
+              currentUserEmail={currentUserEmail}
               onMemberChanged={handleDefaultMembersChange}
             />
           </ProviderGroup>

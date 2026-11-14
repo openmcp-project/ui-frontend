@@ -931,7 +931,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const currentMembers = (getValues('members') ?? []) as Member[];
 
     let merged = currentMembers;
-    if (user?.email && !currentMembers.some((m) => m.name === user.email)) {
+    if (user?.email && !currentMembers.some((m) => m.name?.toLowerCase() === user.email.toLowerCase())) {
       merged = [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }, ...currentMembers];
     }
 
@@ -1079,6 +1079,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
+              editMode={isEditMode}
+              currentUserEmail={user?.email}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
             />

@@ -1,4 +1,4 @@
-import { Button, FlexBox } from '@ui5/webcomponents-react';
+import { Button, FlexBox, MessageStrip } from '@ui5/webcomponents-react';
 import { clsx } from 'clsx';
 import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
@@ -32,6 +32,10 @@ export interface EditMembersProps {
   providerName?: string;
   // Scopes data-testid so multiple instances can be mounted at once.
   testIdPrefix?: string;
+  // Edit-mode self-removal safety: when set, warn (non-blocking) if the signed-in user removed
+  // their own `User` entry and no other `User` entry for them remains.
+  editMode?: boolean;
+  currentUserEmail?: string;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -67,6 +71,8 @@ export const EditMembers: FC<EditMembersProps> = ({
   fitContentAddButton = false,
   providerName,
   testIdPrefix,
+  editMode = false,
+  currentUserEmail,
 }) => {
   const { t } = useTranslation();
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
@@ -185,8 +191,21 @@ export const EditMembers: FC<EditMembersProps> = ({
     [testIdPrefix],
   );
 
+  // Group access can't be seen from here, so this is a warning only — never a block.
+  const showSelfRemovalWarning = useMemo(() => {
+    if (!editMode || !currentUserEmail) return false;
+    const email = currentUserEmail.toLowerCase();
+    const hasSelfUserEntry = members.some((m) => m.kind?.toLowerCase() === 'user' && m.name?.toLowerCase() === email);
+    return !hasSelfUserEntry;
+  }, [editMode, currentUserEmail, members]);
+
   return (
     <FlexBox direction="Column" gap={8}>
+      {showSelfRemovalWarning && (
+        <MessageStrip design="Critical" hideCloseButton data-testid={withTestId('self-removal-warning')}>
+          {t('CreateControlPlaneV2Wizard.selfRemovalWarning')}
+        </MessageStrip>
+      )}
       <FlexBox gap={8} justifyContent="SpaceBetween">
         <Button
           className={clsx(styles.addButton, fitContentAddButton && styles.addButtonFitContent)}

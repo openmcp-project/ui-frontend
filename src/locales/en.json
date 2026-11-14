@@ -5,6 +5,13 @@
     "signInButton": "Sign In",
     "becomeContributorLink": "Become a Contributor"
   },
+  "access": {
+    "noAccessTooltip": "No access",
+    "noAccessAction": "You don't have permission for this action."
+  },
+  "AccessDeniedView": {
+    "requestAccess": "Request access"
+  },
   "Entities": {
     "ManagedControlPlane": "Control Plane",
     "Project": "Project",
@@ -163,7 +170,8 @@
     "downloadKubeconfig": "Download Kubeconfig",
     "downloadKubeconfigError": "Could not download the kubeconfig. Please try again.",
     "noContextsError": "No connection context found in kubeconfig",
-    "noAccessTitle": "No connection configured"
+    "noConnectionTitle": "No connection configured",
+    "noAccessTitle": "No access to this control plane"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -630,6 +638,9 @@
     "updating": "Updating Managed Control Plane...",
     "updatingControlPlane": "Updating Control Plane...",
     "loadingServices": "Loading installed services..."
+  },
+  "CreateControlPlaneV2Wizard": {
+    "selfRemovalWarning": "You may lose access unless you are in one of the listed groups."
   },
   "discardChangesDialog": {
     "title": "Discard changes?",

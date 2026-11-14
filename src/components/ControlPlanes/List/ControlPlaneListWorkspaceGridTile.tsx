@@ -5,12 +5,13 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/locked.js';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
+import { Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
+import { useCanI as _useCanI } from '../../../lib/api/access/useCanI.ts';
 import { extractSupportInfo, resolveSupportInfo, SupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MemberKind, MemberRoles } from '../../../lib/api/types/shared/members.ts';
@@ -52,6 +53,7 @@ interface Props {
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
   useMcpsQuery?: typeof _useMcpsQuery;
   useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
+  useCanI?: typeof _useCanI;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
@@ -67,6 +69,7 @@ export function ControlPlaneListWorkspaceGridTile({
   useDeleteWorkspace = _useDeleteWorkspace,
   useMcpsQuery = _useMcpsQuery,
   useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
+  useCanI = _useCanI,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
@@ -102,9 +105,41 @@ export function ControlPlaneListWorkspaceGridTile({
   // "nothing installed" state.
   const [needsFullMcpData, setNeedsFullMcpData] = useState(false);
 
+  // The access check runs lazily — only once the tile is on screen, expanded, or part of an active
+  // search — so a project with many workspaces doesn't fire N SSARs on load.
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || hasBeenVisible) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        setHasBeenVisible(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasBeenVisible]);
+
+  const accessCheckEnabled = hasBeenVisible || !!isExpanded || !!query;
+
+  // SSAR is the source of truth. The exact-email match becomes only a fast 'allowed' hint; a
+  // group-only member (no User entry) is 'unknown' until the cluster answers — and 'unknown'
+  // behaves like a member (expandable, query fires on expand), never locked.
+  const { state: accessState } = useCanI(
+    {
+      verb: 'list',
+      group: 'core.open-control-plane.io',
+      resource: 'controlplanes',
+      namespace: mcpNamespace,
+    },
+    { target: 'onboarding', hint: isMember ? 'allowed' : undefined, enabled: accessCheckEnabled },
+  );
+
   const shouldRenderCardsWithFullData = isExpanded || workspaceMatches || needsFullMcpData;
   const fetchMode: McpsQueryMode =
-    isMember === false ? 'skip' : shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
+    accessState === 'denied' ? 'skip' : shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
   const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
 
   // One combined query for all V2 component status in this workspace, instead of each card
@@ -114,7 +149,21 @@ export function ControlPlaneListWorkspaceGridTile({
     !enableMcpV2 || fetchMode !== 'full',
   );
 
-  const isForbidden = isMember === false || (!!cpsError && isForbiddenError(cpsError));
+  const isForbidden = accessState === 'denied' || (!!cpsError && isForbiddenError(cpsError));
+
+  // Menu actions edit/delete the workspace itself (a different resource from the control planes
+  // listed inside it). Gate them on their own check; disabled only on a confirmed deny.
+  const { state: workspaceWriteState } = useCanI(
+    {
+      verb: 'update',
+      group: 'core.openmcp.cloud',
+      resource: 'workspaces',
+      namespace: projectNamespace,
+      name: workspaceName,
+    },
+    { target: 'onboarding', enabled: accessCheckEnabled },
+  );
+  const workspaceMenuDisabled = isForbidden || workspaceWriteState === 'denied';
   const [forbiddenPopoverOpen, setForbiddenPopoverOpen] = useState(false);
   const forbiddenButtonId = `forbidden-btn-${workspaceName}`;
 
@@ -245,7 +294,7 @@ export function ControlPlaneListWorkspaceGridTile({
   if (hidden) return null;
 
   return (
-    <div>
+    <div ref={sectionRef}>
       <ObjectPageSection
         key={`${projectName}${workspaceName}`}
         id={workspaceName}
@@ -288,14 +337,6 @@ export function ControlPlaneListWorkspaceGridTile({
                   </div>
                 </Popover>
               </>
-            ) : isMember === null ? (
-              <div className={styles.workspaceToggle}>
-                <BusyIndicator active delay={0} size="S" />
-                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
-                <Title level="H3" className={styles.workspaceTitle}>
-                  {showDisplayName ? workspaceDisplayName : workspaceName}
-                </Title>
-              </div>
             ) : (
               <button
                 type="button"
@@ -340,7 +381,7 @@ export function ControlPlaneListWorkspaceGridTile({
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                disabled={isForbidden}
+                disabled={workspaceMenuDisabled}
                 showCreateActions={shouldCollapsePanel}
                 onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                 onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}

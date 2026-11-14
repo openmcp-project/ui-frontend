@@ -14,7 +14,7 @@ import { SecretsResource, type SecretListItem } from '../../lib/api/types/k8s/li
 import type { Resource as ApiResource } from '../../lib/api/types/resource.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import type { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
-import { isForbiddenError } from '../../utils/isForbiddenError.ts';
+import { isForbiddenError } from '../../lib/api/error.ts';
 import { useNamespaceSelect } from '../../hooks/useNamespaceSelect.ts';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 

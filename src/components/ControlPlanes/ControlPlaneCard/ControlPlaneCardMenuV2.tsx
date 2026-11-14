@@ -9,6 +9,7 @@ import { buildDownloadKubeconfigOptionsV2 } from './buildDownloadKubeconfigOptio
 import { useDownloadKubeconfig as _useDownloadKubeconfig } from './useDownloadKubeconfig.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useToast as _useToast } from '../../../context/ToastContext.tsx';
+import { useCanI as _useCanI } from '../../../lib/api/access/useCanI.ts';
 
 type ControlPlaneCardMenuV2Props = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -20,6 +21,7 @@ type ControlPlaneCardMenuV2Props = {
   useDownloadKubeconfig?: typeof _useDownloadKubeconfig;
   useTelemetry?: typeof _useTelemetry;
   useToast?: typeof _useToast;
+  useCanI?: typeof _useCanI;
 };
 
 export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
@@ -32,6 +34,7 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   useDownloadKubeconfig = _useDownloadKubeconfig,
   useTelemetry = _useTelemetry,
   useToast = _useToast,
+  useCanI = _useCanI,
 }) => {
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
@@ -39,6 +42,31 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   const telemetry = useTelemetry();
   const toast = useToast();
   const downloadKubeconfig = useDownloadKubeconfig(mcpNamespace);
+
+  // Run the access checks only once the menu is opened, not on every card render. Disable edit /
+  // delete only on a confirmed deny.
+  const { state: updateState } = useCanI(
+    {
+      verb: 'update',
+      group: 'core.open-control-plane.io',
+      resource: 'controlplanes',
+      namespace: mcpNamespace,
+      name: controlPlaneName,
+    },
+    { target: 'onboarding', enabled: menuIsOpen },
+  );
+  const { state: deleteState } = useCanI(
+    {
+      verb: 'delete',
+      group: 'core.open-control-plane.io',
+      resource: 'controlplanes',
+      namespace: mcpNamespace,
+      name: controlPlaneName,
+    },
+    { target: 'onboarding', enabled: menuIsOpen },
+  );
+  const editDisabled = isDeleteMcpButtonDisabled || updateState === 'denied';
+  const deleteDisabled = isDeleteMcpButtonDisabled || deleteState === 'denied';
 
   const options = useMemo(() => buildDownloadKubeconfigOptionsV2(access), [access]);
   const isMultiIdP = options.length > 1;
@@ -90,17 +118,12 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         }}
         onClose={() => setMenuIsOpen(false)}
       >
-        <MenuItem
-          text={t('ControlPlaneCard.editMCP')}
-          data-action="editMcp"
-          icon="edit"
-          disabled={isDeleteMcpButtonDisabled}
-        />
+        <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" disabled={editDisabled} />
         <MenuItem
           text={t('ControlPlaneCard.deleteMCP')}
           data-action="deleteMcp"
           icon="delete"
-          disabled={isDeleteMcpButtonDisabled}
+          disabled={deleteDisabled}
         />
         <MenuSeparator />
         {singleOption ? (

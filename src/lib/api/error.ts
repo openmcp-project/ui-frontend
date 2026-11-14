@@ -28,6 +28,15 @@ export function isNotFoundError(error?: ErrorLike | APIError | null): boolean {
   return hasHttpStatus(error, 403, 404);
 }
 
+/**
+ * True only for an HTTP 404 — a genuinely missing resource. Unlike
+ * `isNotFoundError`, a 403 does not count: a forbidden read must surface as
+ * "no access", not "not found". Use this where the two need to be told apart.
+ */
+export function isStrictNotFoundError(error?: ErrorLike | APIError | null): boolean {
+  return hasHttpStatus(error, 404);
+}
+
 export function isForbiddenError(error?: ErrorLike | APIError | null): boolean {
   if (hasHttpStatus(error, 403)) return true;
   return error?.message?.includes('is forbidden') ?? false;

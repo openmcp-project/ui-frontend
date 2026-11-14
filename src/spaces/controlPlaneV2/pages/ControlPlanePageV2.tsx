@@ -21,8 +21,10 @@ import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFee
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { AccessDeniedView } from '../../../components/Ui/AccessDeniedView/AccessDeniedView.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
+import { isForbiddenError, isStrictNotFoundError } from '../../../lib/api/error.ts';
+import { useCanI, useMarkAccessDenied, canIKey } from '../../../lib/api/access/useCanI.ts';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
@@ -444,6 +446,7 @@ interface Props {
 export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInheritedSupportInfo }: Props) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { mode, setMode } = useViewMode();
@@ -482,6 +485,24 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
     );
   }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
+
+  // When the gateway returns empty data without an error, error inspection can't tell "forbidden"
+  // from "not found" apart. Ask the cluster directly (only while mcp is empty) and show the
+  // access-denied view only on a confirmed deny.
+  const mcpMissing = !isLoading && !mcp;
+  const { state: getAccessState } = useCanI(
+    mcpMissing && namespace && controlPlaneName
+      ? {
+          verb: 'get',
+          group: 'core.open-control-plane.io',
+          resource: 'controlplanes',
+          namespace,
+          name: controlPlaneName,
+        }
+      : null,
+    { target: 'onboarding' },
+  );
+  const markAccessDenied = useMarkAccessDenied();
   const resolvedSupportInfo = useInheritedSupportInfo(
     extractSupportInfo(mcp?.metadata?.annotations as Record<string, string> | undefined),
     { projectName, workspaceName },
@@ -536,7 +557,39 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
     );
   }
 
-  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error) || (!isLoading && !mcp)) {
+  const goBackToProject = () => navigate(generatePath(Routes.Project, { projectName: projectName ?? '' }));
+
+  if (!projectName || !workspaceName || !controlPlaneName) {
+    return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
+  }
+
+  // A forbidden read must read as "no access", not "this doesn't exist" — check it first.
+  if (isForbiddenError(error)) {
+    markAccessDenied(
+      canIKey(
+        {
+          verb: 'get',
+          group: 'core.open-control-plane.io',
+          resource: 'controlplanes',
+          namespace,
+          name: controlPlaneName,
+        },
+        'onboarding',
+        undefined,
+      ),
+    );
+    return <AccessDeniedView onBack={goBackToProject} />;
+  }
+
+  if (isStrictNotFoundError(error)) {
+    return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
+  }
+
+  // Empty data without an error: the SSAR get-check decides. Only a confirmed deny is "no access".
+  if (mcpMissing) {
+    if (getAccessState === 'denied') {
+      return <AccessDeniedView onBack={goBackToProject} />;
+    }
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 

@@ -9,6 +9,7 @@ import { FrontendConfigContext, defaultBranding } from '../../../context/Fronten
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useCanI } from '../../../lib/api/access/useCanI.ts';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
@@ -82,6 +83,12 @@ const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
   deleteWorkspace: async (): Promise<void> => {},
 });
 
+// Stubs the access hook so component tests never hit the network. Returns the given state and
+// never reports "checking".
+const fakeUseCanI =
+  (state: 'allowed' | 'denied' | 'unknown'): typeof useCanI =>
+  () => ({ state, isChecking: false });
+
 const frontendConfig = {
   documentationBaseUrl: '',
   feedbackUrl: null,
@@ -119,6 +126,7 @@ function mountTile({
                 useMcpsQuery={fakeUseMCPsListQuery}
                 useDeleteWorkspace={deleteWorkspace}
                 useAuthOnboardingHook={fakeUseAuthOnboarding}
+                useCanI={fakeUseCanI('allowed')}
                 onToggleExpanded={onToggle}
               />
             </FeatureToggleProvider>
@@ -151,6 +159,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
                   useMcpsQuery={fakeUseMCPsForbiddenQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useAuthOnboardingHook={fakeUseAuthOnboarding}
+                  useCanI={fakeUseCanI('unknown')}
                 />
               </FeatureToggleProvider>
             </SplitterProvider>
@@ -338,6 +347,7 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
     useAuthOnboardingHook: typeof useAuthOnboarding;
     ws?: Workspace;
     useMcpsQuery?: typeof useMcpsQuery;
+    useCanI?: typeof useCanI;
   }) {
     const ws = opts.ws ?? workspaceWithMember;
     cy.mount(
@@ -353,6 +363,7 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
                   useMcpsQuery={opts.useMcpsQuery ?? fakeUseMCPsListQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useAuthOnboardingHook={opts.useAuthOnboardingHook}
+                  useCanI={opts.useCanI ?? fakeUseCanI('unknown')}
                   onToggleExpanded={cy.stub()}
                 />
               </FeatureToggleProvider>
@@ -364,14 +375,22 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
   }
 
   it('shows expand toggle when user is a member', () => {
-    mountAccessTile({ useAuthOnboardingHook: memberUser });
+    mountAccessTile({ useAuthOnboardingHook: memberUser, useCanI: fakeUseCanI('allowed') });
 
     cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().should('have.attr', 'aria-expanded');
     cy.get('[id^="forbidden-btn"]').should('not.exist');
   });
 
-  it('shows locked icon and no expand toggle when user is not a member', () => {
-    mountAccessTile({ useAuthOnboardingHook: nonMemberUser });
+  it('treats a group-only member (unknown) like a member: expandable, no lock', () => {
+    // A user with no matching User entry but access via a group — SSAR is still pending/unknown.
+    mountAccessTile({ useAuthOnboardingHook: nonMemberUser, useCanI: fakeUseCanI('unknown') });
+
+    cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().should('have.attr', 'aria-expanded');
+    cy.get('[id^="forbidden-btn"]').should('not.exist');
+  });
+
+  it('shows locked icon and no expand toggle when access is denied', () => {
+    mountAccessTile({ useAuthOnboardingHook: nonMemberUser, useCanI: fakeUseCanI('denied') });
 
     cy.get('[id^="forbidden-btn"]').should('exist');
     cy.get('[data-testid="workspace-panel-workspaceName"]')
@@ -381,13 +400,13 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
   });
 
   it('opens a popover with the permission error message when locked icon is clicked', () => {
-    mountAccessTile({ useAuthOnboardingHook: nonMemberUser });
+    mountAccessTile({ useAuthOnboardingHook: nonMemberUser, useCanI: fakeUseCanI('denied') });
 
     cy.get('[id^="forbidden-btn"]').click();
     cy.get('ui5-popover[open]').should('exist');
   });
 
-  it('does not fire GetMCPsList for non-members even when expanded', () => {
+  it('does not fire GetMCPsList when access is denied even when expanded', () => {
     const querySpy = cy.stub().as('querySpy').returns({
       data: [],
       error: undefined,
@@ -395,7 +414,11 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
       isReadyForSubscriptions: false,
     });
 
-    mountAccessTile({ useAuthOnboardingHook: nonMemberUser, useMcpsQuery: querySpy });
+    mountAccessTile({
+      useAuthOnboardingHook: nonMemberUser,
+      useMcpsQuery: querySpy,
+      useCanI: fakeUseCanI('denied'),
+    });
 
     cy.get('@querySpy').should('always.have.been.calledWithMatch', 'project-some-project--ws-workspaceName', {
       mode: 'skip',
@@ -416,6 +439,7 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
                   useMcpsQuery={fakeUseMCPsListQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useAuthOnboardingHook={memberUser}
+                  useCanI={fakeUseCanI('allowed')}
                   onToggleExpanded={cy.stub()}
                 />
               </FeatureToggleProvider>
@@ -442,6 +466,7 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
                   useMcpsQuery={fakeUseMCPsListQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useAuthOnboardingHook={memberUser}
+                  useCanI={fakeUseCanI('allowed')}
                   onToggleExpanded={cy.stub()}
                 />
               </FeatureToggleProvider>

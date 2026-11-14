@@ -14,7 +14,7 @@ import { ConfigMapsResource, type ConfigMapListItem } from '../../lib/api/types/
 import type { Resource as ApiResource } from '../../lib/api/types/resource.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import type { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
-import { isForbiddenError } from '../../utils/isForbiddenError.ts';
+import { isForbiddenError } from '../../lib/api/error.ts';
 import { useNamespaceSelect } from '../../hooks/useNamespaceSelect.ts';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';

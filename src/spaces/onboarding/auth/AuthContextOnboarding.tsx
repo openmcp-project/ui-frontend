@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { registerRefreshFn, refreshToken } from './tokenRefresh';
 import { useTelemetry } from '../../../lib/telemetry/telemetry';
+import { clearAllDenied } from '../../../lib/api/access/downstreamAccessStore.ts';
 
 interface AuthContextOnboardingType {
   isPending: boolean;
@@ -155,6 +156,8 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Access can be granted again before the next session; don't carry remembered denies across.
+      clearAllDenied();
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
       });

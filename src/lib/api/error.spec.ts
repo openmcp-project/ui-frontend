@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isNotFoundError, isForbiddenError, isUnauthorizedError, APIError } from './error';
+import { isNotFoundError, isStrictNotFoundError, isForbiddenError, isUnauthorizedError, APIError } from './error';
 import { ErrorLike } from '@apollo/client';
 
 describe('error', () => {
@@ -35,6 +35,24 @@ describe('error', () => {
       expect(isNotFoundError(new APIError('', 500))).toBe(false);
       expect(isNotFoundError(new APIError('', 400))).toBe(false);
       expect(isNotFoundError(new APIError('', 401))).toBe(false);
+    });
+  });
+
+  describe('isStrictNotFoundError', () => {
+    it('should return true only for status 404', () => {
+      expect(isStrictNotFoundError(new APIError('', 404))).toBe(true);
+      expect(isStrictNotFoundError({ networkError: { statusCode: 404 } } as unknown as ErrorLike)).toBe(true);
+    });
+
+    it('should return false for status 403', () => {
+      expect(isStrictNotFoundError(new APIError('', 403))).toBe(false);
+      expect(isStrictNotFoundError({ networkError: { statusCode: 403 } } as unknown as ErrorLike)).toBe(false);
+    });
+
+    it('should return false for other statuses / nullish', () => {
+      expect(isStrictNotFoundError(new APIError('', 500))).toBe(false);
+      expect(isStrictNotFoundError(undefined)).toBe(false);
+      expect(isStrictNotFoundError(null)).toBe(false);
     });
   });
 
