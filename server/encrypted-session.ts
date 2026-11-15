@@ -66,7 +66,7 @@ function createStore(request) {
   //read previous values
   let userEncryptionKey = getUserEncryptionKeyFromUserCookie(request);
   if (!userEncryptionKey) {
-    request.log.info({ plugin: 'encrypted-session' }, 'user-side encryption key not found, creating new one');
+    request.log.debug({ event: 'session.created', plugin: 'encrypted-session' }, 'User-side encryption key not found, creating new one');
 
     userEncryptionKey = generateSecureEncryptionKey().toString('base64');
     setUserEncryptionKeyIntoUserCookie(request, userEncryptionKey);
@@ -87,7 +87,7 @@ function createStore(request) {
     }
   } else {
     // we could not parse the encrypted store, so we create a new one and it would overwrite the previously stored store.
-    request.log.info({ plugin: 'encrypted-session' }, 'No encrypted store found, creating new empty store');
+    request.log.debug({ event: 'session.created', plugin: 'encrypted-session' }, 'No encrypted store found, creating new empty store');
   }
 
   async function save() {
@@ -100,7 +100,6 @@ function createStore(request) {
       tag,
     });
     await request.session.save();
-    request.log.info('store encrypted and set into request.session.encryptedStore');
   }
 
   return {

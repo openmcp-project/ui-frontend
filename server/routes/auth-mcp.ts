@@ -261,7 +261,7 @@ async function authPlugin(fastify) {
       return reply.badRequest('Missing required query parameters for custom IdP');
     }
 
-    req.log.info({ namespace, mcp, idp }, 'Attempting MCP token refresh');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'mcp', namespace, mcp, idp }, 'Attempting MCP token refresh');
 
     const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
       namespace,
@@ -287,7 +287,7 @@ async function authPlugin(fastify) {
       throw error;
     }
 
-    req.log.info('Token refresh successful; updating the session.');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'mcp' }, 'Token refresh successful, updating session');
 
     await req.encryptedSession.set('mcp_accessToken', refreshedTokenData.accessToken);
     if (refreshedTokenData.refreshToken) {
@@ -302,7 +302,7 @@ async function authPlugin(fastify) {
       await req.encryptedSession.delete('mcp_tokenExpiresAt');
     }
 
-    req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'mcp' }, 'Token refresh successful and session updated');
 
     return reply.send({ success: true });
   });

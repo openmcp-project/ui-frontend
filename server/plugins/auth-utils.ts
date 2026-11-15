@@ -194,7 +194,7 @@ async function authUtilsPlugin(fastify) {
     if (stateKey === undefined) {
       stateKey = 'oauthState';
     }
-    request.log.info('Preparing OIDC login redirect.');
+    request.log.debug({ event: 'auth.login.started' }, 'Preparing OIDC login redirect');
 
     const { redirectTo } = request.query;
     if (!isAllowedRedirectTo(redirectTo)) {
@@ -214,12 +214,13 @@ async function authUtilsPlugin(fastify) {
 
     await request.encryptedSession.set(stateKey, state);
     await request.encryptedSession.set('codeVerifier', codeVerifier);
-    request.log.info(
+    request.log.debug(
       {
+        event: 'auth.login.started',
         stateSet: Boolean(state),
         verifierSet: Boolean(codeVerifier),
       },
-      'OAuth state and code verifier set in encryptedSession.',
+      'OAuth state and code verifier set in encryptedSession',
     );
 
     const url = new URL(authorizationEndpoint);
@@ -231,7 +232,7 @@ async function authUtilsPlugin(fastify) {
     url.searchParams.set('code_challenge', codeChallenge);
     url.searchParams.set('code_challenge_method', 'S256');
 
-    request.log.info('Prepared OIDC login redirect.');
+    request.log.debug({ event: 'auth.login.started' }, 'Prepared OIDC login redirect');
 
     return url.toString();
   });
@@ -241,7 +242,7 @@ async function authUtilsPlugin(fastify) {
     if (stateKey === undefined) {
       stateKey = 'oauthState';
     }
-    request.log.info('Handling OIDC callback to retrieve the tokens.');
+    request.log.debug({ event: 'auth.login.started' }, 'Handling OIDC callback');
 
     const { clientId, redirectUri } = oidcConfig;
 
@@ -334,7 +335,7 @@ async function authUtilsPlugin(fastify) {
 
 // @ts-ignore
 function extractUserInfoFromIdToken(request, idToken) {
-  request.log.info('Extracting user info from ID token.');
+  request.log.debug({ event: 'auth.login.started' }, 'Extracting user info from ID token');
 
   if (!idToken) {
     return null;
@@ -364,7 +365,7 @@ function extractUserInfoFromIdToken(request, idToken) {
     return null;
   }
 
-  request.log.info('User info extracted from ID token.');
+  request.log.info({ event: 'auth.login.succeeded' }, 'User info extracted from ID token');
   return {
     sub: decodedPayload.sub,
     email: decodedPayload.email,

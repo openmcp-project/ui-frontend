@@ -89,7 +89,7 @@ async function authPlugin(fastify) {
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
-    req.log.info('Attempting onboarding token refresh');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'onboarding' }, 'Attempting onboarding token refresh');
 
     const issuerConfiguration = fastify.issuerConfiguration;
 
@@ -110,7 +110,7 @@ async function authPlugin(fastify) {
       throw error;
     }
 
-    req.log.info('Token refresh successful; updating the session.');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'onboarding' }, 'Token refresh successful, updating session');
 
     await req.encryptedSession.set('onboarding_accessToken', refreshedTokenData.accessToken);
     if (refreshedTokenData.refreshToken) {
@@ -125,7 +125,7 @@ async function authPlugin(fastify) {
       await req.encryptedSession.delete('onboarding_tokenExpiresAt');
     }
 
-    req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
+    req.log.debug({ event: 'auth.refresh.succeeded', flow: 'onboarding' }, 'Token refresh successful and session updated');
 
     return reply.send({ success: true });
   });
