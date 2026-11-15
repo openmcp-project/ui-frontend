@@ -1,20 +1,21 @@
-import { Editor } from '@monaco-editor/react';
 import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import * as monaco from 'monaco-editor';
 import type { SchemasSettings } from 'monaco-yaml';
-import type { ComponentProps } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseDocument } from 'yaml';
 import { useTheme } from '../../hooks/useTheme';
-import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT, updateYamlSchemas } from '../../lib/monaco.ts';
+import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
+import { schemaRegistry } from '../../lib/schemaRegistry.ts';
 import styles from './YamlEditor.module.css';
 
 import type { JSONSchema4 } from 'json-schema';
 
 const KUBERNETES_SCHEMA_URI = 'https://kubernetesjsonschema.dev/master-standalone/all.json';
 
-export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
+export type YamlEditorProps = {
+  value?: string;
+  path?: string;
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void;
   schema?: JSONSchema4;
@@ -24,17 +25,19 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
   onValidityChange?: (validity: { parseOk: boolean; schemaErrorCount: number; schemaStale?: boolean }) => void;
   /** Emitted with the raw editor text whenever it changes (edit mode only). */
   onContentChange?: (yaml: string) => void;
+  options?: monaco.editor.IStandaloneEditorConstructionOptions;
+  height?: string;
+  onMount?: (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => void;
 };
 
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
+  const instanceId = useId();
   const {
-    theme,
     options,
     value,
-    defaultValue,
-    onChange,
+    path,
     isEdit = false,
     onApply,
     onMount: parentOnMount,
@@ -42,22 +45,29 @@ export const YamlEditor = (props: YamlEditorProps) => {
     hideToolbar = false,
     onValidityChange,
     onContentChange,
-    ...rest
   } = props;
-  const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
+  const computedTheme = isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT;
 
-  const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
+  // Stable, unique model URI for this editor instance.
+  const modelUri = useMemo(
+    () => monaco.Uri.parse(`inmemory://yaml/${instanceId}/${path ?? 'untitled'}.yaml`),
+    [instanceId, path],
+  );
+
+  const [editorContent, setEditorContent] = useState<string>(value ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<typeof monaco | null>(null);
 
+  // Register schema scoped to this editor's model URI; clean up on unmount.
   useEffect(() => {
-    const schemas: SchemasSettings[] = schema
-      ? [{ schema: schema as SchemasSettings['schema'], fileMatch: ['*'], uri: KUBERNETES_SCHEMA_URI }]
-      : [];
-    updateYamlSchemas(schemas);
-  }, [schema]);
+    if (!schema || !isEdit) return;
+    const uriStr = modelUri.toString();
+    schemaRegistry.set(uriStr, { schema: schema as SchemasSettings['schema'], uri: KUBERNETES_SCHEMA_URI });
+    return () => {
+      schemaRegistry.delete(uriStr);
+    };
+  }, [schema, isEdit, modelUri]);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
@@ -89,61 +99,95 @@ export const YamlEditor = (props: YamlEditorProps) => {
   );
 
   const [schemaErrorCount, setSchemaErrorCount] = useState(0);
-  // monaco-yaml validates asynchronously, so schema markers lag content edits. `schemaStale` is set
-  // on edit and cleared once typing settles (markers have been recomputed by then), letting the
-  // parent hold validity-gated actions until the latest content has actually been validated.
   const [schemaStale, setSchemaStale] = useState(false);
 
-  const handleEditorChange = useCallback(
-    (val: string | undefined, event?: monaco.editor.IModelContentChangedEvent) => {
+  const recomputeSchemaErrors = useCallback(() => {
+    const editor = editorRef.current;
+    const model = editor?.getModel();
+    if (!editor || !model) return;
+    const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+    const errors = markers.filter((m) => m.severity === monaco.MarkerSeverity.Error);
+    setSchemaErrorCount(errors.length);
+  }, []);
+
+  // Create / dispose a unique model for this instance. The editor mounts after the model exists.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const disposablesRef = useRef<monaco.IDisposable[]>([]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Create a unique model for this editor instance.
+    let model = monaco.editor.getModel(modelUri);
+    if (model) {
+      model.setValue(value ?? '');
+    } else {
+      model = monaco.editor.createModel(value ?? '', 'yaml', modelUri);
+    }
+
+    const editor = monaco.editor.create(container, {
+      ...enforcedOptions,
+      model,
+      theme: computedTheme,
+      language: 'yaml',
+      automaticLayout: true,
+    });
+
+    editorRef.current = editor;
+
+    const markerDisposable = monaco.editor.onDidChangeMarkers((uris) => {
+      if (uris.some((u) => u.toString() === modelUri.toString())) {
+        recomputeSchemaErrors();
+      }
+    });
+
+    const contentDisposable = editor.onDidChangeModelContent(() => {
+      const val = editor.getValue();
       if (isEdit) {
-        setEditorContent(val ?? '');
-        onContentChange?.(val ?? '');
+        setEditorContent(val);
+        onContentChange?.(val);
         setSchemaStale(true);
       }
-      if (event) {
-        onChange?.(val ?? '', event);
-      }
-    },
-    [isEdit, onChange, onContentChange],
-  );
+    });
 
-  // Clear the stale flag a short while after edits stop (debounced on content).
+    disposablesRef.current = [markerDisposable, contentDisposable];
+
+    recomputeSchemaErrors();
+    parentOnMount?.(editor, monaco);
+
+    return () => {
+      for (const d of disposablesRef.current) d.dispose();
+      disposablesRef.current = [];
+      editor.dispose();
+      const m = monaco.editor.getModel(modelUri);
+      m?.dispose();
+      editorRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelUri]);
+
+  // Update theme when it changes without recreating the editor.
+  useEffect(() => {
+    monaco.editor.setTheme(computedTheme);
+  }, [computedTheme]);
+
+  // Update value in view mode — apply as an edit to preserve scroll/folds (fix A8).
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || isEdit) return;
+    const model = editor.getModel();
+    if (!model || model.getValue() === value) return;
+    model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value ?? '' }], () => null);
+  }, [value, isEdit]);
+
+  // Clear the stale flag a short while after edits stop.
   useEffect(() => {
     const timer = setTimeout(() => setSchemaStale(false), 800);
     return () => clearTimeout(timer);
   }, [editorContent]);
 
-  const recomputeSchemaErrors = useCallback(() => {
-    const editor = editorRef.current;
-    const monacoInstance = monacoRef.current;
-    const model = editor?.getModel();
-    if (!editor || !monacoInstance || !model) return;
-    const markers = monacoInstance.editor.getModelMarkers({ resource: model.uri });
-    const errors = markers.filter((m) => m.severity === monacoInstance.MarkerSeverity.Error);
-    setSchemaErrorCount(errors.length);
-  }, []);
-
-  const handleMount = useCallback(
-    (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
-      editorRef.current = editor;
-      monacoRef.current = monacoInstance;
-      const disposable = monacoInstance.editor.onDidChangeMarkers((uris) => {
-        const model = editor.getModel();
-        if (model && uris.some((u) => u.toString() === model.uri.toString())) {
-          recomputeSchemaErrors();
-        }
-      });
-      editor.onDidDispose(() => disposable.dispose());
-      recomputeSchemaErrors();
-      parentOnMount?.(editor, monacoInstance);
-    },
-    [parentOnMount, recomputeSchemaErrors],
-  );
-
-  // Surface combined parse + schema validity to the parent (single source of truth for
-  // external footer buttons that gate on YAML validity). `schemaStale` is true while an edit is
-  // waiting for monaco-yaml to re-validate, so the parent can hold its primary action until then.
+  // Surface combined parse + schema validity to the parent.
   useEffect(() => {
     if (!onValidityChange) return;
     let parseOk = true;
@@ -197,18 +241,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           </Button>
         </Toolbar>
       )}
-      <div className={styles.editorWrapper}>
-        <Editor
-          {...rest}
-          value={isEdit ? editorContent : value}
-          theme={computedTheme}
-          options={enforcedOptions}
-          height="100%"
-          language="yaml"
-          onChange={handleEditorChange}
-          onMount={handleMount}
-        />
-      </div>
+      <div ref={containerRef} className={styles.editorWrapper} />
       {showValidationErrors && (
         <Panel headerText={t('yaml.validationErrors')} className={styles.validationPanel}>
           <ul className={styles.validationList}>

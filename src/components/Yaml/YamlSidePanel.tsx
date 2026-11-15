@@ -36,6 +36,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
   const [parsedObject, setParsedObject] = useState<unknown>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
-    downloadYamlFile(originalYaml, filename);
+    downloadYamlFile(yamlStringToDisplay, filename);
   };
 
   const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {
@@ -61,13 +62,18 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   }, []);
 
   const handleConfirmPatch = useCallback(async () => {
-    if (!onApply || !editedYaml) return;
+    if (!onApply || !editedYaml || isConfirming) return;
 
-    const result = await onApply(parsedObject, editedYaml);
-    if (result === true) {
-      setMode('success');
+    setIsConfirming(true);
+    try {
+      const result = await onApply(parsedObject, editedYaml);
+      if (result === true) {
+        setMode('success');
+      }
+    } finally {
+      setIsConfirming(false);
     }
-  }, [onApply, editedYaml, parsedObject]);
+  }, [onApply, editedYaml, parsedObject, isConfirming]);
 
   const handleGoBack = () => setMode('edit');
 
@@ -125,7 +131,12 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
                   <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
                     {t('yaml.diffNo')}
                   </Button>
-                  <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
+                  <Button
+                    design="Emphasized"
+                    data-testid="yaml-confirm-button"
+                    disabled={isConfirming}
+                    onClick={handleConfirmPatch}
+                  >
                     {t('yaml.diffYes', 'Yes')}
                   </Button>
                 </FlexBox>
