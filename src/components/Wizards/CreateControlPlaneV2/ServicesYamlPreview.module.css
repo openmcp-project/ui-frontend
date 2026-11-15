@@ -13,11 +13,6 @@
   flex: none;
 }
 
-.actions {
-  flex: none;
-  padding: 0.25rem 0.5rem 0;
-}
-
 .editor {
   flex: 1;
   min-height: 0;

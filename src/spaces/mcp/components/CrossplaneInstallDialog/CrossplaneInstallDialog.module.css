@@ -24,10 +24,6 @@
   overflow: hidden;
 }
 
-.yamlViewer > div {
-  height: 100%;
-}
-
 .sectionTitle {
   margin-bottom: 0.5rem;
 }

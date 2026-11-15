@@ -1,12 +1,11 @@
-import { Icon, FlexBox, Toolbar, ToolbarButton, Text } from '@ui5/webcomponents-react';
+import { Icon, FlexBox, Text } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 import { useTranslation } from 'react-i18next';
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 
 import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes';
 import styles from './ConditionMessageItem.module.css';
-import { YamlEditor } from '../YamlEditor/YamlEditor.tsx';
+import { YamlBlock } from '../Yaml/YamlBlock.tsx';
 import { stringify } from 'yaml';
 
 type ConditionMessageItemProps = {
@@ -15,7 +14,6 @@ type ConditionMessageItemProps = {
 
 export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) => {
   const { t } = useTranslation();
-  const { copyToClipboard } = useCopyToClipboard();
 
   const date = condition.lastTransitionTime ? new Date(condition.lastTransitionTime) : null;
   const isValidDate = date !== null && !isNaN(date.getTime());
@@ -27,17 +25,7 @@ export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) =
     <FlexBox direction="Column" className={styles.conditionContent}>
       <div>
         <div className={styles.yamlViewer}>
-          <Toolbar alignContent="Start">
-            <ToolbarButton
-              design="Transparent"
-              icon="copy"
-              text={t('buttons.copy')}
-              onClick={() => copyToClipboard(stringifiedCondition)}
-            />
-          </Toolbar>
-          <div className={styles.yamlContainer}>
-            <YamlEditor value={stringifiedCondition} isEdit={false} />
-          </div>
+          <YamlBlock value={stringifiedCondition} filename="condition" size={240} actions={['copy']} />
         </div>
 
         <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={12}>

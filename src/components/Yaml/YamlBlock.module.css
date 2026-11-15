@@ -1,0 +1,23 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rootFill {
+  flex: 1;
+  min-height: 0;
+}
+
+.rootContent {
+  max-height: 400px;
+}
+
+.header {
+  flex: none;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}

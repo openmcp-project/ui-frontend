@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
+import { YamlBlock } from '../../../../components/Yaml/YamlBlock.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
@@ -225,7 +225,7 @@ export function ComponentInstallDialog({
             {t('ComponentInstallDialog.yamlPreview')}
           </Title>
           <div className={styles.yamlViewer}>
-            <YamlViewer yamlString={yamlPreview} filename={mcpName} />
+            <YamlBlock value={yamlPreview} filename={mcpName} size="fill" actions={[]} />
           </div>
         </div>
       </div>
