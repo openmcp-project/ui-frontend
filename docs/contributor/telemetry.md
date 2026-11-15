@@ -43,7 +43,7 @@ function MyButton() {
 }
 ```
 
-That's it. The event now reaches Sentry (as a breadcrumb attached to any subsequent error) and Dynatrace (as a `feature` action). In dev you'll see it logged to the browser console.
+That's it. The event now reaches Sentry (as a breadcrumb attached to any subsequent error) and Dynatrace (as a `feature` action). In local dev the browser console is quiet by default — enable output per namespace via `localStorage.setItem('ocp.debug', 'track,pageview')` or `'*'` for everything.
 
 ## Choosing between `track`, `report`, and `identify`
 
@@ -102,7 +102,7 @@ Tests can then pass a stub without needing to mock the whole module. See [`Conne
 
 - **Adapter fan-out** — you always call `telemetry.track()`; the service decides which backends see it. Adding a fourth backend won't touch any call site.
 - **Failure isolation** — if Dynatrace or Sentry throws inside its adapter, the `TelemetryService` catches it and logs to console. Your click handler will not blow up.
-- **Environment detection** — `ConsoleAdapter` is auto-added in dev builds. Sentry SDK is auto-baked at build time. Dynatrace no-ops when its RUM script isn't present. You don't need env checks in feature code.
+- **Environment detection** — `ConsoleAdapter` is auto-added in dev builds but is quiet by default; only `report()` (errors) and the "route not declared" warning print unconditionally. Set `localStorage.setItem('ocp.debug', '*')` to see all output. Sentry SDK is auto-baked at build time. Dynatrace no-ops when its RUM script isn't present. You don't need env checks in feature code.
 - **User identification** — handled globally in `AuthContextOnboarding`.
 
 ## Writing a new adapter
@@ -171,7 +171,7 @@ Simply drop it from the `buildAdapters()` array. The type system won't complain 
 - [ ] No user-identifiable / user-supplied content in properties.
 - [ ] Event fired from the actual user interaction, not from a `useEffect` triggered by state that could re-run.
 - [ ] For loops / keystrokes: throttled, debounced, or reframed as a milestone.
-- [ ] Ran locally (`npm run dev`) and confirmed the `[Telemetry] track ...` line appears in the browser console.
+- [ ] Ran locally (`npm run dev`) and confirmed the event appears in the browser console after enabling: `localStorage.setItem('ocp.debug', 'track')`.
 - [ ] **Adapter contributors:** [operator/telemetry.md](../operator/telemetry.md) updated to document what your adapter sends and how to opt out.
 
 ---

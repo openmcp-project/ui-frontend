@@ -29,7 +29,7 @@ Every call site — a button click, a page navigation, a caught error — talks 
 
 - **Fan-out is decided in one place** ([`src/lib/telemetry/telemetry.ts`](../../src/lib/telemetry/telemetry.ts)). To disable Dynatrace or add a new backend, only that file changes.
 - **Adapters are optional at runtime.** The Dynatrace adapter checks for `window.dtrum` on every call; if the OneAgent script has not injected it (e.g. no license in this environment), the adapter is a silent no-op.
-- **Dev builds emit an extra `ConsoleAdapter`** so you can see events in the browser console at `http://localhost:5173` without any backend configured.
+- **Dev builds emit an extra `ConsoleAdapter`** that is quiet by default — only `report()` errors and the "route not declared" warning print. Opt in per namespace via `localStorage.setItem('ocp.debug', 'track,pageview,breadcrumb,identify')` or `'*'` for all output.
 
 Source: [`src/lib/telemetry/`](../../src/lib/telemetry/).
 
@@ -39,7 +39,7 @@ Source: [`src/lib/telemetry/`](../../src/lib/telemetry/).
 |---|---|---|---|
 | `SentryAdapter` | [Sentry](https://sentry.io) | SDK initialised via [`@sentry/vite-plugin`](../../vite.config.js) at build time; runtime DSN configured in the same plugin block | Exception reporting; every tracked event also lands as a breadcrumb so the last N interactions are attached to any subsequent crash |
 | `DynatraceAdapter` | [Dynatrace RUM](https://www.dynatrace.com/platform/real-user-monitoring/) | No SDK ships with the app. The Dynatrace **OneAgent** injects a `<script>` tag at request time that populates `window.dtrum` (a global object). If that script is not present, this adapter no-ops | Product analytics — every tracked event becomes a Dynatrace "user action" of type `feature` with the event properties attached |
-| `ConsoleAdapter` | Browser console | Enabled only when `import.meta.env.DEV` is true (Vite dev server) | Local development visibility — nothing leaves the browser |
+| `ConsoleAdapter` | Browser console | Enabled only when `import.meta.env.DEV` is true (Vite dev server). Quiet by default; opt in with `localStorage.setItem('ocp.debug', '*')` | Local development visibility — nothing leaves the browser |
 
 **No custom analytics endpoint is called from this UI.** All telemetry is delivered via the SDKs above. Anything an operator wants to intercept must be captured at those SDKs' egress points.
 
