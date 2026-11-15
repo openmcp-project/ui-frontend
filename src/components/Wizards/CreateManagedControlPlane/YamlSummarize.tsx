@@ -9,7 +9,11 @@ type YamlPanelProps = {
 };
 
 const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename }) => {
-  return <YamlBlock value={yamlString} filename={filename} size="fill" />;
+  return (
+    <div style={{ height: 'calc(100vh - 14rem)' }}>
+      <YamlBlock value={yamlString} filename={filename} size="fill" />
+    </div>
+  );
 };
 
 export default YamlSummarize;

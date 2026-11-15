@@ -6,6 +6,7 @@
 
 .rootFill {
   flex: 1;
+  height: 100%;
   min-height: 0;
 }
 
@@ -20,4 +21,6 @@
 .body {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  position: relative;
 }
