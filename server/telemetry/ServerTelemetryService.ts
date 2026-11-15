@@ -1,4 +1,7 @@
+import { logger } from '../logger.js';
 import type { ServerTelemetry } from './types.js';
+
+const log = logger.child({ component: 'telemetry' });
 
 export class ServerTelemetryService implements ServerTelemetry {
   constructor(private readonly adapters: readonly ServerTelemetry[]) {}
@@ -16,7 +19,7 @@ export class ServerTelemetryService implements ServerTelemetry {
       try {
         call(adapter);
       } catch (err) {
-        console.error(`[ServerTelemetryService] ${adapter.constructor.name}.${method} failed:`, err);
+        log.error({ err, adapter: adapter.constructor.name, method }, 'Telemetry adapter dispatch failed');
       }
     }
   }

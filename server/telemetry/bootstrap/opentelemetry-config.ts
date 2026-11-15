@@ -11,6 +11,9 @@ import { MeterProvider, PeriodicExportingMetricReader, AggregationTemporality } 
 import { FastifyInstrumentation } from '@opentelemetry/instrumentation-fastify';
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+import { logger } from '../../logger.js';
+
+const log = logger.child({ component: 'opentelemetry' });
 
 interface OpenTelemetryConfig {
   endpoint: string;
@@ -18,7 +21,7 @@ interface OpenTelemetryConfig {
   serviceName?: string;
   serviceVersion?: string;
   environment?: string;
-  debug?: boolean;
+  diagLogLevel?: DiagLogLevel;
 }
 
 let tracerProvider: NodeTracerProvider | null = null;
@@ -59,7 +62,7 @@ function loadDynatraceMetadata(): Resource {
 
       const metadata = JSON.parse(readFileSync(actualPath, 'utf-8'));
       dtMetadata = dtMetadata.merge(resourceFromAttributes(metadata));
-      console.log(`[OpenTelemetry] Loaded Dynatrace metadata from: ${actualPath}`);
+      log.debug({ path: actualPath }, 'Loaded Dynatrace metadata');
       break;
     } catch (error) {}
   }
@@ -69,12 +72,12 @@ function loadDynatraceMetadata(): Resource {
 
 export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   if (!config.endpoint || !config.token) {
-    console.log('[OpenTelemetry] OTLP endpoint or token not provided. Skipping initialization.');
+    log.info('OTLP endpoint or token not provided, skipping initialization');
     return false;
   }
 
-  if (config.debug) {
-    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+  if (config.diagLogLevel !== undefined && config.diagLogLevel !== DiagLogLevel.NONE) {
+    diag.setLogger(new DiagConsoleLogger(), config.diagLogLevel);
   }
 
   // ===== GENERAL SETUP =====
@@ -127,7 +130,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
   tracerProvider.register();
 
-  console.log('[OpenTelemetry] Trace provider initialized and registered.');
+  log.info('Trace provider initialized and registered');
 
   // ===== METRIC SETUP =====
 
@@ -152,7 +155,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   // Set this MeterProvider to be global to the app being instrumented
   opentelemetry.metrics.setGlobalMeterProvider(meterProvider);
 
-  console.log('[OpenTelemetry] Meter provider initialized and registered.');
+  log.info('Meter provider initialized and registered');
 
   // Handle graceful shutdown
   process.on('SIGTERM', async () => {
@@ -160,7 +163,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
       await tracerProvider?.shutdown();
       await meterProvider?.shutdown();
     } catch (error) {
-      console.error('[OpenTelemetry] Error shutting down SDK:', error);
+      log.error({ err: error }, 'Error shutting down SDK');
     }
   });
 

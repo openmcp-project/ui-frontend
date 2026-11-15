@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { logger } from '../../logger.js';
+
+const log = logger.child({ component: 'matomo' });
 
 const EXCLUDED_QUERY_PARAMS = [
   'account',
@@ -241,7 +244,7 @@ const EXCLUDED_QUERY_PARAMS = [
 
 export function injectMatomoTag(matomoUrl: string, siteId: string): string | null {
   const indexPath = join(process.cwd(), 'dist/client/index.html');
-  console.log(`[Matomo] Injecting tracker for site ${siteId} into "${indexPath}".`);
+  log.info({ siteId, indexPath }, 'Injecting Matomo tracker');
 
   const excludedParams = JSON.stringify(EXCLUDED_QUERY_PARAMS);
   const u = matomoUrl.endsWith('/') ? matomoUrl : `${matomoUrl}/`;
@@ -267,14 +270,14 @@ export function injectMatomoTag(matomoUrl: string, siteId: string): string | nul
   try {
     html = readFileSync(indexPath, 'utf-8');
   } catch (err) {
-    console.error(`[Matomo] Failed to read ${indexPath}.`, err);
+    log.error({ err, indexPath }, 'Failed to read index.html');
     return null;
   }
 
   // Bootstrap already injected (warm restart): return the hash so the CSP still
   // gets it, but skip re-writing the file.
   if (html.includes('window._paq')) {
-    console.log('[Matomo] Bootstrap already present, skipping injection.');
+    log.debug('Bootstrap already present, skipping injection');
     return scriptHash;
   }
 
@@ -283,12 +286,12 @@ export function injectMatomoTag(matomoUrl: string, siteId: string): string | nul
 
   const headClose = /<\/head>/i;
   if (!headClose.test(html)) {
-    console.error('[Matomo] </head> tag not found, aborting.');
+    log.error('</head> tag not found, aborting');
     return null;
   }
   html = html.replace(headClose, `  ${scriptTag}\n</head>`);
 
   writeFileSync(indexPath, html, 'utf-8');
-  console.log('[Matomo] Bootstrap injected successfully.');
+  log.info('Bootstrap injected successfully');
   return scriptHash;
 }

@@ -1,9 +1,12 @@
 import * as Sentry from '@sentry/node';
 import { ApplicationError } from '../../errors.js';
+import { logger } from '../../logger.js';
+
+const log = logger.child({ component: 'sentry' });
 
 export function initSentry(): void {
   if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
-    console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
+    log.warn('Sentry DSN is not provided, Sentry will not be initialized');
     return;
   }
 

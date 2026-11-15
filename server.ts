@@ -14,6 +14,10 @@ import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrac
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
 import serverTelemetryPlugin from './server/telemetry/telemetry.js';
 import errorHandlerPlugin from './server/plugins/error-handler.js';
+import { logger } from './server/logger.js';
+
+const log = logger.child({ component: 'server' });
+
 const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
@@ -33,8 +37,7 @@ const __dirname = path.dirname(__filename);
 // Make frontend configuration available (frontend-config.json)
 const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
-  console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
-  console.log(`  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`);
+  log.info({ src: process.env.FRONTEND_CONFIG_PATH, dest: frontendConfigLocation }, 'Copying frontend-config');
   copyFileSync(process.env.FRONTEND_CONFIG_PATH, frontendConfigLocation);
 }
 
@@ -45,22 +48,12 @@ if (
   process.env.HYPERSPACE_PORTAL_CONFIG_PATH.length > 0
 ) {
   const hyperspacePortalConfigLocation = 'dist/client/hyperspace-portal-config.json';
-  console.log('HYPERSPACE_PORTAL_CONFIG_PATH is specified. Will copy the hyperspace-portal-config from there.');
-  console.log(`  Copying ${process.env.HYPERSPACE_PORTAL_CONFIG_PATH} to ${hyperspacePortalConfigLocation}`);
+  log.info({ src: process.env.HYPERSPACE_PORTAL_CONFIG_PATH, dest: hyperspacePortalConfigLocation }, 'Copying hyperspace-portal-config');
   copyFileSync(process.env.HYPERSPACE_PORTAL_CONFIG_PATH, hyperspacePortalConfigLocation);
 }
 
 const fastify = Fastify({
-  logger: {
-    serializers: {
-      req: (req) => ({
-        method: req.method,
-        url: req.url.split('?')[0],
-        host: req.hostname,
-        remoteAddress: req.ip,
-      }),
-    },
-  },
+  loggerInstance: logger,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
@@ -103,7 +96,7 @@ if (fastify.config.FRONTEND_SENTRY_DSN && fastify.config.FRONTEND_SENTRY_DSN.len
     // @ts-ignore
     sentryHost = new URL(fastify.config.FRONTEND_SENTRY_DSN).hostname;
   } catch {
-    console.log('FRONTEND_SENTRY_DSN is not a valid URL');
+    log.warn('FRONTEND_SENTRY_DSN is not a valid URL');
     sentryHost = '';
   }
 }
@@ -113,7 +106,7 @@ if (DYNATRACE_SCRIPT_URL) {
   try {
     dynatraceOrigin = new URL(DYNATRACE_SCRIPT_URL).origin;
   } catch {
-    console.error('DYNATRACE_SCRIPT_URL is not a valid URL');
+    log.error('DYNATRACE_SCRIPT_URL is not a valid URL');
   }
 }
 
@@ -122,7 +115,7 @@ if (MATOMO_URL) {
   try {
     matomoOrigin = new URL(MATOMO_URL).origin;
   } catch {
-    console.error('MATOMO_URL is not a valid URL');
+    log.error('MATOMO_URL is not a valid URL');
   }
 }
 

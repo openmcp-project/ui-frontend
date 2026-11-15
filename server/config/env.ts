@@ -39,6 +39,10 @@ const schema = {
     // OpenTelemetry OTLP Export (optional)
     DYNATRACE_OTLP_ENDPOINT: { type: 'string' },
     DYNATRACE_OTLP_TOKEN: { type: 'string' },
+    // Logging
+    LOG_LEVEL: { type: 'string', enum: ['trace', 'debug', 'info', 'warn', 'error'], default: 'info' },
+    LOG_FORMAT: { type: 'string', enum: ['json', 'pretty'], default: 'json' },
+    OTEL_LOG_LEVEL: { type: 'string', enum: ['none', 'error', 'warn', 'info', 'debug', 'verbose', 'all'], default: 'warn' },
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },
   },
