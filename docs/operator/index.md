@@ -88,6 +88,28 @@ Every field in the `branding` block of `frontend-config.json` is optional. Set t
 
 The UI emits product analytics and error reports through a fan-out service that talks to Sentry, Dynatrace, and (in dev only) the browser console. For architectural details, the exact list of events sent, and how to opt a deployment out, see [Telemetry](telemetry.md).
 
+## Websocket and Long-Lived Connection Timeouts
+
+The Headlamp integration uses websockets for Kubernetes watch streams. These connections can be silent for minutes at a time while waiting for resource changes. If your deployment sits behind an ingress controller or load balancer, ensure the idle/read timeout for the following paths is at least **3600 seconds** (1 hour):
+
+| Path pattern | Protocol | Purpose |
+|---|---|---|
+| `/api/headlamp/*` | HTTP + WebSocket | Kubernetes API proxy (watches) |
+| `/api/graphql` | HTTP (SSE) | GraphQL subscriptions / live updates |
+
+Common ingress annotations:
+
+```yaml
+# NGINX Ingress Controller
+nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+# Istio
+# Set idleTimeout on the DestinationRule or EnvoyFilter
+```
+
+The BFF's own connection timeout (`connectionTimeout: 30_000` in `server.ts`) does not affect established websockets — the `ws` library clears the socket timeout on upgrade.
+
 ---
 
 - [End User Guide](../end-user/index.md) — what users can do with the UI
