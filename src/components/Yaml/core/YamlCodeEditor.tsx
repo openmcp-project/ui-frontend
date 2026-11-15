@@ -5,6 +5,7 @@ import { useTheme } from '../../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../monaco/theme';
 import { EDIT_OPTIONS, VIEW_OPTIONS } from '../monaco/presets';
 import { schemaRegistry } from '../monaco/schemaRegistry';
+import { ensureMonacoSetup } from '../monaco/setup';
 import { useYamlValidity } from './useYamlValidity';
 
 import type { JSONSchema4 } from 'json-schema';
@@ -70,6 +71,8 @@ export const YamlCodeEditor = ({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    ensureMonacoSetup();
 
     let model = monaco.editor.getModel(modelUri);
     if (model) {

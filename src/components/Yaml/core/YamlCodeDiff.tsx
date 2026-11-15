@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef } from 'react';
 import { useTheme } from '../../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../monaco/theme';
 import { DIFF_OPTIONS } from '../monaco/presets';
+import { ensureMonacoSetup } from '../monaco/setup';
 
 export interface YamlCodeDiffProps {
   original: string;
@@ -23,6 +24,8 @@ export const YamlCodeDiff = ({ original, modified, height }: YamlCodeDiffProps) 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    ensureMonacoSetup();
 
     const originalModel = monaco.editor.createModel(original, 'yaml', originalUri);
     const modifiedModel = monaco.editor.createModel(modified, 'yaml', modifiedUri);
