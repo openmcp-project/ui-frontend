@@ -50,6 +50,7 @@ const flat = typescriptEslint.config(
   {
     files: ['**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}'],
     rules: {
+      'no-console': 'error',
       // TypeScript's `noFallthroughCasesInSwitch` option is more robust (#6906)
       'default-case': 'off',
       // 'tsc' already handles this (https://github.com/typescript-eslint/typescript-eslint/issues/291)
@@ -271,6 +272,19 @@ const flatReact = [
   },
 ];
 
-const config = [...flat, ...flatReact];
+const config = [
+  ...flat,
+  ...flatReact,
+  {
+    files: [
+      'src/lib/telemetry/adapters/ConsoleAdapter.ts',
+      'src/lib/telemetry/bootstrap/**',
+      'src/lib/telemetry/TelemetryService.ts',
+    ],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+];
 
 export default config;
