@@ -1,0 +1,14 @@
+.container {
+  width: 100%;
+  height: calc(100vh - 8rem);
+  max-width: 100%;
+}
+
+.absolutePosition {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(50% - 2rem);
+  right: 0;
+  overflow: hidden;
+}

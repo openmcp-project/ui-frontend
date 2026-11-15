@@ -21,7 +21,7 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { downloadYamlFile } from './downloadYamlFile.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
+import { YamlDiff } from './YamlDiff.tsx';
 
 export interface YamlSidePanelProps {
   resource: Resource;
