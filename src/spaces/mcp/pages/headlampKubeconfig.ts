@@ -1,4 +1,5 @@
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
 
 type KubeEntry = { name: string; [key: string]: unknown };
 
@@ -16,7 +17,7 @@ export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias
     kc.clusters = kc.clusters.slice(0, 1).map((c: KubeEntry) => ({ ...c, name: clusterAlias }));
   }
 
-  kc.users = [{ name: clusterAlias, user: { token: 'bff-managed' } }];
+  kc.users = [{ name: clusterAlias, user: {} }];
 
   if (Array.isArray(kc.contexts) && kc.contexts.length > 0) {
     const firstCtx = kc.contexts[0] as { context?: Record<string, unknown> };
@@ -57,9 +58,13 @@ export async function registerKubeconfigWithBff(
     );
   }
 
-  // BFF patches 'bff-managed' → real mcp_accessToken and calls parseKubeConfig server-to-server.
-  const bff = await fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64 }));
+  // BFF stores the tokenless kubeconfig per alias and calls parseKubeConfig server-to-server.
+  const bff = await fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64, clusterAlias }));
   if (!bff.ok) {
+    if (bff.status === 401) {
+      redirectToLogin('mcp');
+      return clusterAlias;
+    }
     throw new Error(`BFF kubeconfig registration failed: ${bff.status}`);
   }
 
