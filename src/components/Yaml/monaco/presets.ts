@@ -1,0 +1,68 @@
+import type * as monaco from 'monaco-editor';
+
+export const VIEW_OPTIONS = Object.freeze<monaco.editor.IStandaloneEditorConstructionOptions>({
+  readOnly: true,
+  domReadOnly: true,
+  tabIndex: 0,
+  glyphMargin: false,
+  quickSuggestions: false,
+  suggestOnTriggerCharacters: false,
+  formatOnPaste: false,
+  formatOnType: false,
+  renderLineHighlight: 'none',
+  occurrencesHighlight: 'off',
+  cursorStyle: 'line-thin',
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  tabSize: 2,
+  insertSpaces: true,
+  detectIndentation: false,
+  wordWrap: 'on',
+  folding: true,
+  foldingStrategy: 'indentation',
+  fontSize: 13,
+  lineHeight: 20,
+  contextmenu: false,
+  copyWithSyntaxHighlighting: false,
+  ariaLabel: 'YAML viewer',
+});
+
+export const EDIT_OPTIONS = Object.freeze<monaco.editor.IStandaloneEditorConstructionOptions>({
+  ...VIEW_OPTIONS,
+  readOnly: false,
+  domReadOnly: false,
+  quickSuggestions: {
+    other: true,
+    comments: true,
+    strings: true,
+  },
+  suggestOnTriggerCharacters: true,
+  hover: { enabled: 'on' },
+  formatOnPaste: true,
+  formatOnType: true,
+  glyphMargin: true,
+  renderLineHighlight: 'line',
+  occurrencesHighlight: 'singleFile',
+  cursorStyle: 'line',
+  ariaLabel: 'YAML editor',
+});
+
+export const DIFF_OPTIONS = Object.freeze<monaco.editor.IDiffEditorConstructionOptions>({
+  readOnly: true,
+  lineNumbers: 'off',
+  glyphMargin: false,
+  folding: false,
+  renderOverviewRuler: false,
+  automaticLayout: true,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  renderMarginRevertIcon: false,
+  fontSize: 13,
+  lineHeight: 20,
+  scrollbar: {
+    useShadows: false,
+    vertical: 'auto',
+    horizontal: 'auto',
+    alwaysConsumeMouseWheel: false,
+  },
+});

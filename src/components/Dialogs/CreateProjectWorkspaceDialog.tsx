@@ -34,7 +34,7 @@ import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from './MetadataForm.tsx';
 import { SupportInfoForm } from './SupportInfoForm.tsx';
 
-const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
+const YamlBlock = lazy(() => import('../Yaml/YamlBlock.tsx').then((m) => ({ default: m.YamlBlock })));
 
 export type OnCreatePayload = Omit<CreateDialogProps, 'componentsList'>;
 
@@ -260,7 +260,7 @@ export function CreateProjectWorkspaceDialog({
 
           <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
             <Suspense fallback={<BusyIndicator active size="M" style={{ margin: 'auto' }} />}>
-              <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
+              <YamlBlock filename={`${type}-${resourceName}`} value={yamlString} size="fill" actions={[]} />
             </Suspense>
           </SplitterElement>
         </SplitterLayout>

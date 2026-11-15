@@ -1,0 +1,19 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rootFill {
+  flex: 1;
+  min-height: 0;
+}
+
+.header {
+  flex: none;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}

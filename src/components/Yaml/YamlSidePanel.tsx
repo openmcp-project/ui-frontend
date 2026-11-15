@@ -11,6 +11,7 @@ import {
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
 import { YamlResourceEditorSchemaLoader } from './YamlResourceEditorSchemaLoader.tsx';
+import { YamlBlock } from './YamlBlock.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
@@ -21,7 +22,7 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { downloadYamlFile } from './downloadYamlFile.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
+import { YamlDiff } from './YamlDiff.tsx';
 
 export interface YamlSidePanelProps {
   resource: Resource;
@@ -36,6 +37,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
   const [parsedObject, setParsedObject] = useState<unknown>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
@@ -51,7 +53,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
-    downloadYamlFile(originalYaml, filename);
+    downloadYamlFile(yamlStringToDisplay, filename);
   };
 
   const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {
@@ -61,17 +63,30 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   }, []);
 
   const handleConfirmPatch = useCallback(async () => {
-    if (!onApply || !editedYaml) return;
+    if (!onApply || !editedYaml || isConfirming) return;
 
-    const result = await onApply(parsedObject, editedYaml);
-    if (result === true) {
-      setMode('success');
+    setIsConfirming(true);
+    try {
+      const result = await onApply(parsedObject, editedYaml);
+      if (result === true) {
+        setMode('success');
+      }
+    } finally {
+      setIsConfirming(false);
     }
-  }, [onApply, editedYaml, parsedObject]);
+  }, [onApply, editedYaml, parsedObject, isConfirming]);
 
   const handleGoBack = () => setMode('edit');
 
   const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
+
+  const importantCheckbox = (
+    <CheckBox
+      text={t('yaml.showOnlyImportant')}
+      checked={showOnlyImportantData}
+      onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
+    />
+  );
 
   return (
     <div className={styles.panelWrapper}>
@@ -82,15 +97,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           <Toolbar>
             {toolbarContent}
             <ToolbarSpacer />
-            <FlexBox>
-              {!isEdit && (
-                <CheckBox
-                  text={t('yaml.showOnlyImportant')}
-                  checked={showOnlyImportantData}
-                  onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
-                />
-              )}
-            </FlexBox>
+            {isEdit && <FlexBox />}
             <ToolbarButton
               overflowPriority="NeverOverflow"
               design="Transparent"
@@ -102,7 +109,10 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
         }
       >
         <div className={styles.content}>
-          {mode === 'success' && (
+          {!isEdit && mode === 'edit' && (
+            <YamlBlock value={yamlStringToDisplay} filename={filename} size="fill" extraActions={importantCheckbox} />
+          )}
+          {isEdit && mode === 'success' && (
             <FlexBox direction="Column" className={styles.successContainer}>
               <IllustratedBanner
                 illustrationName={IllustrationMessageType.SuccessScreen}
@@ -114,7 +124,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               </Button>
             </FlexBox>
           )}
-          {mode === 'review' && (
+          {isEdit && mode === 'review' && (
             <FlexBox direction="Column" className={styles.reviewContainer}>
               <div className={styles.stickyHeader}>
                 <div className={styles.stickyHeaderInner}>
@@ -125,7 +135,12 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
                   <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
                     {t('yaml.diffNo')}
                   </Button>
-                  <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
+                  <Button
+                    design="Emphasized"
+                    data-testid="yaml-confirm-button"
+                    disabled={isConfirming}
+                    onClick={handleConfirmPatch}
+                  >
                     {t('yaml.diffYes', 'Yes')}
                   </Button>
                 </FlexBox>
@@ -135,7 +150,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               </div>
             </FlexBox>
           )}
-          {mode === 'edit' && (
+          {isEdit && mode === 'edit' && (
             <YamlResourceEditorSchemaLoader
               yamlString={yamlStringToDisplay}
               filename={filename}
@@ -148,22 +163,24 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           )}
         </div>
       </Panel>
-      <div className={styles.floatingActions}>
-        <ToolbarButton
-          design="Transparent"
-          icon="copy"
-          tooltip={t('buttons.copy')}
-          data-testid="yaml-copy-button"
-          onClick={() => copyToClipboard(yamlStringToDisplay)}
-        />
-        <ToolbarButton
-          design="Transparent"
-          icon="download"
-          tooltip={t('buttons.download')}
-          data-testid="yaml-download-button"
-          onClick={handleDownloadClick}
-        />
-      </div>
+      {isEdit && (
+        <div className={styles.floatingActions}>
+          <ToolbarButton
+            design="Transparent"
+            icon="copy"
+            tooltip={t('buttons.copy')}
+            data-testid="yaml-copy-button"
+            onClick={() => copyToClipboard(yamlStringToDisplay)}
+          />
+          <ToolbarButton
+            design="Transparent"
+            icon="download"
+            tooltip={t('buttons.download')}
+            data-testid="yaml-download-button"
+            onClick={handleDownloadClick}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { CrossplaneProviderPicker } from '../../../../components/Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
-import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
+import { YamlBlock } from '../../../../components/Yaml/YamlBlock.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../hooks/useCreateCrossplane.ts';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
@@ -297,7 +297,7 @@ export function CrossplaneInstallDialog({
             {t('ComponentInstallDialog.yamlPreview')}
           </Title>
           <div className={styles.yamlViewer}>
-            <YamlViewer yamlString={yamlPreview} filename={mcpName} />
+            <YamlBlock value={yamlPreview} filename={mcpName} size="fill" actions={[]} />
           </div>
         </div>
       </div>
