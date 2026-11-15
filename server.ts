@@ -51,7 +51,16 @@ if (
 }
 
 const fastify = Fastify({
-  logger: true,
+  logger: {
+    serializers: {
+      req: (req) => ({
+        method: req.method,
+        url: req.url.split('?')[0],
+        host: req.hostname,
+        remoteAddress: req.ip,
+      }),
+    },
+  },
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });

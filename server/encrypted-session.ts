@@ -83,7 +83,7 @@ function createStore(request) {
       const decryptedStore = JSON.parse(decryptedCypherText);
       unencryptedStore = decryptedStore;
     } catch (error) {
-      request.log.error({ plugin: 'encrypted-session' }, 'Failed to parse encrypted session store', error);
+      request.log.error({ plugin: 'encrypted-session', err: error }, 'Failed to parse encrypted session store');
     }
   } else {
     // we could not parse the encrypted store, so we create a new one and it would overwrite the previously stored store.
