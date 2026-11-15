@@ -53,17 +53,30 @@ if (
   copyFileSync(process.env.HYPERSPACE_PORTAL_CONFIG_PATH, hyperspacePortalConfigLocation);
 }
 
+const REQUEST_ID_RE = /^[\w\-]{1,128}$/;
+
 const fastify = Fastify({
   loggerInstance: logger,
   disableRequestLogging: true,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
+  genReqId(req) {
+    const incoming = req.headers['x-request-id'];
+    if (typeof incoming === 'string' && REQUEST_ID_RE.test(incoming)) {
+      return incoming;
+    }
+    return crypto.randomUUID();
+  },
 });
 
 await fastify.register(serverTelemetryPlugin);
 await fastify.register(errorHandlerPlugin);
 await fastify.register(accessLogPlugin);
 await fastify.register(envPlugin);
+
+fastify.addHook('onSend', async (req, reply) => {
+  reply.header('x-request-id', req.id);
+});
 
 fastify.register(cors, {
   origin: isLocalDev

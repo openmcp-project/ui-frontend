@@ -1,3 +1,4 @@
+import { trace } from '@opentelemetry/api';
 import pino from 'pino';
 
 const isLocalDev = process.argv.includes('--local-dev');
@@ -24,6 +25,12 @@ if (wantsPretty) {
 export const logger = pino({
   level,
   ...(transport && { transport }),
+  mixin() {
+    const span = trace.getActiveSpan();
+    if (!span) return {};
+    const ctx = span.spanContext();
+    return { trace_id: ctx.traceId, span_id: ctx.spanId };
+  },
   redact: {
     paths: [
       'req.headers.authorization',
