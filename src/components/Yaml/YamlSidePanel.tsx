@@ -11,6 +11,7 @@ import {
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
 import { YamlResourceEditorSchemaLoader } from './YamlResourceEditorSchemaLoader.tsx';
+import { YamlBlock } from './YamlBlock.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
@@ -79,6 +80,14 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
 
   const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
 
+  const importantCheckbox = (
+    <CheckBox
+      text={t('yaml.showOnlyImportant')}
+      checked={showOnlyImportantData}
+      onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
+    />
+  );
+
   return (
     <div className={styles.panelWrapper}>
       <Panel
@@ -88,15 +97,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           <Toolbar>
             {toolbarContent}
             <ToolbarSpacer />
-            <FlexBox>
-              {!isEdit && (
-                <CheckBox
-                  text={t('yaml.showOnlyImportant')}
-                  checked={showOnlyImportantData}
-                  onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
-                />
-              )}
-            </FlexBox>
+            {isEdit && <FlexBox />}
             <ToolbarButton
               overflowPriority="NeverOverflow"
               design="Transparent"
@@ -108,7 +109,10 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
         }
       >
         <div className={styles.content}>
-          {mode === 'success' && (
+          {!isEdit && mode === 'edit' && (
+            <YamlBlock value={yamlStringToDisplay} filename={filename} size="fill" extraActions={importantCheckbox} />
+          )}
+          {isEdit && mode === 'success' && (
             <FlexBox direction="Column" className={styles.successContainer}>
               <IllustratedBanner
                 illustrationName={IllustrationMessageType.SuccessScreen}
@@ -120,7 +124,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               </Button>
             </FlexBox>
           )}
-          {mode === 'review' && (
+          {isEdit && mode === 'review' && (
             <FlexBox direction="Column" className={styles.reviewContainer}>
               <div className={styles.stickyHeader}>
                 <div className={styles.stickyHeaderInner}>
@@ -146,7 +150,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               </div>
             </FlexBox>
           )}
-          {mode === 'edit' && (
+          {isEdit && mode === 'edit' && (
             <YamlResourceEditorSchemaLoader
               yamlString={yamlStringToDisplay}
               filename={filename}
@@ -159,22 +163,24 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           )}
         </div>
       </Panel>
-      <div className={styles.floatingActions}>
-        <ToolbarButton
-          design="Transparent"
-          icon="copy"
-          tooltip={t('buttons.copy')}
-          data-testid="yaml-copy-button"
-          onClick={() => copyToClipboard(yamlStringToDisplay)}
-        />
-        <ToolbarButton
-          design="Transparent"
-          icon="download"
-          tooltip={t('buttons.download')}
-          data-testid="yaml-download-button"
-          onClick={handleDownloadClick}
-        />
-      </div>
+      {isEdit && (
+        <div className={styles.floatingActions}>
+          <ToolbarButton
+            design="Transparent"
+            icon="copy"
+            tooltip={t('buttons.copy')}
+            data-testid="yaml-copy-button"
+            onClick={() => copyToClipboard(yamlStringToDisplay)}
+          />
+          <ToolbarButton
+            design="Transparent"
+            icon="download"
+            tooltip={t('buttons.download')}
+            data-testid="yaml-download-button"
+            onClick={handleDownloadClick}
+          />
+        </div>
+      )}
     </div>
   );
 }
