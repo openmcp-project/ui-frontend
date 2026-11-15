@@ -14,6 +14,7 @@ import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrac
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
 import serverTelemetryPlugin from './server/telemetry/telemetry.js';
 import errorHandlerPlugin from './server/plugins/error-handler.js';
+import accessLogPlugin from './server/plugins/access-log.js';
 import { logger } from './server/logger.js';
 
 const log = logger.child({ component: 'server' });
@@ -54,12 +55,14 @@ if (
 
 const fastify = Fastify({
   loggerInstance: logger,
+  disableRequestLogging: true,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
 
 await fastify.register(serverTelemetryPlugin);
 await fastify.register(errorHandlerPlugin);
+await fastify.register(accessLogPlugin);
 await fastify.register(envPlugin);
 
 fastify.register(cors, {
