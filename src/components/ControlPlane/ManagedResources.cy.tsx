@@ -8,6 +8,9 @@ import '@ui5/webcomponents-cypress-commands';
 import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { SplitterLayout } from '../Splitter/SplitterLayout.tsx';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
+import { ApiConfigContext } from '../Shared/k8s/index.ts';
+import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
+import { mockedFrontendConfig } from '../../utils/testing.ts';
 
 describe('ManagedResources - Delete Resource', () => {
   let deleteCalled = false;
@@ -90,6 +93,42 @@ describe('ManagedResources - Delete Resource', () => {
     deleteCalled = false;
     patchCalled = false;
   });
+
+  for (const state of ['unknown', 'denied'] as const) {
+    it(`uses per-action checks for v2 resources with ${state} access`, () => {
+      const check = cy.stub().returns({ state, isChecking: state === 'unknown' });
+      cy.mount(
+        <FrontendConfigContext.Provider value={mockedFrontendConfig}>
+          <MemoryRouter>
+            <SplitterProvider>
+              <ApiConfigContext.Provider
+                value={{ mcpConfig: { projectName: 'p', workspaceName: 'w', controlPlaneName: 'cp', isV2: true } }}
+              >
+                <ManagedResources
+                  useApiResourceMutation={fakeUseApiResourceMutation}
+                  useApiResource={fakeUseApiResource}
+                  useResourcePluralNames={fakeUseResourcePluralNames}
+                  useHasMcpAdminRights={() => false}
+                  useCanI={check}
+                />
+              </ApiConfigContext.Provider>
+            </SplitterProvider>
+          </MemoryRouter>
+        </FrontendConfigContext.Provider>,
+      );
+      cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+      cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+      cy.get('ui5-menu[open] [data-action-key="edit"]').should('have.prop', 'disabled', state === 'denied');
+      cy.get('ui5-menu[open] [data-action-key="delete"]').should('have.prop', 'disabled', state === 'denied');
+      cy.wrap(check).should('have.been.calledWithMatch', {
+        verb: 'patch',
+        group: 'account.btp.sap.crossplane.io',
+        resource: 'subaccounts',
+        namespace: 'test-namespace',
+        name: 'test-subaccount',
+      });
+    });
+  }
 
   it('deletes a managed resource', () => {
     cy.mount(

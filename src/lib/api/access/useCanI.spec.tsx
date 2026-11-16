@@ -1,16 +1,18 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { ReactNode } from 'react';
 import { SWRConfig } from 'swr';
 import { useCanI, useMarkAccessDenied, canIKey, type AccessAttributes } from './useCanI.ts';
 import { fetchApiServerJson } from '../fetch.ts';
+import { ApiConfigContext } from '../../../components/Shared/k8s/index.ts';
 
 vi.mock('../fetch.ts');
 
 // A wrapper with an isolated SWR cache so entries never leak across tests.
 function createWrapper() {
+  const cache = new Map();
   return ({ children }: { children: ReactNode }) => (
-    <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>{children}</SWRConfig>
+    <SWRConfig value={{ provider: () => cache, dedupingInterval: 0 }}>{children}</SWRConfig>
   );
 }
 
@@ -26,6 +28,7 @@ describe('useCanI', () => {
 
   beforeEach(() => {
     fetchMock = vi.mocked(fetchApiServerJson);
+    fetchMock.mockReset();
   });
 
   afterEach(() => {
@@ -36,6 +39,13 @@ describe('useCanI', () => {
     fetchMock.mockResolvedValue({ status: { allowed: true } });
     const { result } = renderHook(() => useCanI(attrs), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.state).toBe('allowed'));
+  });
+
+  it.each([null, {}, { status: {} }])('keeps an empty response unknown: %j', async (response) => {
+    fetchMock.mockResolvedValue(response);
+    const { result } = renderHook(() => useCanI(attrs), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isChecking).toBe(false));
+    expect(result.current.state).toBe('unknown');
   });
 
   it('maps allowed: false with no evaluationError to "denied"', async () => {
@@ -86,6 +96,18 @@ describe('useCanI', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('starts a lazy check when enabled changes without changing the attributes', async () => {
+    fetchMock.mockResolvedValue({ status: { allowed: false } });
+    const { result, rerender } = renderHook(({ enabled }) => useCanI(attrs, { enabled }), {
+      wrapper: createWrapper(),
+      initialProps: { enabled: false },
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+    rerender({ enabled: true });
+    await waitFor(() => expect(result.current.state).toBe('denied'));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('does not share a cache entry for different attributes', async () => {
     fetchMock.mockImplementation((_path, _config, _jq, _method, body: string) => {
       const parsed = JSON.parse(body);
@@ -119,8 +141,66 @@ describe('useCanI', () => {
 
     await waitFor(() => expect(result.current.access.state).toBe('allowed'));
 
-    result.current.markDenied(canIKey(attrs, 'onboarding', undefined));
+    await act(async () => result.current.markDenied(canIKey(attrs, 'onboarding', undefined)));
 
     await waitFor(() => expect(result.current.access.state).toBe('denied'));
+  });
+
+  it('does not carry a deny into a different resource while its check is pending', async () => {
+    fetchMock.mockResolvedValueOnce({ status: { allowed: false } });
+    fetchMock.mockImplementation(() => new Promise(() => {}));
+    const { result, rerender } = renderHook(({ name }) => useCanI({ ...attrs, name }), {
+      wrapper: createWrapper(),
+      initialProps: { name: 'first' },
+    });
+    await waitFor(() => expect(result.current.state).toBe('denied'));
+    rerender({ name: 'second' });
+    expect(result.current.state).toBe('unknown');
+    expect(result.current.isChecking).toBe(true);
+  });
+
+  it('never routes an MCP check to onboarding when the context is unavailable', () => {
+    const { result } = renderHook(() => useCanI(attrs, { target: 'mcp' }), { wrapper: createWrapper() });
+    expect(result.current.state).toBe('unknown');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('routes onboarding checks without the current MCP config', async () => {
+    fetchMock.mockResolvedValue({ status: { allowed: true } });
+    const SWRWrapper = createWrapper();
+    const mcpConfig = { projectName: 'p', workspaceName: 'w', controlPlaneName: 'cp', idp: 'custom' };
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <SWRWrapper>
+        <ApiConfigContext.Provider value={{ mcpConfig }}>{children}</ApiConfigContext.Provider>
+      </SWRWrapper>
+    );
+    const { result } = renderHook(
+      () => ({
+        onboarding: useCanI(attrs),
+        downstream: useCanI(attrs, { target: 'mcp' }),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.downstream.state).toBe('allowed'));
+    expect(fetchMock.mock.calls.map((call) => call[1])).toEqual([{ mcpConfig: undefined }, { mcpConfig }]);
+  });
+
+  it('an actual request denial overrides an allowed member hint', async () => {
+    const { result, rerender } = renderHook(
+      ({ enabled }) => ({
+        access: useCanI(attrs, { hint: 'allowed', enabled }),
+        mark: useMarkAccessDenied(),
+      }),
+      { wrapper: createWrapper(), initialProps: { enabled: true } },
+    );
+    expect(result.current.access.state).toBe('allowed');
+    await act(async () => result.current.mark(canIKey(attrs, 'onboarding', undefined)));
+    expect(result.current.access.state).toBe('denied');
+    expect(fetchMock).not.toHaveBeenCalled();
+    fetchMock.mockResolvedValue({ status: { allowed: true } });
+    rerender({ enabled: false });
+    rerender({ enabled: true });
+    await waitFor(() => expect(result.current.access.state).toBe('allowed'));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

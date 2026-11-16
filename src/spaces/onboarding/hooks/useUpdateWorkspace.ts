@@ -8,6 +8,7 @@ import { buildProjectAnnotations } from '../../../lib/api/types/shared/projectAn
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
 import { CreateWorkspaceParams } from './useCreateWorkspace';
+import { useAccessDeniedFeedback } from '../../../lib/api/access/useAccessDeniedFeedback.ts';
 
 export const UpdateWorkspaceMutation = graphql(`
   mutation UpdateWorkspace(
@@ -57,6 +58,7 @@ function buildUpdateWorkspaceInput(namespace: string, params: CreateWorkspacePar
 export function useUpdateWorkspace() {
   const { t } = useTranslation();
   const toast = useToast();
+  const recordDenied = useAccessDeniedFeedback();
   const [updateWorkspaceMutation, { loading: isLoading }] = useMutation(UpdateWorkspaceMutation, {
     refetchQueries: ['GetWorkspaces', 'GetWorkspace'],
   });
@@ -70,10 +72,19 @@ export function useUpdateWorkspace() {
           namespace,
           object,
         },
+      }).catch((error: unknown) => {
+        recordDenied(error, {
+          verb: 'update',
+          group: 'core.openmcp.cloud',
+          resource: 'workspaces',
+          namespace,
+          name: params.name,
+        });
+        throw error;
       });
       toast.show(t('EditWorkspaceDialog.toastMessage'));
     },
-    [updateWorkspaceMutation, toast, t],
+    [updateWorkspaceMutation, toast, t, recordDenied],
   );
 
   return { updateWorkspace, isLoading };

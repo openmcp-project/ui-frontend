@@ -28,6 +28,8 @@ import { CreateKustomizationDialog } from '../Dialogs/CreateKustomizationDialog'
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import { ResourceEditButton, ResourceActionsMenu } from './ResourceAccessControls.tsx';
+import { useCanI as _useCanI } from '../../lib/api/access/useCanI.ts';
 import styles from './Kustomizations.module.css';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
@@ -38,9 +40,10 @@ export type KustomizationItem = KustomizationsResponse['items'][0] & {
   metadata: KustomizationsResponse['items'][0]['metadata'] & { namespace?: string };
 };
 
-export function Kustomizations() {
+export function Kustomizations({ useCanI = _useCanI }: { useCanI?: typeof _useCanI } = {}) {
   const { data, error, isLoading } = useApiResource(FluxKustomization); //404 if component not enabled
   const apiConfig = useContext(ApiConfigContext);
+  const isV2 = !!apiConfig.mcpConfig?.isV2;
   const { t } = useTranslation();
   const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -136,7 +139,18 @@ export function Kustomizations() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  hasMCPAdminRights ? (
+                  isV2 ? (
+                    <ResourceEditButton
+                      item={item}
+                      resource="kustomizations"
+                      useCanI={useCanI}
+                      icon="edit"
+                      design="Transparent"
+                      onClick={() => openEditPanel(item)}
+                    >
+                      {t('buttons.edit')}
+                    </ResourceEditButton>
+                  ) : hasMCPAdminRights ? (
                     <Button
                       icon={'edit'}
                       design={'Transparent'}
@@ -167,14 +181,18 @@ export function Kustomizations() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
-                disabled: !hasMCPAdminRights,
+                disabled: !isV2 && !hasMCPAdminRights,
               },
             ];
-            return <ActionsMenu item={item} actions={actions} />;
+            return isV2 ? (
+              <ResourceActionsMenu item={item} resource="kustomizations" actions={actions} useCanI={useCanI} />
+            ) : (
+              <ActionsMenu item={item} actions={actions} />
+            );
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, hasMCPAdminRights],
+    [t, openEditPanel, hasMCPAdminRights, isV2, useCanI],
   );
 
   const rows: FluxRow[] = useMemo(

@@ -7,6 +7,8 @@ import { useResourcePluralNames } from './useResourcePluralNames.ts';
 import { ErrorDialogHandle } from '../components/Shared/ErrorMessageBox.tsx';
 import { fetchApiServerJson } from '../lib/api/fetch.ts';
 import { APIError } from '../lib/api/error.ts';
+import { useAccessDeniedFeedback } from '../lib/api/access/useAccessDeniedFeedback.ts';
+import { resourceAccessAttributes } from '../lib/api/access/resourceAccessAttributes.ts';
 
 export type PatchableResourceRef = {
   kind: string;
@@ -22,6 +24,7 @@ export const useHandleResourcePatch = (errorDialogRef?: RefObject<ErrorDialogHan
   const toast = useToast();
   const apiConfig = useContext(ApiConfigContext);
   const { getPluralKind } = useResourcePluralNames();
+  const recordDenied = useAccessDeniedFeedback();
 
   return async (item: PatchableResourceRef, parsed: unknown): Promise<boolean> => {
     const resourceName = item?.metadata?.name ?? '';
@@ -41,6 +44,7 @@ export const useHandleResourcePatch = (errorDialogRef?: RefObject<ErrorDialogHan
       toast.show(t('ManagedResources.patchSuccess', { resourceName }));
       return true;
     } catch (e) {
+      recordDenied(e, resourceAccessAttributes(item, pluralKind, 'patch'), 'mcp');
       toast.show(t('ManagedResources.patchError', { resourceName }));
       if (e instanceof APIError && errorDialogRef?.current) {
         errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);

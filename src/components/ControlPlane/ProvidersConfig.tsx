@@ -27,6 +27,8 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import { ResourceEditButton, ResourceActionsMenu } from './ResourceAccessControls.tsx';
+import { useCanI as _useCanI } from '../../lib/api/access/useCanI.ts';
 
 type Rows = {
   parent: string;
@@ -36,12 +38,13 @@ type Rows = {
   resource: ProviderConfigItem;
 };
 
-export function ProvidersConfig() {
+export function ProvidersConfig({ useCanI = _useCanI }: { useCanI?: typeof _useCanI } = {}) {
   const { t } = useTranslation();
   const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const apiConfig = useContext(ApiConfigContext);
+  const isV2 = !!apiConfig.mcpConfig?.isV2;
   const rows: Rows[] = [];
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
@@ -112,7 +115,18 @@ export function ProvidersConfig() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  hasMCPAdminRights ? (
+                  isV2 ? (
+                    <ResourceEditButton
+                      item={item}
+                      resource="providerconfigs"
+                      useCanI={useCanI}
+                      icon="edit"
+                      design="Transparent"
+                      onClick={() => openEditPanel(item)}
+                    >
+                      {t('buttons.edit')}
+                    </ResourceEditButton>
+                  ) : hasMCPAdminRights ? (
                     <Button
                       icon={'edit'}
                       design={'Transparent'}
@@ -143,14 +157,18 @@ export function ProvidersConfig() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
-                disabled: !hasMCPAdminRights,
+                disabled: !isV2 && !hasMCPAdminRights,
               },
             ];
-            return <ActionsMenu item={item} actions={actions} />;
+            return isV2 ? (
+              <ResourceActionsMenu item={item} resource="providerconfigs" actions={actions} useCanI={useCanI} />
+            ) : (
+              <ActionsMenu item={item} actions={actions} />
+            );
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, hasMCPAdminRights],
+    [t, openEditPanel, hasMCPAdminRights, isV2, useCanI],
   );
 
   return (

@@ -5,6 +5,7 @@ import { graphql } from '../../../types/__generated__/graphql';
 import { buildMcpV2GraphQLInput } from '../helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schema.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { useAccessDeniedFeedback } from '../../../lib/api/access/useAccessDeniedFeedback.ts';
 
 export const CreateManagedControlPlaneV2Mutation = graphql(`
   mutation CreateManagedControlPlaneV2(
@@ -34,6 +35,7 @@ export function useCreateControlPlaneV2GraphQL() {
     refetchQueries: ['GetMCPsList'],
   });
   const telemetry = useTelemetry();
+  const recordDenied = useAccessDeniedFeedback();
 
   const createMcp = useCallback(
     async (rawInput: McpV2Input) => {
@@ -53,6 +55,14 @@ export function useCreateControlPlaneV2GraphQL() {
           namespace: parsed.data.namespace,
           object,
         },
+      }).catch((error: unknown) => {
+        recordDenied(error, {
+          verb: 'create',
+          group: 'core.open-control-plane.io',
+          resource: 'controlplanes',
+          namespace: parsed.data.namespace,
+        });
+        throw error;
       });
 
       const created = result.data?.core_open_control_plane_io?.v2alpha1?.createControlPlane;
@@ -62,7 +72,7 @@ export function useCreateControlPlaneV2GraphQL() {
 
       return created;
     },
-    [createMutation, telemetry],
+    [createMutation, telemetry, recordDenied],
   );
 
   return { createMcp, loading, error };

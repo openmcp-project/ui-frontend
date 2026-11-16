@@ -8,11 +8,17 @@ import { useMediaQuery } from '../../../hooks/useMediaQuery.ts';
 
 interface Props {
   disabled?: boolean;
+  createV2Disabled?: boolean;
   onCreateV1: () => void;
   onCreateV2?: () => void;
 }
 
-export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreateV2 }: Props) {
+export function CreateControlPlaneButton({
+  disabled = false,
+  createV2Disabled = false,
+  onCreateV1,
+  onCreateV2,
+}: Props) {
   const { t } = useTranslation();
   const { enableMcpV2, markMcpV1asDeprecated } = useFeatureToggle();
   const compact = useMediaQuery('(max-width: 1024px)');
@@ -61,7 +67,7 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'createV1') onCreateV1();
-          if (action === 'createV2') onCreateV2?.();
+          if (action === 'createV2' && !createV2Disabled) onCreateV2?.();
           setOpen(false);
         }}
       >
@@ -79,7 +85,8 @@ export function CreateControlPlaneButton({ disabled = false, onCreateV1, onCreat
         <MenuItem
           key="createV2"
           data-action="createV2"
-          additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
+          disabled={createV2Disabled}
+          additionalText={t(createV2Disabled ? 'access.noAccessAction' : 'ControlPlaneListToolbar.previewV2Badge')}
           icon="add"
           text={t('ControlPlaneListToolbar.createNewControlPlane')}
         />

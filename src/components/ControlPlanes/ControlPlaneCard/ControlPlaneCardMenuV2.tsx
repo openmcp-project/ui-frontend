@@ -102,12 +102,12 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         opener={openerId}
         onItemClick={(event) => {
           const { action, idpKey } = (event.detail.item as HTMLElement).dataset;
-          if (action === 'editMcp') {
+          if (action === 'editMcp' && !editDisabled) {
             setIsEditManagedControlPlaneWizardOpen(true);
             setMenuIsOpen(false);
             return;
           }
-          if (action === 'deleteMcp') {
+          if (action === 'deleteMcp' && !deleteDisabled) {
             setDialogDeleteMcpIsOpen(true);
             setMenuIsOpen(false);
             return;
@@ -118,12 +118,19 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         }}
         onClose={() => setMenuIsOpen(false)}
       >
-        <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" disabled={editDisabled} />
+        <MenuItem
+          text={t('ControlPlaneCard.editMCP')}
+          data-action="editMcp"
+          icon="edit"
+          disabled={editDisabled}
+          additionalText={updateState === 'denied' ? t('access.noAccessAction') : undefined}
+        />
         <MenuItem
           text={t('ControlPlaneCard.deleteMCP')}
           data-action="deleteMcp"
           icon="delete"
           disabled={deleteDisabled}
+          additionalText={deleteState === 'denied' ? t('access.noAccessAction') : undefined}
         />
         <MenuSeparator />
         {singleOption ? (

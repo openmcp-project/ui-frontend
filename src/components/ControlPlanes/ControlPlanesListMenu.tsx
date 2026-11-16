@@ -11,6 +11,9 @@ type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
   setDialogEditWsIsOpen: Dispatch<SetStateAction<boolean>>;
   disabled?: boolean;
+  editDisabled?: boolean;
+  deleteDisabled?: boolean;
+  createV2Disabled?: boolean;
   showCreateActions?: boolean;
   onCreateV1?: () => void;
   onCreateV2?: () => void;
@@ -20,6 +23,9 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setDialogEditWsIsOpen,
   disabled = false,
+  editDisabled = false,
+  deleteDisabled = false,
+  createV2Disabled = false,
   showCreateActions = false,
   onCreateV1,
   onCreateV2,
@@ -55,11 +61,11 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           const item = event.detail.item as HTMLElement;
           const action = item.dataset.action;
           if (action === 'createV1') onCreateV1?.();
-          if (action === 'createV2') onCreateV2?.();
-          if (action === 'deleteWorkspace') {
+          if (action === 'createV2' && !createV2Disabled) onCreateV2?.();
+          if (action === 'deleteWorkspace' && !deleteDisabled) {
             setDialogDeleteWsIsOpen(true);
           }
-          if (action === 'editWorkspace') {
+          if (action === 'editWorkspace' && !editDisabled) {
             setDialogEditWsIsOpen(true);
           }
           setOpen(false);
@@ -82,13 +88,26 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           <MenuItem
             key="createV2"
             data-action="createV2"
-            additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
+            disabled={createV2Disabled}
+            additionalText={t(createV2Disabled ? 'access.noAccessAction' : 'ControlPlaneListToolbar.previewV2Badge')}
             icon="add"
             text={t('ControlPlaneListToolbar.createNewControlPlane')}
           />
         )}
-        <MenuItem data-action="editWorkspace" icon="edit" text={t('ControlPlaneListToolbar.editWorkspace')} />
-        <MenuItem data-action="deleteWorkspace" icon="delete" text={t('ControlPlaneListToolbar.deleteWorkspace')} />
+        <MenuItem
+          data-action="editWorkspace"
+          icon="edit"
+          text={t('ControlPlaneListToolbar.editWorkspace')}
+          disabled={editDisabled}
+          additionalText={editDisabled ? t('access.noAccessAction') : undefined}
+        />
+        <MenuItem
+          data-action="deleteWorkspace"
+          icon="delete"
+          text={t('ControlPlaneListToolbar.deleteWorkspace')}
+          disabled={deleteDisabled}
+          additionalText={deleteDisabled ? t('access.noAccessAction') : undefined}
+        />
       </Menu>
     </>
   );

@@ -4,7 +4,8 @@ import { CRDRequestAuthCheck } from '../../../lib/api/types/crossplane/CRDList.t
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { fetchApiServerJson } from '../../../lib/api/fetch.ts';
 import { ApiConfigContext } from '../../../components/Shared/k8s/index.ts';
-import { APIError } from '../../../lib/api/error.ts';
+import { isForbiddenError, type APIError } from '../../../lib/api/error.ts';
+import type { AccessState } from '../../../lib/api/access/useCanI.ts';
 
 export interface McpAuthorizationCheck {
   isLoading: boolean;
@@ -24,54 +25,55 @@ export function useMcpAuthorizationCheck(): McpAuthorizationCheck {
   return { isLoading, isUnauthorized };
 }
 
-interface RulesReviewResponse {
+interface AccessReviewResponse {
   status?: {
-    incomplete?: boolean;
-    resourceRules?: unknown[];
+    allowed?: boolean;
+    evaluationError?: string;
   };
 }
 
-const RULES_REVIEW_PATH = '/apis/authorization.k8s.io/v1/selfsubjectrulesreviews';
+const ACCESS_REVIEW_PATH = '/apis/authorization.k8s.io/v1/selfsubjectaccessreviews';
 
 /**
- * V2 gate. Does not probe a single resource. Returns `isUnauthorized: true`
- * only on a confirmed deny:
- *   - the SelfSubjectRulesReview request returns 403, or
- *   - the review comes back complete (`incomplete !== true`) with no resource rules.
- * A 401 is not a deny (fetchApiServer refreshes/redirects); a network error,
- * an incomplete review, or any rules present all pass. No blocking spinner.
+ * V2 gate: only a forbidden access-review request blocks the whole page.
+ * A negative answer for one path (or empty rules in one namespace) cannot
+ * establish that the user has no access anywhere in the cluster.
  */
-export function useMcpAuthorizationCheckV2(): McpAuthorizationCheck {
+export function useMcpAuthorizationCheckV2(): McpAuthorizationCheck & { state: AccessState } {
   const apiConfig = useContext(ApiConfigContext);
 
-  const { data, error, isLoading } = useSWR<RulesReviewResponse>(
-    ['mcp-rules-review', apiConfig.mcpConfig ?? null],
+  const { data, error, isLoading } = useSWR<AccessReviewResponse, APIError>(
+    apiConfig.mcpConfig ? ['mcp-access-review', apiConfig.mcpConfig] : null,
     () =>
-      fetchApiServerJson<RulesReviewResponse>(
-        RULES_REVIEW_PATH,
+      fetchApiServerJson<AccessReviewResponse>(
+        ACCESS_REVIEW_PATH,
         apiConfig,
         undefined,
         'POST',
         JSON.stringify({
           apiVersion: 'authorization.k8s.io/v1',
-          kind: 'SelfSubjectRulesReview',
-          spec: { namespace: 'default' },
+          kind: 'SelfSubjectAccessReview',
+          spec: { nonResourceAttributes: { verb: 'get', path: '/' } },
         }),
       ),
     {
       errorRetryCount: 1,
+      dedupingInterval: 60_000,
       revalidateOnFocus: true,
-      keepPreviousData: true,
+      keepPreviousData: false,
     },
   );
 
-  const apiError = error as APIError | undefined;
-  const requestForbidden = apiError?.status === 403;
   const status = data?.status;
-  const emptyRulesWhenComplete = !!data && status?.incomplete !== true && (status?.resourceRules?.length ?? 0) === 0;
+  const state: AccessState = isForbiddenError(error)
+    ? 'denied'
+    : !error && typeof status?.allowed === 'boolean' && !status.evaluationError
+      ? 'allowed'
+      : 'unknown';
 
   return {
     isLoading,
-    isUnauthorized: requestForbidden || emptyRulesWhenComplete,
+    isUnauthorized: state === 'denied',
+    state,
   };
 }

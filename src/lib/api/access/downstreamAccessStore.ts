@@ -19,7 +19,10 @@ const EXPIRY_MS = 15 * 60 * 1000;
 type DeniedEntry = { at: number };
 type DeniedMap = Record<string, DeniedEntry>;
 
-const memoryFallback: DeniedMap = {};
+let memoryFallback: DeniedMap = {};
+let storageUnavailable = false;
+const listeners = new Set<() => void>();
+let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 export interface DownstreamAccessKeyParts {
   project: string;
@@ -37,30 +40,92 @@ export function downstreamAccessKey({ project, workspace, controlPlane, idp }: D
 }
 
 function readMap(): DeniedMap {
+  if (storageUnavailable) return { ...memoryFallback };
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...memoryFallback };
-    return JSON.parse(raw) as DeniedMap;
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    const map: DeniedMap = {};
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      for (const [key, entry] of Object.entries(parsed)) {
+        if (
+          entry &&
+          typeof entry === 'object' &&
+          'at' in entry &&
+          typeof entry.at === 'number' &&
+          Number.isFinite(entry.at) &&
+          entry.at <= Date.now() &&
+          Date.now() - entry.at < EXPIRY_MS
+        ) {
+          map[key] = { at: entry.at };
+        }
+      }
+    }
+    memoryFallback = map;
+    return { ...map };
   } catch {
+    storageUnavailable = true;
     return { ...memoryFallback };
   }
 }
 
 function writeMap(map: DeniedMap): void {
   // Keep the in-memory copy in sync so reads still work if storage throws.
-  for (const k of Object.keys(memoryFallback)) delete memoryFallback[k];
-  Object.assign(memoryFallback, map);
+  memoryFallback = { ...map };
   try {
+    if (storageUnavailable) return;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(map));
   } catch {
-    // in-memory fallback already updated
+    storageUnavailable = true;
   }
+}
+
+function notify(): void {
+  listeners.forEach((listener) => listener());
+  scheduleExpiry();
+}
+
+function scheduleExpiry(): void {
+  clearTimeout(expiryTimer);
+  if (!listeners.size) return;
+  const expiries = Object.values(readMap())
+    .map(({ at }) => at + EXPIRY_MS)
+    .filter((at) => at > Date.now());
+  if (expiries.length) expiryTimer = setTimeout(notify, Math.min(...expiries) - Date.now());
+}
+
+/** Notify mounted buttons on writes, expiry, focus, and storage changes. */
+export function subscribeDenied(listener: () => void): () => void {
+  listeners.add(listener);
+  if (listeners.size === 1) {
+    window.addEventListener('focus', notify);
+    window.addEventListener('storage', notify);
+  }
+  scheduleExpiry();
+  return () => {
+    listeners.delete(listener);
+    if (!listeners.size) {
+      clearTimeout(expiryTimer);
+      window.removeEventListener('focus', notify);
+      window.removeEventListener('storage', notify);
+    }
+  };
+}
+
+// Stable primitive for useSyncExternalStore; reading a snapshot has no writes.
+export function deniedSnapshot(): string {
+  return JSON.stringify(
+    Object.entries(readMap())
+      .filter(([, entry]) => Date.now() - entry.at < EXPIRY_MS)
+      .map(([key]) => key)
+      .sort(),
+  );
 }
 
 export function rememberDenied(key: string): void {
   const map = readMap();
   map[key] = { at: Date.now() };
   writeMap(map);
+  notify();
 }
 
 export function clearDenied(key: string): void {
@@ -68,6 +133,7 @@ export function clearDenied(key: string): void {
   if (key in map) {
     delete map[key];
     writeMap(map);
+    notify();
   }
 }
 
@@ -75,21 +141,17 @@ export function isDenied(key: string): boolean {
   const map = readMap();
   const entry = map[key];
   if (!entry) return false;
-  if (Date.now() - entry.at > EXPIRY_MS) {
-    // Expired: drop it so the next connect re-evaluates.
-    delete map[key];
-    writeMap(map);
-    return false;
-  }
-  return true;
+  return Date.now() - entry.at < EXPIRY_MS;
 }
 
 /** Clear every remembered deny. Call on sign-out. */
 export function clearAllDenied(): void {
-  for (const k of Object.keys(memoryFallback)) delete memoryFallback[k];
+  memoryFallback = {};
   try {
     sessionStorage.removeItem(STORAGE_KEY);
+    storageUnavailable = false;
   } catch {
-    // in-memory already cleared
+    storageUnavailable = true;
   }
+  notify();
 }

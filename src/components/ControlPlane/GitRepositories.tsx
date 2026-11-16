@@ -31,13 +31,15 @@ import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { CreateGitRepositoryDialog } from '../Dialogs/CreateGitRepositoryDialog.tsx';
 import styles from './GitRepositories.module.css';
+import { ResourceEditButton, ResourceActionsMenu } from './ResourceAccessControls.tsx';
+import { useCanI as _useCanI } from '../../lib/api/access/useCanI.ts';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
   metadata: GitReposResponse['items'][0]['metadata'] & { namespace?: string };
 };
 
-export function GitRepositories() {
+export function GitRepositories({ useCanI = _useCanI }: { useCanI?: typeof _useCanI } = {}) {
   const { data, error, isLoading } = useApiResource(FluxRequest); //404 if component not enabled
   const { t } = useTranslation();
   const { openInAsideWithApiConfig } = useSplitter();
@@ -55,6 +57,7 @@ export function GitRepositories() {
     revision?: string;
   };
   const apiConfig = useContext(ApiConfigContext);
+  const isV2 = !!apiConfig.mcpConfig?.isV2;
   const hasMCPAdminRights = useHasMcpAdminRights();
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
@@ -133,7 +136,18 @@ export function GitRepositories() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  hasMCPAdminRights ? (
+                  isV2 ? (
+                    <ResourceEditButton
+                      item={item}
+                      resource="gitrepositories"
+                      useCanI={useCanI}
+                      icon="edit"
+                      design="Transparent"
+                      onClick={() => openEditPanel(item)}
+                    >
+                      {t('buttons.edit')}
+                    </ResourceEditButton>
+                  ) : hasMCPAdminRights ? (
                     <Button
                       icon={'edit'}
                       design={'Transparent'}
@@ -164,14 +178,18 @@ export function GitRepositories() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
-                disabled: !hasMCPAdminRights,
+                disabled: !isV2 && !hasMCPAdminRights,
               },
             ];
-            return <ActionsMenu item={item} actions={actions} />;
+            return isV2 ? (
+              <ResourceActionsMenu item={item} resource="gitrepositories" actions={actions} useCanI={useCanI} />
+            ) : (
+              <ActionsMenu item={item} actions={actions} />
+            );
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, hasMCPAdminRights, openEditPanel],
+    [t, hasMCPAdminRights, openEditPanel, isV2, useCanI],
   );
 
   const rows: FluxRow[] = useMemo(

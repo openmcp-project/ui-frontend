@@ -24,7 +24,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { AccessDeniedView } from '../../../components/Ui/AccessDeniedView/AccessDeniedView.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isForbiddenError, isStrictNotFoundError } from '../../../lib/api/error.ts';
-import { useCanI, useMarkAccessDenied, canIKey } from '../../../lib/api/access/useCanI.ts';
+import { useCanI as _useCanI, useMarkAccessDenied, canIKey } from '../../../lib/api/access/useCanI.ts';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
@@ -441,9 +441,13 @@ export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 interface Props {
   useInheritedSupportInfo?: typeof _useInheritedSupportInfo;
+  useCanI?: typeof _useCanI;
 }
 
-export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInheritedSupportInfo }: Props) {
+export default function ControlPlanePageV2({
+  useInheritedSupportInfo = _useInheritedSupportInfo,
+  useCanI = _useCanI,
+}: Props) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const navigate = useNavigate();
@@ -503,6 +507,22 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
     { target: 'onboarding' },
   );
   const markAccessDenied = useMarkAccessDenied();
+  useEffect(() => {
+    if (!namespace || !controlPlaneName || !isForbiddenError(error)) return;
+    markAccessDenied(
+      canIKey(
+        {
+          verb: 'get',
+          group: 'core.open-control-plane.io',
+          resource: 'controlplanes',
+          namespace,
+          name: controlPlaneName,
+        },
+        'onboarding',
+        undefined,
+      ),
+    );
+  }, [error, namespace, controlPlaneName, markAccessDenied]);
   const resolvedSupportInfo = useInheritedSupportInfo(
     extractSupportInfo(mcp?.metadata?.annotations as Record<string, string> | undefined),
     { projectName, workspaceName },
@@ -565,19 +585,6 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
 
   // A forbidden read must read as "no access", not "this doesn't exist" — check it first.
   if (isForbiddenError(error)) {
-    markAccessDenied(
-      canIKey(
-        {
-          verb: 'get',
-          group: 'core.open-control-plane.io',
-          resource: 'controlplanes',
-          namespace,
-          name: controlPlaneName,
-        },
-        'onboarding',
-        undefined,
-      ),
-    );
     return <AccessDeniedView onBack={goBackToProject} />;
   }
 
@@ -586,7 +593,7 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
   }
 
   // Empty data without an error: the SSAR get-check decides. Only a confirmed deny is "no access".
-  if (mcpMissing) {
+  if (mcpMissing && !error) {
     if (getAccessState === 'denied') {
       return <AccessDeniedView onBack={goBackToProject} />;
     }

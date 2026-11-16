@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import useSWR, { useSWRConfig, type Key } from 'swr';
+import { useCallback, useContext, useEffect, useRef } from 'react';
+import useSWR, { useSWRConfig, unstable_serialize, type Key } from 'swr';
 import { fetchApiServerJson } from '../fetch.ts';
 import { ApiConfigContext } from '../../../components/Shared/k8s/index.ts';
 import type { ApiConfig } from '../types/apiConfig.ts';
@@ -27,7 +27,7 @@ export interface UseCanIOptions {
    * ignored on purpose: a member list can never prove a deny.
    */
   hint?: AccessState;
-  /** When false, no request is made and the state stays 'unknown'. Defaults to true. */
+  /** When false, no request is made; an existing confirmed deny remains observable. */
   enabled?: boolean;
 }
 
@@ -61,11 +61,11 @@ export function canIKey(attrs: AccessAttributes, target: 'onboarding' | 'mcp', m
   ];
 }
 
-function mapStatus(res: SsarResponse): AccessState {
-  const status = res.status;
+function mapStatus(res: SsarResponse | null | undefined): AccessState {
+  const status = res?.status;
   if (!status) return 'unknown';
-  if (status.evaluationError) return 'unknown';
   if (status.allowed === true) return 'allowed';
+  if (status.evaluationError) return 'unknown';
   if (status.allowed === false) return 'denied';
   return 'unknown';
 }
@@ -103,27 +103,54 @@ export function useCanI(
   const enabled = options?.enabled ?? true;
   const hint = options?.hint;
   const contextConfig = useContext(ApiConfigContext);
+  const { cache } = useSWRConfig();
 
   // An 'allowed' hint is proof enough; don't spend a request on it.
   const hintAllows = hint === 'allowed';
 
-  const shouldFetch = enabled && attrs !== null && !hintAllows;
+  // Never fall back to onboarding when the downstream context isn't ready.
+  const canTarget = target === 'onboarding' || !!contextConfig.mcpConfig;
+  const shouldFetch = enabled && attrs !== null && canTarget;
+  // Keep listening to this exact entry even with a hint or a closed menu. A real
+  // action's 403 must override a membership hint and remain visible on reopen.
+  const key = attrs && canTarget ? canIKey(attrs, target, contextConfig.mcpConfig) : null;
 
-  const key = shouldFetch && attrs ? canIKey(attrs, target, contextConfig.mcpConfig) : null;
-
-  const { data, error, isLoading } = useSWR<SsarResponse>(
+  const { data, error, isLoading, mutate } = useSWR<SsarResponse>(
     key,
-    () => {
-      const config: ApiConfig = target === 'mcp' ? contextConfig : { mcpConfig: undefined };
-      return runSsar(attrs as AccessAttributes, config);
-    },
+    shouldFetch
+      ? () => {
+          // A hint avoids the request, unless a real action has since proved a
+          // deny. In that case focus/reopen must be able to recheck and recover.
+          const cached = cache.get(unstable_serialize(key))?.data as SsarResponse | undefined;
+          if (hintAllows && mapStatus(cached) !== 'denied') return Promise.resolve({ status: { allowed: true } });
+          const config: ApiConfig = target === 'mcp' ? contextConfig : { mcpConfig: undefined };
+          return runSsar(attrs as AccessAttributes, config);
+        }
+      : null,
     {
       dedupingInterval: 60_000,
+      revalidateOnMount: shouldFetch && !hintAllows,
       revalidateOnFocus: true,
       errorRetryCount: 1,
-      keepPreviousData: true,
+      // Previous data belongs to a different permission/IdP and is not evidence
+      // about the current key, even temporarily.
+      keepPreviousData: false,
     },
   );
+
+  // Changing only a null fetcher to an enabled fetcher doesn't mount a new SWR
+  // key. Explicitly start the lazy check when a visible tile/menu enables it.
+  const wasEnabled = useRef(shouldFetch);
+  useEffect(() => {
+    if (shouldFetch && !wasEnabled.current) void mutate();
+    wasEnabled.current = shouldFetch;
+  }, [shouldFetch, mutate]);
+
+  if (!key) return { state: 'unknown', isChecking: false };
+
+  if (!error && data && mapStatus(data) === 'denied') {
+    return { state: 'denied', isChecking: shouldFetch && isLoading };
+  }
 
   if (hintAllows) {
     return { state: 'allowed', isChecking: false };
@@ -153,8 +180,11 @@ export function useCanI(
  */
 export function useMarkAccessDenied(): (key: Key) => void {
   const { mutate } = useSWRConfig();
-  return (key: Key) => {
-    const deniedResponse: SsarResponse = { status: { allowed: false } };
-    void mutate(key, deniedResponse, { revalidate: false });
-  };
+  return useCallback(
+    (key: Key) => {
+      const deniedResponse: SsarResponse = { status: { allowed: false } };
+      void mutate(key, deniedResponse, { revalidate: false });
+    },
+    [mutate],
+  );
 }

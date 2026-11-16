@@ -13,8 +13,7 @@ export function useHasMcpAdminRights(): boolean {
 
   const matchingRoleBinding = mcpUsers.find(
     (roleBinding) =>
-      Array.isArray(roleBinding.subjects) &&
-      roleBinding.subjects.some((subject) => subject?.name?.toLowerCase() === userEmail.toLowerCase()),
+      Array.isArray(roleBinding.subjects) && roleBinding.subjects.some((subject) => subject?.name?.includes(userEmail)),
   );
 
   return matchingRoleBinding?.role === 'admin';

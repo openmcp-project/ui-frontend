@@ -45,6 +45,10 @@ import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
 import { deduplicateManagedResources } from '../../utils/managedResourceVersion.ts';
+import { ResourceEditButton, ResourceActionsMenu } from './ResourceAccessControls.tsx';
+import { useCanI as _useCanI } from '../../lib/api/access/useCanI.ts';
+import { useAccessDeniedFeedback } from '../../lib/api/access/useAccessDeniedFeedback.ts';
+import { resourceAccessAttributes } from '../../lib/api/access/resourceAccessAttributes.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -83,16 +87,20 @@ export function ManagedResources({
   useApiResource = _useApiResource,
   useResourcePluralNames = _useResourcePluralNames,
   useHasMcpAdminRights = _useHasMcpAdminRights,
+  useCanI = _useCanI,
 }: {
   useApiResourceMutation?: typeof _useApiResourceMutation;
   useHandleResourcePatch?: typeof _useHandleResourcePatch;
   useApiResource?: typeof _useApiResource;
   useResourcePluralNames?: typeof _useResourcePluralNames;
   useHasMcpAdminRights?: typeof _useHasMcpAdminRights;
+  useCanI?: typeof _useCanI;
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
   const apiConfig = useContext(ApiConfigContext);
+  const isV2 = !!apiConfig.mcpConfig?.isV2;
+  const recordDenied = useAccessDeniedFeedback();
   const { openInAsideWithApiConfig } = useSplitter();
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -228,7 +236,20 @@ export function ManagedResources({
                 variant="resource"
                 resource={original.item as unknown as Resource}
                 toolbarContent={
-                  hasMCPAdminRights ? (
+                  isV2 ? (
+                    <ResourceEditButton
+                      item={original.item}
+                      resource={getPluralKind(original.item.kind)}
+                      useCanI={useCanI}
+                      icon="edit"
+                      design="Transparent"
+                      disabled={isFluxManaged}
+                      tooltip={isFluxManaged ? t('yaml.fluxManaged') : undefined}
+                      onClick={() => openEditPanel(original.item)}
+                    >
+                      {t('buttons.edit')}
+                    </ResourceEditButton>
+                  ) : hasMCPAdminRights ? (
                     <Button
                       icon={'edit'}
                       design={'Transparent'}
@@ -273,15 +294,24 @@ export function ManagedResources({
                 text: t('ManagedResources.deleteAction'),
                 icon: 'delete',
                 onClick: openDeleteDialog,
-                disabled: !hasMCPAdminRights,
+                disabled: !isV2 && !hasMCPAdminRights,
               },
             ];
 
-            return <ActionsMenu item={item} actions={actions} />;
+            return isV2 ? (
+              <ResourceActionsMenu
+                item={item}
+                resource={getPluralKind(item.kind)}
+                actions={actions}
+                useCanI={useCanI}
+              />
+            ) : (
+              <ActionsMenu item={item} actions={actions} />
+            );
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights, navigateToTab],
+    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights, navigateToTab, isV2, useCanI, getPluralKind],
   );
 
   const rows: ResourceRow[] = useMemo(() => {
@@ -316,6 +346,7 @@ export function ManagedResources({
         try {
           await patchTrigger(PatchResourceForForceDeletionBody);
         } catch (e) {
+          recordDenied(e, resourceAccessAttributes(item, getPluralKind(item.kind), 'patch'), 'mcp');
           if (e instanceof APIError && errorDialogRef.current) {
             errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
           }
@@ -323,6 +354,7 @@ export function ManagedResources({
         }
       }
     } catch (e) {
+      recordDenied(e, resourceAccessAttributes(item, getPluralKind(item.kind), 'delete'), 'mcp');
       if (e instanceof APIError && errorDialogRef.current) {
         errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
       }

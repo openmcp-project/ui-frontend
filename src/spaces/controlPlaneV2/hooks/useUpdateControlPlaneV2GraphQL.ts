@@ -5,9 +5,11 @@ import { buildMcpV2GraphQLInput } from '../helpers/controlPlaneV2GraphQLInput.ts
 import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schema.ts';
 import { UpdateManagedControlPlaneV2Mutation } from './useUpdateControlPlaneV2Mutation.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { useAccessDeniedFeedback } from '../../../lib/api/access/useAccessDeniedFeedback.ts';
 
 export function useUpdateControlPlaneV2GraphQL() {
   const telemetry = useTelemetry();
+  const recordDenied = useAccessDeniedFeedback();
   const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation, {
     // The response only selects `metadata`/`status.phase`, not the updated `spec`, so spec changes
     // (role bindings, IAM config) won't reach other open views without a refetch — as in the
@@ -34,6 +36,15 @@ export function useUpdateControlPlaneV2GraphQL() {
           namespace: parsed.data.namespace,
           object,
         },
+      }).catch((error: unknown) => {
+        recordDenied(error, {
+          verb: 'update',
+          group: 'core.open-control-plane.io',
+          resource: 'controlplanes',
+          namespace: parsed.data.namespace,
+          name: parsed.data.name,
+        });
+        throw error;
       });
 
       const updated = result.data?.core_open_control_plane_io?.v2alpha1?.updateControlPlane;
@@ -43,7 +54,7 @@ export function useUpdateControlPlaneV2GraphQL() {
 
       return updated;
     },
-    [updateMutation, telemetry],
+    [updateMutation, telemetry, recordDenied],
   );
 
   return { updateMcp, loading, error };

@@ -3,24 +3,32 @@ import { useState } from 'react';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { ExtraProviderMetadata } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { IdentityProvidersStep } from './IdentityProvidersStep.tsx';
+import { FrontendConfigContext } from '../../../../context/FrontendConfigContext.tsx';
+import { mockedFrontendConfig } from '../../../../utils/testing.ts';
 
 function StatefulIdentityProvidersStep({
   initialMembers = [],
   initialProviders = [],
+  editMode = false,
 }: {
   initialMembers?: Member[];
   initialProviders?: ExtraProviderMetadata[];
+  editMode?: boolean;
 }) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [providers, setProviders] = useState<ExtraProviderMetadata[]>(initialProviders);
 
   return (
-    <IdentityProvidersStep
-      members={members}
-      providers={providers}
-      onMembersChange={setMembers}
-      onProvidersChange={setProviders}
-    />
+    <FrontendConfigContext.Provider value={mockedFrontendConfig}>
+      <IdentityProvidersStep
+        members={members}
+        editMode={editMode}
+        currentUserEmail="alice@example.com"
+        providers={providers}
+        onMembersChange={setMembers}
+        onProvidersChange={setProviders}
+      />
+    </FrontendConfigContext.Provider>
   );
 }
 
@@ -34,6 +42,35 @@ describe('IdentityProvidersStep', () => {
   it('always renders the default provider group', () => {
     cy.mount(<StatefulIdentityProvidersStep />);
     cy.contains('Default identity provider').should('exist');
+  });
+
+  it('does not warn a group-only member who has not removed anything', () => {
+    cy.mount(
+      <StatefulIdentityProvidersStep
+        editMode
+        initialMembers={[{ kind: 'Group', name: 'admins', roles: ['cluster-admin'] }]}
+      />,
+    );
+    cy.get('[data-testid="default-provider-self-removal-warning"]').should('not.exist');
+  });
+
+  it('warns only after removing self, and clears the warning after restoring self', () => {
+    cy.mount(
+      <StatefulIdentityProvidersStep
+        editMode
+        initialMembers={[
+          { kind: 'User', name: 'ALICE@example.com', roles: ['cluster-admin'] },
+          { kind: 'Group', name: 'admins', roles: ['cluster-admin'] },
+        ]}
+      />,
+    );
+    cy.get('[data-testid="default-provider-self-removal-warning"]').should('not.exist');
+    cy.get('ui5-button[icon="delete"]').first().click();
+    cy.get('[data-testid="default-provider-self-removal-warning"]').should('exist');
+    cy.get('[data-testid="default-provider-add-member-button"]').click();
+    cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
+    cy.get('[data-testid="default-provider-self-removal-warning"]').should('not.exist');
   });
 
   it('adds a new provider group after saving the Add Identity Provider dialog', () => {

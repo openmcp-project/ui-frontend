@@ -57,6 +57,11 @@ describe('error', () => {
   });
 
   describe('isForbiddenError', () => {
+    it('recognizes Apollo 4 network errors without matching arbitrary 403 text', () => {
+      expect(isForbiddenError({ statusCode: 403, message: 'Response not successful' })).toBe(true);
+      expect(isForbiddenError(new Error('Response not successful: Received status code 403'))).toBe(true);
+      expect(isForbiddenError(new Error('Resource thing-403 is missing'))).toBe(false);
+    });
     it('should return true for APIError with status 403', () => {
       expect(isForbiddenError(new APIError('', 403))).toBe(true);
     });

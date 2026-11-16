@@ -6,7 +6,8 @@ import { buildConnectOptionsV2 } from './buildConnectOptionsV2.ts';
 import type { ConnectOption } from './buildConnectOptions.ts';
 import type { ControlPlaneStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
-import { downstreamAccessKey, isDenied as _isDenied } from '../../../lib/api/access/downstreamAccessStore.ts';
+import { downstreamAccessKey } from '../../../lib/api/access/downstreamAccessStore.ts';
+import { useDownstreamAccess as _useDownstreamAccess } from '../../../lib/api/access/useDownstreamAccess.ts';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -17,7 +18,7 @@ interface ConnectButtonProps {
   loading?: boolean;
   useNavigate?: typeof _useNavigate;
   useTelemetry?: typeof _useTelemetry;
-  isDenied?: typeof _isDenied;
+  useDownstreamAccess?: typeof _useDownstreamAccess;
 }
 
 export default function ConnectButtonV2({
@@ -29,13 +30,14 @@ export default function ConnectButtonV2({
   loading,
   useNavigate = _useNavigate,
   useTelemetry = _useTelemetry,
-  isDenied = _isDenied,
+  useDownstreamAccess = _useDownstreamAccess,
 }: ConnectButtonProps) {
   const navigate = useNavigate();
   const buttonId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
+  const isDenied = useDownstreamAccess();
 
   const connectionTargets = buildConnectOptionsV2(access, projectName, workspaceName, controlPlaneName);
 

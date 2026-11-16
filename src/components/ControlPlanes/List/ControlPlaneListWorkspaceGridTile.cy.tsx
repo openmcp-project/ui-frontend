@@ -348,19 +348,27 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
     ws?: Workspace;
     useMcpsQuery?: typeof useMcpsQuery;
     useCanI?: typeof useCanI;
+    isExpanded?: boolean;
+    enableV2?: boolean;
   }) {
     const ws = opts.ws ?? workspaceWithMember;
     cy.mount(
       <MockedProvider mocks={[]}>
         <MemoryRouter>
-          <FrontendConfigContext.Provider value={frontendConfig}>
+          <FrontendConfigContext.Provider
+            value={{
+              ...frontendConfig,
+              featureToggles: { ...frontendConfig.featureToggles, enableMcpV2: opts.enableV2 ?? true },
+            }}
+          >
             <SplitterProvider>
               <FeatureToggleProvider>
                 <ControlPlaneListWorkspaceGridTile
                   workspace={ws}
                   projectName="some-project"
-                  isExpanded={false}
+                  isExpanded={opts.isExpanded ?? false}
                   useMcpsQuery={opts.useMcpsQuery ?? fakeUseMCPsListQuery}
+                  useMcpV2ComponentsListQuery={() => ({ componentsByName: {}, isLoading: false, error: undefined })}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useAuthOnboardingHook={opts.useAuthOnboardingHook}
                   useCanI={opts.useCanI ?? fakeUseCanI('unknown')}
@@ -387,6 +395,45 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
 
     cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().should('have.attr', 'aria-expanded');
     cy.get('[id^="forbidden-btn"]').should('not.exist');
+  });
+
+  it('fetches while expanded and access is still checking', () => {
+    const query = cy.stub().returns({ data: [], error: undefined, isPending: false, isReadyForSubscriptions: false });
+    mountAccessTile({
+      useAuthOnboardingHook: nonMemberUser,
+      isExpanded: true,
+      useMcpsQuery: query,
+      useCanI: () => ({ state: 'unknown', isChecking: true }),
+    });
+    cy.wrap(query).should('have.been.calledWithMatch', 'project-some-project--ws-workspaceName', { mode: 'full' });
+    cy.get('[id^="forbidden-btn"]').should('not.exist');
+    cy.get('[data-testid="workspace-panel-workspaceName"] button[aria-expanded="true"]').should('exist');
+  });
+
+  it('does not lock a mixed workspace when only v2 listing is denied', () => {
+    mountAccessTile({
+      useAuthOnboardingHook: nonMemberUser,
+      isExpanded: true,
+      useCanI: (attrs) => ({ state: attrs?.resource === 'controlplanes' ? 'denied' : 'allowed', isChecking: false }),
+    });
+    cy.get('[id^="forbidden-btn"]').should('not.exist');
+    cy.get('[data-testid="workspace-panel-workspaceName"] button[aria-expanded="true"]').should('exist');
+  });
+
+  it('preserves membership gating when v2 is disabled', () => {
+    mountAccessTile({ useAuthOnboardingHook: nonMemberUser, enableV2: false, useCanI: fakeUseCanI('allowed') });
+    cy.get('[id^="forbidden-btn"]').should('exist');
+  });
+
+  it('a workspace-update deny disables only edit, not delete or create', () => {
+    mountAccessTile({
+      useAuthOnboardingHook: memberUser,
+      useCanI: (attrs) => ({ state: attrs?.verb === 'update' ? 'denied' : 'allowed', isChecking: false }),
+    });
+    cy.get('[data-testid="ControlPlanesListMenu-opener"]').should('have.prop', 'disabled', false).click();
+    cy.get('ui5-menu[open] [data-action="editWorkspace"]').should('have.prop', 'disabled', true);
+    cy.get('ui5-menu[open] [data-action="deleteWorkspace"]').should('have.prop', 'disabled', false);
+    cy.get('ui5-menu[open] [data-action="createV2"]').should('have.prop', 'disabled', false);
   });
 
   it('shows locked icon and no expand toggle when access is denied', () => {

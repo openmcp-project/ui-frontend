@@ -5,7 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/locked.js';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
+import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -134,12 +134,24 @@ export function ControlPlaneListWorkspaceGridTile({
       resource: 'controlplanes',
       namespace: mcpNamespace,
     },
-    { target: 'onboarding', hint: isMember ? 'allowed' : undefined, enabled: accessCheckEnabled },
+    { target: 'onboarding', hint: isMember ? 'allowed' : undefined, enabled: enableMcpV2 && accessCheckEnabled },
   );
 
+  // This is a mixed-version list. A v2 deny alone must not suppress v1 cards.
+  const { state: v1ListState } = useCanI(
+    { verb: 'list', group: 'core.openmcp.cloud', resource: 'managedcontrolplanes', namespace: mcpNamespace },
+    { target: 'onboarding', enabled: enableMcpV2 && accessCheckEnabled && accessState === 'denied' },
+  );
+  const listDenied = enableMcpV2 ? accessState === 'denied' && v1ListState === 'denied' : isMember === false;
+
   const shouldRenderCardsWithFullData = isExpanded || workspaceMatches || needsFullMcpData;
-  const fetchMode: McpsQueryMode =
-    accessState === 'denied' ? 'skip' : shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
+  const fetchMode: McpsQueryMode = listDenied
+    ? 'skip'
+    : shouldRenderCardsWithFullData
+      ? 'full'
+      : query
+        ? 'minimal'
+        : 'skip';
   const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
 
   // One combined query for all V2 component status in this workspace, instead of each card
@@ -149,7 +161,7 @@ export function ControlPlaneListWorkspaceGridTile({
     !enableMcpV2 || fetchMode !== 'full',
   );
 
-  const isForbidden = accessState === 'denied' || (!!cpsError && isForbiddenError(cpsError));
+  const isForbidden = listDenied || (!!cpsError && isForbiddenError(cpsError));
 
   // Menu actions edit/delete the workspace itself (a different resource from the control planes
   // listed inside it). Gate them on their own check; disabled only on a confirmed deny.
@@ -161,9 +173,22 @@ export function ControlPlaneListWorkspaceGridTile({
       namespace: projectNamespace,
       name: workspaceName,
     },
-    { target: 'onboarding', enabled: accessCheckEnabled },
+    { target: 'onboarding', enabled: enableMcpV2 && accessCheckEnabled },
   );
-  const workspaceMenuDisabled = isForbidden || workspaceWriteState === 'denied';
+  const { state: workspaceDeleteState } = useCanI(
+    {
+      verb: 'delete',
+      group: 'core.openmcp.cloud',
+      resource: 'workspaces',
+      namespace: projectNamespace,
+      name: workspaceName,
+    },
+    { target: 'onboarding', enabled: enableMcpV2 && accessCheckEnabled },
+  );
+  const { state: createState } = useCanI(
+    { verb: 'create', group: 'core.open-control-plane.io', resource: 'controlplanes', namespace: mcpNamespace },
+    { target: 'onboarding', enabled: enableMcpV2 && accessCheckEnabled },
+  );
   const [forbiddenPopoverOpen, setForbiddenPopoverOpen] = useState(false);
   const forbiddenButtonId = `forbidden-btn-${workspaceName}`;
 
@@ -337,6 +362,14 @@ export function ControlPlaneListWorkspaceGridTile({
                   </div>
                 </Popover>
               </>
+            ) : !enableMcpV2 && isMember === null ? (
+              <div className={styles.workspaceToggle}>
+                <BusyIndicator active delay={0} size="S" />
+                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                <Title level="H3" className={styles.workspaceTitle}>
+                  {showDisplayName ? workspaceDisplayName : workspaceName}
+                </Title>
+              </div>
             ) : (
               <button
                 type="button"
@@ -381,13 +414,17 @@ export function ControlPlaneListWorkspaceGridTile({
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                disabled={workspaceMenuDisabled}
+                disabled={!enableMcpV2 && isForbidden}
+                editDisabled={enableMcpV2 && workspaceWriteState === 'denied'}
+                deleteDisabled={enableMcpV2 && workspaceDeleteState === 'denied'}
+                createV2Disabled={createState === 'denied'}
                 showCreateActions={shouldCollapsePanel}
                 onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                 onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
               {!shouldCollapsePanel && (
                 <CreateControlPlaneButton
+                  createV2Disabled={createState === 'denied'}
                   onCreateV1={() => setIsCreateManagedControlPlaneWizardOpen(true)}
                   onCreateV2={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
                 />
@@ -432,6 +469,8 @@ export function ControlPlaneListWorkspaceGridTile({
 
                       {enableMcpV2 && (
                         <Button
+                          disabled={createState === 'denied'}
+                          tooltip={createState === 'denied' ? t('access.noAccessAction') : undefined}
                           className={styles.createButton}
                           icon={'add'}
                           onClick={() => {

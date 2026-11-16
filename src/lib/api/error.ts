@@ -37,9 +37,13 @@ export function isStrictNotFoundError(error?: ErrorLike | APIError | null): bool
   return hasHttpStatus(error, 404);
 }
 
-export function isForbiddenError(error?: ErrorLike | APIError | null): boolean {
-  if (hasHttpStatus(error, 403)) return true;
-  return error?.message?.includes('is forbidden') ?? false;
+export function isForbiddenError(error?: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  if (hasHttpStatus(error as ErrorLike, 403)) return true;
+  if ('statusCode' in error && error.statusCode === 403) return true;
+  if ('status' in error && error.status === 403) return true;
+  const message = 'message' in error && typeof error.message === 'string' ? error.message : '';
+  return message.includes('is forbidden') || /(status code|statuscode)\s*403\b/i.test(message);
 }
 
 /**

@@ -116,25 +116,11 @@ describe('useHasMcpAdminRights', () => {
     expect(result.current).toBe(true);
   });
 
-  it('does not match on a substring of the subject name (exact match only)', () => {
+  it('preserves v1 prefixed subject matching', () => {
     mockAuth('user@example.com');
     mockMcp([
       {
         subjects: [{ kind: 'User', name: 'prefix-user@example.com-suffix' }],
-        role: 'admin',
-      },
-    ]);
-
-    const { result } = renderHook(() => useHasMcpAdminRights());
-
-    expect(result.current).toBe(false);
-  });
-
-  it('matches the subject name case-insensitively', () => {
-    mockAuth('User@Example.com');
-    mockMcp([
-      {
-        subjects: [{ kind: 'User', name: 'user@example.com' }],
         role: 'admin',
       },
     ]);

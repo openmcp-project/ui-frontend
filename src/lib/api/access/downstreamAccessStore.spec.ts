@@ -9,6 +9,7 @@ describe('downstreamAccessStore', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
@@ -78,4 +79,24 @@ describe('downstreamAccessStore', () => {
     setItemSpy.mockRestore();
     getItemSpy.mockRestore();
   });
+
+  it('does not read stale storage after a write failure', () => {
+    rememberDenied('first');
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+    rememberDenied('second');
+    expect(isDenied('second')).toBe(true);
+    clearDenied('first');
+    expect(isDenied('first')).toBe(false);
+  });
+
+  it.each(['null', '[]', '{"p/w/cp/openmcp": {}}', '{"p/w/cp/openmcp": {"at":"invalid"}}'])(
+    'ignores malformed storage %s',
+    (raw) => {
+      sessionStorage.setItem('downstreamAccessDenied', raw);
+      expect(isDenied('p/w/cp/openmcp')).toBe(false);
+      expect(() => rememberDenied('new')).not.toThrow();
+    },
+  );
 });

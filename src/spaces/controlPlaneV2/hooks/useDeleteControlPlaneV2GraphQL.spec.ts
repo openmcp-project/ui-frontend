@@ -71,7 +71,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
     expect(toastShowMock).toHaveBeenCalledWith('ControlPlaneCard.deleteConfirmationDialog');
   });
 
-  it('should show toast with error message on API failure without throwing', async () => {
+  it('shows the error and rethrows so the delete dialog stays open', async () => {
     // ARRANGE
     mutateMock.mockRejectedValue(new Error('API Error'));
 
@@ -81,13 +81,13 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
 
     // ASSERT
     await act(async () => {
-      await expect(deleteManagedControlPlaneV2()).resolves.toBeUndefined();
+      await expect(deleteManagedControlPlaneV2()).rejects.toThrow('API Error');
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('API Error');
   });
 
-  it('should show toast with error message on network failure without throwing', async () => {
+  it('shows network failures and rethrows', async () => {
     // ARRANGE
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
@@ -97,7 +97,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
 
     // ASSERT
     await act(async () => {
-      await expect(deleteManagedControlPlaneV2()).resolves.toBeUndefined();
+      await expect(deleteManagedControlPlaneV2()).rejects.toThrow('Network error');
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('Network error');

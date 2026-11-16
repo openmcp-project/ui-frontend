@@ -86,12 +86,21 @@ export const EditMembers: FC<EditMembersProps> = ({
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState<Member | undefined>(undefined);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [removedSelf, setRemovedSelf] = useState(false);
+  const changeMembers = useCallback(
+    (next: Member[]) => {
+      const isSelf = (m: Member) => m.kind === 'User' && m.name.toLowerCase() === currentUserEmail?.toLowerCase();
+      if (isV2 && editMode && members.some(isSelf) && !next.some(isSelf)) setRemovedSelf(true);
+      onMemberChanged(next);
+    },
+    [currentUserEmail, editMode, isV2, members, onMemberChanged],
+  );
 
   const handleRemoveMember = useCallback(
     (email: string) => {
-      onMemberChanged(members.filter((m) => m.name !== email));
+      changeMembers(members.filter((m) => m.name !== email));
     },
-    [members, onMemberChanged],
+    [members, changeMembers],
   );
 
   const handleOpenMemberFormDialog = useCallback(() => {
@@ -157,9 +166,9 @@ export const EditMembers: FC<EditMembersProps> = ({
       const updatedMembers = Array.from(membersByName.values());
 
       toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
-      onMemberChanged(updatedMembers);
+      changeMembers(updatedMembers);
     },
-    [members, onMemberChanged, t, toast, isV2, accountTypeOptions],
+    [members, changeMembers, t, toast, isV2, accountTypeOptions],
   );
 
   const handleSaveMember = useCallback(
@@ -175,10 +184,10 @@ export const EditMembers: FC<EditMembersProps> = ({
       } else {
         updatedMembers = [...members, normalizedMember];
       }
-      onMemberChanged(updatedMembers);
+      changeMembers(updatedMembers);
       setIsMemberDialogOpen(false);
     },
-    [members, onMemberChanged, memberToEdit, providerName],
+    [members, changeMembers, memberToEdit, providerName],
   );
 
   const computedProjectName = useMemo(
@@ -193,11 +202,11 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   // Group access can't be seen from here, so this is a warning only — never a block.
   const showSelfRemovalWarning = useMemo(() => {
-    if (!editMode || !currentUserEmail) return false;
+    if (!isV2 || !editMode || !removedSelf || !currentUserEmail) return false;
     const email = currentUserEmail.toLowerCase();
     const hasSelfUserEntry = members.some((m) => m.kind?.toLowerCase() === 'user' && m.name?.toLowerCase() === email);
     return !hasSelfUserEntry;
-  }, [editMode, currentUserEmail, members]);
+  }, [isV2, editMode, removedSelf, currentUserEmail, members]);
 
   return (
     <FlexBox direction="Column" gap={8}>

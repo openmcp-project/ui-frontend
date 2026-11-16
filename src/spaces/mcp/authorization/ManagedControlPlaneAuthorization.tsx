@@ -13,12 +13,20 @@ import { downstreamAccessKey, rememberDenied, clearDenied } from '../../../lib/a
 
 export interface ManagedControlPlaneAuthorizationProps {
   children: ReactNode;
+  useAuthorizationCheckV2?: typeof useMcpAuthorizationCheckV2;
 }
 
-export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPlaneAuthorizationProps) => {
+export const ManagedControlPlaneAuthorization = ({
+  children,
+  useAuthorizationCheckV2,
+}: ManagedControlPlaneAuthorizationProps) => {
   const mcp = useMcp();
   if (mcp.isV2) {
-    return <ManagedControlPlaneAuthorizationV2>{children}</ManagedControlPlaneAuthorizationV2>;
+    return (
+      <ManagedControlPlaneAuthorizationV2 useAuthorizationCheckV2={useAuthorizationCheckV2}>
+        {children}
+      </ManagedControlPlaneAuthorizationV2>
+    );
   }
   return <ManagedControlPlaneAuthorizationV1>{children}</ManagedControlPlaneAuthorizationV1>;
 };
@@ -53,7 +61,10 @@ const ManagedControlPlaneAuthorizationV1 = ({ children }: ManagedControlPlaneAut
   return <>{children}</>;
 };
 
-const ManagedControlPlaneAuthorizationV2 = ({ children }: ManagedControlPlaneAuthorizationProps) => {
+const ManagedControlPlaneAuthorizationV2 = ({
+  children,
+  useAuthorizationCheckV2 = useMcpAuthorizationCheckV2,
+}: ManagedControlPlaneAuthorizationProps) => {
   const { t } = useTranslation();
   const onBack = useOnBack();
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -62,7 +73,7 @@ const ManagedControlPlaneAuthorizationV2 = ({ children }: ManagedControlPlaneAut
 
   // No blocking spinner: render children by default (rule of thumb). The Headlamp iframe and the
   // legacy sections handle their own 403s. Recheck on focus so access granted meanwhile unblocks.
-  const { isUnauthorized } = useMcpAuthorizationCheckV2();
+  const { state, isUnauthorized } = useAuthorizationCheckV2();
 
   // Writer for the remembered downstream deny read by ConnectButtonV2. A confirmed deny is
   // remembered; a successful (not-denied) check clears any stale deny for this IdP.
@@ -76,10 +87,10 @@ const ManagedControlPlaneAuthorizationV2 = ({ children }: ManagedControlPlaneAut
     });
     if (isUnauthorized) {
       rememberDenied(key);
-    } else {
+    } else if (state === 'allowed') {
       clearDenied(key);
     }
-  }, [isUnauthorized, projectName, workspaceName, controlPlaneName, idp]);
+  }, [state, isUnauthorized, projectName, workspaceName, controlPlaneName, idp]);
 
   if (isUnauthorized) {
     return (
