@@ -10,4 +10,5 @@ export const Routes = {
 export const SearchParams = {
   View: 'view',
   HeadlampPath: 'headlampPath',
+  Version: 'version',
 } as const;

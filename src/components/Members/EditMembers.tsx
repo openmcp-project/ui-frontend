@@ -102,7 +102,12 @@ export const EditMembers: FC<EditMembersProps> = ({
       workspaceName: cpWorkspace,
       controlPlaneName: cpName,
     });
-    return `#${path}?${SearchParams.HeadlampPath}=${encodeURIComponent('/clusterroles')}`;
+    const params = new URLSearchParams({
+      [SearchParams.Version]: 'v2',
+      [SearchParams.View]: 'open-source',
+      [SearchParams.HeadlampPath]: '/roles',
+    });
+    return `#${path}?${params.toString()}`;
   }, [clusterRolesActive, projectName, workspaceName, controlPlaneName, mcp.project, mcp.workspace, mcp.name]);
   // `existingClusterRoles` passed from above wins (e.g. a precomputed value); otherwise use the
   // lookup, and only once it is 'ready' — an empty array would wrongly flag every role.
