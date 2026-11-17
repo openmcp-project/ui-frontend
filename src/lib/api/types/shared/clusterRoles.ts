@@ -74,17 +74,25 @@ export function formatRoleRef(role: string): string {
   return ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name;
 }
 
+/** Same as formatRoleRef but accepts an already-decoded RoleRef object. */
+export function formatDecodedRoleRef(ref: RoleRef): string {
+  return ref.kind === 'Role' && ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name;
+}
+
 export const CLUSTER_ROLE_NAME_MAX_LENGTH = 253;
 
 // RBAC object names are "path segment names": anything but `/` and `%`, and not `.` / `..`
 // (e.g. `system:aggregate-to-view` is valid). Whitespace is rejected as it is always a typo.
+// YAML flow-collection and anchor characters ([ ] { } * & !) are also rejected: they are either
+// invalid Kubernetes path-segment names or cause YAML string interpolation to produce non-string
+// nodes when a name is embedded in a template literal.
 export function isValidClusterRoleName(name: string): boolean {
   return (
     name.length > 0 &&
     name.length <= CLUSTER_ROLE_NAME_MAX_LENGTH &&
     name !== '.' &&
     name !== '..' &&
-    !/[\s/%]/.test(name)
+    !/[\s/%[\]{}&*!]/.test(name)
   );
 }
 

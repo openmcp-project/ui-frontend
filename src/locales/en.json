@@ -425,7 +425,8 @@
     "errorMultiDoc": "Provide exactly one ClusterRole document.",
     "errorInvalidName": "The role name is not a valid ClusterRole name.",
     "errorRenamed": "The role name cannot be changed. It must stay \"{{name}}\".",
-    "errorParse": "The YAML could not be parsed: {{detail}}"
+    "errorParse": "The YAML could not be parsed: {{detail}}",
+    "uploadReadError": "The file could not be read."
   },
   "IdentityProviders": {
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",

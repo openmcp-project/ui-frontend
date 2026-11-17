@@ -123,7 +123,10 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   };
 
   const isNotFound = (role: string) =>
-    customRolesState === 'ready' && !isNamespacedRole(role) && !availableCustomRoles.includes(role);
+    customRolesState === 'ready' &&
+    !isNamespacedRole(role) &&
+    !role.startsWith('system:') &&
+    !availableCustomRoles.includes(role);
 
   const redundancyNote = (role: StandardRole | 'custom') => {
     const broader = coveredBy(role);

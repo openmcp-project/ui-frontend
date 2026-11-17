@@ -1,7 +1,8 @@
 import { FlexBox, Text } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
-import { MembersAvatarView } from '../List/MembersAvatarView.tsx';
+import { useClusterRoles } from '../../../spaces/controlPlaneV2/hooks/useClusterRoles.ts';
 import { convertRoleBindingsToMembers } from '../../../utils/convertRoleBindingsToMembers.ts';
+import { MembersAvatarView } from '../List/MembersAvatarView.tsx';
 import styles from './McpMembersAvatarView.module.css';
 
 interface Props {
@@ -14,6 +15,12 @@ interface Props {
 export function McpMembersAvatarView({ roleBindings, compact = false, clusterRoles = false }: Props) {
   const members = convertRoleBindingsToMembers(roleBindings);
   const { t } = useTranslation();
+  // When rendering inside a control-plane session context, useClusterRoles resolves to the real
+  // list so missing-role warnings can be shown. Outside a session (e.g. CP card, create wizard)
+  // the hook self-guards and returns state:'unknown', so no request is made.
+  const clusterRolesLookup = useClusterRoles();
+  const existingClusterRoles =
+    clusterRoles && clusterRolesLookup.state === 'ready' ? clusterRolesLookup.all : undefined;
 
   if (compact) {
     return (
@@ -23,6 +30,7 @@ export function McpMembersAvatarView({ roleBindings, compact = false, clusterRol
         source="controlplane-card"
         maxWidth="7rem"
         clusterRoles={clusterRoles}
+        existingClusterRoles={existingClusterRoles}
       />
     );
   }
@@ -37,6 +45,7 @@ export function McpMembersAvatarView({ roleBindings, compact = false, clusterRol
         hideNamespaceColumn
         source="controlplane-detail"
         clusterRoles={clusterRoles}
+        existingClusterRoles={existingClusterRoles}
       />
     </FlexBox>
   );

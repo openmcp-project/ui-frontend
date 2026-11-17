@@ -2,6 +2,7 @@
 // mounting UI5 web components. The dialog lets a user view, create or edit a single ClusterRole
 // from the member dialog; it is not a role-management UI (that is Headlamp's job).
 
+import { stringify } from 'yaml';
 import { parseYamlDocuments, type ParsedResource } from '../../hooks/useYamlApplyResource.ts';
 import { CLUSTER_ROLE_PRESETS, isValidClusterRoleName } from '../../lib/api/types/shared/clusterRoles.ts';
 
@@ -73,14 +74,19 @@ export function isReadOnlyClusterRole(name: string, aggregated: boolean): boolea
 
 /** The commented, valid starter manifest for Create mode. */
 export function clusterRoleTemplate(name: string): string {
-  return `apiVersion: ${CLUSTER_ROLE_API_VERSION}
-kind: ${CLUSTER_ROLE_KIND}
-metadata:
-  name: ${name}
-rules:
-  # Example: read-only access to ConfigMaps in all namespaces
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list", "watch"]
-`;
+  return stringify(
+    {
+      apiVersion: CLUSTER_ROLE_API_VERSION,
+      kind: CLUSTER_ROLE_KIND,
+      metadata: { name },
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['configmaps'],
+          verbs: ['get', 'list', 'watch'],
+        },
+      ],
+    },
+    { lineWidth: 0 },
+  );
 }

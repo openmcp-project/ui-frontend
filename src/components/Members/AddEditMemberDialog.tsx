@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
+import { useToast } from '../../context/ToastContext.tsx';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import type { ClusterRoleDialogMode } from './ClusterRoleDialog.tsx';
 import { CustomRolesState, MemberAccessSelect } from './MemberAccessSelect.tsx';
@@ -79,6 +80,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     [allowedAccountTypes],
   );
   const effectiveRoleOptions = useMemo((): RadioButtonsSelectOption[] => {
+    if (clusterRoles) return [];
     const base = memberRolesOptions;
     if (!memberToEdit) return base;
     const editedRole = memberToEdit.roles?.[0];
@@ -88,9 +90,10 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     // pre-fills correctly instead of showing a blank selection.
     const existing = MemberRolesDetailed[editedRole];
     return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
-  }, [memberToEdit]);
+  }, [clusterRoles, memberToEdit]);
   const effectiveDefaultRole = MemberRoles.view;
   const { t } = useTranslation();
+  const toast = useToast();
   const isEdit = !!memberToEdit;
   const { serviceAccoutsGuide } = useLink();
   const withTestId = (testId: string) => (testIdPrefix ? `${testIdPrefix}-${testId}` : testId);
@@ -179,7 +182,10 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
-    file.text().then((content) => setRoleDialog({ mode: 'create', name: '', yaml: content }));
+    file
+      .text()
+      .then((content) => setRoleDialog({ mode: 'create', name: '', yaml: content }))
+      .catch(() => toast.show(t('ClusterRoleDialog.uploadReadError')));
   };
 
   const handleRoleApplied = (appliedName: string) => {

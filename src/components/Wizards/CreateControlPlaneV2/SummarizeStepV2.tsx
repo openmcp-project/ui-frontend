@@ -11,6 +11,7 @@ import {
   resolveServiceMutationAction,
   ServiceMutationAction,
 } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
+import { formatDecodedRoleRef } from '../../../lib/api/types/shared/clusterRoles.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
@@ -114,9 +115,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   const members = rawInput.roleBindings.flatMap((rb) =>
     rb.subjects.map((subject) => ({
       ...subject,
-      role: rb.roleRefs
-        .map((ref) => (ref.kind === 'Role' && ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name))
-        .join(', '),
+      role: rb.roleRefs.map(formatDecodedRoleRef).join(', '),
     })),
   );
 
@@ -164,9 +163,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
             const providerSubjects = provider.roleBindings.flatMap((rb) =>
               rb.subjects.map((subject) => ({
                 ...subject,
-                role: rb.roleRefs
-                  .map((ref) => (ref.kind === 'Role' && ref.namespace ? `${ref.namespace}/${ref.name}` : ref.name))
-                  .join(', '),
+                role: rb.roleRefs.map(formatDecodedRoleRef).join(', '),
               })),
             );
             if (providerSubjects.length === 0) return null;
