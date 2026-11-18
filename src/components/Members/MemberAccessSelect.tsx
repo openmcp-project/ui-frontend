@@ -98,6 +98,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
     onChange(roles.includes(role) ? roles.filter((r) => r !== role) : [...roles, role]);
 
   const [hasInvalidInput, setHasInvalidInput] = useState(false);
+  const [customPanelCollapsed, setCustomPanelCollapsed] = useState(() => customSelected.length === 0);
 
   // Enter, blur or picking a suggestion commits the typed text. Any valid name is accepted — the
   // role does not have to exist.
@@ -214,9 +215,10 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
 
       <Panel
         className={styles.accessGroup}
-        headerText={t('MemberAccess.custom.title')}
-        collapsed
+        collapsed={customPanelCollapsed}
         data-testid={withTestId('custom-roles-panel')}
+        headerText={t('MemberAccess.custom.title')}
+        onToggle={() => setCustomPanelCollapsed((prev) => !prev)}
       >
         <FlexBox direction="Column" gap={8} className={styles.accessCustom}>
           {customSelected.length > 0 && redundancyNote('custom')}
