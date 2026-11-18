@@ -1,6 +1,7 @@
 import fastifyPlugin from 'fastify-plugin';
 import { metrics } from '@opentelemetry/api';
 import { FastifyInstance } from 'fastify';
+import { SESSION_COOKIE_NAME } from '../encrypted-session.js';
 
 async function openTelemetryPlugin(fastify: FastifyInstance) {
   // Get the global meter
@@ -42,8 +43,13 @@ async function openTelemetryPlugin(fastify: FastifyInstance) {
       'http.status_code': statusCode,
     };
 
-    // Add user context if available
-    if (request.encryptedSession) {
+    // Add user context if available.
+    // Only read the session when the client actually sent a session cookie:
+    // request.encryptedSession is a getter that lazily creates a store (generating
+    // an encryption key and setting cookies) on first access, so touching it on
+    // cookieless requests (health probes, first visits) does needless work and
+    // logs "No encrypted store found" on every response.
+    if (request.cookies?.[SESSION_COOKIE_NAME]) {
       const userId = request.encryptedSession.get('user_id');
       if (userId) {
         attributes['user.id'] = userId;
