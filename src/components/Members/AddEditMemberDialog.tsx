@@ -4,7 +4,7 @@ import { Activity, FC, lazy, Suspense, useEffect, useMemo, useRef, useState } fr
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { DEFAULT_CLUSTER_ROLE, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
+import { DEFAULT_CLUSTER_ROLE, isPresetClusterRole, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
 import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { useToast } from '../../context/ToastContext.tsx';
@@ -293,6 +293,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                 roles={roles}
                 availableCustomRoles={availableCustomRoles}
                 customRolesState={customRolesState}
+                defaultCustomPanelCollapsed={!(memberToEdit?.roles ?? []).some((r) => !isPresetClusterRole(r))}
                 platformDocsUrl={platformDocsUrl}
                 rolesViewUrl={rolesViewUrl}
                 errorMessage={errors.roles?.message}

@@ -61,6 +61,9 @@ export interface MemberAccessSelectProps {
   onUploadRole?: () => void;
   errorMessage?: string;
   testIdPrefix?: string;
+  /** When true the custom-roles panel starts collapsed; when false it starts expanded. Defaults to
+   * collapsed when no custom roles are present in `roles` at mount time. */
+  defaultCustomPanelCollapsed?: boolean;
 }
 
 export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
@@ -75,6 +78,7 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
   onUploadRole,
   errorMessage,
   testIdPrefix,
+  defaultCustomPanelCollapsed,
 }) => {
   const { t } = useTranslation();
   const withTestId = (testId: string) => (testIdPrefix ? `${testIdPrefix}-${testId}` : testId);
@@ -98,7 +102,9 @@ export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
     onChange(roles.includes(role) ? roles.filter((r) => r !== role) : [...roles, role]);
 
   const [hasInvalidInput, setHasInvalidInput] = useState(false);
-  const [customPanelCollapsed, setCustomPanelCollapsed] = useState(() => customSelected.length === 0);
+  const [customPanelCollapsed, setCustomPanelCollapsed] = useState(
+    () => defaultCustomPanelCollapsed ?? customSelected.length === 0,
+  );
 
   // Enter, blur or picking a suggestion commits the typed text. Any valid name is accepted — the
   // role does not have to exist.

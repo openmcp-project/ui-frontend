@@ -4,6 +4,7 @@ import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/employee';
 import '@ui5/webcomponents-icons/dist/group';
 import '@ui5/webcomponents-icons/dist/machine';
+import '@ui5/webcomponents-icons/dist/role';
 import '@ui5/webcomponents-icons/dist/shield';
 import '@ui5/webcomponents-icons/dist/show';
 import { CheckBox, FlexBox, Icon, ObjectStatus, RadioButton, Text } from '@ui5/webcomponents-react';
@@ -63,8 +64,8 @@ export const RoleBadge: FC<RoleBadgeProps> = ({ role, clusterRole = false, missi
       </ObjectStatus>
     );
   }
-  // Only the built-in roles carry an icon; custom roles are shown by name alone.
-  const icon = missing ? 'alert' : clusterRoleIcon(role);
+  // Built-in roles carry a semantic icon; custom roles use a generic 'role' icon; missing roles use 'alert'.
+  const icon = missing ? 'alert' : (clusterRoleIcon(role) ?? 'role');
   return (
     <ObjectStatus
       icon={icon ? <Icon name={icon} /> : undefined}
