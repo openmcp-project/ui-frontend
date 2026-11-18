@@ -4,6 +4,8 @@ import { oidcIssuerUrlSchema, oidcProviderNameRegex } from '../../../lib/api/val
 const RoleRefSchema = z.object({
   kind: z.enum(['ClusterRole', 'Role']),
   name: z.string().min(1),
+  // Required by the CRD for kind 'Role', forbidden for 'ClusterRole'.
+  namespace: z.string().optional(),
 });
 
 const SubjectSchema = z.object({

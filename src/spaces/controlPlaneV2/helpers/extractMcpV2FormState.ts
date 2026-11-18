@@ -1,4 +1,5 @@
-import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
+import { encodeRoleRef, uniqueRoles } from '../../../lib/api/types/shared/clusterRoles.ts';
+import { Member } from '../../../lib/api/types/shared/members.ts';
 import { ManagedControlPlaneV2 } from '../../onboarding/types/ControlPlane.ts';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
@@ -9,36 +10,49 @@ export interface McpV2FormState {
   extraProviders: ExtraProviderMetadata[];
 }
 
-function normalizeMcpV2Role(roleInput?: string | null): string {
-  const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-  if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
-    return MCP_V2_VIEWER_ROLE;
-  }
-  return MCP_V2_DEFAULT_ROLE;
-}
-
 function normalizeMemberKind(kindInput?: string | null): 'User' | 'Group' {
   const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
   return normalizedKind === 'group' ? 'Group' : 'User';
 }
 
-export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2FormState {
-  const defaultRoleBindings = (initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings ?? []).filter(Boolean);
+type RoleBindingSource = {
+  roleRefs?: ({ kind?: string | null; name?: string | null; namespace?: string | null } | null)[] | null;
+  subjects?: ({ kind?: string | null; name?: string | null } | null)[] | null;
+} | null;
 
-  const defaultMembers: Member[] = defaultRoleBindings
-    .flatMap((rb) => {
-      const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
-      return (rb?.subjects ?? []).filter(Boolean).map((s) => {
-        const kind = normalizeMemberKind(s?.kind);
-        const rawName = s?.name ?? '';
-        return {
-          kind,
-          name: kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName,
-          roles: [roleName],
-        };
-      });
-    })
-    .filter((m) => !!m.name);
+// One member per (kind, name) carrying *every* role it is bound to across all of the provider's
+// bindings — nothing is normalized or dropped, so saving an unchanged form writes equivalent bindings.
+function extractProviderMembers(
+  roleBindings: RoleBindingSource[] | null | undefined,
+  toName: (kind: 'User' | 'Group', rawName: string) => string,
+  provider?: string,
+): Member[] {
+  const membersByKey = new Map<string, Member>();
+  for (const rb of roleBindings ?? []) {
+    if (!rb) continue;
+    const roles = uniqueRoles((rb.roleRefs ?? []).map((ref) => (ref ? encodeRoleRef(ref) : undefined)));
+    for (const s of rb.subjects ?? []) {
+      if (!s) continue;
+      const kind = normalizeMemberKind(s.kind);
+      const name = toName(kind, s.name ?? '');
+      if (!name) continue;
+      const key = `${kind}\n${name}`;
+      const existing = membersByKey.get(key);
+      if (existing) {
+        existing.roles = uniqueRoles([...existing.roles, ...roles]);
+      } else {
+        membersByKey.set(key, { kind, name, roles: [...roles], ...(provider ? { provider } : {}) });
+      }
+    }
+  }
+  return Array.from(membersByKey.values());
+}
+
+export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2FormState {
+  const defaultMembers = extractProviderMembers(
+    initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings,
+    (kind, rawName) => (kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName),
+  );
 
   const rawExtraProviders = (initialData.spec?.iam?.oidc?.extraProviders ?? [])
     .filter(Boolean)
@@ -55,24 +69,9 @@ export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2
     extraScopes: (p!.extraScopes ?? []).filter((s): s is string => !!s),
   }));
 
-  const extraMembers: Member[] = rawExtraProviders
-    .flatMap((p) => {
-      const providerName = p!.name!;
-      const roleBindings = (p!.roleBindings ?? []).filter(Boolean);
-      return roleBindings.flatMap((rb) => {
-        const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
-        return (rb?.subjects ?? []).filter(Boolean).map((s) => {
-          const kind = normalizeMemberKind(s?.kind);
-          return {
-            kind,
-            name: s?.name ?? '',
-            roles: [roleName],
-            provider: providerName,
-          };
-        });
-      });
-    })
-    .filter((m) => !!m.name);
+  const extraMembers = rawExtraProviders.flatMap((p) =>
+    extractProviderMembers(p!.roleBindings, (_kind, rawName) => rawName, p!.name!),
+  );
 
   return {
     members: [...defaultMembers, ...extraMembers],

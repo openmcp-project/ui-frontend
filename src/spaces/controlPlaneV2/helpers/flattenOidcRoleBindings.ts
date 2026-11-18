@@ -1,9 +1,10 @@
+import { encodeRoleRef } from '../../../lib/api/types/shared/clusterRoles.ts';
 import { UNNAMED_PROVIDER_PREFIX } from '../../../lib/api/types/shared/members.ts';
 
 export interface OidcProviderRoleBindingsSource {
   roleBindings?:
     | ({
-        roleRefs?: ({ name?: string | null } | null)[] | null;
+        roleRefs?: ({ kind?: string | null; name?: string | null; namespace?: string | null } | null)[] | null;
         subjects?: ({ kind?: string | null; name?: string | null } | null)[] | null;
       } | null)[]
     | null;
@@ -15,6 +16,7 @@ export interface OidcSource {
 }
 
 export interface MemberRoleBinding {
+  // Encoded role ref (see clusterRoles.ts): a ClusterRole name, or `Role/<namespace>/<name>`.
   role: string;
   subjects: { kind: string; name: string }[];
   // extraProviders[] entry name; undefined = default provider. Never undefined for an extra
@@ -38,7 +40,10 @@ export function flattenOidcRoleBindings(oidc?: OidcSource | null): MemberRoleBin
       const subjects = (binding.subjects ?? []).flatMap((s) =>
         s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [],
       );
-      return (binding.roleRefs ?? []).flatMap((ref) => (ref?.name ? [{ role: ref.name, subjects, provider }] : []));
+      return (binding.roleRefs ?? []).flatMap((ref) => {
+        const role = ref ? encodeRoleRef(ref) : undefined;
+        return role ? [{ role, subjects, provider }] : [];
+      });
     }),
   );
 }

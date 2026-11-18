@@ -26,6 +26,7 @@ import { stringify } from 'yaml';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { mapMemberRoleToClusterRole } from '../../../lib/api/types/shared/clusterRoles.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -53,10 +54,7 @@ import { useKroQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useKr
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
 import { useMetricsOperatorQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery.ts';
-import {
-  buildRoleBindingsForProviderMembers,
-  normalizeMcpV2Role,
-} from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildRoleBindingsForProviderMembers } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
 import {
   buildMcpV2GraphQLInput,
   stripEmptyAnnotations,
@@ -830,8 +828,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isSubmitting,
   ]);
 
-  const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
-
   const setMembers = useCallback(
     (members: Member[]) => {
       setValue('members', members, { shouldValidate: true });
@@ -953,7 +949,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const mappedFromTemplate: Member[] = templateMembers
       .map((m) => ({
         name: stripIdpPrefix(String(m?.name ?? ''), idpPrefix),
-        roles: [normalizeMemberRole(m?.role)],
+        // Templates use the v1 role vocabulary (admin / view).
+        roles: [mapMemberRoleToClusterRole(m?.role)],
         kind: normalizeMemberKind(m?.kind),
       }))
       .filter((m) => !!m.name);
@@ -966,14 +963,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
     const normalizedMembers = Array.from(byName.values()).map((m) => ({
       ...m,
-      roles: (m.roles ?? []).length
-        ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
-        : [MCP_V2_DEFAULT_ROLE],
+      // Roles the user already picked are RBAC role refs and must be kept as they are.
+      roles: (m.roles ?? []).length ? m.roles : [MCP_V2_DEFAULT_ROLE],
     }));
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
-  }, [selectedStep, selectedTemplate, getValues, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
+  }, [selectedStep, selectedTemplate, getValues, setValue, user?.email, normalizeMemberKind]);
 
   // Template application for components is handled inside the hook
 
@@ -1094,6 +1090,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
+              controlPlaneName={isEditMode ? name : undefined}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
             />

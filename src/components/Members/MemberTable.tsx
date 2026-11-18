@@ -1,4 +1,4 @@
-import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
+import '@ui5/webcomponents-icons/dist/alert';
 import '@ui5/webcomponents-icons/dist/badge';
 import '@ui5/webcomponents-icons/dist/search';
 import '@ui5/webcomponents-icons/dist/shield';
@@ -10,30 +10,27 @@ import {
   Icon,
   Input,
   InputDomRef,
-  ObjectStatus,
+  MessageStrip,
   Text,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  isUnnamedProvider,
-  MCP_V2_DEFAULT_ROLE,
-  Member,
-  memberRolesOptions,
-  MemberRoles,
-  MemberRolesDetailed,
-  mcpV2RoleOptions,
-} from '../../lib/api/types/shared/members';
+import '@ui5/webcomponents-icons/dist/edit';
+import { isNamespacedRole, formatRoleRef, uniqueRoles } from '../../lib/api/types/shared/clusterRoles.ts';
+import { isUnnamedProvider, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
+import { AccountTypeLabel, RoleBadge } from './MemberBadges.tsx';
 import styles from './MemberTable.module.css';
 
 type MemberTableRow = {
   email: string;
   role: string;
   roleValue: string;
+  // clusterRoles mode: every role the member is bound to (encoded role refs).
+  roleValues: string[];
   kind: string;
   namespace: string;
   _member: Member;
@@ -46,31 +43,25 @@ type MemberTableProps = {
   isValidationError?: boolean;
   requireAtLeastOneMember: boolean;
   hideNamespaceColumn?: boolean;
+  // ControlPlane (v2) members: `roles` are Kubernetes RBAC role refs (possibly several per member),
+  // shown by their real names instead of the project/workspace role labels.
+  clusterRoles?: boolean;
+  // clusterRoles mode: names of the ClusterRoles that exist in the control plane, once the (async)
+  // lookup has finished. `undefined` = not checked (yet) — nothing is flagged. A binding to a role
+  // that does not exist is accepted by the platform but grants nothing.
+  existingClusterRoles?: string[];
 };
 
-// Icon per role value, reusing the same options arrays the role-picker dropdowns use — one
-// source of truth instead of a badge-only copy that could drift from them.
-const ROLE_ICON_BY_VALUE: Record<string, string> = Object.fromEntries(
-  [...memberRolesOptions, ...mcpV2RoleOptions].map(({ value, icon }) => [value, icon ?? 'show']),
-);
-
-// Badge severity has no other owner in the codebase — it's purely a table presentation choice.
-const ROLE_STATE_BY_VALUE: Record<string, ValueState> = {
-  [MemberRoles.admin]: ValueState.Critical,
-  [MCP_V2_DEFAULT_ROLE]: ValueState.Negative,
-};
-
-const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
-  icon: ROLE_ICON_BY_VALUE[roleValue] ?? 'show',
-  state: ROLE_STATE_BY_VALUE[roleValue] ?? ValueState.None,
-});
-
-const toRow = (m: Member): MemberTableRow => {
+const toRow = (m: Member, clusterRoles: boolean): MemberTableRow => {
   const roleValue = m.roles?.[0] ?? '';
+  const roleValues = uniqueRoles(m.roles ?? []);
   return {
     email: m.name,
-    role: MemberRolesDetailed[roleValue]?.displayValue ?? m.roles?.toString(),
+    role: clusterRoles
+      ? roleValues.map(formatRoleRef).join(', ')
+      : (MemberRolesDetailed[roleValue]?.displayValue ?? m.roles?.toString()),
     roleValue,
+    roleValues,
     kind: m.kind,
     namespace: m.namespace ?? '',
     _member: m,
@@ -108,9 +99,22 @@ export const MemberTable: FC<MemberTableProps> = ({
   isValidationError = false,
   requireAtLeastOneMember,
   hideNamespaceColumn = false,
+  clusterRoles = false,
+  existingClusterRoles,
 }) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+
+  // Only ClusterRoles can be verified; namespaced Roles are left alone.
+  const isMissingRole = useCallback(
+    (role: string) =>
+      clusterRoles && !!existingClusterRoles && !isNamespacedRole(role) && !existingClusterRoles.includes(role),
+    [clusterRoles, existingClusterRoles],
+  );
+  const missingRoles = useMemo(
+    () => uniqueRoles(members.flatMap((m) => m.roles ?? [])).filter(isMissingRole),
+    [members, isMissingRole],
+  );
 
   const hasNamespaceData = useMemo(() => members.some((m) => !!m.namespace), [members]);
   // Based on the unfiltered member set — otherwise searching down to a single remaining
@@ -127,28 +131,30 @@ export const MemberTable: FC<MemberTableProps> = ({
       {
         Header: t('MemberTable.columnTypeHeader'),
         accessor: 'kind',
-        width: 78,
+        // Plain icon + text; 'Service Account' needs more room than 'User' / 'Group'.
+        width: members.some((m) => m.kind === 'ServiceAccount') ? 150 : 90,
         Cell: (instance) => {
           const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
-          return (
-            <ObjectStatus icon={<Icon name={kind?.icon ?? 'employee'} />} inverted>
-              {kind?.label}
-            </ObjectStatus>
-          );
+          return <AccountTypeLabel kind={instance.cell.row.original.kind} label={kind?.label} />;
         },
       },
       {
         Header: t('MemberTable.columnRoleHeader'),
         accessor: 'role',
-        width: 125,
+        ...(clusterRoles ? { minWidth: 160 } : { width: 125 }),
         Cell: (instance) => {
           const row = instance.cell.row.original as MemberTableRow;
-          const meta = roleMeta(row.roleValue);
-          return (
-            <ObjectStatus state={meta.state} icon={<Icon name={meta.icon} />} inverted>
-              {row.role}
-            </ObjectStatus>
-          );
+          if (clusterRoles) {
+            return (
+              <FlexBox gap="0.25rem" title={row.role}>
+                {row.roleValues.map((role) => (
+                  <RoleBadge key={role} role={role} missing={isMissingRole(role)} clusterRole />
+                ))}
+              </FlexBox>
+            );
+          }
+
+          return <RoleBadge role={row.roleValue} />;
         },
       },
     ];
@@ -193,7 +199,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     }
 
     return cols;
-  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember]);
+  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember, clusterRoles, isMissingRole, members]);
 
   const providerLabel = useCallback(
     (provider?: string): string => {
@@ -215,7 +221,7 @@ export const MemberTable: FC<MemberTableProps> = ({
 
     const groups = new Map<string | undefined, MemberTableRow[]>();
     for (const m of members) {
-      const row = toRow(m);
+      const row = toRow(m, clusterRoles);
       if (!matchesQuery(row)) continue;
       if (!groups.has(m.provider)) groups.set(m.provider, []);
       groups.get(m.provider)!.push(row);
@@ -225,7 +231,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       groups.set(undefined, []);
     }
     return [...groups.entries()].map(([provider, rows]) => ({ provider, rows }));
-  }, [members, search, providerLabel]);
+  }, [members, search, providerLabel, clusterRoles]);
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (
@@ -265,6 +271,19 @@ export const MemberTable: FC<MemberTableProps> = ({
           />
         </FlexBox>
       ))}
+      {missingRoles.length > 0 && (
+        <MessageStrip
+          className={styles.missingRoles}
+          design="Information"
+          data-testid="missing-roles-warning"
+          hideCloseButton
+        >
+          {t('MemberAccess.missing.summary', {
+            count: missingRoles.length,
+            roles: missingRoles.map(formatRoleRef).join(', '),
+          })}
+        </MessageStrip>
+      )}
     </FlexBox>
   );
 };
