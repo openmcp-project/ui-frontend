@@ -5,3 +5,7 @@
 .group:not(:last-child) {
   margin-bottom: 2rem;
 }
+
+.missingRoles {
+  margin-top: 0.5rem;
+}

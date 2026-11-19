@@ -197,6 +197,7 @@ function ControlPlaneInfoPopover({
     mcpCreatedBy,
     egressIp,
     roleBindings,
+    existingClusterRoles,
     kubeconfig,
     onEditMcp,
   } = useShellBarMcpActions();
@@ -331,7 +332,13 @@ function ControlPlaneInfoPopover({
             <Label>
               {t('common.members')} ({members.length})
             </Label>
-            <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-detail" />
+            <MembersAvatarView
+              members={members}
+              hideNamespaceColumn
+              source="controlplane-detail"
+              clusterRoles={resourceType === 'controlplanes'}
+              existingClusterRoles={resourceType === 'controlplanes' ? existingClusterRoles : undefined}
+            />
           </div>
         )}
 

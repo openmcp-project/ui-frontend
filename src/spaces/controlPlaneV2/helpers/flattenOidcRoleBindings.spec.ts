@@ -108,4 +108,21 @@ describe('flattenOidcRoleBindings', () => {
     });
     expect(result).toEqual([]);
   });
+
+  it('encodes namespaced Role refs so they are not mistaken for a ClusterRole of the same name', () => {
+    const result = flattenOidcRoleBindings({
+      defaultProvider: {
+        roleBindings: [
+          {
+            roleRefs: [
+              { kind: 'ClusterRole', name: 'view' },
+              { kind: 'Role', name: 'view', namespace: 'team-a' },
+            ],
+            subjects: [{ kind: 'User', name: 'alice@example.com' }],
+          },
+        ],
+      },
+    });
+    expect(result.map((binding) => binding.role)).toEqual(['view', 'Role/team-a/view']);
+  });
 });
