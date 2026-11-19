@@ -12,6 +12,14 @@ TimeAgo.addDefaultLocale(en);
 const frontendConfig = {
   documentationBaseUrl: 'https://example.com',
   githubBaseUrl: 'https://github.com',
+  feedbackUrl: null,
+  branding: {
+    appName: 'Control Plane UI',
+    portalName: 'the portal',
+    logo: null,
+    primaryColor: null,
+    favicon: null,
+  },
   featureToggles: {
     markMcpV1asDeprecated: false,
     enableMcpV2: true,

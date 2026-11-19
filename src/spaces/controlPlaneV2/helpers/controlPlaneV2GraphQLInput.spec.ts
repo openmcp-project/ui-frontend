@@ -22,6 +22,25 @@ describe('buildMcpV2GraphQLInput', () => {
     expect(result.metadata).toEqual({ name: 'my-mcp', namespace: 'project-x--ws-y' });
   });
 
+  it('writes the namespace of a namespaced Role ref and never sets one on a ClusterRole ref', () => {
+    const result = buildMcpV2GraphQLInput({
+      ...baseInput,
+      roleBindings: [
+        {
+          roleRefs: [
+            { kind: 'ClusterRole', name: 'view', namespace: 'ignored' },
+            { kind: 'Role', name: 'deployer', namespace: 'team-a' },
+          ],
+          subjects: [{ kind: 'User', name: 'alice' }],
+        },
+      ],
+    });
+    expect(result.spec?.iam?.oidc?.defaultProvider?.roleBindings?.[0]?.roleRefs).toEqual([
+      { kind: 'ClusterRole', name: 'view' },
+      { kind: 'Role', name: 'deployer', namespace: 'team-a' },
+    ]);
+  });
+
   it('builds defaultProvider roleBindings with subject names trimmed and no apiGroup set', () => {
     const result = buildMcpV2GraphQLInput({
       ...baseInput,
@@ -170,5 +189,17 @@ describe('buildMcpV2GraphQLInput', () => {
     expect(result.metadata?.annotations).toEqual({
       'meta.orchestrate.cloud.sap/landscape': '',
     });
+  });
+
+  it('writes the static egress IP enable annotation when opted in', () => {
+    const result = buildMcpV2GraphQLInput({ ...baseInput, staticEgressIp: true });
+    expect(result.metadata?.annotations).toEqual({
+      'egress-ip.platform.open-control-plane.io/enabled': 'true',
+    });
+  });
+
+  it('omits the static egress IP annotation when not opted in', () => {
+    const result = buildMcpV2GraphQLInput({ ...baseInput, staticEgressIp: false });
+    expect(result.metadata).not.toHaveProperty('annotations');
   });
 });

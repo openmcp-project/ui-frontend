@@ -10,6 +10,7 @@ import {
   nextIndexAfterRemove,
   parseYamlDocuments,
   resourceIdentity,
+  resolveCpResourcePlural,
   supportsOnboardingDryRun,
   validateYamlFile,
 } from './useYamlApplyResource';
@@ -322,6 +323,92 @@ describe('queue helpers', () => {
     expect(nextIndexAfterRemove(1, 1, 4)).toBe(1);
     // removing the current last item clamps to the new last index
     expect(nextIndexAfterRemove(3, 3, 4)).toBe(2);
+  });
+});
+
+describe('Control Plane resource discovery', () => {
+  const apiConfig: ApiConfig = {
+    mcpConfig: { projectName: 'project', workspaceName: 'workspace', controlPlaneName: 'cp' },
+  };
+
+  it.each([
+    ['v1', 'Secret', 'secrets', '/api/v1'],
+    ['v1', 'ConfigMap', 'configmaps', '/api/v1'],
+    ['v1', 'Namespace', 'namespaces', '/api/v1'],
+    ['apps/v1', 'Deployment', 'deployments', '/apis/apps/v1'],
+    ['example.io/v1alpha1', 'Person', 'people', '/apis/example.io/v1alpha1'],
+  ])('resolves %s %s through API discovery without a CRD lookup', async (apiVersion, kind, name, path) => {
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({ resources: [{ kind, name }] });
+    const resource: ParsedResource = { apiVersion, kind, metadata: { name: 'test' } };
+
+    await expect(resolveCpResourcePlural(resource, apiConfig)).resolves.toBe(name);
+    expect(fetchApiServerJson).toHaveBeenLastCalledWith(path, apiConfig);
+  });
+
+  it('ignores subresources even when listed before their parent with the same kind', async () => {
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({
+      resources: [
+        { kind: 'Deployment', name: 'deployments/status' },
+        { kind: 'Deployment', name: 'deployments' },
+      ],
+    });
+    const resource: ParsedResource = { apiVersion: 'apps/v1', kind: 'Deployment', metadata: { name: 'test' } };
+
+    await expect(resolveCpResourcePlural(resource, apiConfig)).resolves.toBe('deployments');
+  });
+
+  it('resolves identically named kinds separately for each group and version', async () => {
+    const resource: ParsedResource = { apiVersion: 'first.io/v1', kind: 'Entry', metadata: { name: 'test' } };
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({ resources: [{ kind: 'Entry', name: 'entries' }] });
+    await expect(resolveCpResourcePlural(resource, apiConfig)).resolves.toBe('entries');
+    expect(fetchApiServerJson).toHaveBeenLastCalledWith('/apis/first.io/v1', apiConfig);
+
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({ resources: [{ kind: 'Entry', name: 'customentries' }] });
+    await expect(resolveCpResourcePlural({ ...resource, apiVersion: 'second.io/v1beta1' }, apiConfig)).resolves.toBe(
+      'customentries',
+    );
+    expect(fetchApiServerJson).toHaveBeenLastCalledWith('/apis/second.io/v1beta1', apiConfig);
+  });
+
+  it('returns no match when the kind is absent from discovery', async () => {
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({ resources: [{ kind: 'ConfigMap', name: 'configmaps' }] });
+    const resource: ParsedResource = { apiVersion: 'v1', kind: 'Unknown', metadata: { name: 'test' } };
+
+    await expect(resolveCpResourcePlural(resource, apiConfig)).resolves.toBe('');
+  });
+
+  it.each([403, 404, 500])('propagates a discovery HTTP %s instead of reporting an unknown kind', async (status) => {
+    const error = new APIError('discovery failed', status);
+    vi.mocked(fetchApiServerJson).mockRejectedValueOnce(error);
+    const resource: ParsedResource = { apiVersion: 'v1', kind: 'Secret', metadata: { name: 'test' } };
+
+    await expect(resolveCpResourcePlural(resource, apiConfig)).rejects.toBe(error);
+  });
+
+  it('checks, dry-runs and applies a discovered Secret at the core API endpoint', async () => {
+    const resource: ParsedResource = {
+      apiVersion: 'v1',
+      kind: 'Secret',
+      metadata: { name: 'test', namespace: 'ns' },
+      data: { token: 'dGVzdA==' },
+    };
+    vi.mocked(fetchApiServerJson).mockResolvedValueOnce({ resources: [{ kind: 'Secret', name: 'secrets' }] });
+    const plural = await resolveCpResourcePlural(resource, apiConfig);
+
+    await expect(checkCpResourceExists(resource, plural, apiConfig)).resolves.toBe(true);
+    expect(fetchApiServerJson).toHaveBeenLastCalledWith('/api/v1/namespaces/ns/secrets/test', apiConfig);
+
+    for (const dryRun of [true, false]) {
+      await applyCpResource(resource, plural, apiConfig, dryRun);
+      expect(fetchApiServerJson).toHaveBeenLastCalledWith(
+        `/api/v1/namespaces/ns/secrets/test?fieldManager=openmcp-ui&force=true${dryRun ? '&dryRun=All' : ''}`,
+        apiConfig,
+        undefined,
+        'PATCH',
+        expect.stringContaining('token: dGVzdA=='),
+        'application/apply-patch+yaml',
+      );
+    }
   });
 });
 

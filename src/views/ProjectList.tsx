@@ -7,8 +7,9 @@ import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackH
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 
 import { Routes } from '../Routes.ts';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
 import { useRememberedProject } from '../hooks/useRememberedProject.ts';
-const LEARN_MORE_URL = 'https://open-control-plane.io/users/concepts/projects-and-workspaces/';
+import { useLink } from '../lib/shared/useLink.ts';
 
 export default function ProjectsListView() {
   const { t } = useTranslation();
@@ -16,10 +17,13 @@ export default function ProjectsListView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const noRedirect = searchParams.get('noRedirect') === 'true';
   const { rememberedProject } = useRememberedProject();
+  const { projectsGuide } = useLink();
   const projectsListRef = useRef<ProjectsListHandle>(null);
   // Capture noRedirect at mount time so the redirect effect is not re-triggered
   // when the cleanup effect strips the param and causes a re-render with noRedirect=false.
   const suppressRedirect = useRef(noRedirect);
+
+  useDocumentTitle(t('ProjectsListView.title'));
 
   useEffect(() => {
     if (rememberedProject && !suppressRedirect.current) {
@@ -42,7 +46,7 @@ export default function ProjectsListView() {
           subHeader={
             <span>
               {t('ProjectsListView.subHeader')}{' '}
-              <Link href={LEARN_MORE_URL} target="_blank">
+              <Link href={projectsGuide} target="_blank">
                 {t('ProjectsListView.learnMore')}
               </Link>
             </span>

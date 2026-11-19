@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
+import type { EgressIpInfo } from '../lib/egressIp.ts';
 import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
 import type { ServicePhases } from '../components/ControlPlane/controlPlaneHealth.ts';
 
@@ -10,11 +11,20 @@ export interface McpActions {
   roleBindings?: RoleBinding[];
   project?: string;
   workspace?: string;
+  // k8s namespace of the control plane resource (distinct from `workspace`,
+  // which holds the openmcp Workspace name) — used to load its YAML.
+  namespace?: string;
+  resourceType?: 'controlplanes' | 'managedcontrolplanes';
+  // v2 only: ClusterRoles that exist in the control plane, so the ShellBar member popover can mark
+  // roles that do not exist. Computed next to the Headlamp view (inside the control-plane session);
+  // undefined = not checked, nothing is flagged.
+  existingClusterRoles?: string[];
   onEditMcp?: () => void;
-  onOpenYaml?: () => void;
   navigateBack?: () => void;
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
+  // Static Egress IP (v2 only); undefined when the feature is not enabled on the control plane.
+  egressIp?: EgressIpInfo;
   mcpStatus?: {
     status?: string | null;
     phase?: string | null;
@@ -43,7 +53,6 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setActions({
       ...next,
       onEditMcp: next.onEditMcp ? () => next.onEditMcp!() : undefined,
-      onOpenYaml: next.onOpenYaml ? () => next.onOpenYaml!() : undefined,
       navigateBack: next.navigateBack ? () => next.navigateBack!() : undefined,
     });
   }, []);

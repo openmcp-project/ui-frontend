@@ -5,10 +5,12 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/question-mark.js';
 import '@ui5/webcomponents-icons/dist/synchronize.js';
 import '@ui5/webcomponents-icons/dist/add.js';
-import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/arrow-top.js';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import { Button, Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState, useMemo } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ControlPlaneListItem,
@@ -21,6 +23,10 @@ import { ControlPlaneStatusPopoverButton } from '../../ControlPlane/ControlPlane
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { YamlSidePanelWithGraphqlLoader } from '../../Yaml/YamlSidePanelWithGraphqlLoader.tsx';
+import { useSplitter } from '../../Splitter/SplitterContext.tsx';
+import { ApiConfigContext } from '../../Shared/k8s';
+import { getControlPlaneV2Service, ServiceKey } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { canConnectToMCP } from '../controlPlanes.ts';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
@@ -28,7 +34,7 @@ import { McpSupportInfoTag } from './McpSupportInfoTag.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { extractSupportInfo, resolveSupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -42,6 +48,8 @@ import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarVi
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
+import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { latestAvailableVersion, getVersionDiff, VersionDiff } from '../../../utils/componentsVersions.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -55,6 +63,8 @@ interface Props {
   controlPlane: ControlPlaneListItem;
   workspace: Workspace;
   projectName: string;
+  /** Nearest ancestor's resolved support info; used when the control plane sets none of its own. */
+  parentSupportInfo?: SupportInfoCandidate;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
   /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
@@ -74,20 +84,40 @@ interface ComponentInfo {
   installed: boolean;
   /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
   phase?: string | null;
+  /** V2 only: identifies the service for the YAML side panel and the edit wizard. */
+  serviceKey?: ServiceKey;
+  /** V2 only: type of version bump available from catalog, or null if up-to-date. */
+  updateDiff?: VersionDiff | null;
 }
+
+/** Maps McpV2Components keys to ManagedService catalog names. */
+const SERVICE_CATALOG_NAME: Record<string, string> = {
+  crossplane: 'crossplane',
+  flux: 'flux',
+  landscaper: 'landscaper',
+  externalSecretsOperator: 'external-secrets-operator',
+  ocm: 'ocm',
+  kro: 'kro',
+};
 
 export const ControlPlaneCard = ({
   controlPlane,
   workspace,
   projectName,
+  parentSupportInfo,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
   v2Components,
   isLoadingV2Components = false,
 }: Props) => {
   const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
+  const { services: catalogServices } = useManagedServicesQuery();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
+  // Service to focus when the V2 edit wizard is opened from a service's YAML panel.
+  const [editV2WizardService, setEditV2WizardService] = useState<ServiceKey | undefined>(undefined);
+  const { openInAsideWithApiConfig } = useSplitter();
+  const apiConfig = useContext(ApiConfigContext);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
     mode: undefined,
@@ -131,6 +161,16 @@ export const ControlPlaneCard = ({
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
+    const getUpdateDiff = (componentKey: string, componentStatus: { version?: string | null } | undefined) => {
+      if (!componentStatus?.version) return null;
+      const catalogName = SERVICE_CATALOG_NAME[componentKey];
+      const catalogVersions = catalogServices.find((s) => s.name === catalogName)?.versions.map((v) => v.version) ?? [];
+      const newerVersion = latestAvailableVersion(componentStatus.version, catalogVersions, {
+        sameMajorOnly: catalogName === 'crossplane',
+      });
+      return newerVersion ? getVersionDiff(componentStatus.version, newerVersion) : null;
+    };
+
     if (isV2) {
       return [
         {
@@ -138,8 +178,17 @@ export const ControlPlaneCard = ({
           logo: LogoCrossplane,
           installed: !!mcpV2Components?.crossplane,
           phase: mcpV2Components?.crossplane?.phase,
+          serviceKey: 'crossplane',
+          updateDiff: getUpdateDiff('crossplane', mcpV2Components?.crossplane),
         },
-        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
+        {
+          name: 'Flux',
+          logo: LogoFlux,
+          installed: !!mcpV2Components?.flux,
+          phase: mcpV2Components?.flux?.phase,
+          serviceKey: 'flux',
+          updateDiff: getUpdateDiff('flux', mcpV2Components?.flux),
+        },
         ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
               {
@@ -147,6 +196,8 @@ export const ControlPlaneCard = ({
                 logo: LogoLandscaper,
                 installed: !!mcpV2Components?.landscaper,
                 phase: mcpV2Components?.landscaper?.phase,
+                serviceKey: 'landscaper' as const,
+                updateDiff: getUpdateDiff('landscaper', mcpV2Components?.landscaper),
               },
             ]
           : []),
@@ -155,9 +206,25 @@ export const ControlPlaneCard = ({
           logo: LogoEso,
           installed: !!mcpV2Components?.externalSecretsOperator,
           phase: mcpV2Components?.externalSecretsOperator?.phase,
+          serviceKey: 'externalSecretsOperator',
+          updateDiff: getUpdateDiff('externalSecretsOperator', mcpV2Components?.externalSecretsOperator),
         },
-        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm, phase: mcpV2Components?.ocm?.phase },
-        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro, phase: mcpV2Components?.kro?.phase },
+        {
+          name: 'OCM',
+          logo: LogoOcm,
+          installed: !!mcpV2Components?.ocm,
+          phase: mcpV2Components?.ocm?.phase,
+          serviceKey: 'ocm',
+          updateDiff: getUpdateDiff('ocm', mcpV2Components?.ocm),
+        },
+        {
+          name: 'KRO',
+          logo: LogoKro,
+          installed: !!mcpV2Components?.kro,
+          phase: mcpV2Components?.kro?.phase,
+          serviceKey: 'kro',
+          updateDiff: getUpdateDiff('kro', mcpV2Components?.kro),
+        },
       ];
     }
     return [
@@ -169,9 +236,37 @@ export const ControlPlaneCard = ({
       { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
       { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
     ];
-  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
+  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard, catalogServices]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
+
+  const openEditV2Wizard = (serviceKey?: ServiceKey) => {
+    setEditV2WizardService(serviceKey);
+    setIsEditV2WizardOpen(true);
+  };
+
+  const openServiceYamlPanel = (serviceKey: ServiceKey) => {
+    const { yamlComponent } = getControlPlaneV2Service(serviceKey);
+    telemetry.track({ category: 'yaml', action: 'viewed', resourceType: yamlComponent });
+    openInAsideWithApiConfig(
+      <YamlSidePanelWithGraphqlLoader
+        component={yamlComponent}
+        mcpName={name}
+        mcpNamespace={namespace}
+        toolbarContent={
+          <Button
+            icon="edit"
+            design="Transparent"
+            data-testid="service-yaml-edit-button"
+            onClick={() => openEditV2Wizard(serviceKey)}
+          >
+            {t('buttons.edit')}
+          </Button>
+        }
+      />,
+      apiConfig,
+    );
+  };
 
   return (
     <>
@@ -191,7 +286,10 @@ export const ControlPlaneCard = ({
               <McpSupportInfoTag
                 namespace={namespace}
                 resourceName={name}
-                supportInfo={extractSupportInfo(controlPlane.metadata.annotations)}
+                resolved={resolveSupportInfo(
+                  extractSupportInfo(controlPlane.metadata.annotations),
+                  parentSupportInfo ? [parentSupportInfo] : [],
+                )}
               />
             )}
             {isV2 ? (
@@ -246,9 +344,12 @@ export const ControlPlaneCard = ({
                         key={component.name}
                         className={styles.componentIcon}
                         title={component.name}
+                        data-testid={`component-icon-${component.name}`}
                         onClick={() => {
-                          if (isV2) {
-                            setIsEditV2WizardOpen(true);
+                          if (isV2 && component.serviceKey) {
+                            openServiceYamlPanel(component.serviceKey);
+                          } else if (isV2) {
+                            openEditV2Wizard();
                           } else {
                             handleIsManagedControlPlaneWizardOpen(true, 'edit');
                           }
@@ -277,6 +378,20 @@ export const ControlPlaneCard = ({
                                     ? 'ControlPlaneCard.serviceReady'
                                     : 'ControlPlaneCard.serviceUnknown',
                             )}
+                            showTooltip
+                          />
+                        )}
+                        {component.updateDiff && lifecycle !== 'installing' && lifecycle !== 'deleting' && (
+                          <Icon
+                            name="arrow-top"
+                            className={
+                              component.updateDiff === 'major'
+                                ? styles.updateBadgeMajor
+                                : component.updateDiff === 'minor'
+                                  ? styles.updateBadgeMinor
+                                  : styles.updateBadgePatch
+                            }
+                            accessibleName={t('ControlPlaneCard.updatesAvailable')}
                             showTooltip
                           />
                         )}
@@ -335,7 +450,10 @@ export const ControlPlaneCard = ({
               <ControlPlaneCardMenuV2
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
+                setIsEditManagedControlPlaneWizardOpen={(open) => {
+                  setEditV2WizardService(undefined);
+                  setIsEditV2WizardOpen(open);
+                }}
                 controlPlaneName={name}
                 mcpNamespace={controlPlane.metadata.namespace}
                 access={controlPlane.status?.access}
@@ -347,7 +465,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} compact />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} clusterRoles={isV2} compact />
           </div>
 
           <div className={styles.footerRight}>
@@ -425,6 +543,8 @@ export const ControlPlaneCard = ({
             setIsOpen={setIsEditV2WizardOpen}
             namespace={namespace}
             resourceName={name}
+            initialSection={editV2WizardService ? 'componentSelection' : undefined}
+            initialService={editV2WizardService}
           />
         </div>
       )}

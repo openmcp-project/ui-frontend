@@ -215,7 +215,10 @@ export function CrossplaneInstallDialog({
   const yamlPreview = useMemo(() => {
     const selectedProviders = providerStates
       .filter((p) => p.isSelected)
-      .map(({ name, selectedVersion }) => ({ name, version: selectedVersion || '<provider-version>' }));
+      .map(({ name, selectedVersion }) => ({
+        name,
+        ...(selectedVersion ? { version: selectedVersion } : {}),
+      }));
 
     const resource: Record<string, unknown> = {
       apiVersion: crossplaneApiVersion,
@@ -244,7 +247,7 @@ export function CrossplaneInstallDialog({
           endContent={
             <>
               <Button design={ButtonDesign.Emphasized} disabled={isLoading} onClick={handleApply}>
-                {t('common.applyChanges')}
+                {mode === 'install' ? t('ComponentInstallDialog.install') : t('common.applyChanges')}
               </Button>
               <Button design={ButtonDesign.Transparent} onClick={handleClose}>
                 {t('common.cancel')}
@@ -283,6 +286,7 @@ export function CrossplaneInstallDialog({
             providers={providerStates}
             catalog={augmentedProviderCatalog}
             disabled={!crossplaneVersion}
+            disabledHint={!crossplaneVersion ? t('ComponentInstallDialog.providersDisabledHint') : undefined}
             getError={getProviderVersionError}
             onToggle={handleProviderToggle}
             onVersionChange={handleProviderVersionChange}

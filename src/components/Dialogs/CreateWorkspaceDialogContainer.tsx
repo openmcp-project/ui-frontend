@@ -24,6 +24,7 @@ export type CreateDialogProps = {
   supportLandscape?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;
+  staticEgressIp?: boolean;
 };
 
 const DEFAULT_VALUES: CreateDialogProps = {

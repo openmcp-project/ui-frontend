@@ -1,16 +1,18 @@
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import { Bar, Button, ResponsivePopover, Tag } from '@ui5/webcomponents-react';
+import { Bar, Button, MessageStrip, ResponsivePopover, Tag } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
-import { purposeColorScheme, purposeLabel, SupportInfo } from '../../lib/supportInfo.ts';
+import { purposeColorScheme, purposeLabel, SupportInfo, SupportInfoSource } from '../../lib/supportInfo.ts';
 import { SupportInfoListField, SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
+import { InheritedFromText } from '../Shared/InheritedFromText.tsx';
 import styles from './ProjectSupportInfoPopover.module.css';
 
 interface ProjectSupportInfoPopoverProps extends SupportInfo {
   opener: string;
   open: boolean;
+  inheritedFrom?: SupportInfoSource;
   onClose: () => void;
   onEditClick: () => void;
 }
@@ -18,6 +20,7 @@ interface ProjectSupportInfoPopoverProps extends SupportInfo {
 export function ProjectSupportInfoPopover({
   opener,
   open,
+  inheritedFrom,
   onClose,
   onEditClick,
   supportLandscape,
@@ -39,6 +42,7 @@ export function ProjectSupportInfoPopover({
           design="Footer"
           endContent={
             <Button
+              data-testid="support-info-edit-button"
               design="Transparent"
               icon="edit"
               onClick={() => {
@@ -46,7 +50,7 @@ export function ProjectSupportInfoPopover({
                 onEditClick();
               }}
             >
-              {t('SupportInfo.editButton')}
+              {inheritedFrom ? t('SupportInfo.overrideButton') : t('SupportInfo.editButton')}
             </Button>
           }
         />
@@ -55,6 +59,11 @@ export function ProjectSupportInfoPopover({
     >
       <div className={styles.body}>
         <p className={styles.intro}>{t('SupportInfo.popoverIntro')}</p>
+        {inheritedFrom && (
+          <MessageStrip data-testid="support-info-inherited-from" design="Information" hideCloseButton>
+            <InheritedFromText source={inheritedFrom} />
+          </MessageStrip>
+        )}
         <div className={styles.purposeRow}>
           <span className={styles.purposeLabel}>{t('SupportInfo.purposeLabel')}:</span>
           <Tag design="Set2" colorScheme={purposeColorScheme(supportLandscape)}>

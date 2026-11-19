@@ -31,12 +31,14 @@ import IllustratedError from '../Shared/IllustratedError';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { YamlResourceEditorSchemaLoader } from '../Yaml/YamlResourceEditorSchemaLoader';
-import { useResourcePluralNames as _useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { isForbiddenError } from '../../lib/api/error';
 import type { APIError } from '../../lib/api/error';
+import { useTelemetry as _useTelemetry } from '../../lib/telemetry/telemetry';
+import type { YamlApplyErrorType, YamlUploadMethod } from '../../lib/telemetry/features';
 import {
   type ParsedResource,
   type ValidationError,
+  resolveCpResourcePlural,
   checkCpResourceExists,
   applyCpResource,
   checkOnboardingResourceExists,
@@ -59,11 +61,13 @@ interface Props {
   targetName: string;
   onClose: () => void;
   /** Registers a handler for appending files to the open dialog. */
-  onRegisterAppend?: (handler: ((files: File[]) => void) | null) => void;
+  onRegisterAppend?: (handler: ((files: File[], method: YamlUploadMethod) => void) | null) => void;
   /** Shows the drop-to-add overlay while dragging with the dialog open. */
   isExternalDragActive?: boolean;
+  /** How the initial files were provided — drives the dialog-opened telemetry. */
+  openMethod?: YamlUploadMethod;
   /** Injectable for tests. */
-  useResourcePluralNames?: typeof _useResourcePluralNames;
+  useTelemetry?: typeof _useTelemetry;
 }
 
 export function YamlApplyDialog(props: Props) {
@@ -91,12 +95,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   onClose,
   onRegisterAppend,
   isExternalDragActive,
-  useResourcePluralNames = _useResourcePluralNames,
+  openMethod = 'file-picker',
+  useTelemetry = _useTelemetry,
   apiConfig,
 }) => {
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
-  const { getPluralKind } = useResourcePluralNames();
+  const telemetry = useTelemetry();
 
   const isCpTarget = targetApiConfig !== null;
 
@@ -115,6 +120,9 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
   const idCounter = useRef(0);
   const newId = useCallback(() => `item-${idCounter.current++}`, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Fire `dialog-opened` / `dialog-closed` exactly once per dialog lifetime.
+  const hasTrackedOpen = useRef(false);
+  const hasTrackedClose = useRef(false);
 
   // Per-item working state, reset whenever the current resource changes.
   const [itemState, setItemState] = useState<ItemState>('checking');
@@ -168,6 +176,17 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     [currentId],
   );
 
+  // Initial-load parse failure. Gated by hasTrackedOpen so the first parse outcome
+  // (this, or dialog-opened on success) is reported exactly once.
+  const trackInitialParseError = useCallback(
+    (errorType: YamlApplyErrorType) => {
+      if (hasTrackedOpen.current) return;
+      hasTrackedOpen.current = true;
+      telemetry.track({ category: 'yaml-apply', action: 'parse-error', errorType });
+    },
+    [telemetry],
+  );
+
   // Parse dropped/selected files into a resource queue.
   useEffect(() => {
     let cancelled = false;
@@ -184,6 +203,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             setParseErrorMessage(t('yamlApply.parseError', { filename: file.name }));
             setParseErrorFileName(file.name);
             setPhase('parse-error');
+            trackInitialParseError('parse-error');
           }
           return;
         }
@@ -194,6 +214,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             setParseErrorMessage(result.message);
             setParseErrorFileName(file.name);
             setPhase('parse-error');
+            trackInitialParseError(result.error);
           }
           return;
         }
@@ -205,6 +226,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         setParseErrorType('empty-file');
         setParseErrorMessage('');
         setPhase('parse-error');
+        trackInitialParseError('empty-file');
         return;
       }
       setResources(merged);
@@ -216,11 +238,22 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setAddError('');
       setCurrentIndex(0);
       setPhase('editing');
+      if (!hasTrackedOpen.current) {
+        hasTrackedOpen.current = true;
+        // Fires only on a clean initial parse — it is the "upload succeeded" signal, not a raw
+        // "dialog opened" count. Success rate = dialog-opened / (dialog-opened + parse-error).
+        telemetry.track({
+          category: 'yaml-apply',
+          action: 'dialog-opened',
+          method: openMethod,
+        });
+      }
     };
     run();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, t, newId]);
 
   // Reset per-item state and check existence when the edited resource identity changes (debounced).
@@ -243,7 +276,8 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       const resource = effectiveResource;
       try {
         if (isCpTarget) {
-          const plural = getPluralKind(resource.kind);
+          const plural = await resolveCpResourcePlural(resource, apiConfig);
+          if (cancelled) return;
           if (!plural) {
             if (!cancelled) {
               setItemError(t('yamlApply.unknownKind', { kind: resource.kind }));
@@ -343,7 +377,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) {
           throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         }
@@ -360,6 +394,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         delete next[ids[index]];
         return next;
       });
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'resource-applied',
+        kind: resource.kind,
+      });
       advanceAfterApply(index);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -367,13 +406,17 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setItemErrors((prev) => ({ ...prev, [ids[index]]: message }));
       markStatus(index, 'failed');
       setItemState('idle');
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'resource-apply-failed',
+        kind: resource.kind,
+      });
     }
   }, [
     currentResource,
     currentIndex,
     currentYaml,
     isCpTarget,
-    getPluralKind,
     apiConfig,
     resourceExists,
     apolloClient,
@@ -381,6 +424,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     t,
     markStatus,
     advanceAfterApply,
+    telemetry,
   ]);
 
   // Server-side validation without persisting. CP uses ?dryRun=All; onboarding only for v2 ControlPlane.
@@ -397,6 +441,11 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       resource = parse(currentYaml) as ParsedResource;
     } catch {
       setDryRun({ status: 'error', message: t('yamlApply.invalidYaml') });
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'dry-run',
+        result: 'error',
+      });
       return;
     }
 
@@ -404,17 +453,27 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
 
     try {
       if (isCpTarget) {
-        const plural = getPluralKind(resource.kind);
+        const plural = await resolveCpResourcePlural(resource, apiConfig);
         if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
         await applyCpResource(resource, plural, apiConfig, true);
       } else {
         await applyOnboardingResource(resource, resourceExists, apolloClient, true);
       }
       setDryRun({ status: 'ok', message: t('yamlApply.dryRunOk') });
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'dry-run',
+        result: 'ok',
+      });
     } catch (err) {
       setDryRun({ status: 'error', message: err instanceof Error ? err.message : String(err) });
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'dry-run',
+        result: 'error',
+      });
     }
-  }, [currentResource, currentYaml, isCpTarget, getPluralKind, apiConfig, resourceExists, apolloClient, t]);
+  }, [currentResource, currentYaml, isCpTarget, apiConfig, resourceExists, apolloClient, t, telemetry]);
 
   // Apply all pending resources sequentially, continuing past failures.
   const doApplyAll = useCallback(async () => {
@@ -434,7 +493,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         }
         try {
           if (isCpTarget) {
-            const plural = getPluralKind(resource.kind);
+            const plural = await resolveCpResourcePlural(resource, apiConfig);
             if (!plural) throw new Error(t('yamlApply.unknownKind', { kind: resource.kind }));
             await applyCpResource(resource, plural, apiConfig);
           } else {
@@ -448,20 +507,30 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             delete next[ids[i]];
             return next;
           });
+          telemetry.track({
+            category: 'yaml-apply',
+            action: 'resource-applied',
+            kind: resource.kind,
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
           setItemErrors((prev) => ({ ...prev, [ids[i]]: message }));
           markStatus(i, 'failed');
+          telemetry.track({
+            category: 'yaml-apply',
+            action: 'resource-apply-failed',
+            kind: resource.kind,
+          });
         }
       }
     } finally {
       setIsApplyingAll(false);
       setPhase('summary');
     }
-  }, [resources, texts, statuses, edits, ids, isCpTarget, getPluralKind, apiConfig, apolloClient, t, markStatus]);
+  }, [resources, texts, statuses, edits, ids, isCpTarget, apiConfig, apolloClient, t, markStatus, telemetry]);
 
   const addFiles = useCallback(
-    async (incoming: File[]) => {
+    async (incoming: File[], method: YamlUploadMethod) => {
       if (phase !== 'editing' || itemState === 'applying' || isApplyingAll || incoming.length === 0) return;
       setAddError('');
 
@@ -473,6 +542,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
           content = await file.text();
         } catch {
           setAddError(t('yamlApply.parseError', { filename: file.name }));
+          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'parse-error' });
           return;
         }
         const result = parseYamlDocuments(file.name, content);
@@ -486,6 +556,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
                   ? t('yamlApply.structureError')
                   : t('yamlApply.parseError', { filename: file.name });
           setAddError(message);
+          telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: result.error });
           return;
         }
         merged.push(...result.resources);
@@ -493,6 +564,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       }
       if (merged.length === 0) {
         setAddError(t('yamlApply.structureError'));
+        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'missing-fields' });
         return;
       }
 
@@ -503,6 +575,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         .filter((pair) => !existingIds.has(resourceIdentity(pair.resource)));
       if (toAdd.length === 0) {
         setAddError(t('yamlApply.addDuplicate'));
+        telemetry.track({ category: 'yaml-apply', action: 'add-files-error', errorType: 'duplicate' });
         return;
       }
 
@@ -512,8 +585,13 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       setStatuses((prev) => [...prev, ...toAdd.map(() => 'pending' as ItemStatus)]);
       setIds((prev) => [...prev, ...toAdd.map(() => newId())]);
       setCurrentIndex(firstNewIndex);
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'files-added',
+        method,
+      });
     },
-    [phase, itemState, isApplyingAll, resources, t, newId],
+    [phase, itemState, isApplyingAll, resources, t, newId, telemetry],
   );
 
   // Last item can't be removed; user cancels the dialog instead.
@@ -521,6 +599,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     (index: number) => {
       if (itemState === 'applying' || isApplyingAll || resources.length <= 1) return;
       const removedId = ids[index];
+      const removedKind = resources[index]?.kind;
       setResources((prev) => prev.filter((_, i) => i !== index));
       setTexts((prev) => prev.filter((_, i) => i !== index));
       setStatuses((prev) => prev.filter((_, i) => i !== index));
@@ -536,15 +615,44 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
         return next;
       });
       setCurrentIndex((prev) => nextIndexAfterRemove(index, prev, resources.length));
+      if (removedKind) {
+        telemetry.track({ category: 'yaml-apply', action: 'resource-removed', kind: removedKind });
+      }
     },
-    [itemState, isApplyingAll, resources.length, ids],
+    [itemState, isApplyingAll, resources, ids, telemetry],
   );
 
   useEffect(() => {
     if (!onRegisterAppend) return;
-    onRegisterAppend((f) => void addFiles(f));
+    onRegisterAppend((f, method) => void addFiles(f, method));
     return () => onRegisterAppend(null);
   }, [onRegisterAppend, addFiles]);
+
+  // Single close chokepoint: report the session outcome once, then delegate to the parent.
+  const handleClose = useCallback(() => {
+    if (!hasTrackedClose.current) {
+      hasTrackedClose.current = true;
+      const applied = statuses.filter((s) => s === 'applied').length;
+      const failed = statuses.filter((s) => s === 'failed').length;
+      const pending = statuses.length - applied - failed;
+      const outcome =
+        phase === 'parse-error'
+          ? 'parse-failed'
+          : applied === 0
+            ? failed > 0
+              ? 'none-applied'
+              : 'abandoned'
+            : failed === 0 && pending === 0
+              ? 'all-applied'
+              : 'partial';
+      telemetry.track({
+        category: 'yaml-apply',
+        action: 'dialog-closed',
+        outcome,
+      });
+    }
+    onClose();
+  }, [statuses, phase, telemetry, onClose]);
 
   const targetBanner = (
     <div className={styles.targetBar}>
@@ -646,7 +754,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
             data-testid="yaml-apply-add-input"
             onChange={(e) => {
               const list = Array.from(e.target.files ?? []);
-              void addFiles(list);
+              void addFiles(list, 'file-picker');
               e.target.value = '';
             }}
           />
@@ -697,7 +805,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       endContent={
         <>
           {canClose && (
-            <Button design="Transparent" onClick={onClose}>
+            <Button design="Transparent" onClick={handleClose}>
               {t(phase === 'summary' || phase === 'parse-error' ? 'yamlApply.closeButton' : 'yamlApply.cancelButton')}
             </Button>
           )}
@@ -743,7 +851,7 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
       stretch
       headerText={t('yamlApply.dialogTitle')}
       footer={footer}
-      onClose={canClose ? onClose : undefined}
+      onClose={canClose ? handleClose : undefined}
     >
       <div className={styles.body}>
         {phase === 'parsing' && (

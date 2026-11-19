@@ -1,5 +1,6 @@
 import { CoreOpenControlPlaneIoV2alpha1ControlPlane_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
 import {
+  EGRESS_IP_ENABLED_ANNOTATION,
   SUPPORT_LANDSCAPE_ANNOTATION,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
@@ -9,7 +10,12 @@ import { McpV2Input } from '../../mcp/schemas/mcpV2Input.schema.ts';
 
 function toRoleBindingsInput(roleBindings: McpV2Input['roleBindings']) {
   return roleBindings.map((rb) => ({
-    roleRefs: rb.roleRefs.map((ref) => ({ kind: ref.kind, name: ref.name })),
+    roleRefs: rb.roleRefs.map((ref) => ({
+      kind: ref.kind,
+      name: ref.name,
+      // Only valid (and required) for namespaced Roles — the CRD rejects it on ClusterRoles.
+      ...(ref.kind === 'Role' && ref.namespace ? { namespace: ref.namespace } : {}),
+    })),
     subjects: rb.subjects.map((s) => ({
       kind: s.kind,
       name: s.name.trim(),
@@ -20,17 +26,20 @@ function toRoleBindingsInput(roleBindings: McpV2Input['roleBindings']) {
 // The landscape annotation is always written (even as '') so that selecting "Not Selected"
 // explicitly clears any existing value. Other support annotations are omitted when empty so the
 // gateway leaves any existing (e.g. server-managed) values untouched.
-function buildSupportAnnotations(input: McpV2Input): Record<string, string> | undefined {
+function buildAnnotations(input: McpV2Input): Record<string, string> | undefined {
   const annotations: Record<string, string> = {};
   if (input.supportLandscape !== undefined) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = input.supportLandscape;
   if (input.supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = input.supportServiceIds;
   if (input.supportSecurityContacts) annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = input.supportSecurityContacts;
   if (input.supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = input.supportOpsContacts;
+  // Only ever written as "true": removing it from a running ControlPlane has no effect, the IP is
+  // released on deletion only.
+  if (input.staticEgressIp) annotations[EGRESS_IP_ENABLED_ANNOTATION] = 'true';
   return Object.keys(annotations).length ? annotations : undefined;
 }
 
 export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
-  const annotations = buildSupportAnnotations(input);
+  const annotations = buildAnnotations(input);
   return {
     apiVersion: 'core.open-control-plane.io/v2alpha1',
     kind: 'ControlPlane',
@@ -60,5 +69,22 @@ export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2
         },
       },
     },
+  };
+}
+
+/** Strips empty-string annotation values from a built input before YAML display.
+ * Use only for diff/preview — the submission path must keep empty strings to clear server values. */
+export function stripEmptyAnnotations(input: ManagedControlPlaneV2Input): ManagedControlPlaneV2Input {
+  const annotations = input.metadata?.annotations;
+  if (!annotations) return input;
+  const kept = Object.fromEntries(Object.entries(annotations).filter(([, v]) => v !== ''));
+  // Destructure annotations out first so the spread below doesn't re-introduce an empty key.
+  const { annotations: _removed, ...metaRest } = input.metadata as Record<string, unknown>;
+  return {
+    ...input,
+    metadata: {
+      ...metaRest,
+      ...(Object.keys(kept).length ? { annotations: kept } : {}),
+    } as typeof input.metadata,
   };
 }

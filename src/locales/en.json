@@ -1,6 +1,6 @@
 {
   "SignInPage": {
-    "welcomeMessage": "Welcome to Control Plane UI",
+    "welcomeMessage": "Welcome to <appName>{{appName}}</appName>",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
     "signInButton": "Sign In",
     "becomeContributorLink": "Become a Contributor"
@@ -24,7 +24,8 @@
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
     "installButton": "Install {{component}}",
-    "notInstalledLabel": "not installed"
+    "notInstalledLabel": "not installed",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ComponentHealthPopoverButton": {
     "pendingStatus": "Pending",
@@ -104,13 +105,10 @@
   },
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
+    "createControlPlane": "Control Plane",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
-    "createNewControlPlane": "Create Control Plane (v2)",
-    "defaultBadge": "Default",
-    "previewV2Badge": "Preview: V2",
-    "deprecatedBadge": "Deprecated"
+    "createNewControlPlane": "Create Control Plane"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
@@ -121,6 +119,15 @@
     "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
+  "ProjectInfoPopover": {
+    "infoButton": "Project information",
+    "editButton": "Edit",
+    "deleteButton": "Delete"
+  },
+  "WorkspaceInfoPopover": {
+    "infoButton": "Workspace information",
+    "editButton": "Edit"
+  },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit",
@@ -130,7 +137,13 @@
     "serviceInstalling": "Installing",
     "serviceDeleting": "Deleting",
     "serviceReady": "Ready",
-    "serviceUnknown": "Unknown"
+    "serviceUnknown": "Unknown",
+    "updatesAvailable": "Updates available"
+  },
+  "VersionUpdateTag": {
+    "majorUpdate": "Major update available",
+    "minorUpdate": "Minor update available",
+    "patchUpdate": "Patch update available"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",
@@ -143,7 +156,10 @@
     "externalSecretsOperator": "External Secrets Operator",
     "ocm": "OCM",
     "kro": "KRO",
-    "metricsOperator": "Metrics Operator"
+    "metricsOperator": "Metrics Operator",
+    "yamlPreviewNotSelectedTitle": "{{service}} is not selected",
+    "yamlPreviewNotSelectedSubtitle": "Select the service on the left to preview its YAML.",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -251,11 +267,30 @@
     "versionLabel": "{{component}} Version",
     "providers": "Providers",
     "providerVersionLabel": "{{provider}} version",
+    "searchProviders": "Search providers…",
+    "providerNameHeader": "Provider",
+    "sortAscending": "Sort providers descending",
+    "sortDescending": "Sort providers ascending",
+    "noProvidersFound": "No providers match your search.",
+    "clearSearch": "Clear search",
+    "paginationPrevious": "Previous page",
+    "paginationNext": "Next page",
+    "paginationPage": "Page {{page}}",
+    "providersDisabledHint": "Select a Crossplane version above to enable provider selection.",
+    "providersSelectedCount_one": "{{count}} provider selected",
+    "providersSelectedCount_other": "{{count}} providers selected",
+    "filterSelected": "Selected",
+    "filterNeedsUpdate": "Needs Update",
+    "install": "Install Crossplane",
     "successMessage": "{{component}} has been successfully installed.",
-    "errorMessage": "Failed to install {{component}}. Please try again.",
+    "errorMessage": "Failed to install {{component}}. Check your connection and try again, or contact your administrator.",
     "successMessageEdit": "{{component}} has been successfully updated.",
-    "errorMessageEdit": "Failed to update {{component}}. Please try again.",
+    "errorMessageEdit": "Failed to update {{component}}. Check your connection and try again, or contact your administrator.",
     "yamlPreview": "YAML Preview"
+  },
+  "CrossplaneProviderPicker": {
+    "updateAvailableTooltip": "{{version}} available — consider upgrading",
+    "testingDisclaimer": "Should be tested in a non-production environment — check provider changelogs for details."
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
@@ -274,8 +309,8 @@
     "errorMessage": "An unknown error occurred"
   },
   "NotInLuigiView": {
-    "titleMessage": "Opened outside of Hyperspace Portal",
-    "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
+    "titleMessage": "Opened outside of {{portalName}}",
+    "subtitleMessage": "Looks like this page is not opened inside of {{portalName}}. Contact admins for help."
   },
   "ShellBar": {
     "signOutButton": "Sign Out",
@@ -294,9 +329,8 @@
     "hello": "Hello, {{name}}",
     "backButton": "Back",
     "membersLabel": "Members:",
-    "overflowEditMcp": "Edit control plane",
-    "overflowViewYaml": "View YAML",
-    "controlPlaneInfoButton": "Control plane information"
+    "controlPlaneInfoButton": "Control plane information",
+    "controlPlaneInfoEditButton": "Edit control plane"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -363,6 +397,9 @@
   "EditMembers": {
     "addButton": "Add User or ServiceAccount",
     "addButtonUserGroup": "Add User or Group",
+    "addButtonUser": "Add User",
+    "addButtonGroup": "Add Group",
+    "addButtonServiceAccount": "Add ServiceAccount",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",
     "addHeader": "Add Member",
@@ -376,6 +413,81 @@
     "membersToastAddedN": "{{count}} members added.",
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
+  },
+  "MemberAccess": {
+    "label": "Access",
+    "coveredBy": "No extra effect: already included in {{role}}.",
+    "learnMore": "Learn more",
+    "accountType": {
+      "label": "Account type"
+    },
+    "atLeastOneRole": "Select at least one role.",
+    "platform": {
+      "title": "Platform role",
+      "description": "Owns and operates the control plane."
+    },
+    "kubernetes": {
+      "title": "Kubernetes role",
+      "description": "Works with resources in the control plane."
+    },
+    "custom": {
+      "title": "Custom roles",
+      "placeholder": "Role name",
+      "invalidName": "Not a valid role name. No spaces, '/' or '%'.",
+      "unknown": "Not checked: roles can only be verified from the control plane's own page.",
+      "openRolesView": "Show ClusterRoles",
+      "notFoundHint": "A role that is not found grants no access until it is created.",
+      "create": "Create role",
+      "upload": "Upload YAML",
+      "loadError": "Roles could not be loaded, so they are not checked.",
+      "notFoundSuffix": "{{role}} (not found)",
+      "statusExists": "Exists",
+      "statusNotFound": "Not found",
+      "rowView": "View",
+      "rowCreate": "Create"
+    },
+    "roles": {
+      "clusterAdmin": {
+        "title": "Cluster admin",
+        "bullets": ["Full access to everything", "Manages who has access"]
+      },
+      "admin": {
+        "title": "Admin",
+        "bullets": ["Read and write in all namespaces", "Manages access within namespaces", "No cluster-wide settings"]
+      },
+      "edit": {
+        "title": "Edit",
+        "bullets": ["Read and write in all namespaces", "Cannot manage access"]
+      },
+      "view": {
+        "title": "View",
+        "bullets": ["Read-only in all namespaces", "No secrets, no access settings"]
+      }
+    },
+    "missing": {
+      "tooltip": "This role does not exist in the control plane. It grants no access.",
+      "summary_one": "{{count}} assigned role does not exist in the control plane and grants no access: {{roles}}",
+      "summary_other": "{{count}} assigned roles do not exist in the control plane and grant no access: {{roles}}"
+    }
+  },
+  "ClusterRoleDialog": {
+    "titleView": "ClusterRole: {{name}}",
+    "titleEdit": "Edit ClusterRole: {{name}}",
+    "titleCreate": "Create ClusterRole",
+    "edit": "Edit",
+    "create": "Create",
+    "save": "Save",
+    "immediate": "Changes to a role take effect in the control plane immediately, independent of saving this member or the wizard.",
+    "readOnlyReason": "Built-in, system and aggregated roles are managed by Kubernetes and cannot be edited.",
+    "loadError": "This role could not be loaded.",
+    "loadForbidden": "You are not allowed to read this role.",
+    "applied": "ClusterRole {{name}} saved.",
+    "errorWrongType": "Only a ClusterRole (apiVersion rbac.authorization.k8s.io/v1, kind ClusterRole) can be created here.",
+    "errorMultiDoc": "Provide exactly one ClusterRole document.",
+    "errorInvalidName": "The role name is not a valid ClusterRole name.",
+    "errorRenamed": "The role name cannot be changed. It must stay \"{{name}}\".",
+    "errorParse": "The YAML could not be parsed: {{detail}}",
+    "uploadReadError": "The file could not be read."
   },
   "IdentityProviders": {
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
@@ -411,8 +523,8 @@
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:",
-    "pinProject": "Set as default project",
-    "unpinProject": "Clear default project"
+    "pinProject": "Pin to automatically open this project next time you visit",
+    "unpinProject": "Unpin to stop opening this project automatically"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
@@ -459,7 +571,8 @@
   "McpHeader": {
     "nameLabel": "Name",
     "createdByLabel": "Created By",
-    "createdOnLabel": "Created On"
+    "createdOnLabel": "Created On",
+    "kindLabel": "Kind"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -558,7 +671,8 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
-    "tableHeaderHealthy": "Healthy"
+    "tableHeaderHealthy": "Healthy",
+    "updateAvailable": "{{version}} available — consider upgrading"
   },
   "Graphs": {
     "colorsProvider": "Provider",
@@ -863,9 +977,7 @@
     "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
     "wizardStepTitle": "Support Info",
     "sectionLabel": "Support Info:",
-    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
-    "wizardIntroWorkspace": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Project where available. No runtime impact.",
-    "wizardIntroControlPlane": "Optional metadata to help support engineers triage issues. Set values here or leave them empty — when empty, the support team will use data from the parent Workspace or Project where available. No runtime impact.",
+    "wizardIntro": "Optional metadata to help support engineers. No runtime impact.",
     "unknown": "Unknown",
     "pleaseSet": "n/a",
     "addButton": "Add info",
@@ -892,9 +1004,21 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit",
-    "copyFromProject": "Copy Info from the parent Project",
-    "copyFromProjectNoData": "The parent project has no support info to copy.",
-    "copyFromWorkspace": "Copy Info from the parent Workspace",
-    "copyFromWorkspaceNoData": "The parent workspace has no support info to copy."
+    "overrideButton": "Override",
+    "inheritedFrom": "Inherited from {{kind}} <b>{{name}}</b>",
+    "inheritedTooltip": "Inherited from {{kind}} {{name}}",
+    "inheritedFormHint": "Leave all fields empty to keep using these values.",
+    "inheritedOverriddenHint": "Your values override the ones from {{kind}} <b>{{name}}</b>. Clear all fields to inherit again."
+  },
+  "StaticEgressIp": {
+    "label": "Static Egress IP",
+    "checkboxLabel": "Give static IP address",
+    "checkboxHint": "Route all outbound traffic through one fixed public IP. Use it to allowlist the control plane on databases and other services. Once activated, this cannot be disabled!",
+    "lockedHint": "A static egress IP is reserved for this control plane. It stays reserved until the control plane is deleted.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "pending": "Reserving…",
+    "pendingWithReason": "Reserving… ({{reason}})",
+    "copyTooltip": "Copy IP address"
   }
 }

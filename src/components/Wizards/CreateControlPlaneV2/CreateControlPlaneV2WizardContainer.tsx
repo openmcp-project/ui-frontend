@@ -26,6 +26,7 @@ import { stringify } from 'yaml';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { mapMemberRoleToClusterRole } from '../../../lib/api/types/shared/clusterRoles.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -34,6 +35,7 @@ import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { SupportInfoForm } from '../../Dialogs/SupportInfoForm.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { isEgressIpEnabled } from '../../../lib/egressIp.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
@@ -52,11 +54,11 @@ import { useKroQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useKr
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
 import { useMetricsOperatorQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery.ts';
+import { buildRoleBindingsForProviderMembers } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
 import {
-  buildRoleBindingsForProviderMembers,
-  normalizeMcpV2Role,
-} from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
-import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
+  buildMcpV2GraphQLInput,
+  stripEmptyAnnotations,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -86,6 +88,11 @@ import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpda
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
+import {
+  buildServiceResource,
+  getVisibleControlPlaneV2Services,
+  ServiceKey,
+} from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import summarizeStyles from '../CreateManagedControlPlane/SummarizeStep.module.css';
@@ -94,6 +101,7 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
+import { StaticEgressIpCheckBox } from './StaticEgressIpCheckBox.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
@@ -106,6 +114,8 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneV2;
   initialSection?: WizardStepType;
+  /** Service to focus in the Services step (card highlight + YAML tab). Defaults to the first one. */
+  initialService?: ServiceKey;
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
   useRefreshMcpV2ComponentsList?: typeof _useRefreshMcpV2ComponentsList;
@@ -155,6 +165,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   initialTemplateName,
   initialData,
   initialSection,
+  initialService,
   useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
   useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
   useRefreshMcpV2ComponentsList = _useRefreshMcpV2ComponentsList,
@@ -255,6 +266,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: '',
       supportSecurityContacts: '',
       supportOpsContacts: '',
+      staticEgressIp: false,
     },
     mode: 'onChange',
   });
@@ -341,6 +353,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
   // Services state — selected + optional version per service
   const [services, setServices] = useState<ServiceSelection>({});
+  const [activeService, setActiveService] = useState<ServiceKey | undefined>(initialService);
 
   // Edit-mode: query existing service state to pre-populate the step.
   // Hooks are always called (rules of hooks) but skipped when not relevant.
@@ -367,6 +380,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Landscaper is toggle-gated for new installs, but an already-installed Landscaper must stay
   // visible in edit mode so it can still be managed/removed even after the toggle is off.
   const showLandscaper = showLandscaperCard || (isEditMode && !!landscaperData?.isInstalled);
+  const visibleServices = useMemo(() => getVisibleControlPlaneV2Services(showLandscaper), [showLandscaper]);
+  // Falls back to the first visible service (Crossplane) until the user focuses another one.
+  const resolvedActiveService =
+    activeService && visibleServices.some((s) => s.key === activeService) ? activeService : visibleServices[0].key;
 
   // Gates the Members → Components transition so it never reads stale "was this installed" data.
   const isKpiLoading =
@@ -461,6 +478,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const supportServiceIds = useWatch({ control, name: 'supportServiceIds' });
   const supportSecurityContacts = useWatch({ control, name: 'supportSecurityContacts' });
   const supportOpsContacts = useWatch({ control, name: 'supportOpsContacts' });
+  const staticEgressIp = useWatch({ control, name: 'staticEgressIp' });
+  // The platform ignores removing the enable annotation from a running ControlPlane, so once it
+  // is set the opt-in cannot be revoked from the wizard.
+  const isStaticEgressIpLocked = isEditMode && isEgressIpEnabled(initialData?.metadata.annotations);
 
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members ?? [], extraProviders),
@@ -484,6 +505,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds,
       supportSecurityContacts,
       supportOpsContacts,
+      staticEgressIp,
     };
   }, [
     name,
@@ -497,6 +519,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     supportServiceIds,
     supportSecurityContacts,
     supportOpsContacts,
+    staticEgressIp,
   ]);
 
   const originalYamlString = useMemo(() => {
@@ -516,14 +539,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: initSupport.supportServiceIds,
       supportSecurityContacts: initSupport.supportSecurityContacts,
       supportOpsContacts: initSupport.supportOpsContacts,
+      staticEgressIp: isEgressIpEnabled(initialData.metadata.annotations),
     };
-    return stringify(buildMcpV2GraphQLInput(originalInput));
+    return stringify(stripEmptyAnnotations(buildMcpV2GraphQLInput(originalInput)));
   }, [isEditMode, initialData]);
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
     const res = buildMcpV2GraphQLInput(rawInput);
     return {
-      yamlString: stringify(res),
+      yamlString: stringify(stripEmptyAnnotations(res)),
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);
@@ -564,6 +588,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           supportServiceIds: rawInput.supportServiceIds,
           supportSecurityContacts: rawInput.supportSecurityContacts,
           supportOpsContacts: rawInput.supportOpsContacts,
+          staticEgressIp: rawInput.staticEgressIp,
         });
       } else {
         await createMcp(rawInput);
@@ -572,20 +597,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       // Named so a partial failure below can report which service(s) failed.
       const servicePromises: { name: string; promise: Promise<unknown> }[] = [];
 
-      const makeServiceObject = (
-        serviceName: string,
-        version: string,
-        ns: string,
-        apiVersion: string,
-        kind: string,
-      ) => ({
-        namespace: ns,
-        object: {
-          apiVersion,
-          kind,
-          metadata: { name: serviceName, namespace: ns },
-          spec: { version: version || 'latest' },
-        },
+      const makeServiceObject = (key: ServiceKey) => ({
+        namespace: cpNamespace,
+        object: buildServiceResource(key, services[key], cpName, cpNamespace),
       });
 
       const crossplaneAction = resolveServiceMutationAction(
@@ -594,21 +608,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.crossplane?.selected,
       );
       if (crossplaneAction === 'create' || crossplaneAction === 'update') {
-        const vars = {
-          namespace: cpNamespace,
-          object: {
-            apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
-            kind: 'Crossplane',
-            metadata: { name: cpName, namespace: cpNamespace },
-            spec: {
-              version: services.crossplane?.version || 'latest',
-              providers: (services.crossplane?.providers ?? []).map((p) => ({
-                name: p.name,
-                version: p.version || 'latest',
-              })),
-            },
-          },
-        };
+        const vars = makeServiceObject('crossplane');
         servicePromises.push({
           name: 'Crossplane',
           promise:
@@ -625,13 +625,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const fluxAction = resolveServiceMutationAction(isEditMode, !!fluxData?.isInstalled, !!services.flux?.selected);
       if (fluxAction === 'create' || fluxAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.flux?.version ?? '',
-          cpNamespace,
-          'flux.services.open-control-plane.io/v1alpha1',
-          'Flux',
-        );
+        const vars = makeServiceObject('flux');
         servicePromises.push({
           name: 'Flux',
           promise:
@@ -647,13 +641,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.landscaper?.selected,
       );
       if (landscaperAction === 'create' || landscaperAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.landscaper?.version ?? '',
-          cpNamespace,
-          'landscaper.services.open-control-plane.io/v1alpha2',
-          'Landscaper',
-        );
+        const vars = makeServiceObject('landscaper');
         servicePromises.push({
           name: 'Landscaper',
           promise:
@@ -674,13 +662,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.externalSecretsOperator?.selected,
       );
       if (esoAction === 'create' || esoAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.externalSecretsOperator?.version ?? '',
-          cpNamespace,
-          'external-secrets.services.open-control-plane.io/v1alpha1',
-          'ExternalSecretsOperator',
-        );
+        const vars = makeServiceObject('externalSecretsOperator');
         servicePromises.push({
           name: 'ExternalSecretsOperator',
           promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso({ ...vars, name: cpName }),
@@ -694,13 +676,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const ocmAction = resolveServiceMutationAction(isEditMode, !!ocmData?.isInstalled, !!services.ocm?.selected);
       if (ocmAction === 'create' || ocmAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.ocm?.version ?? '',
-          cpNamespace,
-          'ocm.services.open-control-plane.io/v1alpha1',
-          'OCM',
-        );
+        const vars = makeServiceObject('ocm');
         servicePromises.push({
           name: 'OCM',
           promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm({ ...vars, name: cpName }),
@@ -711,13 +687,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
       const kroAction = resolveServiceMutationAction(isEditMode, !!kroData?.isInstalled, !!services.kro?.selected);
       if (kroAction === 'create' || kroAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.kro?.version ?? '',
-          cpNamespace,
-          'kro.services.open-control-plane.io/v1alpha1',
-          'KRO',
-        );
+        const vars = makeServiceObject('kro');
         servicePromises.push({
           name: 'KRO',
           promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro({ ...vars, name: cpName }),
@@ -732,13 +702,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         !!services.metricsOperator?.selected,
       );
       if (metricsOperatorAction === 'create' || metricsOperatorAction === 'update') {
-        const vars = makeServiceObject(
-          cpName,
-          services.metricsOperator?.version ?? '',
-          cpNamespace,
-          'metrics.services.open-control-plane.io/v1alpha1',
-          'MetricsOperator',
-        );
+        const vars = makeServiceObject('metricsOperator');
         servicePromises.push({
           name: 'MetricsOperator',
           promise:
@@ -864,8 +828,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isSubmitting,
   ]);
 
-  const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
-
   const setMembers = useCallback(
     (members: Member[]) => {
       setValue('members', members, { shouldValidate: true });
@@ -948,6 +910,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       supportServiceIds: support.supportServiceIds ?? '',
       supportSecurityContacts: support.supportSecurityContacts ?? '',
       supportOpsContacts: support.supportOpsContacts ?? '',
+      staticEgressIp: isEgressIpEnabled(annotations),
     });
 
     setExtraProviders(prefilledProviders);
@@ -986,7 +949,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const mappedFromTemplate: Member[] = templateMembers
       .map((m) => ({
         name: stripIdpPrefix(String(m?.name ?? ''), idpPrefix),
-        roles: [normalizeMemberRole(m?.role)],
+        // Templates use the v1 role vocabulary (admin / view).
+        roles: [mapMemberRoleToClusterRole(m?.role)],
         kind: normalizeMemberKind(m?.kind),
       }))
       .filter((m) => !!m.name);
@@ -999,14 +963,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
     const normalizedMembers = Array.from(byName.values()).map((m) => ({
       ...m,
-      roles: (m.roles ?? []).length
-        ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
-        : [MCP_V2_DEFAULT_ROLE],
+      // Roles the user already picked are RBAC role refs and must be kept as they are.
+      roles: (m.roles ?? []).length ? m.roles : [MCP_V2_DEFAULT_ROLE],
     }));
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
-  }, [selectedStep, selectedTemplate, getValues, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
+  }, [selectedStep, selectedTemplate, getValues, setValue, user?.email, normalizeMemberKind]);
 
   // Template application for components is handled inside the hook
 
@@ -1025,14 +988,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && selectedStep !== 'success' && isEditMode && (
-                  <Button disabled={isSubmitting} onClick={requestClose}>
-                    {t('buttons.close')}
+                  <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                    {t('buttons.cancel')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button disabled={isSubmitting} onClick={requestClose}>
-                      {t('buttons.close')}
+                    <Button design="Transparent" disabled={isSubmitting} onClick={requestClose}>
+                      {t('buttons.cancel')}
                     </Button>
                   ) : (
                     <Button disabled={isSubmitting} onClick={onBackClick}>
@@ -1127,6 +1090,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
+              controlPlaneName={isEditMode ? name : undefined}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
             />
@@ -1145,8 +1109,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               <ServiceSelectionStep
                 services={services}
                 showLandscaper={showLandscaper}
+                activeService={resolvedActiveService}
+                resourceName={isEditMode ? editName : rawInput.name}
+                resourceNamespace={isEditMode ? editNs : rawInput.namespace}
                 useManagedServicesQuery={useManagedServicesQuery}
+                footer={
+                  <StaticEgressIpCheckBox
+                    checked={!!staticEgressIp}
+                    locked={isStaticEgressIpLocked}
+                    onChange={(checked) =>
+                      setValue('staticEgressIp', checked, { shouldValidate: true, shouldDirty: true })
+                    }
+                  />
+                }
                 onServicesChange={setServices}
+                onActiveServiceChange={setActiveService}
               />
             )}
           </WizardStep>
@@ -1165,10 +1142,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                     register={register}
                     watch={watch}
                     setValue={setValue}
-                    copyFromProjectName={bareProjectName}
-                    copyFromWorkspaceName={workspaceName}
-                    copyFromWorkspaceNamespace={projectName}
-                    introText={t('SupportInfo.wizardIntroControlPlane')}
+                    parentProjectName={bareProjectName}
+                    parentWorkspaceName={workspaceName}
                   />
                 </div>
                 <div>

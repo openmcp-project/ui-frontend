@@ -1,14 +1,44 @@
 import '@ui5/webcomponents-cypress-commands';
+import { useEffect } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { Routes } from '../../Routes.ts';
-import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
+import { ShellBarMcpActionsProvider, useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
 import { YamlApplyContextProvider } from '../../context/YamlApplyContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
 import { ShellBarComponent } from './ShellBar.tsx';
-import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
+import { FrontendConfigContext, defaultBranding } from '../../context/FrontendConfigContext.tsx';
+import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
+import type { EgressIpInfo } from '../../lib/egressIp.ts';
+
+function McpActionsSetter({
+  mcpName,
+  onEditMcp,
+  project,
+  workspace,
+  namespace,
+  resourceType,
+  mcpStatus,
+  egressIp,
+}: {
+  mcpName: string;
+  onEditMcp?: () => void;
+  project?: string;
+  workspace?: string;
+  namespace?: string;
+  resourceType?: 'controlplanes' | 'managedcontrolplanes';
+  mcpStatus?: { status?: string | null };
+  egressIp?: EgressIpInfo;
+}) {
+  const { setMcpActions } = useShellBarMcpActions();
+  useEffect(() => {
+    setMcpActions({ mcpName, onEditMcp, project, workspace, namespace, resourceType, mcpStatus, egressIp });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
 
 describe('ShellBar', () => {
   let logoutCalled = false;
@@ -28,15 +58,38 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+  const mountComponent = ({
+    enableHeadlamp = true,
+    mcpName,
+    onEditMcp,
+    project,
+    workspace,
+    namespace,
+    resourceType,
+    mcpStatus,
+    egressIp,
+    branding = defaultBranding,
+  }: {
+    enableHeadlamp?: boolean;
+    mcpName?: string;
+    onEditMcp?: () => void;
+    project?: string;
+    workspace?: string;
+    namespace?: string;
+    resourceType?: 'controlplanes' | 'managedcontrolplanes';
+    mcpStatus?: { status?: string | null };
+    egressIp?: EgressIpInfo;
+    branding?: typeof defaultBranding;
+  } = {}) => {
     const fakeConfig = {
       landscape: undefined,
       documentationBaseUrl: '',
+      feedbackUrl: null,
       githubBaseUrl: '',
       mcp2DocsUrl: '',
+      branding,
       featureToggles: {
         markMcpV1asDeprecated: false,
-        enableMcpV2: false,
         enableHeadlamp,
         showLandscaperCard: false,
       },
@@ -47,9 +100,23 @@ describe('ShellBar', () => {
           <ToastProvider>
             <ViewModeProvider>
               <YamlApplyContextProvider>
-                <ShellBarMcpActionsProvider>
-                  <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-                </ShellBarMcpActionsProvider>
+                <SplitterProvider>
+                  <ShellBarMcpActionsProvider>
+                    {mcpName && (
+                      <McpActionsSetter
+                        mcpName={mcpName}
+                        project={project}
+                        workspace={workspace}
+                        namespace={namespace}
+                        resourceType={resourceType}
+                        mcpStatus={mcpStatus}
+                        egressIp={egressIp}
+                        onEditMcp={onEditMcp}
+                      />
+                    )}
+                    <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+                  </ShellBarMcpActionsProvider>
+                </SplitterProvider>
               </YamlApplyContextProvider>
             </ViewModeProvider>
           </ToastProvider>
@@ -58,15 +125,20 @@ describe('ShellBar', () => {
     );
   };
 
-  it('renders the ShellBar with logo and title', () => {
+  it('renders the ShellBar with title', () => {
     mountComponent();
 
-    cy.get('img[alt="SAP"]').should('be.visible');
-    cy.contains('OpenControlPlane UI').should('be.visible');
+    cy.get('ui5-shellbar').should('be.visible');
+    cy.contains(defaultBranding.appName).should('be.visible');
   });
 
   it('navigates home when the logo is clicked', () => {
-    mountComponent();
+    mountComponent({
+      branding: {
+        ...defaultBranding,
+        logo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E',
+      },
+    });
 
     cy.window().then((win) => {
       win.location.hash = '#/projects/some-project';
@@ -144,5 +216,166 @@ describe('ShellBar', () => {
     cy.wrap(null).should(() => {
       expect(localStorage.getItem('rememberedProject')).to.equal(null);
     });
+  });
+
+  it('shows an edit button in the control plane info popover header when onEditMcp is set', () => {
+    mountComponent({ mcpName: 'my-control-plane', onEditMcp: () => {} });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('ui5-popover').find('ui5-button[icon="edit"]').should('exist');
+  });
+
+  it('does not show an edit button in the info popover when onEditMcp is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('ui5-popover').find('ui5-button[icon="edit"]').should('not.exist');
+  });
+
+  it('calls onEditMcp and closes the popover when the edit button is clicked', () => {
+    let editCalled = false;
+    mountComponent({
+      mcpName: 'my-control-plane',
+      onEditMcp: () => {
+        editCalled = true;
+      },
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-popover').find('ui5-button[icon="edit"]').click({ force: true });
+
+    cy.wrap(null).should(() => {
+      expect(editCalled).to.equal(true);
+    });
+    cy.get('ui5-popover[open]').should('not.exist');
+  });
+
+  it('shows the status badge in the ShellBar when mcpName, mcpStatus, project and workspace are set', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      project: 'my-project',
+      workspace: 'my-workspace',
+      mcpStatus: { status: 'Ready' },
+    });
+
+    cy.get('ui5-button[icon="information"]').should('be.visible');
+    cy.get('[data-testid="mcp-health-button"]').should('be.visible');
+  });
+
+  it('does not show the status badge when project/workspace are missing', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      mcpStatus: { status: 'Ready' },
+    });
+
+    cy.get('[data-testid="mcp-health-button"]').should('not.exist');
+  });
+
+  it('shows the YAML button in the popover header and the edit button in the footer when resourceType is set', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      namespace: 'project-my-project--ws-my-workspace',
+      resourceType: 'controlplanes',
+      onEditMcp: () => {},
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    // YAML stays in the header; Edit moved to the footer bar.
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('exist');
+    cy.get('ui5-popover ui5-bar[design="Footer"] ui5-button[icon="edit"]').should('exist');
+    cy.get('ui5-popover ui5-bar[design="Footer"] ui5-button[aria-label="View resource"]').should('not.exist');
+  });
+
+  it('does not show a YAML button in the info popover when resourceType is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane', onEditMcp: () => {} });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('not.exist');
+  });
+
+  it('closes the info popover and does not throw when the YAML button is clicked', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      namespace: 'project-my-project--ws-my-workspace',
+      resourceType: 'controlplanes',
+      onEditMcp: () => {},
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+    cy.get('ui5-popover ui5-button[aria-label="View resource"]').click({ force: true });
+
+    cy.get('ui5-popover[open]').should('not.exist');
+  });
+
+  it('shows the ControlPlane kind in the info popover for a v2 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'controlplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('not.exist');
+  });
+
+  it('shows the ManagedControlPlane kind with a deprecated badge for a v1 control plane', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      resourceType: 'managedcontrolplanes',
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="control-plane-kind"]').should('contain.text', 'ManagedControlPlane');
+    cy.get('[data-testid="control-plane-kind-deprecated"]').should('contain.text', 'Deprecated');
+  });
+
+  it('does not show the kind row when resourceType is not set', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('[data-testid="control-plane-kind"]').should('not.exist');
+  });
+
+  it('shows the static egress IP in the info popover when reserved', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      egressIp: { enabled: true, ready: true, ip: '34.90.123.45' },
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('Static Egress IP').should('be.visible');
+    cy.get('[data-testid="egress-ip-value"]').should('contain.text', '34.90.123.45');
+  });
+
+  it('shows a pending state in the info popover while the egress IP is not ready', () => {
+    mountComponent({
+      mcpName: 'my-control-plane',
+      egressIp: { enabled: true, ready: false, reason: 'ClusterNotReady' },
+    });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('[data-testid="egress-ip-pending"]').should('contain.text', 'ClusterNotReady');
+    cy.get('[data-testid="egress-ip-value"]').should('not.exist');
+  });
+
+  it('does not show the static egress IP row when the feature is not enabled', () => {
+    mountComponent({ mcpName: 'my-control-plane' });
+
+    cy.get('ui5-button[icon="information"]').click({ force: true });
+
+    cy.get('ui5-popover').contains('my-control-plane').should('be.visible');
+    cy.get('ui5-popover').contains('Static Egress IP').should('not.exist');
   });
 });

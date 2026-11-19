@@ -75,7 +75,7 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="provider-custom-add-member-button"]').first().click();
     cy.get('[data-testid="provider-custom-member-email-input"]').typeIntoUi5Input('bob@example.com');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
+    cy.get('[data-testid="provider-custom-add-member-submit-button"]').click();
 
     cy.contains('ui5-panel', 'custom').should('contain', 'bob@example.com');
     cy.contains('ui5-panel', 'Default identity provider').should('not.contain', 'bob@example.com');
@@ -105,7 +105,7 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="default-provider-add-member-button"]').click();
     cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
+    cy.get('[data-testid="default-provider-add-member-submit-button"]').click();
 
     cy.get('[data-testid="no-members-error"]').should('not.exist');
   });

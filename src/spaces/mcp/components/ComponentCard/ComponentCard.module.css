@@ -42,3 +42,26 @@
   display: flex;
   align-items: center;
 }
+
+.updateHintPatch {
+  color: var(--sapPositiveColor, #188918);
+  cursor: default;
+}
+
+.updateHintMinor {
+  color: #f0ab00;
+  cursor: default;
+}
+
+.updateHintMajor {
+  color: #f97316;
+  cursor: default;
+}
+
+.versionWithUpgrade {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}

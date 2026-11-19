@@ -13,9 +13,10 @@ describe('YamlApplyContext — requestApplyFiles routing', () => {
   it('starts a new flow (sets pendingFiles) when no append handler is registered', () => {
     const { result } = renderHook(() => useYamlApply(), { wrapper });
 
-    act(() => result.current.requestApplyFiles([file('a.yaml')]));
+    act(() => result.current.requestApplyFiles([file('a.yaml')], 'drag-and-drop'));
 
     expect(result.current.pendingFiles).toHaveLength(1);
+    expect(result.current.pendingMethod).toBe('drag-and-drop');
   });
 
   it('appends to the open dialog instead of replacing the queue when a handler is registered', () => {
@@ -25,11 +26,12 @@ describe('YamlApplyContext — requestApplyFiles routing', () => {
     const append = vi.fn();
     act(() => result.current.registerAppendHandler(append));
 
-    act(() => result.current.requestApplyFiles([file('b.yaml')]));
+    act(() => result.current.requestApplyFiles([file('b.yaml')], 'file-picker'));
 
     // Routed to the handler; the queue (pendingFiles) is NOT replaced — no in-progress edits lost.
     expect(append).toHaveBeenCalledTimes(1);
     expect(append.mock.calls[0][0]).toHaveLength(1);
+    expect(append.mock.calls[0][1]).toBe('file-picker');
     expect(result.current.pendingFiles).toHaveLength(0);
   });
 
@@ -39,7 +41,7 @@ describe('YamlApplyContext — requestApplyFiles routing', () => {
 
     act(() => result.current.registerAppendHandler(append));
     act(() => result.current.registerAppendHandler(null));
-    act(() => result.current.requestApplyFiles([file('c.yaml')]));
+    act(() => result.current.requestApplyFiles([file('c.yaml')], 'drag-and-drop'));
 
     expect(append).not.toHaveBeenCalled();
     expect(result.current.pendingFiles).toHaveLength(1);
@@ -50,7 +52,7 @@ describe('YamlApplyContext — requestApplyFiles routing', () => {
     const append = vi.fn();
     act(() => result.current.registerAppendHandler(append));
 
-    act(() => result.current.requestApplyFiles([]));
+    act(() => result.current.requestApplyFiles([], 'file-picker'));
 
     expect(append).not.toHaveBeenCalled();
     expect(result.current.pendingFiles).toHaveLength(0);

@@ -231,7 +231,9 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
-    cy.contains('Failed to install Flux. Please try again.').should('be.visible');
+    cy.contains('Failed to install Flux. Check your connection and try again, or contact your administrator.').should(
+      'be.visible',
+    );
     cy.wrap(onClose).should('not.have.been.called');
   });
 
@@ -262,7 +264,9 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
-    cy.contains('Failed to update Flux. Please try again.').should('be.visible');
+    cy.contains('Failed to update Flux. Check your connection and try again, or contact your administrator.').should(
+      'be.visible',
+    );
     cy.wrap(onClose).should('not.have.been.called');
   });
 

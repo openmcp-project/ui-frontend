@@ -40,6 +40,10 @@
   font-family: var(--sapFontFamily);
 }
 
+.appName {
+  color: color-mix(in srgb, var(--ocp-primary, #0070f2) 70%, black 30%);
+}
+
 .subtitle {
   color: #64748b;
   margin: 0;

@@ -3,17 +3,21 @@ import { clsx } from 'clsx';
 import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { generatePath } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext.tsx';
+import { mapMemberRoleToClusterRole } from '../../lib/api/types/shared/clusterRoles.ts';
+import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
+import { useMcp } from '../../lib/shared/McpContext.tsx';
+import { useLink } from '../../lib/shared/useLink.ts';
+import { Routes, SearchParams } from '../../Routes.ts';
 import {
-  areMembersEqual,
-  MCP_V2_DEFAULT_ROLE,
-  MCP_V2_VIEWER_ROLE,
-  mcpV2RoleOptions,
-  Member,
-} from '../../lib/api/types/shared/members';
+  useClusterRoles as _useClusterRoles,
+  type ClusterRolesLookup,
+} from '../../spaces/controlPlaneV2/hooks/useClusterRoles.ts';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
+import { resolveExistingClusterRoles } from './memberRoles.ts';
 import styles from './Members.module.css';
 import { MemberTable } from './MemberTable.tsx';
 
@@ -32,6 +36,13 @@ export interface EditMembersProps {
   providerName?: string;
   // Scopes data-testid so multiple instances can be mounted at once.
   testIdPrefix?: string;
+  // V2-only: ClusterRoles that exist in the control plane (undefined while unknown/loading).
+  existingClusterRoles?: string[];
+  // V2-only: this control plane's name, used to link to its roles in Headlamp from edit contexts
+  // where useMcp() is empty (the create/edit wizard). Undefined in the create wizard (no CP yet).
+  controlPlaneName?: string;
+  // Injectable for tests (CLAUDE.md "Injectable hooks"); defaults to the real lookup.
+  useClusterRoles?: () => ClusterRolesLookup;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -67,8 +78,45 @@ export const EditMembers: FC<EditMembersProps> = ({
   fitContentAddButton = false,
   providerName,
   testIdPrefix,
+  existingClusterRoles,
+  controlPlaneName,
+  useClusterRoles = _useClusterRoles,
 }) => {
   const { t } = useTranslation();
+  const { mcpOnboardingAuthDocs } = useLink();
+  // Runs a request only inside a control-plane context (mcpConfig set); 'unknown' everywhere else,
+  // which skips the lookup without triggering a login. See useClusterRoles.
+  const lookup = useClusterRoles();
+  const clusterRolesActive = isV2;
+  // Link to this control plane's roles in the embedded Headlamp view. Built from the explicit
+  // props when present (the create/edit wizard, where useMcp() is empty), otherwise from the
+  // control-plane context. Undefined in the create wizard (no control plane name yet). HashRouter URL.
+  const mcp = useMcp();
+  const rolesViewUrl = useMemo(() => {
+    const cpProject = projectName || mcp.project;
+    const cpWorkspace = workspaceName || mcp.workspace;
+    const cpName = controlPlaneName || mcp.name;
+    if (!clusterRolesActive || !cpProject || !cpWorkspace || !cpName) return undefined;
+    const path = generatePath(Routes.McpV2, {
+      projectName: cpProject,
+      workspaceName: cpWorkspace,
+      controlPlaneName: cpName,
+    });
+    const params = new URLSearchParams({
+      [SearchParams.Version]: 'v2',
+      [SearchParams.View]: 'open-source',
+      [SearchParams.HeadlampPath]: '/roles',
+    });
+    return `#${path}?${params.toString()}`;
+  }, [clusterRolesActive, projectName, workspaceName, controlPlaneName, mcp.project, mcp.workspace, mcp.name]);
+  // `existingClusterRoles` passed from above wins (e.g. a precomputed value); otherwise use the
+  // lookup, and only once it is 'ready' — an empty array would wrongly flag every role.
+  const effectiveExistingClusterRoles = resolveExistingClusterRoles(
+    isV2,
+    lookup.state,
+    lookup.all,
+    existingClusterRoles,
+  );
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
   const usesUserGroupAccountTypes = useMemo(
     () =>
@@ -125,18 +173,11 @@ export const EditMembers: FC<EditMembersProps> = ({
           return;
         }
 
-        const normalizeV2Role = (roleInput?: string | null): string => {
-          const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-          if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
-            return MCP_V2_VIEWER_ROLE;
-          }
-          return MCP_V2_DEFAULT_ROLE;
-        };
-
         const normalized = isV2
           ? {
               ...importedMember,
-              roles: [normalizeV2Role(importedMember.roles?.[0])],
+              // Project/workspace members carry `admin` / `view`; translate them to ClusterRoles.
+              roles: [mapMemberRoleToClusterRole(importedMember.roles?.[0])],
               namespace: importedMember.kind === 'ServiceAccount' ? importedMember.namespace : undefined,
             }
           : importedMember;
@@ -214,7 +255,14 @@ export const EditMembers: FC<EditMembersProps> = ({
         memberToEdit={memberToEdit}
         accountTypeOptions={accountTypeOptions}
         testIdPrefix={testIdPrefix}
-        {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
+        clusterRoles={isV2}
+        availableCustomRoles={clusterRolesActive ? lookup.selectable : undefined}
+        customRolesState={clusterRolesActive ? lookup.state : undefined}
+        platformDocsUrl={clusterRolesActive ? mcpOnboardingAuthDocs : undefined}
+        rolesViewUrl={rolesViewUrl}
+        aggregatedRoles={clusterRolesActive ? lookup.aggregated : undefined}
+        canManageRoles={clusterRolesActive && (lookup.state === 'ready' || lookup.state === 'error')}
+        onRoleApplied={lookup.refresh}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
@@ -233,6 +281,8 @@ export const EditMembers: FC<EditMembersProps> = ({
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
+        clusterRoles={isV2}
+        existingClusterRoles={effectiveExistingClusterRoles}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}
         onEditMember={handleEditMember}

@@ -13,7 +13,7 @@ vi.mock('./FrontendConfigContext.tsx', () => ({
 
 const mockConfig = (enableHeadlamp: boolean) => {
   vi.mocked(useFrontendConfig).mockReturnValue({
-    featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+    featureToggles: { markMcpV1asDeprecated: false, enableHeadlamp },
   } as ReturnType<typeof useFrontendConfig>);
 };
 

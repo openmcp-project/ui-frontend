@@ -21,6 +21,7 @@ import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import { useFrontendConfig } from '../../context/FrontendConfigContext';
 
 type UI5RatingIndicatorElement = HTMLElement & { value: number };
 
@@ -114,6 +115,7 @@ export const FeedbackPopover = ({
   feedbackSent: boolean;
 }) => {
   const { t } = useTranslation();
+  const { feedbackUrl } = useFrontendConfig();
 
   const onRatingChange = (event: Event & { target: UI5RatingIndicatorElement }) => {
     setRating(event.target.value);
@@ -151,18 +153,16 @@ export const FeedbackPopover = ({
                     {t('ShellBar.feedbackButton')}
                   </Button>
                 </FormItem>
-                <FormItem>
-                  <Label style={{ color: 'gray' }}>
-                    {t('ShellBar.feedbackNotificationText')}
-                    <Link
-                      href="https://github.com/openmcp-project/ui-frontend/issues/new/choose"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {t('ShellBar.feedbackNotificationAction')}
-                    </Link>
-                  </Label>
-                </FormItem>
+                {feedbackUrl && (
+                  <FormItem>
+                    <Label style={{ color: 'gray' }}>
+                      {t('ShellBar.feedbackNotificationText')}
+                      <Link href={feedbackUrl} target="_blank" rel="noreferrer">
+                        {t('ShellBar.feedbackNotificationAction')}
+                      </Link>
+                    </Label>
+                  </FormItem>
+                )}
               </FormGroup>
             </Form>
           ) : (

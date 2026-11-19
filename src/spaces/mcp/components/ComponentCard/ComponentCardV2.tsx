@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
+import { getVersionDiff } from '../../../../utils/componentsVersions.ts';
 import styles from './ComponentCard.module.css';
 import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 
@@ -82,6 +83,7 @@ export type ComponentCardV2Props = {
   logoImgSrc: string;
   status: ComponentCardV2Status;
   version?: string;
+  latestVersion?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
   onEditButtonClick?: () => void;
@@ -96,6 +98,7 @@ export function ComponentCardV2({
   logoImgSrc,
   status,
   version,
+  latestVersion,
   onNavigateToComponentSection,
   onInstallButtonClick,
   onEditButtonClick,
@@ -129,7 +132,32 @@ export function ComponentCardV2({
           avatar={<img alt="" className={styles.avatar} src={logoImgSrc} />}
           subtitleText={description}
           interactive={canNavigateToComponentDetails}
-          additionalText={isInstalled ? prefixedVersion : t('ComponentCard.notInstalledLabel')}
+          additionalText={
+            isInstalled && !latestVersion
+              ? prefixedVersion
+              : isInstalled
+                ? undefined
+                : t('ComponentCard.notInstalledLabel')
+          }
+          action={
+            isInstalled && latestVersion ? (
+              <span className={styles.versionWithUpgrade}>
+                <span
+                  className={
+                    getVersionDiff(version ?? '', latestVersion) === 'major'
+                      ? styles.updateHintMajor
+                      : getVersionDiff(version ?? '', latestVersion) === 'minor'
+                        ? styles.updateHintMinor
+                        : styles.updateHintPatch
+                  }
+                  title={t('ComponentCard.updateAvailableTooltip', { version: latestVersion })}
+                >
+                  ↑ {latestVersion}
+                </span>
+                {prefixedVersion}
+              </span>
+            ) : undefined
+          }
         />
       }
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}

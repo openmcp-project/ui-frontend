@@ -20,3 +20,7 @@ export const SUPPORT_LANDSCAPE_VALUES = [
   'experimental',
 ] as const;
 export type SupportLandscape = (typeof SUPPORT_LANDSCAPE_VALUES)[number];
+
+export const EGRESS_IP_ENABLED_ANNOTATION = 'egress-ip.platform.open-control-plane.io/enabled';
+export const EGRESS_IP_ANNOTATION = 'egress-ip.platform.open-control-plane.io/egress-ip';
+export const EGRESS_IP_READY_CONDITION = 'EgressIPReady';

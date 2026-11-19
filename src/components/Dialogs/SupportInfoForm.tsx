@@ -1,23 +1,12 @@
-import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
-import {
-  Button,
-  Label,
-  MessageBox,
-  MessageBoxType,
-  Option,
-  Select,
-  SelectDomRef,
-  Ui5CustomEvent,
-} from '@ui5/webcomponents-react';
-import { useState } from 'react';
+import { Label, MessageStrip, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { SUPPORT_LANDSCAPE_VALUES } from '../../lib/api/types/shared/keyNames.ts';
+import { useInheritedSupportInfo } from '../../spaces/onboarding/hooks/useInheritedSupportInfo.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
-import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import { SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -28,124 +17,67 @@ interface SupportInfoFormProps {
   register: UseFormRegister<CreateDialogProps>;
   watch: UseFormWatch<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  copyFromProjectName?: string;
-  copyFromWorkspaceName?: string;
-  copyFromWorkspaceNamespace?: string;
-  introText?: string;
+  /** Bare project name of the parent project (workspaces and control planes). */
+  parentProjectName?: string;
+  /** Parent workspace name (control planes only). */
+  parentWorkspaceName?: string;
   useProjectMembers?: typeof _useProjectMembers;
   useGetWorkspace?: typeof _useGetWorkspace;
 }
 
-function CopySupportInfoFromProjectButton({
+function InheritedSupportInfoHint({
   projectName,
-  setValue,
-  useProjectMembers = _useProjectMembers,
+  workspaceName,
+  ownIsEmpty,
+  useProjectMembers,
+  useGetWorkspace,
 }: {
   projectName: string;
-  setValue: UseFormSetValue<CreateDialogProps>;
+  workspaceName?: string;
+  ownIsEmpty: boolean;
   useProjectMembers?: typeof _useProjectMembers;
-}) {
-  const { t } = useTranslation();
-  // We only need the parent project's support annotations here; useProjectMembers
-  // is the existing query that already exposes them (its members payload is unused).
-  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
-    useProjectMembers(projectName);
-  const [noDataOpen, setNoDataOpen] = useState(false);
-
-  const handleCopy = () => {
-    const values = {
-      supportLandscape: supportLandscape ?? '',
-      supportServiceIds: supportServiceIds ?? '',
-      supportSecurityContacts: supportSecurityContacts ?? '',
-      supportOpsContacts: supportOpsContacts ?? '',
-    } as const;
-
-    if (!Object.values(values).some((v) => v.trim() !== '')) {
-      setNoDataOpen(true);
-      return;
-    }
-
-    (Object.entries(values) as [keyof typeof values, string][]).forEach(([field, value]) =>
-      setValue(field, value, { shouldDirty: true, shouldValidate: true }),
-    );
-  };
-
-  return (
-    <>
-      <Button
-        data-testid="copy-support-info-from-project"
-        design="Transparent"
-        disabled={isLoading}
-        icon="copy"
-        onClick={handleCopy}
-      >
-        {t('SupportInfo.copyFromProject')}
-      </Button>
-      <MessageBox
-        open={noDataOpen}
-        titleText={t('SupportInfo.copyFromProject')}
-        type={MessageBoxType.Information}
-        onClose={() => setNoDataOpen(false)}
-      >
-        {t('SupportInfo.copyFromProjectNoData')}
-      </MessageBox>
-    </>
-  );
-}
-
-function CopySupportInfoFromWorkspaceButton({
-  workspaceName,
-  namespace,
-  setValue,
-  useGetWorkspace = _useGetWorkspace,
-}: {
-  workspaceName: string;
-  namespace: string;
-  setValue: UseFormSetValue<CreateDialogProps>;
   useGetWorkspace?: typeof _useGetWorkspace;
 }) {
   const { t } = useTranslation();
-  const { workspaceData, isLoading } = useGetWorkspace(workspaceName, namespace);
-  const [noDataOpen, setNoDataOpen] = useState(false);
+  const parentDefaults = useInheritedSupportInfo(
+    {},
+    { projectName, workspaceName, useProjectMembers, useGetWorkspace },
+  );
+  const { inheritedFrom } = parentDefaults;
+  if (!inheritedFrom) return null;
 
-  const handleCopy = () => {
-    const values = {
-      supportLandscape: workspaceData?.supportLandscape ?? '',
-      supportServiceIds: workspaceData?.supportServiceIds ?? '',
-      supportSecurityContacts: workspaceData?.supportSecurityContacts ?? '',
-      supportOpsContacts: workspaceData?.supportOpsContacts ?? '',
-    } as const;
-
-    if (!Object.values(values).some((v) => v.trim() !== '')) {
-      setNoDataOpen(true);
-      return;
-    }
-
-    (Object.entries(values) as [keyof typeof values, string][]).forEach(([field, value]) =>
-      setValue(field, value, { shouldDirty: true, shouldValidate: true }),
+  if (!ownIsEmpty) {
+    return (
+      <MessageStrip
+        className={styles.intro}
+        data-testid="support-info-form-inherited"
+        data-active="false"
+        design="Critical"
+        hideCloseButton
+      >
+        <Trans
+          i18nKey="SupportInfo.inheritedOverriddenHint"
+          values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
+          components={{ b: <b /> }}
+        />
+      </MessageStrip>
     );
-  };
+  }
 
   return (
-    <>
-      <Button
-        data-testid="copy-support-info-from-workspace"
-        design="Transparent"
-        disabled={isLoading}
-        icon="copy"
-        onClick={handleCopy}
-      >
-        {t('SupportInfo.copyFromWorkspace')}
-      </Button>
-      <MessageBox
-        open={noDataOpen}
-        titleText={t('SupportInfo.copyFromWorkspace')}
-        type={MessageBoxType.Information}
-        onClose={() => setNoDataOpen(false)}
-      >
-        {t('SupportInfo.copyFromWorkspaceNoData')}
-      </MessageBox>
-    </>
+    <MessageStrip
+      className={styles.intro}
+      data-testid="support-info-form-inherited"
+      data-active="true"
+      design="Information"
+      hideCloseButton
+    >
+      <Trans
+        i18nKey="SupportInfo.inheritedFrom"
+        values={{ kind: t(`Entities.${inheritedFrom.kind}`), name: inheritedFrom.name }}
+        components={{ b: <b /> }}
+      />
+    </MessageStrip>
   );
 }
 
@@ -175,10 +107,8 @@ export function SupportInfoForm({
   register,
   watch,
   setValue,
-  copyFromProjectName,
-  copyFromWorkspaceName,
-  copyFromWorkspaceNamespace,
-  introText,
+  parentProjectName,
+  parentWorkspaceName,
   useProjectMembers,
   useGetWorkspace,
 }: SupportInfoFormProps) {
@@ -193,32 +123,24 @@ export function SupportInfoForm({
     setValue('supportLandscape', value, { shouldDirty: true, shouldValidate: true });
   };
 
-  const showCopyRow = copyFromProjectName || (copyFromWorkspaceName && copyFromWorkspaceNamespace);
+  const ownIsEmpty = ![supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts].some(
+    (v) => v.trim() !== '',
+  );
 
   return (
     <div className={styles.container}>
-      {showCopyRow && (
-        <div className={styles.copyRow}>
-          {copyFromProjectName && (
-            <CopySupportInfoFromProjectButton
-              projectName={copyFromProjectName}
-              setValue={setValue}
-              useProjectMembers={useProjectMembers}
-            />
-          )}
-          {copyFromWorkspaceName && copyFromWorkspaceNamespace && (
-            <CopySupportInfoFromWorkspaceButton
-              workspaceName={copyFromWorkspaceName}
-              namespace={copyFromWorkspaceNamespace}
-              setValue={setValue}
-              useGetWorkspace={useGetWorkspace}
-            />
-          )}
-        </div>
+      <MessageStrip className={styles.intro} design="Information" hideCloseButton>
+        {t('SupportInfo.wizardIntro')}
+      </MessageStrip>
+      {parentProjectName && (
+        <InheritedSupportInfoHint
+          projectName={parentProjectName}
+          workspaceName={parentWorkspaceName}
+          ownIsEmpty={ownIsEmpty}
+          useProjectMembers={useProjectMembers}
+          useGetWorkspace={useGetWorkspace}
+        />
       )}
-      <Infobox variant={'success'} size="sm">
-        {introText ?? t('SupportInfo.wizardIntro')}
-      </Infobox>
       <div className={styles.fields}>
         <Field label={t('SupportInfo.purposeLabel')} inputId="support-landscape">
           <Select

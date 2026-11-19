@@ -194,10 +194,27 @@ export function parseYamlDocuments(fileName: string, content: string): MultiDocR
 
 // ─── Control Plane (REST) ────────────────────────────────────────────────────
 
-function buildCpPath(apiVersion: string, plural: string, namespace?: string, name?: string): string {
+function buildCpApiBase(apiVersion: string): string {
   const parts = apiVersion.split('/');
   const [group, version] = parts.length === 2 ? parts : ['', parts[0]];
-  const base = group ? `/apis/${group}/${version}` : `/api/${version}`;
+  return group ? `/apis/${group}/${version}` : `/api/${version}`;
+}
+
+/**
+ * Resolve built-in and custom kinds through the target API's discovery endpoint.
+ * Scope the lookup to the manifest's group/version and ignore subresources, which
+ * can advertise the same kind as their parent (e.g. pods/status).
+ */
+export async function resolveCpResourcePlural(resource: ParsedResource, apiConfig: ApiConfig): Promise<string> {
+  const discovery = await fetchApiServerJson<{ resources: { name: string; kind: string }[] }>(
+    buildCpApiBase(resource.apiVersion),
+    apiConfig,
+  );
+  return discovery.resources.find(({ kind, name }) => kind === resource.kind && !name.includes('/'))?.name ?? '';
+}
+
+function buildCpPath(apiVersion: string, plural: string, namespace?: string, name?: string): string {
+  const base = buildCpApiBase(apiVersion);
   const ns = namespace ? `/namespaces/${namespace}` : '';
   const n = name ? `/${name}` : '';
   return `${base}${ns}/${plural}${n}`;

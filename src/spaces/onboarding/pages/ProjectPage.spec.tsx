@@ -24,8 +24,8 @@ vi.mock('../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx', ()
 vi.mock('../../../components/Projects/ProjectChooser.tsx', () => ({
   default: () => null,
 }));
-vi.mock('../../../components/Shared/CopyButton.tsx', () => ({
-  CopyButton: () => null,
+vi.mock('../../../components/ControlPlanes/List/ProjectInfoPopoverButton.tsx', () => ({
+  ProjectInfoPopoverButton: () => null,
 }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),

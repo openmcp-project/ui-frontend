@@ -162,6 +162,7 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     isLocalDev
       ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${telemetryOrigins}`
       : `script-src 'self' ${scriptSrcSources}`,
+    "worker-src 'self' blob:",
     "frame-src 'self'",
     `frame-ancestors 'self'${frameAncestors ? ` ${frameAncestors}` : ''}`,
     "base-uri 'self'",

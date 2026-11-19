@@ -9,9 +9,8 @@ import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
-import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { extractSupportInfo, resolveSupportInfo, SupportInfo, SupportInfoCandidate } from '../../../lib/supportInfo.ts';
 import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MemberKind, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
@@ -23,23 +22,22 @@ import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
-import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
-import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
 import { ObservableCard } from './ObservableCard.tsx';
+import { CreateControlPlaneButton } from './CreateControlPlaneButton.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
-import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceInfoPopover } from './WorkspaceInfoPopover.tsx';
 import { WorkspaceSupportInfoTag } from './WorkspaceSupportInfoTag.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   projectName: string;
+  projectSupportInfo?: SupportInfo;
   workspace: Workspace;
   search?: string;
   isExpanded?: boolean;
@@ -54,6 +52,7 @@ interface Props {
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
+  projectSupportInfo,
   workspace,
   search = '',
   isExpanded,
@@ -65,16 +64,13 @@ export function ControlPlaneListWorkspaceGridTile({
   useMcpsQuery = _useMcpsQuery,
   useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
-  const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
-  const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
   const projectNamespace = workspace.metadata.namespace;
 
   const { t } = useTranslation();
-  const { enableMcpV2 } = useFeatureToggle();
   const { user, isPending: authPending } = useAuthOnboardingHook();
 
   const isMember: boolean | null =
@@ -87,6 +83,8 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
+  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
+  const infoButtonId = `workspace-info-btn-${workspaceName}`;
 
   const mcpNamespace = `project-${projectName}--ws-${workspaceName}`;
 
@@ -109,7 +107,7 @@ export function ControlPlaneListWorkspaceGridTile({
   // firing its own 6 queries — see useMcpV2ComponentsListQuery.
   const { componentsByName: v2ComponentsByName, isLoading: isLoadingV2ComponentsList } = useMcpV2ComponentsListQuery(
     mcpNamespace,
-    !enableMcpV2 || fetchMode !== 'full',
+    fetchMode !== 'full',
   );
 
   const isForbidden = isMember === false || (!!cpsError && isForbiddenError(cpsError));
@@ -222,9 +220,22 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
-  const supportInfo = useMemo(
-    () => extractSupportInfo(workspace.metadata.annotations),
-    [workspace.metadata.annotations],
+  const resolvedSupportInfo = useMemo(
+    () =>
+      resolveSupportInfo(
+        extractSupportInfo(workspace.metadata.annotations),
+        projectSupportInfo ? [{ kind: 'Project', name: projectName, info: projectSupportInfo }] : [],
+      ),
+    [workspace.metadata.annotations, projectSupportInfo, projectName],
+  );
+
+  const parentSupportInfoForMcps = useMemo<SupportInfoCandidate>(
+    () => ({
+      kind: resolvedSupportInfo.inheritedFrom?.kind ?? 'Workspace',
+      name: resolvedSupportInfo.inheritedFrom?.name ?? workspaceName,
+      info: resolvedSupportInfo.info,
+    }),
+    [resolvedSupportInfo, workspaceName],
   );
 
   if (hidden) return null;
@@ -300,15 +311,36 @@ export function ControlPlaneListWorkspaceGridTile({
                 </Title>
               </button>
             )}
-            <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <WorkspaceSupportInfoTag
-              workspaceName={workspaceName}
-              namespace={projectNamespace}
-              supportInfo={supportInfo}
-            />
-            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
-            <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+            <FlexBox alignItems={'Center'} className={styles.workspaceActions} gap={'1rem'}>
+              <WorkspaceSupportInfoTag
+                workspaceName={workspaceName}
+                namespace={projectNamespace}
+                resolved={resolvedSupportInfo}
+              />
+
+              <Button
+                id={infoButtonId}
+                design="Transparent"
+                icon="information"
+                tooltip={t('WorkspaceInfoPopover.infoButton')}
+                onClick={() => setInfoPopoverOpen((prev) => !prev)}
+              />
+              <WorkspaceInfoPopover
+                opener={infoButtonId}
+                open={infoPopoverOpen}
+                workspaceName={workspaceName}
+                workspaceDisplayName={showDisplayName ? workspaceDisplayName : undefined}
+                namespace={workspace.status?.namespace || '-'}
+                projectNamespace={projectNamespace}
+                members={uniqueMembers}
+                isForbidden={isForbidden}
+                onClose={() => setInfoPopoverOpen(false)}
+                onEditClick={() => {
+                  setInfoPopoverOpen(false);
+                  setDialogEditWsIsOpen(true);
+                }}
+              />
               {isForbidden && (
                 <a href={requestAccessMailtoHref}>
                   <Button design="Transparent" icon="email">
@@ -316,20 +348,16 @@ export function ControlPlaneListWorkspaceGridTile({
                   </Button>
                 </a>
               )}
-              <YamlViewButton
-                variant="loader"
-                workspaceName={workspace.metadata.namespace}
-                resourceName={workspaceName}
-                resourceType={'workspaces'}
-              />
               <ControlPlanesListMenu
                 setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                 setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
-                setInitialTemplateName={setInitialTemplateName}
-                setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 disabled={isForbidden}
+                showCreateActions={shouldCollapsePanel}
+                onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)}
               />
+              {!shouldCollapsePanel && (
+                <CreateControlPlaneButton onCreate={() => setIsCreateManagedControlPlaneWizardOpenV2(true)} />
+              )}
             </FlexBox>
           </div>
 
@@ -356,30 +384,16 @@ export function ControlPlaneListWorkspaceGridTile({
                     buttonText: t('IllustratedBanner.helpButton'),
                   }}
                   button={
-                    <>
-                      <Button
-                        className={styles.createButton}
-                        icon={'add'}
-                        design={'Emphasized'}
-                        onClick={() => {
-                          setIsCreateManagedControlPlaneWizardOpen(true);
-                        }}
-                      >
-                        {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
-                      </Button>
-
-                      {enableMcpV2 && (
-                        <Button
-                          className={styles.createButton}
-                          icon={'add'}
-                          onClick={() => {
-                            setIsCreateManagedControlPlaneWizardOpenV2(true);
-                          }}
-                        >
-                          {t('ControlPlaneListToolbar.createNewControlPlane')}
-                        </Button>
-                      )}
-                    </>
+                    <Button
+                      className={styles.createButton}
+                      icon={'add'}
+                      design={'Emphasized'}
+                      onClick={() => {
+                        setIsCreateManagedControlPlaneWizardOpenV2(true);
+                      }}
+                    >
+                      {t('ControlPlaneListToolbar.createNewControlPlane')}
+                    </Button>
                   }
                 />
               ) : (
@@ -391,6 +405,7 @@ export function ControlPlaneListWorkspaceGridTile({
                           controlPlane={mcp}
                           projectName={projectName}
                           workspace={workspace}
+                          parentSupportInfo={parentSupportInfoForMcps}
                           // A CP with nothing installed gets no `componentsByName` entry, which by
                           // key presence alone looks the same as "not fetched yet". Once the fetch
                           // finishes, default a missing entry to `{}` (ControlPlaneCard reads
@@ -437,25 +452,16 @@ export function ControlPlaneListWorkspaceGridTile({
       {/* Mounted only while open. The open/closed flag lives in this tile's own `useState`, which
           already survives parent re-renders, so conditional mounting doesn't lose form state — it
           only unmounts on close (intended) or if this tile unmounts. Tiles are kept mounted across
-          transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizards
-          unconditionally would run their hooks (auth, GetManagedComponents query) on every tile even
+          transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizard
+          unconditionally would run its hooks (auth, GetManagedComponents query) on every tile even
           while closed. */}
-      {isCreateManagedControlPlaneWizardOpen ? (
-        <CreateManagedControlPlaneWizardContainer
-          isOpen={isCreateManagedControlPlaneWizardOpen}
-          setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
-          projectName={projectNamespace}
-          workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
-        />
-      ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
         <CreateControlPlaneV2WizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpenV2}
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}
           workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
+          initialTemplateName={undefined}
         />
       ) : null}
     </div>

@@ -26,6 +26,37 @@ export function extractSupportInfo(annotations: Record<string, string> | null | 
   };
 }
 
+export type SupportInfoSourceKind = 'Project' | 'Workspace';
+
+export interface SupportInfoSource {
+  kind: SupportInfoSourceKind;
+  name: string;
+}
+
+export interface SupportInfoCandidate extends SupportInfoSource {
+  info: SupportInfo;
+}
+
+export interface ResolvedSupportInfo {
+  info: SupportInfo;
+  inheritedFrom?: SupportInfoSource;
+}
+
+export function hasSupportInfo(info: SupportInfo | undefined): boolean {
+  if (!info) return false;
+  return [info.supportLandscape, info.supportServiceIds, info.supportSecurityContacts, info.supportOpsContacts].some(
+    (v) => !!v && v.trim() !== '',
+  );
+}
+
+// Inheritance is whole-block: setting any field on a resource replaces all parent values.
+export function resolveSupportInfo(own: SupportInfo, parents: SupportInfoCandidate[]): ResolvedSupportInfo {
+  if (hasSupportInfo(own)) return { info: own };
+  const parent = parents.find((p) => hasSupportInfo(p.info));
+  if (!parent) return { info: own };
+  return { info: parent.info, inheritedFrom: { kind: parent.kind, name: parent.name } };
+}
+
 /** Set2 color scheme index used by the Purpose Tag throughout the app. */
 export function purposeColorScheme(landscape?: string): string {
   switch (landscape) {

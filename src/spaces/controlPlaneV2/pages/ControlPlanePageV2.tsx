@@ -28,10 +28,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { ControlPlaneStatusPopoverButton } from '../../../components/ControlPlane/ControlPlaneStatusPopoverButton.tsx';
 import type { ServicePhases } from '../../../components/ControlPlane/controlPlaneHealth.ts';
 import { useMcpV2ComponentsListQuery } from '../components/Kpi/useMcpV2ComponentsListQuery.ts';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpSupportInfoTag } from '../../../components/ControlPlanes/ControlPlaneCard/McpSupportInfoTag.tsx';
 import { extractSupportInfo } from '../../../lib/supportInfo.ts';
+import { EgressIpInfo, extractEgressIpInfo } from '../../../lib/egressIp.ts';
+import { useInheritedSupportInfo as _useInheritedSupportInfo } from '../../onboarding/hooks/useInheritedSupportInfo.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -39,8 +42,9 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { useClusterRoles } from '../hooks/useClusterRoles.ts';
 import { flattenOidcRoleBindings, MemberRoleBinding } from '../helpers/flattenOidcRoleBindings.ts';
-import { ControlPlaneCondition } from '../../onboarding/types/ControlPlane.ts';
+import { ControlPlaneCondition, ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -97,6 +101,7 @@ function OpenSourceHeadlamp({
   mcpConditions,
   mcpDeletionTimestamp,
   roleBindings,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
@@ -107,9 +112,13 @@ function OpenSourceHeadlamp({
   mcpConditions?: ControlPlaneCondition[] | null;
   mcpDeletionTimestamp?: string | null;
   roleBindings?: MemberRoleBinding[];
+  onEditMcp: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  // Runs inside the control-plane session, so the ShellBar popover (which is outside it) can mark
+  // roles that do not exist. Handed over through setMcpActions.
+  const clusterRolesLookup = useClusterRoles();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
@@ -217,6 +226,9 @@ function OpenSourceHeadlamp({
       roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: mcpNamespace,
+      resourceType: 'controlplanes',
+      existingClusterRoles: clusterRolesLookup.state === 'ready' ? clusterRolesLookup.all : undefined,
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
@@ -226,6 +238,7 @@ function OpenSourceHeadlamp({
         deletionTimestamp: mcpDeletionTimestamp,
         services,
       },
+      onEditMcp,
     });
     return () => {
       clearMcpActions();
@@ -234,8 +247,11 @@ function OpenSourceHeadlamp({
     mcp.kubeconfig,
     mcp.name,
     roleBindings,
+    clusterRolesLookup.state,
+    clusterRolesLookup.all,
     projectName,
     workspaceName,
+    mcpNamespace,
     backPath,
     navigate,
     setMcpActions,
@@ -246,6 +262,7 @@ function OpenSourceHeadlamp({
     mcpConditions,
     mcpDeletionTimestamp,
     services,
+    onEditMcp,
   ]);
 
   useEffect(() => {
@@ -424,21 +441,60 @@ function OpenSourceHeadlamp({
   );
 }
 
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  namespace,
+  egressIp,
+  mcpStatus,
+  onEditMcp,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  namespace?: string;
+  egressIp?: EgressIpInfo;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      project: projectName,
+      workspace: workspaceName,
+      namespace,
+      resourceType: 'controlplanes',
+      egressIp,
+      mcpStatus,
+      onEditMcp,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [
+    controlPlaneName,
+    projectName,
+    workspaceName,
+    namespace,
+    egressIp,
+    mcpStatus,
+    onEditMcp,
+    setMcpActions,
+    clearMcpActions,
+  ]);
   return null;
 }
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function ControlPlanePageV2() {
+interface Props {
+  useInheritedSupportInfo?: typeof _useInheritedSupportInfo;
+}
+
+export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInheritedSupportInfo }: Props) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -479,6 +535,10 @@ export default function ControlPlanePageV2() {
     );
   }, [mode, setSearchParams]);
   const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
+  const resolvedSupportInfo = useInheritedSupportInfo(
+    extractSupportInfo(mcp?.metadata?.annotations as Record<string, string> | undefined),
+    { projectName, workspaceName },
+  );
   const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
@@ -510,8 +570,13 @@ export default function ControlPlanePageV2() {
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+  useDocumentTitle(displayName ?? controlPlaneName);
 
   const roleBindings = useMemo(() => flattenOidcRoleBindings(mcp?.spec?.iam?.oidc), [mcp?.spec?.iam?.oidc]);
+  const egressIp = useMemo(
+    () => extractEgressIpInfo(mcp?.metadata?.annotations, mcp?.status?.conditions),
+    [mcp?.metadata?.annotations, mcp?.status?.conditions],
+  );
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
@@ -575,6 +640,14 @@ export default function ControlPlanePageV2() {
                 mcpConditions={mcp.status?.conditions}
                 mcpDeletionTimestamp={mcp.metadata?.deletionTimestamp}
                 roleBindings={roleBindings}
+                onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+              />
+              <EditControlPlaneV2WizardDataLoader
+                isOpen={isEditManagedControlPlaneWizardOpen}
+                setIsOpen={handleEditManagedControlPlaneWizardClose}
+                namespace={namespace}
+                resourceName={controlPlaneName}
+                initialSection={editManagedControlPlaneWizardSection}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
@@ -597,7 +670,19 @@ export default function ControlPlanePageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              namespace={mcp?.metadata?.namespace}
+              egressIp={egressIp}
+              mcpStatus={
+                mcp?.metadata?.deletionTimestamp
+                  ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                  : mcp?.status
+              }
+              onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+            />
             <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
@@ -652,16 +737,14 @@ export default function ControlPlanePageV2() {
                         large
                       />
                     </FlexBox>
-                    <McpMembersAvatarView roleBindings={roleBindings} />
+                    <McpMembersAvatarView roleBindings={roleBindings} clusterRoles />
 
                     <FlexBox direction="Column">
                       <Text className={styles.supportInfoText}>{t('SupportInfo.sectionLabel')}</Text>
                       <McpSupportInfoTag
                         namespace={mcp.metadata?.namespace ?? namespace ?? ''}
                         resourceName={controlPlaneName}
-                        supportInfo={extractSupportInfo(
-                          mcp.metadata?.annotations as Record<string, string> | undefined,
-                        )}
+                        resolved={resolvedSupportInfo}
                       />
                     </FlexBox>
                   </FlexBox>

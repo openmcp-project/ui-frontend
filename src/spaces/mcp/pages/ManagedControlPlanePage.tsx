@@ -34,6 +34,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle.ts';
 import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -72,6 +73,7 @@ function OpenSourceHeadlamp({
   mcpCreationTimestamp,
   mcpCreatedBy,
   mcpStatus,
+  onEditMcp,
 }: {
   projectName: string;
   workspaceName: string;
@@ -80,6 +82,7 @@ function OpenSourceHeadlamp({
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
   mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -139,10 +142,13 @@ function OpenSourceHeadlamp({
       roleBindings: mcp.roleBindings,
       project: projectName,
       workspace: workspaceName,
+      namespace: `project-${projectName}--ws-${workspaceName}`,
+      resourceType: 'managedcontrolplanes',
       navigateBack: () => navigate(backPath),
       mcpCreationTimestamp,
       mcpCreatedBy,
       mcpStatus,
+      onEditMcp,
     });
     return () => {
       clearMcpActions();
@@ -160,6 +166,7 @@ function OpenSourceHeadlamp({
     mcpCreationTimestamp,
     mcpCreatedBy,
     mcpStatus,
+    onEditMcp,
   ]);
 
   // Register and load the kubeconfig, then set the iframe src
@@ -248,16 +255,39 @@ function OpenSourceHeadlamp({
   );
 }
 
-// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
-// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
-function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+// Registers mcpName + status in ShellBarMcpActionsContext so the mode toggle and status
+// badge appear in legacy mode. No kubeconfig, roleBindings, or navigateBack — those extras
+// are open-source only.
+function LegacyModeShellBarSync({
+  controlPlaneName,
+  projectName,
+  workspaceName,
+  namespace,
+  mcpStatus,
+  onEditMcp,
+}: {
+  controlPlaneName: string;
+  projectName: string;
+  workspaceName: string;
+  namespace?: string;
+  mcpStatus?: { status?: string | null; phase?: string | null; conditions?: ControlPlaneCondition[] | null } | null;
+  onEditMcp: () => void;
+}) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions({ mcpName: controlPlaneName });
+    setMcpActions({
+      mcpName: controlPlaneName,
+      project: projectName,
+      workspace: workspaceName,
+      namespace,
+      resourceType: 'managedcontrolplanes',
+      mcpStatus,
+      onEditMcp,
+    });
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, projectName, workspaceName, namespace, mcpStatus, onEditMcp, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -320,6 +350,7 @@ export default function ManagedControlPlanePage() {
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+  useDocumentTitle(displayName ?? controlPlaneName);
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);
@@ -413,6 +444,7 @@ export default function ManagedControlPlanePage() {
                 mcpCreationTimestamp={mcp.metadata.creationTimestamp}
                 mcpCreatedBy={mcp.metadata.annotations?.['openmcp.cloud/created-by'] as string | undefined}
                 mcpStatus={mcp.status}
+                onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
               />
               <EditManagedControlPlaneWizardDataLoader
                 isOpen={isEditManagedControlPlaneWizardOpen}
@@ -440,7 +472,14 @@ export default function ManagedControlPlanePage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
+            <LegacyModeShellBarSync
+              controlPlaneName={controlPlaneName}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              namespace={mcp?.status?.access?.namespace}
+              mcpStatus={mcp?.status}
+              onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
+            />
             <McpDragDropRegistrar name={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"

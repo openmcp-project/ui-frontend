@@ -4,6 +4,8 @@ import { oidcIssuerUrlSchema, oidcProviderNameRegex } from '../../../lib/api/val
 const RoleRefSchema = z.object({
   kind: z.enum(['ClusterRole', 'Role']),
   name: z.string().min(1),
+  // Required by the CRD for kind 'Role', forbidden for 'ClusterRole'.
+  namespace: z.string().optional(),
 });
 
 const SubjectSchema = z.object({
@@ -88,6 +90,8 @@ export const McpV2InputSchema = z
     supportServiceIds: z.string().optional(),
     supportSecurityContacts: z.string().optional(),
     supportOpsContacts: z.string().optional(),
+    // Opt-in to a reserved static egress IP (`egress-ip.platform.open-control-plane.io/enabled`).
+    staticEgressIp: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
     const seen = new Set<string>();
