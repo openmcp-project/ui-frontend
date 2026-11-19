@@ -14,6 +14,10 @@ export interface McpActions {
   // which holds the openmcp Workspace name) — used to load its YAML.
   namespace?: string;
   resourceType?: 'controlplanes' | 'managedcontrolplanes';
+  // v2 only: ClusterRoles that exist in the control plane, so the ShellBar member popover can mark
+  // roles that do not exist. Computed next to the Headlamp view (inside the control-plane session);
+  // undefined = not checked, nothing is flagged.
+  existingClusterRoles?: string[];
   onEditMcp?: () => void;
   navigateBack?: () => void;
   mcpCreationTimestamp?: string;

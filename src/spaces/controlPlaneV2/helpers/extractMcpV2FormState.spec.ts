@@ -32,6 +32,67 @@ describe('extractMcpV2FormState', () => {
     expect(state.extraProviders).toEqual([]);
   });
 
+  it('keeps the bound roles as they are instead of normalizing them to cluster-admin', () => {
+    const state = extractMcpV2FormState(
+      makeControlPlane({
+        iam: {
+          oidc: {
+            defaultProvider: {
+              roleBindings: [
+                {
+                  roleRefs: [{ kind: 'ClusterRole', name: 'view' }],
+                  subjects: [{ kind: 'User', name: 'alice' }],
+                },
+                {
+                  roleRefs: [{ kind: 'ClusterRole', name: 'my-custom-role' }],
+                  subjects: [{ kind: 'Group', name: 'platform-team' }],
+                },
+              ],
+            },
+            extraProviders: [],
+          },
+        },
+      }),
+    );
+    expect(state.members).toEqual([
+      { kind: 'User', name: 'alice', roles: ['view'] },
+      { kind: 'Group', name: 'platform-team', roles: ['my-custom-role'] },
+    ]);
+  });
+
+  it('collects every role of a subject across roleRefs and bindings, including namespaced Roles', () => {
+    const state = extractMcpV2FormState(
+      makeControlPlane({
+        iam: {
+          oidc: {
+            defaultProvider: {
+              roleBindings: [
+                {
+                  roleRefs: [
+                    { kind: 'ClusterRole', name: 'view' },
+                    { kind: 'Role', name: 'deployer', namespace: 'team-a' },
+                  ],
+                  subjects: [{ kind: 'User', name: 'alice' }],
+                },
+                {
+                  roleRefs: [
+                    { kind: 'ClusterRole', name: 'crossplane-view' },
+                    { kind: 'ClusterRole', name: 'view' },
+                  ],
+                  subjects: [{ kind: 'User', name: 'alice' }],
+                },
+              ],
+            },
+            extraProviders: [],
+          },
+        },
+      }),
+    );
+    expect(state.members).toEqual([
+      { kind: 'User', name: 'alice', roles: ['view', 'Role/team-a/deployer', 'crossplane-view'] },
+    ]);
+  });
+
   it('returns empty members when defaultProvider is absent', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({ iam: { oidc: { defaultProvider: null, extraProviders: [] } } }),

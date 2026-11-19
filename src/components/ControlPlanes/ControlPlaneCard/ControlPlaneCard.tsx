@@ -450,7 +450,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} compact />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} clusterRoles={isV2} compact />
           </div>
 
           <div className={styles.footerRight}>

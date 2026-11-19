@@ -10,7 +10,12 @@ import { McpV2Input } from '../../mcp/schemas/mcpV2Input.schema.ts';
 
 function toRoleBindingsInput(roleBindings: McpV2Input['roleBindings']) {
   return roleBindings.map((rb) => ({
-    roleRefs: rb.roleRefs.map((ref) => ({ kind: ref.kind, name: ref.name })),
+    roleRefs: rb.roleRefs.map((ref) => ({
+      kind: ref.kind,
+      name: ref.name,
+      // Only valid (and required) for namespaced Roles — the CRD rejects it on ClusterRoles.
+      ...(ref.kind === 'Role' && ref.namespace ? { namespace: ref.namespace } : {}),
+    })),
     subjects: rb.subjects.map((s) => ({
       kind: s.kind,
       name: s.name.trim(),

@@ -74,7 +74,7 @@ export const CONTROL_PLANE_V2_SERVICES: ControlPlaneV2ServiceDef[] = [
     logo: LogoKro,
     serviceName: 'kro',
     apiVersion: 'kro.services.open-control-plane.io/v1alpha1',
-    kind: 'KRO',
+    kind: 'Kro',
     yamlComponent: 'kro',
   },
   {

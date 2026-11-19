@@ -1,0 +1,352 @@
+import '@ui5/webcomponents-icons/dist/add';
+import '@ui5/webcomponents-icons/dist/upload';
+import {
+  BusyIndicator,
+  Button,
+  FlexBox,
+  Label,
+  Link,
+  MessageStrip,
+  MultiInput,
+  MultiInputDomRef,
+  Panel,
+  SuggestionItem,
+  Text,
+  Title,
+  Token,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
+import type { MultiInputTokenDeleteEventDetail } from '@ui5/webcomponents/dist/MultiInput.js';
+import { FC, ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  DEFAULT_CLUSTER_ROLE,
+  formatRoleRef,
+  isNamespacedRole,
+  isValidClusterRoleName,
+  uniqueRoles,
+} from '../../lib/api/types/shared/clusterRoles.ts';
+import { ChoiceOption, RoleBadge } from './MemberBadges.tsx';
+import styles from './Members.module.css';
+
+export const KUBERNETES_RBAC_DOCS_URL =
+  'https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles';
+
+type StandardRole = typeof DEFAULT_CLUSTER_ROLE | 'admin' | 'edit' | 'view';
+// Kubernetes' built-in user-facing roles, broadest first: each one includes all that follow.
+const STANDARD_ROLES: readonly string[] = [DEFAULT_CLUSTER_ROLE, 'admin', 'edit', 'view'];
+
+// Whether the control plane's ClusterRoles are known:
+//   'unknown' – no lookup possible (control plane not created yet, or no session for it). Names are
+//               accepted as typed and nothing is flagged.
+//   'ready'   – `availableCustomRoles` is the full list; other names are flagged as "not found".
+// A role that does not exist (yet) is never an error: the platform accepts such bindings, they just
+// grant nothing until the role is created.
+export type CustomRolesState = 'unknown' | 'loading' | 'ready' | 'error';
+
+export interface MemberAccessSelectProps {
+  /** Encoded role refs (see clusterRoles.ts). */
+  roles: string[];
+  onChange: (roles: string[]) => void;
+  /** ClusterRoles that exist in the control plane (without Kubernetes' internal `system:` roles). */
+  availableCustomRoles?: string[];
+  customRolesState?: CustomRolesState;
+  platformDocsUrl?: string;
+  /** Link to this control plane's roles in the embedded Headlamp view (when a session exists). */
+  rolesViewUrl?: string;
+  /** Opens the create-role dialog, optionally prefilled with a not-found role's name. */
+  onCreateRole?: (name?: string) => void;
+  /** Opens the view-role dialog for an existing role. */
+  onViewRole?: (name: string) => void;
+  onUploadRole?: () => void;
+  errorMessage?: string;
+  testIdPrefix?: string;
+  /** When true the custom-roles panel starts collapsed; when false it starts expanded. Defaults to
+   * collapsed when no custom roles are present in `roles` at mount time. */
+  defaultCustomPanelCollapsed?: boolean;
+}
+
+export const MemberAccessSelect: FC<MemberAccessSelectProps> = ({
+  roles,
+  onChange,
+  availableCustomRoles = [],
+  customRolesState = 'unknown',
+  platformDocsUrl,
+  rolesViewUrl,
+  onCreateRole,
+  onViewRole,
+  onUploadRole,
+  errorMessage,
+  testIdPrefix,
+  defaultCustomPanelCollapsed,
+}) => {
+  const { t } = useTranslation();
+  const withTestId = (testId: string) => (testIdPrefix ? `${testIdPrefix}-${testId}` : testId);
+  // Kubernetes permissions only ever add up, so any combination is valid — but a role that is fully
+  // covered by a broader one changes nothing. Say so instead of forbidding it: such combinations can
+  // be created through the API anyway and must stay editable here.
+  const standardTitle = (role: string) =>
+    t(`MemberAccess.roles.${role === DEFAULT_CLUSTER_ROLE ? 'clusterAdmin' : role}.title`);
+
+  const coveredBy = (role: StandardRole | 'custom'): string | undefined => {
+    // cluster-admin covers everything, custom roles included; admin ⊇ edit ⊇ view.
+    const rank = role === 'custom' ? 1 : STANDARD_ROLES.indexOf(role);
+    const broader = STANDARD_ROLES.slice(0, rank).find((candidate) => roles.includes(candidate));
+    return broader ? standardTitle(broader) : undefined;
+  };
+
+  const customSelected = roles.filter((role) => !STANDARD_ROLES.includes(role));
+  const suggestions = availableCustomRoles.filter((role) => !roles.includes(role) && !STANDARD_ROLES.includes(role));
+
+  const toggle = (role: StandardRole) =>
+    onChange(roles.includes(role) ? roles.filter((r) => r !== role) : [...roles, role]);
+
+  const [hasInvalidInput, setHasInvalidInput] = useState(false);
+  const [customPanelCollapsed, setCustomPanelCollapsed] = useState(
+    () => defaultCustomPanelCollapsed ?? customSelected.length === 0,
+  );
+
+  // Enter, blur or picking a suggestion commits the typed text. Any valid name is accepted — the
+  // role does not have to exist.
+  const handleAddCustomRoles = (event: Ui5CustomEvent<MultiInputDomRef>) => {
+    const target = event.target as MultiInputDomRef & { value: string };
+    const names = (target.value ?? '').split(/[\s,]+/).filter((name) => name.length > 0);
+    if (names.length === 0) {
+      setHasInvalidInput(false);
+      return;
+    }
+    if (!names.every(isValidClusterRoleName)) {
+      setHasInvalidInput(true);
+      return;
+    }
+    onChange(uniqueRoles([...roles, ...names]));
+    setHasInvalidInput(false);
+    target.value = '';
+  };
+
+  const handleDeleteCustomRoles = (event: Ui5CustomEvent<MultiInputDomRef, MultiInputTokenDeleteEventDetail>) => {
+    const removed = new Set((event.detail.tokens ?? []).map((token) => token.dataset.role ?? ''));
+    onChange(roles.filter((role) => !removed.has(role)));
+  };
+
+  const isNotFound = (role: string) =>
+    customRolesState === 'ready' &&
+    !isNamespacedRole(role) &&
+    !role.startsWith('system:') &&
+    !availableCustomRoles.includes(role);
+
+  const redundancyNote = (role: StandardRole | 'custom') => {
+    const broader = coveredBy(role);
+    return broader ? (
+      <MessageStrip
+        className={styles.accessCovered}
+        design="Information"
+        hideCloseButton
+        data-testid={withTestId(`access-${role}-covered`)}
+      >
+        {t('MemberAccess.coveredBy', { role: broader })}
+      </MessageStrip>
+    ) : null;
+  };
+
+  // Bullet lists are string arrays in the locale file; fall back to a single line if a locale
+  // provides a plain string (or the key is missing).
+  const bullets = (key: string): string[] => {
+    const value: unknown = t(key, { returnObjects: true });
+    return Array.isArray(value) ? value.map(String) : [String(value)];
+  };
+
+  const option = (role: StandardRole, title: string, points: string[]) => (
+    <ChoiceOption
+      type="checkbox"
+      checked={roles.includes(role)}
+      badge={<RoleBadge role={role} clusterRole />}
+      accessibleName={title}
+      points={points}
+      note={roles.includes(role) ? redundancyNote(role) : null}
+      testId={withTestId(`access-${role}`)}
+      onToggle={() => toggle(role)}
+    />
+  );
+
+  const group = (title: string, description: string, docsUrl: string | undefined, children: ReactNode) => (
+    <section className={styles.accessGroup}>
+      <FlexBox alignItems="Baseline" justifyContent="SpaceBetween" gap={8}>
+        <Title level="H6" size="H6">
+          {title}
+        </Title>
+        {docsUrl && (
+          <Link href={docsUrl} target="_blank">
+            {t('MemberAccess.learnMore')}
+          </Link>
+        )}
+      </FlexBox>
+      <Text className={styles.accessGroupDescription}>{description}</Text>
+      {children}
+    </section>
+  );
+
+  return (
+    <FlexBox direction="Column" gap={12} data-testid={withTestId('member-access-select')}>
+      <FlexBox direction="Column">
+        <Label>{t('MemberAccess.label')}</Label>
+        {errorMessage && (
+          <Text className={styles.errorText} data-testid={withTestId('member-access-error')}>
+            {errorMessage}
+          </Text>
+        )}
+      </FlexBox>
+
+      {group(
+        t('MemberAccess.platform.title'),
+        t('MemberAccess.platform.description'),
+        platformDocsUrl,
+        option(
+          DEFAULT_CLUSTER_ROLE,
+          t('MemberAccess.roles.clusterAdmin.title'),
+          bullets('MemberAccess.roles.clusterAdmin.bullets'),
+        ),
+      )}
+
+      {group(
+        t('MemberAccess.kubernetes.title'),
+        t('MemberAccess.kubernetes.description'),
+        KUBERNETES_RBAC_DOCS_URL,
+        <>
+          {option('admin', t('MemberAccess.roles.admin.title'), bullets('MemberAccess.roles.admin.bullets'))}
+          {option('edit', t('MemberAccess.roles.edit.title'), bullets('MemberAccess.roles.edit.bullets'))}
+          {option('view', t('MemberAccess.roles.view.title'), bullets('MemberAccess.roles.view.bullets'))}
+        </>,
+      )}
+
+      <Panel
+        className={styles.accessGroup}
+        collapsed={customPanelCollapsed}
+        data-testid={withTestId('custom-roles-panel')}
+        headerText={t('MemberAccess.custom.title')}
+        onToggle={() => setCustomPanelCollapsed((prev) => !prev)}
+      >
+        <FlexBox direction="Column" gap={8} className={styles.accessCustom}>
+          {customSelected.length > 0 && redundancyNote('custom')}
+          <MultiInput
+            className={styles.input}
+            data-testid={withTestId('custom-roles-input')}
+            placeholder={t('MemberAccess.custom.placeholder')}
+            valueState={hasInvalidInput ? 'Negative' : 'None'}
+            valueStateMessage={<span>{hasInvalidInput ? t('MemberAccess.custom.invalidName') : ''}</span>}
+            showSuggestions
+            tokens={
+              <>
+                {customSelected.map((role) => (
+                  <Token
+                    key={role}
+                    data-role={role}
+                    text={
+                      isNotFound(role)
+                        ? t('MemberAccess.custom.notFoundSuffix', { role: formatRoleRef(role) })
+                        : formatRoleRef(role)
+                    }
+                  />
+                ))}
+              </>
+            }
+            onChange={handleAddCustomRoles}
+            onInput={() => setHasInvalidInput(false)}
+            onTokenDelete={handleDeleteCustomRoles}
+          >
+            {suggestions.map((role) => (
+              <SuggestionItem key={role} text={role} />
+            ))}
+          </MultiInput>
+          {customSelected.length > 0 && (customRolesState === 'ready' || customRolesState === 'error') && (
+            <FlexBox direction="Column" gap={2} data-testid={withTestId('custom-roles-list')}>
+              {customSelected.map((role) => {
+                const notFound = isNotFound(role);
+                return (
+                  <FlexBox
+                    key={role}
+                    alignItems="Center"
+                    justifyContent="SpaceBetween"
+                    className={styles.customRoleRow}
+                  >
+                    <Text>{formatRoleRef(role)}</Text>
+                    <FlexBox alignItems="Center" gap={8}>
+                      {notFound ? (
+                        <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.statusNotFound')}</Text>
+                      ) : (
+                        !isNamespacedRole(role) && (
+                          <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.statusExists')}</Text>
+                        )
+                      )}
+                      {notFound && onCreateRole && (
+                        <Button
+                          design="Transparent"
+                          data-testid={withTestId(`custom-role-create-${role}`)}
+                          onClick={() => onCreateRole(role)}
+                        >
+                          {t('MemberAccess.custom.rowCreate')}
+                        </Button>
+                      )}
+                      {!notFound && !isNamespacedRole(role) && onViewRole && (
+                        <Button
+                          design="Transparent"
+                          data-testid={withTestId(`custom-role-view-${role}`)}
+                          onClick={() => onViewRole(role)}
+                        >
+                          {t('MemberAccess.custom.rowView')}
+                        </Button>
+                      )}
+                    </FlexBox>
+                  </FlexBox>
+                );
+              })}
+            </FlexBox>
+          )}
+          {customRolesState === 'loading' && <BusyIndicator active delay={0} size="S" />}
+          {customRolesState === 'unknown' &&
+            (rolesViewUrl ? (
+              <Text className={styles.accessGroupDescription}>
+                <Link href={rolesViewUrl} target="_blank" data-testid={withTestId('roles-view-link')}>
+                  {t('MemberAccess.custom.openRolesView')}
+                </Link>
+              </Text>
+            ) : (
+              <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.unknown')}</Text>
+            ))}
+          {customRolesState === 'error' && (
+            <Text className={styles.accessGroupDescription}>{t('MemberAccess.custom.loadError')}</Text>
+          )}
+          {customRolesState === 'ready' && customSelected.some(isNotFound) && (
+            <MessageStrip design="Information" data-testid={withTestId('custom-roles-not-found')} hideCloseButton>
+              {t('MemberAccess.custom.notFoundHint')}
+            </MessageStrip>
+          )}
+          {(onCreateRole || onUploadRole) && (
+            <FlexBox gap={8}>
+              {onCreateRole && (
+                <Button
+                  design="Transparent"
+                  icon="add"
+                  data-testid={withTestId('create-custom-role')}
+                  onClick={() => onCreateRole()}
+                >
+                  {t('MemberAccess.custom.create')}
+                </Button>
+              )}
+              {onUploadRole && (
+                <Button
+                  design="Transparent"
+                  icon="upload"
+                  data-testid={withTestId('upload-custom-role')}
+                  onClick={onUploadRole}
+                >
+                  {t('MemberAccess.custom.upload')}
+                </Button>
+              )}
+            </FlexBox>
+          )}
+        </FlexBox>
+      </Panel>
+    </FlexBox>
+  );
+};

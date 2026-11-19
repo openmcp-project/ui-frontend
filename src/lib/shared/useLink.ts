@@ -15,6 +15,7 @@ export function useLink() {
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
     ),
     identityProviderGuide: createLink('/operators/quickstart#configure-an-identity-provider'),
+    mcpOnboardingAuthDocs: createLink('/users/getting-started/onboard#authentication--authorization'),
     projectsGuide: createLink('/users/concepts/projects-and-workspaces/'),
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
     contributeLink: githubBaseUrl,
