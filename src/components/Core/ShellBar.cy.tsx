@@ -275,7 +275,7 @@ describe('ShellBar', () => {
     cy.get('[data-testid="mcp-health-button"]').should('not.exist');
   });
 
-  it('shows a YAML button to the left of the edit button in the info popover when resourceType is set', () => {
+  it('shows the YAML button in the popover header and the edit button in the footer when resourceType is set', () => {
     mountComponent({
       mcpName: 'my-control-plane',
       namespace: 'project-my-project--ws-my-workspace',
@@ -285,17 +285,10 @@ describe('ShellBar', () => {
 
     cy.get('ui5-button[icon="information"]').click({ force: true });
 
+    // YAML stays in the header; Edit moved to the footer bar.
     cy.get('ui5-popover ui5-button[aria-label="View resource"]').should('exist');
-    cy.get('ui5-popover')
-      .find('ui5-button')
-      .then(($buttons) => {
-        const icons = [...$buttons].map((btn) => btn.getAttribute('icon') ?? btn.getAttribute('aria-label'));
-        const yamlIndex = icons.indexOf('View resource');
-        const editIndex = icons.indexOf('edit');
-        expect(yamlIndex).to.be.greaterThan(-1);
-        expect(editIndex).to.be.greaterThan(-1);
-        expect(yamlIndex).to.be.lessThan(editIndex);
-      });
+    cy.get('ui5-popover ui5-bar[design="Footer"] ui5-button[icon="edit"]').should('exist');
+    cy.get('ui5-popover ui5-bar[design="Footer"] ui5-button[aria-label="View resource"]').should('not.exist');
   });
 
   it('does not show a YAML button in the info popover when resourceType is not set', () => {

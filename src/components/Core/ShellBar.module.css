@@ -48,8 +48,8 @@
 .infoGrid {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.375rem 0.75rem;
-  align-items: baseline;
+  gap: 0.5rem 1rem;
+  align-items: center;
 }
 
 .egressIpValue {
@@ -82,4 +82,10 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.infoFooterActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
