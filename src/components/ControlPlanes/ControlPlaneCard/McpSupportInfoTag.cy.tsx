@@ -39,7 +39,9 @@ describe('McpSupportInfoTag', () => {
     });
 
     cy.get('[data-testid="mcp-support-info-tag"]').should('have.attr', 'data-inherited', 'true');
-    cy.get('[data-testid="mcp-support-info-tag"]').invoke('attr', 'title').should('match', /parent-ws/);
+    cy.get('[data-testid="mcp-support-info-tag"]')
+      .invoke('attr', 'title')
+      .should('match', /parent-ws/);
     cy.get('ui5-icon[name="sys-help"]').should('not.exist');
     cy.get('[data-testid="mcp-support-info-tag"]').click();
     cy.get('[data-testid="support-info-inherited-from"]').should('contain', 'parent-ws');
