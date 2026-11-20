@@ -147,7 +147,17 @@ export function ControlPlaneStatusPopoverButton({
       summary: summaryText,
       t,
     });
-  }, [t, health, stateVisual.labelKey, githubIssuesSupportTicket, projectName, workspaceName, mcpName, phase, conditions]);
+  }, [
+    t,
+    health,
+    stateVisual.labelKey,
+    githubIssuesSupportTicket,
+    projectName,
+    workspaceName,
+    mcpName,
+    phase,
+    conditions,
+  ]);
 
   const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     if (!popoverRef.current) return;
