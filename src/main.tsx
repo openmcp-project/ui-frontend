@@ -15,7 +15,6 @@ import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
 import { ToastProvider } from './context/ToastContext.tsx';
 import './index.css';
-import { configureMonaco } from './lib/monaco.ts';
 import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider.tsx';
 import './utils/i18n/i18n.ts';
@@ -23,8 +22,6 @@ import './utils/i18n/timeAgo';
 import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
 import { ViewModeProvider } from './context/ViewModeContext.tsx';
 import { ShellBarMcpActionsProvider } from './context/ShellBarMcpActionsContext.tsx';
-
-configureMonaco();
 
 interface SentryErrorFallbackProps {
   error: Error;

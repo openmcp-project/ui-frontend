@@ -36,7 +36,7 @@ export const YamlViewer: FC<YamlViewerProps> = ({
     >
       <YamlEditor
         value={yamlString}
-        path={`${filename}.yaml`}
+        path={filename}
         isEdit={isEdit}
         options={{ readOnly: !isEdit }}
         schema={schema}

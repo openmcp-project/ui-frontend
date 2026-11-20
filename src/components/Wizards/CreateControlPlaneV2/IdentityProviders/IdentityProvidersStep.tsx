@@ -2,7 +2,6 @@ import { Button, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-re
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { useCopyToClipboard } from '../../../../hooks/useCopyToClipboard.ts';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../../lib/shared/useLink.ts';
 import { buildRoleBindingsForProviderMembers } from '../../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
@@ -10,7 +9,7 @@ import { buildMcpV2GraphQLInput } from '../../../../spaces/controlPlaneV2/helper
 import { hasAssignedIamMember } from '../../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { ExtraProviderMetadata } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { EditMembers } from '../../../Members/EditMembers.tsx';
-import { YamlViewer } from '../../../Yaml/YamlViewer.tsx';
+import { YamlBlock } from '../../../Yaml/YamlBlock.tsx';
 import { AddEditProviderDialog } from './AddEditProviderDialog.tsx';
 import { DeleteProviderConfirmationDialog } from './DeleteProviderConfirmationDialog.tsx';
 import styles from './IdentityProviders.module.css';
@@ -40,7 +39,6 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
 }) => {
   const { t } = useTranslation();
   const { identityProviderGuide } = useLink();
-  const { copyToClipboard } = useCopyToClipboard();
 
   const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
   const [providerToEdit, setProviderToEdit] = useState<ExtraProviderMetadata | undefined>(undefined);
@@ -222,13 +220,13 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
         </FlexBox>
 
         <FlexBox direction="Column" gap={16} className={styles.yaml}>
-          <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center">
-            <Text className={styles.yamlPreviewTitle}>{t('IdentityProviders.yamlPreviewTitle')}</Text>
-            <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(oidcYaml)}>
-              {t('buttons.copy')}
-            </Button>
-          </FlexBox>
-          <YamlViewer yamlString={oidcYaml} filename="identity-providers" />
+          <YamlBlock
+            value={oidcYaml}
+            filename="identity-providers"
+            title={t('IdentityProviders.yamlPreviewTitle')}
+            actions={['copy']}
+            size="fill"
+          />
         </FlexBox>
       </div>
 

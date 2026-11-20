@@ -17,6 +17,9 @@
 
 .yaml {
   min-width: 0;
+  /* Monaco needs a definite height to render — use a viewport-relative value
+     since this grid cell has no parent-driven height (align-items: start). */
+  height: calc(100vh - 14rem);
 }
 
 .yamlPreviewTitle {

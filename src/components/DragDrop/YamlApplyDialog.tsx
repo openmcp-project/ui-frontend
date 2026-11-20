@@ -777,9 +777,6 @@ const YamlApplyDialogInner: FC<InnerProps> = ({
     isApplyingAll ||
     dryRun.status === 'running' ||
     !validity.parseOk ||
-    validity.schemaErrorCount > 0 ||
-    // Monaco schema markers lag content changes; wait for re-validation before allowing Apply.
-    !!validity.schemaStale ||
     (isProject && resourceExists);
 
   // Generic onboarding kinds have no existence check, so use neutral 'Apply'.

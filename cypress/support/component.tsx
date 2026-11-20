@@ -32,10 +32,6 @@ configureMonaco();
 // Known race conditions during test teardown / module loading.
 Cypress.on('uncaught:exception', (err) => {
   if (
-    err.message.includes('Missing requestHandler or method') ||
-    err.message.includes('TextModel got disposed') ||
-    err.message.includes('DiffEditorWidget') ||
-    err.message.includes('no diff result available') ||
     // Vite/dynamic-import failures during component teardown or lazy loading
     err.message.includes('Failed to fetch dynamically imported module') ||
     // Network requests cancelled on component unmount — legitimate teardown noise

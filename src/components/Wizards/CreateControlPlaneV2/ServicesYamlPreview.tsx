@@ -1,9 +1,8 @@
-import { Button, FlexBox, Tab, TabContainer } from '@ui5/webcomponents-react';
+import { Tab, TabContainer } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
 import {
   buildServiceResource,
   ControlPlaneV2ServiceDef,
@@ -11,8 +10,7 @@ import {
 } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2Services.ts';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { buildYamlFilename } from '../../Yaml/buildYamlFilename.ts';
-import { downloadYamlFile } from '../../Yaml/downloadYamlFile.ts';
-import { YamlViewer } from '../../Yaml/YamlViewer.tsx';
+import { YamlBlock } from '../../Yaml/YamlBlock.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import styles from './ServicesYamlPreview.module.css';
 
@@ -34,7 +32,6 @@ export function ServicesYamlPreview({
   onActiveServiceChange,
 }: ServicesYamlPreviewProps) {
   const { t } = useTranslation();
-  const { copyToClipboard } = useCopyToClipboard();
   const activeDef = visibleServices.find((s) => s.key === activeService) ?? visibleServices[0];
 
   // Always render the current selection as a plain YAML document — no diff against the installed state.
@@ -49,10 +46,6 @@ export function ServicesYamlPreview({
   if (!activeDef) return null;
 
   const filename = buildYamlFilename(activeDef.kind, resourceName);
-
-  const downloadYaml = () => {
-    downloadYamlFile(yamlString, filename);
-  };
 
   return (
     <div className={styles.container} data-testid="services-yaml-preview">
@@ -75,19 +68,9 @@ export function ServicesYamlPreview({
           />
         ))}
       </TabContainer>
-      {yamlString && (
-        <FlexBox justifyContent="End" gap={8} className={styles.actions}>
-          <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(yamlString)}>
-            {t('buttons.copy')}
-          </Button>
-          <Button icon="download" design="Transparent" onClick={downloadYaml}>
-            {t('buttons.download')}
-          </Button>
-        </FlexBox>
-      )}
       <div className={styles.editor} data-testid={`services-yaml-content-${activeDef.key}`}>
         {yamlString ? (
-          <YamlViewer yamlString={yamlString} filename={filename} height="100%" />
+          <YamlBlock value={yamlString} filename={filename} size="fill" />
         ) : (
           <IllustratedBanner
             compact

@@ -1,5 +1,6 @@
 .panelWrapper {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
 }
@@ -10,8 +11,20 @@
 }
 
 .panel {
+  flex: 1;
+  min-height: 0;
   width: 100%;
   height: 100%;
+}
+
+/* The Panel web component's shadow DOM content area is display: block with no
+   flex sizing, so children that rely on flex: 1 collapse to 0px.  The part
+   is exposed as "content" — make it stretch within the panel's internal flex
+   column (.ui5-panel-root) and propagate height to slotted children. */
+.panel::part(content) {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .floatingActions {
@@ -33,7 +46,8 @@
 
 .content {
   display: flex;
-  overflow-y: scroll;
+  flex: 1;
+  min-height: 0;
   height: 100%;
   width: 100%;
 }

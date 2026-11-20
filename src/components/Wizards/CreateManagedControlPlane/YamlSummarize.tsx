@@ -1,9 +1,5 @@
 import { FC } from 'react';
-import { Button, FlexBox } from '@ui5/webcomponents-react';
-import styles from './YamlSummarize.module.css';
-import { useTranslation } from 'react-i18next';
-import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
-import { YamlResourceEditorSchemaLoader } from '../../Yaml/YamlResourceEditorSchemaLoader.tsx';
+import { YamlBlock } from '../../Yaml/YamlBlock.tsx';
 
 type YamlPanelProps = {
   yamlString: string;
@@ -12,39 +8,10 @@ type YamlPanelProps = {
   apiVersion: string;
 };
 
-const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename, apiVersion, apiGroupName }) => {
-  const { t } = useTranslation();
-  const { copyToClipboard } = useCopyToClipboard();
-  const downloadYaml = () => {
-    const blob = new Blob([yamlString], { type: 'text/yaml' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${filename}.yaml`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  };
-
+const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename }) => {
   return (
-    <div className={styles.container}>
-      <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
-        <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
-          {t('buttons.copy')}
-        </Button>
-        <Button icon="download" onClick={downloadYaml}>
-          {t('buttons.download')}
-        </Button>
-      </FlexBox>
-      <YamlResourceEditorSchemaLoader
-        apiGroupName={apiGroupName}
-        apiVersion={apiVersion}
-        yamlString={yamlString}
-        filename={filename}
-        isEdit={false}
-        kind={'managedcontrolplane'}
-      />
+    <div style={{ height: 'calc(100vh - 14rem)' }}>
+      <YamlBlock value={yamlString} filename={filename} size="fill" />
     </div>
   );
 };
