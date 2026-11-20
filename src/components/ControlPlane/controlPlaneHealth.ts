@@ -159,14 +159,18 @@ function buildAccessGroup(conditions: ControlPlaneCondition[], expectPending: bo
   }
 
   const tone = worstTone(all.map((i) => i.tone));
-  const counted = entries.length > 0 ? entries : all;
-  const ready = counted.filter((i) => i.tone === 'ok').length;
+  // Count only individual entries, not the aggregate, to avoid "0 of 1 ready" when
+  // only AllAccessReady is present (it is not an individual IdP/token entry).
+  const individual = entries.length > 0 ? entries : all.filter((i) => i.id !== CONDITION_ALL_ACCESS_READY);
+  const ready = individual.filter((i) => i.tone === 'ok').length;
   const summary =
     tone === 'ok'
       ? label('accessReady')
       : tone === 'error'
         ? label('accessProblem')
-        : label('accessPartial', { ready, total: counted.length });
+        : individual.length > 0
+          ? label('accessPartial', { ready, total: individual.length })
+          : label('accessPreparing');
   return { id: 'access', tone, summary, items: all.filter(notOk) };
 }
 
@@ -369,7 +373,11 @@ export function deriveControlPlaneHealth({
     state: 'settingUp',
     headline: progress
       ? {
-          label: label(HEADLINE_PROGRESS[progress.group.id]),
+          label: label(
+            progress.item.tone === 'deleting' && progress.group.id === 'services'
+              ? 'headlineServicesDeleting'
+              : HEADLINE_PROGRESS[progress.group.id],
+          ),
           detail: progress.item.message,
           since: progress.item.since,
         }

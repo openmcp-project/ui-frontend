@@ -126,6 +126,29 @@ export function ControlPlaneStatusPopoverButton({
     [conditions],
   );
 
+  const ticketHref = useMemo(() => {
+    const tlMemo = (l: HealthLabel) => t(l.key, l.params ?? {});
+    const summaryText = [
+      `${t('ControlPlaneStatus.summaryHeader')}: ${t(stateVisual.labelKey)} — ${tlMemo(health.headline.label)}`,
+      ...(health.headline.detail ? [health.headline.detail] : []),
+      ...health.groups.flatMap((group) => [
+        `- ${t(GROUP_LABEL_KEY[group.id])}: ${tlMemo(group.summary)}`,
+        ...group.items.map((item) => `  - ${tlMemo(item.label)}${item.message ? `: ${item.message}` : ''}`),
+      ]),
+    ].join('\n');
+    return buildSupportTicketLink({
+      baseUrl: githubIssuesSupportTicket,
+      projectName,
+      workspaceName,
+      mcpName,
+      title: t(TICKET_TITLE_KEY[health.state]),
+      statusText: phase ?? '',
+      conditions,
+      summary: summaryText,
+      t,
+    });
+  }, [t, health, stateVisual.labelKey, githubIssuesSupportTicket, projectName, workspaceName, mcpName, phase, conditions]);
+
   const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     if (!popoverRef.current) return;
     (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
@@ -134,29 +157,6 @@ export function ControlPlaneStatusPopoverButton({
       return !prev;
     });
   };
-
-  const buildSummaryText = () =>
-    [
-      `${t('ControlPlaneStatus.summaryHeader')}: ${t(stateVisual.labelKey)} — ${tl(health.headline.label)}`,
-      ...(health.headline.detail ? [health.headline.detail] : []),
-      ...health.groups.flatMap((group) => [
-        `- ${t(GROUP_LABEL_KEY[group.id])}: ${tl(group.summary)}`,
-        ...group.items.map((item) => `  - ${tl(item.label)}${item.message ? `: ${item.message}` : ''}`),
-      ]),
-    ].join('\n');
-
-  const supportTicketLink = () =>
-    buildSupportTicketLink({
-      baseUrl: githubIssuesSupportTicket,
-      projectName,
-      workspaceName,
-      mcpName,
-      title: t(TICKET_TITLE_KEY[health.state]),
-      statusText: phase ?? '',
-      conditions,
-      summary: buildSummaryText(),
-      t,
-    });
 
   return (
     <div className="component-title-row">
@@ -186,14 +186,17 @@ export function ControlPlaneStatusPopoverButton({
                 <ReactTimeAgo date={new Date(creationTimestamp)} />
               </span>
             )}
-            <a href={supportTicketLink()} target="_blank" rel="noreferrer">
+            <a href={ticketHref} target="_blank" rel="noreferrer">
               <Button icon="action" design={health.state === 'attention' ? 'Emphasized' : 'Default'}>
                 {t('MCPHealthPopoverButton.createSupportTicketButton')}
               </Button>
             </a>
           </FlexBox>
         }
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          setDetailsOpen(false);
+        }}
       >
         {open && (
           <div className={styles.content} data-testid="cp-status-popover">
@@ -277,10 +280,10 @@ export function ControlPlaneStatusPopoverButton({
                   ) : (
                     <>
                       <ul className={styles.conditions}>
-                        {sortedConditions.map((condition) => {
+                        {sortedConditions.map((condition, idx) => {
                           const ok = condition.status === 'True';
                           return (
-                            <li key={condition.type} className={styles.condition}>
+                            <li key={`${condition.type}-${idx}`} className={styles.condition}>
                               <Icon
                                 className={cx(styles.conditionIcon, ok ? styles.toneOk : styles.toneError)}
                                 name={`sap-icon://${ok ? 'sys-enter' : 'error'}`}

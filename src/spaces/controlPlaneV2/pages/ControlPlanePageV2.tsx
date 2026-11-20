@@ -86,6 +86,7 @@ import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
 import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
 import { useOcmYamlQuery } from '../../mcp/hooks/useOcmYamlQuery.ts';
 import { useKroYamlQuery } from '../../mcp/hooks/useKroYamlQuery.ts';
+import { useLandscaperYamlQuery } from '../../mcp/hooks/useLandscaperYamlQuery.ts';
 import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
 import { McpDragDropRegistrar } from '../../../components/ControlPlane/McpDragDropRegistrar.tsx';
 
@@ -100,6 +101,7 @@ function OpenSourceHeadlamp({
   mcpPhase,
   mcpConditions,
   mcpDeletionTimestamp,
+  egressIp,
   roleBindings,
   onEditMcp,
 }: {
@@ -111,6 +113,7 @@ function OpenSourceHeadlamp({
   mcpPhase?: string | null;
   mcpConditions?: ControlPlaneCondition[] | null;
   mcpDeletionTimestamp?: string | null;
+  egressIp?: EgressIpInfo;
   roleBindings?: MemberRoleBinding[];
   onEditMcp: () => void;
 }) {
@@ -148,16 +151,19 @@ function OpenSourceHeadlamp({
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
   const ocmYaml = useOcmYamlQuery(mcpName, mcpNamespace);
   const kroYaml = useKroYamlQuery(mcpName, mcpNamespace);
+  const landscaperYaml = useLandscaperYamlQuery(mcpName, mcpNamespace);
   const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
   const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
   const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
   const { status: ocmStatus } = useComponentCardStatus(true, ocmYaml);
   const { status: kroStatus } = useComponentCardStatus(true, kroYaml);
+  const { status: landscaperStatus } = useComponentCardStatus(true, landscaperYaml);
   const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
   const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
   const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
   const ocmPhase = ocmStatus.kind === 'installed' ? ocmStatus.phase : null;
   const kroPhase = kroStatus.kind === 'installed' ? kroStatus.phase : null;
+  const landscaperPhase = landscaperStatus.kind === 'installed' ? landscaperStatus.phase : null;
 
   // Optimistic 'Initializing' shown right after a successful install, before the real
   // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
@@ -168,6 +174,7 @@ function OpenSourceHeadlamp({
     externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
     ocm: ocmPhase ?? null,
     kro: kroPhase ?? null,
+    landscaper: landscaperPhase ?? optimistic.landscaper ?? null,
   };
 
   const markInitializing = useCallback((component: InstallTarget) => {
@@ -185,6 +192,7 @@ function OpenSourceHeadlamp({
       externalSecretsOperator: effectivePhases.externalSecretsOperator,
       ocm: effectivePhases.ocm,
       kro: effectivePhases.kro,
+      landscaper: effectivePhases.landscaper,
     };
   }, [
     effectivePhases.crossplane,
@@ -192,6 +200,7 @@ function OpenSourceHeadlamp({
     effectivePhases.externalSecretsOperator,
     effectivePhases.ocm,
     effectivePhases.kro,
+    effectivePhases.landscaper,
   ]);
   const pushStatuses = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
@@ -209,6 +218,7 @@ function OpenSourceHeadlamp({
       ['externalSecretsOperator', effectivePhases.externalSecretsOperator],
       ['ocm', effectivePhases.ocm],
       ['kro', effectivePhases.kro],
+      ['landscaper', effectivePhases.landscaper],
     ];
     return Object.fromEntries(phases.filter(([, phase]) => phase !== null).map(([key, phase]) => [key, { phase }]));
   }, [
@@ -217,6 +227,7 @@ function OpenSourceHeadlamp({
     effectivePhases.externalSecretsOperator,
     effectivePhases.ocm,
     effectivePhases.kro,
+    effectivePhases.landscaper,
   ]);
 
   useEffect(() => {
@@ -238,6 +249,7 @@ function OpenSourceHeadlamp({
         deletionTimestamp: mcpDeletionTimestamp,
         services,
       },
+      egressIp,
       onEditMcp,
     });
     return () => {
@@ -262,6 +274,7 @@ function OpenSourceHeadlamp({
     mcpConditions,
     mcpDeletionTimestamp,
     services,
+    egressIp,
     onEditMcp,
   ]);
 
@@ -639,6 +652,7 @@ export default function ControlPlanePageV2({ useInheritedSupportInfo = _useInher
                 mcpPhase={mcp.status?.phase}
                 mcpConditions={mcp.status?.conditions}
                 mcpDeletionTimestamp={mcp.metadata?.deletionTimestamp}
+                egressIp={egressIp}
                 roleBindings={roleBindings}
                 onEditMcp={() => setIsEditManagedControlPlaneWizardOpen(true)}
               />
