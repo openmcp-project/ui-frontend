@@ -1,0 +1,226 @@
+.popover::part(content) {
+  padding: 0;
+}
+
+.content {
+  width: 26rem;
+  max-width: 100%;
+}
+
+.toneOk {
+  color: var(--sapPositiveColor);
+}
+
+.toneProgress {
+  color: var(--sapInformativeColor);
+}
+
+.toneError {
+  color: var(--sapNegativeColor);
+}
+
+.toneDeleting {
+  color: var(--sapCriticalColor);
+}
+
+.tonePending {
+  color: var(--sapNeutralColor);
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.headline-ready {
+  background: var(--sapSuccessBackground);
+}
+
+.headline-settingUp {
+  background: var(--sapInformationBackground);
+}
+
+.headline-attention {
+  background: var(--sapErrorBackground);
+}
+
+.headline-deleting {
+  background: var(--sapWarningBackground);
+}
+
+.stateLabel {
+  font-family: var(--sapFontBoldFamily);
+  font-size: var(--sapFontLargeSize);
+}
+
+.headlineText {
+  color: var(--sapTextColor);
+}
+
+.headlineDetail {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+  white-space: nowrap;
+}
+
+.metaLabel {
+  font-family: var(--sapFontBoldFamily);
+}
+
+.groups,
+.items,
+.conditions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.group {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.groupRow,
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.groupLabel {
+  font-family: var(--sapFontBoldFamily);
+  flex: 1;
+}
+
+.groupSummary {
+  font-size: var(--sapFontSmallSize);
+  text-align: right;
+}
+
+.items {
+  margin-top: 0.375rem;
+  padding-left: 1.5rem;
+}
+
+.item {
+  padding: 0.25rem 0;
+}
+
+.itemIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.itemLabel {
+  flex: 1;
+  font-size: var(--sapFontSmallSize);
+}
+
+.itemStatus {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.itemMessage {
+  margin-left: 1.25rem;
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+  overflow-wrap: anywhere;
+}
+
+.details {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.detailsToggle {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: var(--sapButton_BorderCornerRadius);
+  cursor: pointer;
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.detailsToggle:hover {
+  background: var(--sapButton_Lite_Hover_Background);
+  color: var(--sapTextColor);
+}
+
+.detailsToggle:focus-visible {
+  outline: var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);
+  outline-offset: -2px;
+}
+
+.detailsChevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: inherit;
+}
+
+.detailsBody {
+  padding: 0 0.5rem;
+}
+
+.condition {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.condition + .condition {
+  border-top: 1px solid var(--sapList_BorderColor);
+}
+
+.conditionIcon {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: 0.125rem;
+}
+
+.conditionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.conditionType {
+  font-size: var(--sapFontSmallSize);
+  font-weight: 600;
+  color: var(--sapTextColor);
+  overflow-wrap: anywhere;
+}
+
+.conditionMeta {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.conditionMessage {
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapTextColor);
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  width: 100%;
+  padding: 0.25rem 0;
+  gap: 0.5rem;
+}

@@ -50,6 +50,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
+import { ControlPlaneStatusPopoverButton } from '../ControlPlane/ControlPlaneStatusPopoverButton.tsx';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
@@ -71,7 +72,8 @@ export function ShellBarComponent({
   const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
   const telemetry = useTelemetry();
-  const { navigateBack, mcpName, mcpDisplayName, project, workspace, mcpStatus } = useShellBarMcpActions();
+  const { navigateBack, mcpName, mcpDisplayName, project, workspace, mcpStatus, controlPlaneV2Status } =
+    useShellBarMcpActions();
 
   const onLogoClick = () => {
     window.location.hash = Routes.Home;
@@ -114,19 +116,32 @@ export function ShellBarComponent({
           ) : undefined
         }
         content={[
-          ...(mcpName && mcpStatus && project && workspace
+          ...(mcpName && controlPlaneV2Status && project && workspace
             ? [
-                <div key="status">
+                <ControlPlaneStatusPopoverButton
+                  key="status"
+                  phase={controlPlaneV2Status.phase}
+                  conditions={controlPlaneV2Status.conditions}
+                  deletionTimestamp={controlPlaneV2Status.deletionTimestamp}
+                  services={controlPlaneV2Status.services}
+                  projectName={project}
+                  workspaceName={workspace}
+                  mcpName={mcpName}
+                  source="detail"
+                />,
+              ]
+            : mcpName && mcpStatus && project && workspace
+              ? [
                   <MCPHealthPopoverButton
+                    key="status"
                     mcpStatus={mcpStatus}
                     projectName={project}
                     workspaceName={workspace}
                     mcpName={mcpName}
                     source="detail"
-                  />
-                </div>,
-              ]
-            : []),
+                  />,
+                ]
+              : []),
           ...(mcpName
             ? [
                 <Button

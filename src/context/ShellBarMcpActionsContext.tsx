@@ -2,6 +2,7 @@ import { createContext, ReactNode, useCallback, useContext, useState } from 'rea
 import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
 import type { EgressIpInfo } from '../lib/egressIp.ts';
 import { ControlPlaneCondition } from '../spaces/onboarding/types/ControlPlane.ts';
+import type { ServicePhases } from '../components/ControlPlane/controlPlaneHealth.ts';
 
 export interface McpActions {
   kubeconfig?: string;
@@ -29,6 +30,13 @@ export interface McpActions {
     phase?: string | null;
     conditions?: ControlPlaneCondition[] | null;
   } | null;
+  /** Set for `core.open-control-plane.io` ControlPlanes; switches the ShellBar to the aggregated status popover. */
+  controlPlaneV2Status?: {
+    phase?: string | null;
+    conditions?: ControlPlaneCondition[] | null;
+    deletionTimestamp?: string | null;
+    services?: ServicePhases;
+  };
 }
 
 export interface ShellBarMcpActionsContextType extends McpActions {

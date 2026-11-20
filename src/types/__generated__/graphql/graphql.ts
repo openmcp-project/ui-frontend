@@ -1812,6 +1812,12 @@ export type UpdateManagedControlPlaneMutation = {
   } | null;
 };
 
+export type ApplyYamlMutationVariables = Exact<{
+  yaml: string;
+}>;
+
+export type ApplyYamlMutation = { applyYaml: unknown };
+
 export type GetCrossplaneQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -2794,7 +2800,13 @@ export type GetMcPsListQuery = {
           status: {
             phase: string | null;
             access: unknown;
-            conditions: Array<{ type: string | null; status: string | null } | null> | null;
+            conditions: Array<{
+              type: string | null;
+              status: string | null;
+              reason: string | null;
+              message: string | null;
+              lastTransitionTime: string | null;
+            } | null> | null;
           } | null;
           spec: {
             iam: {
@@ -3517,6 +3529,39 @@ export const UpdateManagedControlPlaneDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateManagedControlPlaneMutation, UpdateManagedControlPlaneMutationVariables>;
+export const ApplyYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ApplyYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'yaml' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'applyYaml' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'yaml' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'yaml' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ApplyYamlMutation, ApplyYamlMutationVariables>;
 export const GetCrossplaneDocument = {
   kind: 'Document',
   definitions: [
@@ -8799,6 +8844,9 @@ export const GetMcPsListDocument = {
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                                               { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
                                             ],
                                           },
                                         },

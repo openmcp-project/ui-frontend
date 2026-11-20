@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
@@ -12,7 +12,6 @@ import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { McpActions, useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 import { flattenOidcRoleBindings, MemberRoleBinding } from '../../controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 
 function HeadlampIframe({
@@ -24,7 +23,7 @@ function HeadlampIframe({
 }: {
   mcpCreationTimestamp?: string;
   mcpCreatedBy?: string;
-  mcpStatus?: McpActions['mcpStatus'];
+  mcpStatus?: McpActions['controlPlaneV2Status'];
   mcpDisplayName?: string;
   roleBindings?: MemberRoleBinding[];
 }) {
@@ -46,7 +45,7 @@ function HeadlampIframe({
       workspace: mcp.workspace,
       mcpCreationTimestamp,
       mcpCreatedBy,
-      mcpStatus,
+      controlPlaneV2Status: mcpStatus,
     });
     return () => clearMcpActions();
   }, [
@@ -113,14 +112,22 @@ export default function HeadlampPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const { data: mcp } = useControlPlaneV2Query(controlPlaneName, namespace);
+  const mcpStatus = useMemo(
+    () =>
+      mcp
+        ? {
+            phase: mcp.status?.phase,
+            conditions: mcp.status?.conditions,
+            deletionTimestamp: mcp.metadata?.deletionTimestamp,
+          }
+        : undefined,
+    [mcp],
+  );
 
   if (!projectName || !workspaceName || !controlPlaneName) return null;
 
   const mcpDisplayName = (mcp?.metadata?.annotations as Record<string, string> | undefined)?.[DISPLAY_NAME_ANNOTATION];
   const mcpCreatedBy = (mcp?.metadata?.annotations as Record<string, string> | undefined)?.['openmcp.cloud/created-by'];
-  const mcpStatus = mcp?.metadata?.deletionTimestamp
-    ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
-    : mcp?.status;
   const roleBindings = flattenOidcRoleBindings(mcp?.spec?.iam?.oidc);
 
   return (

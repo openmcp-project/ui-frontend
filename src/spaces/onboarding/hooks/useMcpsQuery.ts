@@ -95,6 +95,9 @@ const GET_MCPS_LIST_QUERY = graphql(`
               conditions {
                 type
                 status
+                reason
+                message
+                lastTransitionTime
               }
               access
             }
@@ -212,6 +215,7 @@ function toV2Input(item: V2Item) {
     status: item.status
       ? {
           status: isBeingDeleted ? ReadyStatus.InDeletion : item.status.phase,
+          phase: item.status.phase ?? undefined,
           conditions: item.status.conditions,
           access: parseAccess(item.status.access),
         }
