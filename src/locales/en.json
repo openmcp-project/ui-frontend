@@ -130,6 +130,7 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
+    "forceDeleteConfirmationDialog": "Force deletion triggered. Blocking service finalizers will be removed; external resources may need manual cleanup. The list will refresh automatically once completed.",
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
@@ -290,7 +291,13 @@
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
     "deleteMessage": "You are about to delete the resource",
-    "typeToConfirm": "Type the name to confirm"
+    "typeToConfirm": "Type the name to confirm",
+    "forceDeleteButton": "Force Delete",
+    "forceDeleteToggle": "Deletion is stuck? Enable force delete",
+    "forceDeleteWarningTitle": "External resources may not be cleaned up",
+    "forceDeleteWarningBody": "Force delete removes finalizers from blocking service instances, bypassing normal cleanup. Resources such as DNS records, load balancers, and cloud volumes may be left behind and require manual removal.",
+    "forceDeleteWarningCannotUndo": "This cannot be undone. Only use this when the regular deletion is stuck.",
+    "forceDeleteAcknowledge": "I understand the risks and want to force delete this control plane"
   },
   "Loading": {
     "title": "Getting Ready",

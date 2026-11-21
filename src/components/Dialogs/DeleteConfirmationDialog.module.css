@@ -1,0 +1,44 @@
+.dialog {
+  width: 30rem;
+}
+
+.forceDeleteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--sapGroup_ContentBorderColor);
+}
+
+.forceDeleteDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-inline-start: 1.75rem;
+}
+
+.warningContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-block: 0.1rem;
+}
+
+.warningTitle {
+  font-size: var(--sapFontSize);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.warningBody {
+  font-size: var(--sapFontSmallSize);
+  line-height: 1.5;
+  opacity: 0.92;
+}
+
+.warningCannotUndo {
+  font-size: var(--sapFontSmallSize);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}

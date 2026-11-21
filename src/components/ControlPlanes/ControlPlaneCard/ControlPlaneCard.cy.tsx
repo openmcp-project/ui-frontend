@@ -7,6 +7,7 @@ import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { useForceDeleteControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useForceDeleteControlPlaneV2GraphQL.ts';
 import { GET_MCP_V2_QUERY } from '../../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
@@ -173,6 +174,10 @@ const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteControlPlaneV2G
   deleteManagedControlPlaneV2: async (): Promise<void> => {},
 });
 
+const fakeUseForceDeleteManagedControlPlaneV2GraphQL: typeof useForceDeleteControlPlaneV2GraphQL = () => ({
+  forceDeleteManagedControlPlaneV2: async (): Promise<void> => {},
+});
+
 // V2 component-install status is passed into ControlPlaneCard as plain props now (pre-fetched by
 // the parent grid tile via useMcpV2ComponentsListQuery), not via an injected hook.
 const v2ComponentsEmpty: McpV2Components = {};
@@ -196,6 +201,7 @@ const mountCard = (controlPlane: ControlPlaneListItem) => {
                 projectName="my-project"
                 useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                 useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
               />
             </FeatureToggleProvider>
           </SplitterProvider>
@@ -248,6 +254,7 @@ describe('ControlPlaneCard', () => {
                   projectName="my-project"
                   useDeleteManagedControlPlane={fakeDelete}
                   useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                 />
               </FeatureToggleProvider>
             </SplitterProvider>
@@ -294,6 +301,7 @@ describe('ControlPlaneCard', () => {
                   projectName="my-project"
                   useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                   useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                 />
               </FeatureToggleProvider>
             </SplitterProvider>
@@ -322,6 +330,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     isLoadingV2Components
                   />
                 </FeatureToggleProvider>
@@ -349,6 +358,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -373,6 +383,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     v2Components={v2ComponentsEmpty}
                   />
                 </FeatureToggleProvider>
@@ -398,6 +409,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -431,6 +443,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     v2Components={v2ComponentsEmpty}
                   />
                   <LocationDisplay />
@@ -465,6 +478,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -490,6 +504,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     v2Components={v2ComponentsWithData}
                   />
                 </FeatureToggleProvider>
@@ -516,6 +531,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -543,6 +559,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     v2Components={v2ComponentsMixedLifecycle}
                   />
                 </FeatureToggleProvider>
@@ -568,6 +585,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                     v2Components={v2ComponentsWithData}
                   />
                 </FeatureToggleProvider>
@@ -593,6 +611,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -637,6 +656,7 @@ describe('ControlPlaneCard', () => {
                       projectName="my-project"
                       useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                       useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                      useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                       v2Components={v2ComponentsWithData}
                     />
                   </SplitterLayout>
@@ -678,6 +698,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -702,6 +723,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -725,6 +747,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -749,6 +772,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -772,6 +796,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -800,6 +825,7 @@ describe('ControlPlaneCard', () => {
                   projectName="my-project"
                   useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                   useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                 />
               </FeatureToggleProvider>
             </SplitterProvider>
@@ -851,6 +877,7 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useForceDeleteManagedControlPlaneV2GraphQL={fakeUseForceDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
