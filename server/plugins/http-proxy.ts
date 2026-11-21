@@ -3,6 +3,27 @@ import httpProxy from '@fastify/http-proxy';
 
 const BLOCKED_PATH_PATTERN = /:\/\/|%2e%2e/i;
 
+// Extract the cluster alias from a Headlamp proxy path.
+// Paths look like /headlamp/clusters/<alias>/… or /headlamp/c/<alias>/…
+const CLUSTER_ALIAS_PATTERN = /^\/headlamp\/(?:clusters|c)\/([^/]+)/;
+
+function kubeconfigForRequest(req: any): string | undefined {
+  const match = req.url.split('?')[0].match(CLUSTER_ALIAS_PATTERN);
+  if (!match) return undefined;
+  const alias = decodeURIComponent(match[1]);
+  const map = req.encryptedSession.get('headlamp_kubeconfigs');
+  return map?.[alias];
+}
+
+// Build upstream headers: strip browser cookies, accept-encoding, and
+// client-auth headers that must not leak to Headlamp.
+// @ts-ignore
+function upstreamHeaders(headers) {
+  const { cookie: _, 'accept-encoding': _ae, authorization: _az, kubeconfig: _kc, 'x-headlamp-user-id': _uid, ...rest } =
+    headers;
+  return rest;
+}
+
 // @ts-ignore
 function proxyPlugin(fastify) {
   const { API_BACKEND_URL, GRAPHQL_BACKEND_URL, HEADLAMP_UPSTREAM_URL } = fastify.config;
@@ -59,6 +80,13 @@ function proxyPlugin(fastify) {
 
   if (HEADLAMP_UPSTREAM_URL) {
     fastify.register(async (child: any) => {
+      // Auth gate: reject unauthenticated requests before they reach Headlamp.
+      child.addHook('onRequest', async (req: any, reply: any) => {
+        if (!req.encryptedSession.get('onboarding_accessToken') || !req.encryptedSession.get('mcp_accessToken')) {
+          return reply.code(401).send({ message: 'Unauthorized' });
+        }
+      });
+
       child.addHook('onSend', async (_req: any, reply: any, payload: any) => {
         reply.removeHeader('x-frame-options');
         reply.removeHeader('cross-origin-opener-policy');
@@ -68,32 +96,25 @@ function proxyPlugin(fastify) {
       });
 
       child.post('/headlamp-kubeconfig', async (req: any, reply: any) => {
-        const { kubeconfig } = req.body as { kubeconfig?: string };
+        const { kubeconfig, clusterAlias } = req.body as { kubeconfig?: string; clusterAlias?: string };
         if (!kubeconfig || typeof kubeconfig !== 'string') {
           return reply.badRequest('Missing kubeconfig');
         }
-        const mcpToken = req.encryptedSession.get('mcp_accessToken');
-        const userInfo = req.encryptedSession.get('onboarding_userInfo');
-        let finalKubeconfig = kubeconfig;
-        if (mcpToken) {
-          try {
-            const raw = Buffer.from(kubeconfig, 'base64').toString('utf8');
-            const patched = raw.replace(/((?:^|\n)\s*token:\s*)bff-managed(\s|$)/m, (_m, pre, post) => `${pre}${mcpToken}${post}`);
-            finalKubeconfig = Buffer.from(patched).toString('base64');
-          } catch {
-            fastify.log.warn('Failed to patch bff-managed token in kubeconfig');
-          }
+        if (!clusterAlias || typeof clusterAlias !== 'string') {
+          return reply.badRequest('Missing clusterAlias');
         }
-        await req.encryptedSession.set('headlamp_kubeconfig', finalKubeconfig);
-        // Register with headlamp server-to-server so the patched kubeconfig.
-        // X-HEADLAMP-USER-ID scopes the cluster registration to this user.
-        const parseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (userInfo?.email) parseHeaders['x-headlamp-user-id'] = userInfo.email;
+
+        // Store the kubeconfig as-is (tokenless) in a per-alias map.
+        // The BFF injects the current session token at request time.
+        const map = req.encryptedSession.get('headlamp_kubeconfigs') ?? {};
+        map[clusterAlias] = kubeconfig;
+        await req.encryptedSession.set('headlamp_kubeconfigs', map);
+
         try {
           const parseRes = await fetch(`${HEADLAMP_UPSTREAM_URL}/api/headlamp/parseKubeConfig`, {
             method: 'POST',
-            headers: parseHeaders,
-            body: JSON.stringify({ kubeconfigs: [finalKubeconfig] }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ kubeconfigs: [kubeconfig] }),
           });
           if (!parseRes.ok) {
             return reply.internalServerError(`Headlamp parseKubeConfig failed: ${parseRes.status}`);
@@ -109,16 +130,25 @@ function proxyPlugin(fastify) {
         upstream: HEADLAMP_UPSTREAM_URL,
         rewritePrefix: '/api/headlamp',
         websocket: true,
+        wsServerOptions: { maxPayload: 16 * 1024 * 1024 },
+        wsClientOptions: {
+          rewriteRequestHeaders: (headers: any, req: any) => {
+            const base = upstreamHeaders(headers);
+            const token = req.encryptedSession.get('mcp_accessToken');
+            const kubeconfig = kubeconfigForRequest(req);
+            if (token) base.authorization = `Bearer ${token}`;
+            if (kubeconfig) base.kubeconfig = kubeconfig;
+            return base;
+          },
+        },
         replyOptions: {
           // @ts-ignore
           rewriteRequestHeaders: (req: any, headers: any) => {
+            const base = upstreamHeaders(headers);
             const token = req.encryptedSession.get('mcp_accessToken');
-            const kubeconfig = req.encryptedSession.get('headlamp_kubeconfig');
-            const userInfo = req.encryptedSession.get('onboarding_userInfo');
-            const base = { ...stripEncoding(headers) };
+            const kubeconfig = kubeconfigForRequest(req);
             if (token) base.authorization = `Bearer ${token}`;
-            if (kubeconfig) base['kubeconfig'] = kubeconfig;
-            if (userInfo?.email) base['x-headlamp-user-id'] = userInfo.email;
+            if (kubeconfig) base.kubeconfig = kubeconfig;
             return base;
           },
           // @ts-ignore
@@ -129,6 +159,7 @@ function proxyPlugin(fastify) {
             delete out['cross-origin-opener-policy'];
             delete out['cross-origin-resource-policy'];
             delete out['cross-origin-embedder-policy'];
+            delete out['set-cookie'];
             // Prevent browsers from caching Headlamp assets so that redeployments
             // (e.g. new build hash, kiosk-plugin ConfigMap changes) take effect on next reload.
             if (out['content-type']?.includes('javascript') || out['content-type']?.includes('text/html')) {
