@@ -9,6 +9,7 @@ import {
   STORAGE_KEY_AUTH_VERSION,
 } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
+import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { registerRefreshFn, refreshToken } from './tokenRefresh';
 
@@ -170,6 +171,29 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
 
     return () => clearTimeout(timerId);
   }, [tokenExpiry, isAuthenticated]);
+
+  // Re-check session validity when the user returns to the tab.
+  // Long-lived watches survive after a token expires, but if the session is
+  // gone entirely the Headlamp iframe silently stops updating. This catches
+  // that case and redirects to login.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        const res = await fetch('/api/auth/mcp/me', { method: 'GET' });
+        if (res.status === 401) {
+          redirectToLogin('mcp');
+        }
+      } catch {
+        // Network error — don't redirect, let the refresh timer handle it
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAuthenticated]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'mcp');
