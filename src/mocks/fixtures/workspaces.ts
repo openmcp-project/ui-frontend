@@ -18,12 +18,19 @@ export function createWorkspaces(userEmail: string): GetWorkspacesQuery {
     namespace: null,
   };
 
+  // __typename is required so Apollo's type policies (CoreOpenmcpCloudQuery,
+  // CoreOpenmcpCloudV1alpha1Query, CoreOpenmcpCloudV1alpha1Workspace) activate and
+  // deep-merge the shared v1alpha1 cache slot instead of clobbering sibling
+  // queries (e.g. GetProjectMembers) via the shallow Query.fields merge.
   return {
     core_openmcp_cloud: {
+      __typename: 'CoreOpenmcpCloudQuery',
       v1alpha1: {
+        __typename: 'CoreOpenmcpCloudV1alpha1Query',
         Workspaces: {
           items: [
             {
+              __typename: 'CoreOpenmcpCloudV1alpha1Workspace',
               apiVersion: 'core.openmcp.cloud/v1alpha1',
               kind: 'Workspace',
               metadata: {
@@ -36,6 +43,7 @@ export function createWorkspaces(userEmail: string): GetWorkspacesQuery {
               status: { namespace: 'project-foo--ws-demo' },
             },
             {
+              __typename: 'CoreOpenmcpCloudV1alpha1Workspace',
               apiVersion: 'core.openmcp.cloud/v1alpha1',
               kind: 'Workspace',
               metadata: {
@@ -51,5 +59,5 @@ export function createWorkspaces(userEmail: string): GetWorkspacesQuery {
         },
       },
     },
-  };
+  } as unknown as GetWorkspacesQuery;
 }

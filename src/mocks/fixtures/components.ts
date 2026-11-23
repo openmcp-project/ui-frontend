@@ -4,6 +4,7 @@ import type {
   GetFluxQuery,
   GetKroQuery,
   GetLandscaperQuery,
+  GetManagedComponentsQuery,
   GetMcpV2ComponentsListQuery,
   GetMetricsOperatorQuery,
   GetOcmQuery,
@@ -63,3 +64,25 @@ export const mcpV2Components: GetMcpV2ComponentsListQuery = {
   ocm_services_open_control_plane_io: { v1alpha1: { OCMs: { items: [] } } },
   kro_services_open_control_plane_io: { v1alpha1: { Kroes: { items: [] } } },
 };
+
+// Available managed components returned by the GraphQL gateway — used by the
+// Create/Edit CP wizard to populate the services selection step.
+export const managedComponents = {
+  core_openmcp_cloud: {
+    __typename: 'CoreOpenmcpCloudQuery',
+    v1alpha1: {
+      __typename: 'CoreOpenmcpCloudV1alpha1Query',
+      ManagedComponents: {
+        items: [
+          { metadata: { name: 'crossplane' }, status: { versions: ['1.17.0', '1.16.0'] } },
+          { metadata: { name: 'flux' }, status: { versions: ['2.3.0', '2.2.0'] } },
+          { metadata: { name: 'landscaper' }, status: { versions: ['0.21.0'] } },
+          { metadata: { name: 'external-secrets-operator' }, status: { versions: ['0.9.0'] } },
+          { metadata: { name: 'ocm' }, status: { versions: ['1.0.0'] } },
+          { metadata: { name: 'kro' }, status: { versions: ['0.2.0'] } },
+          { metadata: { name: 'metrics-operator' }, status: { versions: ['0.1.0'] } },
+        ],
+      },
+    },
+  },
+} as unknown as GetManagedComponentsQuery;

@@ -1,7 +1,25 @@
 import { graphql, HttpResponse } from 'msw';
-import { projectMembers, selfSubjectRulesReview } from '../fixtures/projects';
+import {
+  deleteProjectResult,
+  deleteWorkspaceResult,
+  createWorkspaceResult,
+  getProject,
+  getWorkspace,
+  projectMembers,
+  projectYaml,
+  selfSubjectRulesReview,
+  updateProjectResult,
+  updateWorkspaceResult,
+  workspaceYaml,
+} from '../fixtures/projects';
 import { createWorkspaces } from '../fixtures/workspaces';
-import { createMcpsList, createMcpsNames } from '../fixtures/controlPlanes';
+import {
+  createManagedControlPlaneResult,
+  createMcpsList,
+  createMcpsNames,
+  updateManagedControlPlaneResult,
+} from '../fixtures/controlPlanes';
+import { managedComponents } from '../fixtures/components';
 
 // Scope to the single GraphQL endpoint; every other request bypasses to the real BFF.
 const api = graphql.link('/api/graphql');
@@ -50,4 +68,62 @@ export const onboardingHandlers = [
     const { workspaceNamespace } = variables as { workspaceNamespace: string };
     return HttpResponse.json({ data: createMcpsNames(workspaceNamespace) });
   }),
+
+  // ── Project detail & YAML ────────────────────────────────────────────────
+  api.query('GetProject', ({ variables }) => {
+    const { name } = variables as { name: string };
+    return HttpResponse.json({ data: getProject(name) });
+  }),
+
+  api.query('ProjectYaml', ({ variables }) => {
+    const { name } = variables as { name: string };
+    return HttpResponse.json({ data: projectYaml(name) });
+  }),
+
+  // ── Workspace detail & YAML ──────────────────────────────────────────────
+  api.query('GetWorkspace', ({ variables }) => {
+    const { name, namespace } = variables as { name: string; namespace: string };
+    return HttpResponse.json({ data: getWorkspace(name, namespace) });
+  }),
+
+  api.query('WorkspaceYaml', ({ variables }) => {
+    const { name, namespace } = variables as { name: string; namespace?: string };
+    return HttpResponse.json({ data: workspaceYaml(name, namespace ?? 'project-foo') });
+  }),
+
+  // ── Create-CP wizard ─────────────────────────────────────────────────────
+  api.query('GetManagedComponents', () => HttpResponse.json({ data: managedComponents })),
+
+  api.mutation('CreateManagedControlPlane', ({ variables }) => {
+    const { namespace, object } = variables as { namespace: string; object: { metadata?: { name?: string } } };
+    const name = object?.metadata?.name ?? 'new-cp';
+    return HttpResponse.json({ data: createManagedControlPlaneResult(name, namespace) });
+  }),
+
+  api.mutation('UpdateManagedControlPlane', ({ variables }) => {
+    const { name, namespace } = variables as { name: string; namespace: string };
+    return HttpResponse.json({ data: updateManagedControlPlaneResult(name, namespace ?? '') });
+  }),
+
+  // ── Workspace CRUD ───────────────────────────────────────────────────────
+  api.mutation('CreateWorkspace', ({ variables }) => {
+    const { namespace, object } = variables as { namespace: string; object: { metadata?: { name?: string } } };
+    const name = object?.metadata?.name ?? 'new-workspace';
+    return HttpResponse.json({ data: createWorkspaceResult(name, namespace) });
+  }),
+
+  api.mutation('UpdateWorkspace', ({ variables }) => {
+    const { name, namespace } = variables as { name: string; namespace: string };
+    return HttpResponse.json({ data: updateWorkspaceResult(name, namespace) });
+  }),
+
+  api.mutation('DeleteWorkspace', () => HttpResponse.json({ data: deleteWorkspaceResult })),
+
+  // ── Project CRUD ─────────────────────────────────────────────────────────
+  api.mutation('UpdateProject', ({ variables }) => {
+    const { name } = variables as { name: string };
+    return HttpResponse.json({ data: updateProjectResult(name) });
+  }),
+
+  api.mutation('DeleteProject', () => HttpResponse.json({ data: deleteProjectResult })),
 ];

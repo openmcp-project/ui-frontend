@@ -1,7 +1,14 @@
-import type { GetMcPsListQuery, GetMcPsNamesQuery, GetMcPv2Query } from '../../types/__generated__/graphql/graphql';
+import type {
+  CreateManagedControlPlaneMutation,
+  GetMcPsListQuery,
+  GetMcPsNamesQuery,
+  GetMcPv2Query,
+  UpdateManagedControlPlaneMutation,
+} from '../../types/__generated__/graphql/graphql';
 
 function v2Cp(uid: string, name: string, namespace: string, phase = 'Ready') {
   return {
+    __typename: 'CoreOpenControlPlaneIoV2alpha1ControlPlane',
     metadata: {
       uid,
       name,
@@ -46,10 +53,19 @@ export function createMcpsList(workspaceNamespace: string): GetMcPsListQuery {
         v2Cp(`${workspaceNamespace}-dev-cp-uid`, 'dev-cp', workspaceNamespace),
       ];
 
+  // __typename required so Apollo's type policies activate and prevent shallow-merge
+  // from clobbering sibling queries (GetWorkspaces, GetProjectMembers) in the shared
+  // core_openmcp_cloud.v1alpha1 cache slot.
   return {
-    core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
-    core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items } } },
-  };
+    core_openmcp_cloud: {
+      __typename: 'CoreOpenmcpCloudQuery',
+      v1alpha1: { __typename: 'CoreOpenmcpCloudV1alpha1Query', ManagedControlPlanes: { items: [] } },
+    },
+    core_open_control_plane_io: {
+      __typename: 'CoreOpenControlPlaneIoQuery',
+      v2alpha1: { __typename: 'CoreOpenControlPlaneIoV2alpha1Query', ControlPlanes: { items } },
+    },
+  } as unknown as GetMcPsListQuery;
 }
 
 /** Minimal name-only variant used for search filtering on collapsed workspaces. */
@@ -67,9 +83,15 @@ export function createMcpsNames(workspaceNamespace: string): GetMcPsNamesQuery {
       ];
 
   return {
-    core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
-    core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items } } },
-  };
+    core_openmcp_cloud: {
+      __typename: 'CoreOpenmcpCloudQuery',
+      v1alpha1: { __typename: 'CoreOpenmcpCloudV1alpha1Query', ManagedControlPlanes: { items: [] } },
+    },
+    core_open_control_plane_io: {
+      __typename: 'CoreOpenControlPlaneIoQuery',
+      v2alpha1: { __typename: 'CoreOpenControlPlaneIoV2alpha1Query', ControlPlanes: { items } },
+    },
+  } as unknown as GetMcPsNamesQuery;
 }
 
 /** Detail payload for the V2 control-plane page (`GetMCPv2`). */
@@ -113,3 +135,29 @@ export const mcpV2Detail: GetMcPv2Query = {
     },
   },
 };
+
+export function createManagedControlPlaneResult(
+  name: string,
+  namespace: string,
+): CreateManagedControlPlaneMutation {
+  return {
+    core_openmcp_cloud: {
+      v1alpha1: {
+        createManagedControlPlane: { metadata: { uid: `cp-${name}-uid`, name, namespace } },
+      },
+    },
+  };
+}
+
+export function updateManagedControlPlaneResult(
+  name: string,
+  namespace: string,
+): UpdateManagedControlPlaneMutation {
+  return {
+    core_openmcp_cloud: {
+      v1alpha1: {
+        updateManagedControlPlane: { metadata: { uid: `cp-${name}-uid`, name, namespace } },
+      },
+    },
+  };
+}
