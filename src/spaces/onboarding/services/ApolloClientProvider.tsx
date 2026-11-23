@@ -9,8 +9,15 @@ import { print, ExecutionResult, FormattedExecutionResult } from 'graphql';
 import { ReactNode } from 'react';
 import { refreshToken } from '../auth/tokenRefresh';
 import { redirectToLogin } from '../../../common/auth/redirectToLogin';
+import { createMockSubscriptionLink } from '../../../mocks/subscriptionLink';
 
 const graphqlUrl = '/api/graphql';
+
+// When GraphQL mocking is enabled (`npm run dev:mock`), queries/mutations are
+// intercepted by MSW over the HTTP link, and subscriptions — which use SSE and
+// can't be served by MSW — are routed to a no-op link instead of opening a real
+// SSE connection to the unavailable gateway.
+const useGraphqlMocks = import.meta.env.VITE_MOCK_GRAPHQL === 'true';
 
 // SSE Link using graphql-sse library.
 // A single client is created per SSELink instance and reused across all
@@ -54,10 +61,12 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const sseLink = new SSELink({
-  url: graphqlUrl,
-  headers: { 'x-use-crate': 'true' },
-});
+const sseLink = useGraphqlMocks
+  ? createMockSubscriptionLink()
+  : new SSELink({
+      url: graphqlUrl,
+      headers: { 'x-use-crate': 'true' },
+    });
 
 // Split: SSE for subscriptions, HTTP for queries/mutations
 // Ensure `authLink` runs before the split so subscription operations
