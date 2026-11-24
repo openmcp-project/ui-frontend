@@ -1,9 +1,17 @@
 import type {
+  ControlPlaneYamlQuery,
   CreateManagedControlPlaneMutation,
+  CreateManagedControlPlaneV2Mutation,
+  DeleteManagedControlPlaneMutation,
+  DeleteManagedControlPlaneV2Mutation,
+  GetKubeconfigQuery,
+  GetManagedControlPlaneForEditQuery,
   GetMcPsListQuery,
   GetMcPsNamesQuery,
   GetMcPv2Query,
+  McpYamlQuery,
   UpdateManagedControlPlaneMutation,
+  UpdateManagedControlPlaneV2Mutation,
 } from '../../types/__generated__/graphql/graphql';
 
 function v2Cp(uid: string, name: string, namespace: string, phase = 'Ready') {
@@ -161,3 +169,122 @@ export function updateManagedControlPlaneResult(
     },
   };
 }
+
+export const deleteManagedControlPlaneResult: DeleteManagedControlPlaneMutation = {
+  core_openmcp_cloud: { v1alpha1: { deleteManagedControlPlane: true } },
+};
+
+export function getManagedControlPlaneForEdit(
+  name: string,
+  namespace: string,
+): GetManagedControlPlaneForEditQuery {
+  return {
+    core_openmcp_cloud: {
+      __typename: 'CoreOpenmcpCloudQuery',
+      v1alpha1: {
+        __typename: 'CoreOpenmcpCloudV1alpha1Query',
+        ManagedControlPlane: {
+          metadata: { uid: `cp-${name}-uid`, name, namespace, labels: {}, annotations: {} },
+          spec: {
+            authorization: { roleBindings: [] },
+            components: {
+              apiServer: { type: 'GardenerShootApiServer' },
+              crossplane: { version: '1.17.0', providers: [] },
+              flux: { version: '2.3.0' },
+              externalSecretsOperator: null,
+              btpServiceOperator: null,
+              kyverno: null,
+              landscaper: null,
+            },
+          },
+        },
+      },
+    },
+  } as unknown as GetManagedControlPlaneForEditQuery;
+}
+
+export function mcpYaml(name: string, namespace: string): McpYamlQuery {
+  const yaml = [
+    'apiVersion: core.openmcp.cloud/v1alpha1',
+    'kind: ManagedControlPlane',
+    'metadata:',
+    `  name: ${name}`,
+    `  namespace: ${namespace}`,
+    'spec:',
+    '  components:',
+    '    crossplane:',
+    '      version: 1.17.0',
+  ].join('\n');
+  return {
+    core_openmcp_cloud: { v1alpha1: { ManagedControlPlaneYaml: yaml } },
+  };
+}
+
+export function controlPlaneYaml(name: string, namespace: string): ControlPlaneYamlQuery {
+  const yaml = [
+    'apiVersion: core.open-control-plane.io/v2alpha1',
+    'kind: ControlPlane',
+    'metadata:',
+    `  name: ${name}`,
+    `  namespace: ${namespace}`,
+    'spec: {}',
+  ].join('\n');
+  return {
+    core_open_control_plane_io: { v2alpha1: { ControlPlaneYaml: yaml } },
+  };
+}
+
+export const kubeconfigData: GetKubeconfigQuery = {
+  v1: {
+    Secret: {
+      data: {
+        value: btoa(
+          [
+            'apiVersion: v1',
+            'kind: Config',
+            'clusters: []',
+            'contexts: []',
+            'users: []',
+            'current-context: ""',
+          ].join('\n'),
+        ),
+      },
+    },
+  },
+};
+
+export function createControlPlaneV2Result(
+  name: string,
+  namespace: string,
+): CreateManagedControlPlaneV2Mutation {
+  return {
+    core_open_control_plane_io: {
+      v2alpha1: {
+        createControlPlane: {
+          metadata: { uid: `cp-${name}-uid`, name, namespace },
+          status: { phase: 'Provisioning' },
+        },
+      },
+    },
+  };
+}
+
+export function updateControlPlaneV2Result(
+  name: string,
+  namespace: string,
+): UpdateManagedControlPlaneV2Mutation {
+  return {
+    core_open_control_plane_io: {
+      v2alpha1: {
+        updateControlPlane: {
+          metadata: { uid: `cp-${name}-uid`, name, namespace },
+          status: { phase: 'Ready' },
+        },
+      },
+    },
+  };
+}
+
+export const deleteControlPlaneV2Result: DeleteManagedControlPlaneV2Mutation = {
+  core_open_control_plane_io: { v2alpha1: { deleteControlPlane: true } },
+};

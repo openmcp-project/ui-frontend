@@ -1,4 +1,5 @@
 import type {
+  CreateProjectMutation,
   CreateSelfSubjectRulesReviewMutation,
   CreateWorkspaceMutation,
   DeleteProjectMutation,
@@ -172,3 +173,12 @@ export function updateProjectResult(name: string): UpdateProjectMutation {
 export const deleteProjectResult: DeleteProjectMutation = {
   core_openmcp_cloud: { v1alpha1: { deleteProject: true } },
 };
+
+export function createProjectResult(name: string): CreateProjectMutation {
+  return {
+    core_openmcp_cloud: {
+      v1alpha1: { createProject: { metadata: { uid: `project-${name}-uid`, name } } },
+    },
+  };
+}
+

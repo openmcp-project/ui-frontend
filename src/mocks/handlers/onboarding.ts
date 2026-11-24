@@ -1,5 +1,6 @@
 import { graphql, HttpResponse } from 'msw';
 import {
+  createProjectResult,
   deleteProjectResult,
   deleteWorkspaceResult,
   createWorkspaceResult,
@@ -120,6 +121,12 @@ export const onboardingHandlers = [
   api.mutation('DeleteWorkspace', () => HttpResponse.json({ data: deleteWorkspaceResult })),
 
   // ── Project CRUD ─────────────────────────────────────────────────────────
+  api.mutation('CreateProject', ({ variables }) => {
+    const { object } = variables as { object: { metadata?: { name?: string } } };
+    const name = object?.metadata?.name ?? 'new-project';
+    return HttpResponse.json({ data: createProjectResult(name) });
+  }),
+
   api.mutation('UpdateProject', ({ variables }) => {
     const { name } = variables as { name: string };
     return HttpResponse.json({ data: updateProjectResult(name) });
