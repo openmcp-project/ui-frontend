@@ -25,6 +25,25 @@ npm run dev                                            # http://localhost:5173
 
 See the [Contributor Guide](docs/contributor/index.md) for full setup, build, and testing instructions.
 
+## Mock Mode (no backend required)
+
+Run the UI entirely offline — no OIDC provider, no backend cluster needed:
+
+```bash
+npm i
+npm run dev:mock   # http://localhost:5173
+```
+
+`dev:mock` starts the BFF with `MOCK_AUTH=true` and launches a [Mock Service Worker](https://mswjs.io/) in the browser that intercepts all API calls:
+
+- **Auth** — `/api/auth/onboarding/me` and `/api/auth/mcp/me` always return a pre-authenticated user (`mock@example.com`). No OIDC redirect ever fires.
+- **GraphQL** — all onboarding and MCP queries/mutations return fixture data from `src/mocks/fixtures/`.
+- **REST** — token refresh and logout endpoints return success responses.
+
+Unhandled requests (Vite HMR, static assets) pass through to the real BFF unchanged.
+
+The fixture data lives in `src/mocks/fixtures/` and the MSW handlers in `src/mocks/handlers/`. The mock environment values (fake secrets, URLs) are in [`mock-vars`](mock-vars).
+
 ## Generating GraphQL Types
 
 ```bash

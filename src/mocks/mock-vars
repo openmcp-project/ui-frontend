@@ -1,7 +1,8 @@
 # Mock environment for local development without a real backend.
-# Used by: npm run dev:mock  (tsx --env-file=mock-vars)
+# Used by: npm run dev:mock  (tsx --env-file=src/mocks/mock-vars)
 # Intentionally committed — contains no real secrets, only placeholder values.
 MOCK_AUTH=true
+VITE_MOCK_GRAPHQL=true
 
 # Dummy secrets for local mock development only — never use in production.
 # COOKIE_SECRET must be a valid hex string; Buffer.from(val, 'hex') needs >= 64 hex chars (32 bytes).
