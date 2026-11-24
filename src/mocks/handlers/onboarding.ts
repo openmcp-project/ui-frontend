@@ -28,6 +28,9 @@ const api = graphql.link('/api/graphql');
 // Cache the email after the first successful fetch so repeated GetWorkspaces
 // queries (from subscription refetches, StrictMode double-mounts, etc.) do not
 // flood /api/auth/onboarding/me and trigger BFF rate-limiting.
+// Limitation: the cache is never invalidated within a session. If you log out
+// and back in as a different user, reload the page — otherwise the old email
+// persists and the workspace member check may resolve incorrectly.
 let cachedUserEmail: string | null = null;
 
 async function resolveUserEmail(): Promise<string> {

@@ -9,7 +9,6 @@ import { print, ExecutionResult, FormattedExecutionResult } from 'graphql';
 import { ReactNode } from 'react';
 import { refreshToken } from '../auth/tokenRefresh';
 import { redirectToLogin } from '../../../common/auth/redirectToLogin';
-import { createMockSubscriptionLink } from '../../../mocks/subscriptionLink';
 
 const graphqlUrl = '/api/graphql';
 
@@ -61,8 +60,8 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const sseLink = useGraphqlMocks
-  ? createMockSubscriptionLink()
+const sseLink: ApolloLink = useGraphqlMocks
+  ? (await import('../../../mocks/subscriptionLink')).createMockSubscriptionLink()
   : new SSELink({
       url: graphqlUrl,
       headers: { 'x-use-crate': 'true' },

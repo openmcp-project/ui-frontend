@@ -247,10 +247,14 @@ export function updateControlPlaneV2Result(name: string, namespace: string): Upd
 // ── Service component mutations ──────────────────────────────────────────────
 
 export function createCrossplaneResult(name: string, namespace: string): CreateCrossplaneMutation {
-  return { crossplane_services_open_control_plane_io: { v1alpha1: { createCrossplane: { metadata: { name, namespace } } } } };
+  return {
+    crossplane_services_open_control_plane_io: { v1alpha1: { createCrossplane: { metadata: { name, namespace } } } },
+  };
 }
 export function updateCrossplaneResult(name: string, namespace: string): UpdateCrossplaneMutation {
-  return { crossplane_services_open_control_plane_io: { v1alpha1: { updateCrossplane: { metadata: { name, namespace } } } } };
+  return {
+    crossplane_services_open_control_plane_io: { v1alpha1: { updateCrossplane: { metadata: { name, namespace } } } },
+  };
 }
 export const deleteCrossplaneResult: DeleteCrossplaneMutation = {
   crossplane_services_open_control_plane_io: { v1alpha1: { deleteCrossplane: true } },
@@ -267,20 +271,32 @@ export const deleteFluxResult: DeleteFluxMutation = {
 };
 
 export function createLandscaperResult(name: string, namespace: string): CreateLandscaperMutation {
-  return { landscaper_services_open_control_plane_io: { v1alpha2: { createLandscaper: { metadata: { name, namespace } } } } };
+  return {
+    landscaper_services_open_control_plane_io: { v1alpha2: { createLandscaper: { metadata: { name, namespace } } } },
+  };
 }
 export function updateLandscaperResult(name: string, namespace: string): UpdateLandscaperMutation {
-  return { landscaper_services_open_control_plane_io: { v1alpha2: { updateLandscaper: { metadata: { name, namespace } } } } };
+  return {
+    landscaper_services_open_control_plane_io: { v1alpha2: { updateLandscaper: { metadata: { name, namespace } } } },
+  };
 }
 export const deleteLandscaperResult: DeleteLandscaperMutation = {
   landscaper_services_open_control_plane_io: { v1alpha2: { deleteLandscaper: true } },
 };
 
 export function createEsoResult(name: string, namespace: string): CreateExternalSecretsOperatorMutation {
-  return { external_secrets_services_open_control_plane_io: { v1alpha1: { createExternalSecretsOperator: { metadata: { name, namespace } } } } };
+  return {
+    external_secrets_services_open_control_plane_io: {
+      v1alpha1: { createExternalSecretsOperator: { metadata: { name, namespace } } },
+    },
+  };
 }
 export function updateEsoResult(name: string, namespace: string): UpdateExternalSecretsOperatorMutation {
-  return { external_secrets_services_open_control_plane_io: { v1alpha1: { updateExternalSecretsOperator: { metadata: { name, namespace } } } } };
+  return {
+    external_secrets_services_open_control_plane_io: {
+      v1alpha1: { updateExternalSecretsOperator: { metadata: { name, namespace } } },
+    },
+  };
 }
 export const deleteEsoResult: DeleteExternalSecretsOperatorMutation = {
   external_secrets_services_open_control_plane_io: { v1alpha1: { deleteExternalSecretsOperator: true } },
@@ -307,10 +323,14 @@ export const deleteKroResult: DeleteKroMutation = {
 };
 
 export function createMetricsOperatorResult(name: string, namespace: string): CreateMetricsOperatorMutation {
-  return { metrics_services_open_control_plane_io: { v1alpha1: { createMetricsOperator: { metadata: { name, namespace } } } } };
+  return {
+    metrics_services_open_control_plane_io: { v1alpha1: { createMetricsOperator: { metadata: { name, namespace } } } },
+  };
 }
 export function updateMetricsOperatorResult(name: string, namespace: string): UpdateMetricsOperatorMutation {
-  return { metrics_services_open_control_plane_io: { v1alpha1: { updateMetricsOperator: { metadata: { name, namespace } } } } };
+  return {
+    metrics_services_open_control_plane_io: { v1alpha1: { updateMetricsOperator: { metadata: { name, namespace } } } },
+  };
 }
 export const deleteMetricsOperatorResult: DeleteMetricsOperatorMutation = {
   metrics_services_open_control_plane_io: { v1alpha1: { deleteMetricsOperator: true } },
@@ -332,7 +352,14 @@ function serviceYaml(kind: string, name: string, namespace: string, apiVersion: 
 export function crossplaneYaml(name: string, namespace: string): GetCrossplaneYamlQuery {
   return {
     crossplane_services_open_control_plane_io: {
-      v1alpha1: { CrossplaneYaml: serviceYaml('Crossplane', name, namespace, 'crossplane-services.open-control-plane.io/v1alpha1') },
+      v1alpha1: {
+        CrossplaneYaml: serviceYaml(
+          'Crossplane',
+          name,
+          namespace,
+          'crossplane-services.open-control-plane.io/v1alpha1',
+        ),
+      },
     },
   };
 }
@@ -348,7 +375,14 @@ export function fluxYaml(name: string, namespace: string): GetFluxYamlQuery {
 export function landscaperYaml(name: string, namespace: string): GetLandscaperYamlQuery {
   return {
     landscaper_services_open_control_plane_io: {
-      v1alpha2: { LandscaperYaml: serviceYaml('Landscaper', name, namespace, 'landscaper-services.open-control-plane.io/v1alpha2') },
+      v1alpha2: {
+        LandscaperYaml: serviceYaml(
+          'Landscaper',
+          name,
+          namespace,
+          'landscaper-services.open-control-plane.io/v1alpha2',
+        ),
+      },
     },
   };
 }
@@ -356,7 +390,14 @@ export function landscaperYaml(name: string, namespace: string): GetLandscaperYa
 export function esoYaml(name: string, namespace: string): GetEsoYamlQuery {
   return {
     external_secrets_services_open_control_plane_io: {
-      v1alpha1: { ExternalSecretsOperatorYaml: serviceYaml('ExternalSecretsOperator', name, namespace, 'external-secrets-services.open-control-plane.io/v1alpha1') },
+      v1alpha1: {
+        ExternalSecretsOperatorYaml: serviceYaml(
+          'ExternalSecretsOperator',
+          name,
+          namespace,
+          'external-secrets-services.open-control-plane.io/v1alpha1',
+        ),
+      },
     },
   };
 }
@@ -380,7 +421,14 @@ export function kroYaml(name: string, namespace: string): GetKroYamlQuery {
 export function metricsOperatorYaml(name: string, namespace: string): GetMetricsOperatorYamlQuery {
   return {
     metrics_services_open_control_plane_io: {
-      v1alpha1: { MetricsOperatorYaml: serviceYaml('MetricsOperator', name, namespace, 'metrics-services.open-control-plane.io/v1alpha1') },
+      v1alpha1: {
+        MetricsOperatorYaml: serviceYaml(
+          'MetricsOperator',
+          name,
+          namespace,
+          'metrics-services.open-control-plane.io/v1alpha1',
+        ),
+      },
     },
   };
 }

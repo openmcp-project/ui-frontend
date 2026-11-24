@@ -181,4 +181,3 @@ export function createProjectResult(name: string): CreateProjectMutation {
     },
   };
 }
-

@@ -1,6 +1,5 @@
 import { graphql, HttpResponse } from 'msw';
 import {
-  createControlPlaneV2Result,
   createCrossplaneResult,
   createEsoResult,
   createFluxResult,
@@ -10,25 +9,20 @@ import {
   createOcmResult,
   crossplaneYaml,
   deleteCrossplaneResult,
-  deleteControlPlaneV2Result,
   deleteEsoResult,
   deleteFluxResult,
   deleteKroResult,
   deleteLandscaperResult,
-  deleteManagedControlPlaneResult,
   deleteMetricsOperatorResult,
   deleteOcmResult,
   esoYaml,
   fluxYaml,
   getManagedControlPlane,
-  getManagedControlPlaneForEdit,
   kroYaml,
-  kubeconfig,
   landscaperYaml,
   managedServices,
   metricsOperatorYaml,
   ocmYaml,
-  updateControlPlaneV2Result,
   updateCrossplaneResult,
   updateEsoResult,
   updateFluxResult,
@@ -40,6 +34,39 @@ import {
 
 const api = graphql.link('/api/graphql');
 
+type CreateVars = { namespace?: string; object: { metadata?: { name?: string } } };
+type UpdateVars = { name: string; namespace?: string };
+
+function makeComponentHandlers(
+  suffix: string,
+  defaultName: string,
+  fns: {
+    create: (name: string, ns: string) => unknown;
+    update: (name: string, ns: string) => unknown;
+    deleteResult: unknown;
+    yaml: (name: string, ns: string) => unknown;
+  },
+  yamlSuffix = suffix,
+) {
+  return [
+    api.mutation(`Create${suffix}`, ({ variables }) => {
+      const { namespace, object } = variables as CreateVars;
+      return HttpResponse.json({
+        data: fns.create(object?.metadata?.name ?? defaultName, namespace ?? '') as Record<string, unknown>,
+      });
+    }),
+    api.mutation(`Update${suffix}`, ({ variables }) => {
+      const { name, namespace } = variables as UpdateVars;
+      return HttpResponse.json({ data: fns.update(name, namespace ?? '') as Record<string, unknown> });
+    }),
+    api.mutation(`Delete${suffix}`, () => HttpResponse.json({ data: fns.deleteResult as Record<string, unknown> })),
+    api.query(`Get${yamlSuffix}Yaml`, ({ variables }) => {
+      const { name, namespace } = variables as UpdateVars;
+      return HttpResponse.json({ data: fns.yaml(name, namespace ?? '') as Record<string, unknown> });
+    }),
+  ];
+}
+
 export const mcpHandlers = [
   // ── V1 ManagedControlPlane ───────────────────────────────────────────────
   api.query('GetManagedControlPlane', ({ variables }) => {
@@ -47,132 +74,65 @@ export const mcpHandlers = [
     return HttpResponse.json({ data: getManagedControlPlane(name, namespace) });
   }),
 
-  api.query('GetManagedControlPlaneForEdit', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace: string };
-    return HttpResponse.json({ data: getManagedControlPlaneForEdit(name, namespace) });
-  }),
-
-  api.mutation('DeleteManagedControlPlane', () =>
-    HttpResponse.json({ data: deleteManagedControlPlaneResult }),
-  ),
-
-  // ── V2 ControlPlane CRUD ─────────────────────────────────────────────────
-  api.mutation('CreateManagedControlPlaneV2', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    const name = object?.metadata?.name ?? 'new-cp';
-    return HttpResponse.json({ data: createControlPlaneV2Result(name, namespace ?? '') });
-  }),
-
-  api.mutation('DeleteManagedControlPlaneV2', () =>
-    HttpResponse.json({ data: deleteControlPlaneV2Result }),
-  ),
-
-  api.mutation('UpdateManagedControlPlaneV2', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateControlPlaneV2Result(name, namespace ?? '') });
-  }),
-
-  // ── Catalog & kubeconfig ─────────────────────────────────────────────────
+  // ── Catalog ──────────────────────────────────────────────────────────────
   api.query('GetManagedServices', () => HttpResponse.json({ data: managedServices })),
 
-  api.query('GetKubeconfig', () => HttpResponse.json({ data: kubeconfig })),
-
-  // ── Service component create ─────────────────────────────────────────────
-  api.mutation('CreateCrossplane', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createCrossplaneResult(object?.metadata?.name ?? 'crossplane', namespace ?? '') });
+  // ── Service components ───────────────────────────────────────────────────
+  ...makeComponentHandlers('Crossplane', 'crossplane', {
+    create: createCrossplaneResult,
+    update: updateCrossplaneResult,
+    deleteResult: deleteCrossplaneResult,
+    yaml: crossplaneYaml,
   }),
-  api.mutation('CreateFlux', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createFluxResult(object?.metadata?.name ?? 'flux', namespace ?? '') });
+  ...makeComponentHandlers('Flux', 'flux', {
+    create: createFluxResult,
+    update: updateFluxResult,
+    deleteResult: deleteFluxResult,
+    yaml: fluxYaml,
   }),
-  api.mutation('CreateLandscaper', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createLandscaperResult(object?.metadata?.name ?? 'landscaper', namespace ?? '') });
+  ...makeComponentHandlers('Landscaper', 'landscaper', {
+    create: createLandscaperResult,
+    update: updateLandscaperResult,
+    deleteResult: deleteLandscaperResult,
+    yaml: landscaperYaml,
   }),
-  api.mutation('CreateExternalSecretsOperator', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createEsoResult(object?.metadata?.name ?? 'eso', namespace ?? '') });
-  }),
-  api.mutation('CreateOCM', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createOcmResult(object?.metadata?.name ?? 'ocm', namespace ?? '') });
-  }),
-  api.mutation('CreateKRO', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createKroResult(object?.metadata?.name ?? 'kro', namespace ?? '') });
-  }),
-  api.mutation('CreateMetricsOperator', ({ variables }) => {
-    const { namespace, object } = variables as { namespace?: string; object: { metadata?: { name?: string } } };
-    return HttpResponse.json({ data: createMetricsOperatorResult(object?.metadata?.name ?? 'metrics-operator', namespace ?? '') });
-  }),
-
-  // ── Service component update ─────────────────────────────────────────────
-  api.mutation('UpdateCrossplane', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateCrossplaneResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateFlux', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateFluxResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateLandscaper', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateLandscaperResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateExternalSecretsOperator', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateEsoResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateOCM', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateOcmResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateKRO', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateKroResult(name, namespace ?? '') });
-  }),
-  api.mutation('UpdateMetricsOperator', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: updateMetricsOperatorResult(name, namespace ?? '') });
-  }),
-
-  // ── Service component delete ─────────────────────────────────────────────
-  api.mutation('DeleteCrossplane', () => HttpResponse.json({ data: deleteCrossplaneResult })),
-  api.mutation('DeleteFlux', () => HttpResponse.json({ data: deleteFluxResult })),
-  api.mutation('DeleteLandscaper', () => HttpResponse.json({ data: deleteLandscaperResult })),
-  api.mutation('DeleteExternalSecretsOperator', () => HttpResponse.json({ data: deleteEsoResult })),
-  api.mutation('DeleteOCM', () => HttpResponse.json({ data: deleteOcmResult })),
-  api.mutation('DeleteKRO', () => HttpResponse.json({ data: deleteKroResult })),
-  api.mutation('DeleteMetricsOperator', () => HttpResponse.json({ data: deleteMetricsOperatorResult })),
-
-  // ── Service component YAML ───────────────────────────────────────────────
-  api.query('GetCrossplaneYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: crossplaneYaml(name, namespace ?? '') });
-  }),
-  api.query('GetFluxYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: fluxYaml(name, namespace ?? '') });
-  }),
-  api.query('GetLandscaperYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: landscaperYaml(name, namespace ?? '') });
-  }),
-  api.query('GetEsoYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: esoYaml(name, namespace ?? '') });
-  }),
-  api.query('GetOcmYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: ocmYaml(name, namespace ?? '') });
-  }),
-  api.query('GetKroYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: kroYaml(name, namespace ?? '') });
-  }),
-  api.query('GetMetricsOperatorYaml', ({ variables }) => {
-    const { name, namespace } = variables as { name: string; namespace?: string };
-    return HttpResponse.json({ data: metricsOperatorYaml(name, namespace ?? '') });
+  ...makeComponentHandlers(
+    'ExternalSecretsOperator',
+    'eso',
+    {
+      create: createEsoResult,
+      update: updateEsoResult,
+      deleteResult: deleteEsoResult,
+      yaml: esoYaml,
+    },
+    'Eso',
+  ),
+  ...makeComponentHandlers(
+    'OCM',
+    'ocm',
+    {
+      create: createOcmResult,
+      update: updateOcmResult,
+      deleteResult: deleteOcmResult,
+      yaml: ocmYaml,
+    },
+    'Ocm',
+  ),
+  ...makeComponentHandlers(
+    'KRO',
+    'kro',
+    {
+      create: createKroResult,
+      update: updateKroResult,
+      deleteResult: deleteKroResult,
+      yaml: kroYaml,
+    },
+    'Kro',
+  ),
+  ...makeComponentHandlers('MetricsOperator', 'metrics-operator', {
+    create: createMetricsOperatorResult,
+    update: updateMetricsOperatorResult,
+    deleteResult: deleteMetricsOperatorResult,
+    yaml: metricsOperatorYaml,
   }),
 ];

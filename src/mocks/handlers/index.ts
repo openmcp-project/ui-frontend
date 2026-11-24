@@ -1,5 +1,6 @@
 import { controlPlaneV2Handlers } from './controlPlaneV2';
 import { managedControlPlaneHandlers } from './managedControlPlane';
+import { mcpHandlers } from './mcp';
 import { onboardingHandlers } from './onboarding';
 
 // GraphQL handlers only. Auth and the rest of the REST API stay real — anything
@@ -8,5 +9,5 @@ export const handlers = [
   ...onboardingHandlers,
   ...controlPlaneV2Handlers,
   ...managedControlPlaneHandlers,
+  ...mcpHandlers,
 ];
-

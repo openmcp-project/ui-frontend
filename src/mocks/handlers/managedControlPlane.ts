@@ -9,7 +9,6 @@ import {
   mcpYaml,
   updateControlPlaneV2Result,
 } from '../fixtures/controlPlanes';
-import { createProjectResult } from '../fixtures/projects';
 
 const api = graphql.link('/api/graphql');
 
@@ -25,9 +24,7 @@ export const managedControlPlaneHandlers = [
     return HttpResponse.json({ data: mcpYaml(name, namespace ?? '') });
   }),
 
-  api.mutation('DeleteManagedControlPlane', () =>
-    HttpResponse.json({ data: deleteManagedControlPlaneResult }),
-  ),
+  api.mutation('DeleteManagedControlPlane', () => HttpResponse.json({ data: deleteManagedControlPlaneResult })),
 
   // ── V2 ControlPlane ──────────────────────────────────────────────────────
   api.query('ControlPlaneYaml', ({ variables }) => {
@@ -49,16 +46,7 @@ export const managedControlPlaneHandlers = [
     return HttpResponse.json({ data: updateControlPlaneV2Result(name, namespace ?? '') });
   }),
 
-  api.mutation('DeleteManagedControlPlaneV2', () =>
-    HttpResponse.json({ data: deleteControlPlaneV2Result }),
-  ),
-
-  // ── Project creation ─────────────────────────────────────────────────────
-  api.mutation('CreateProject', ({ variables }) => {
-    const { object } = variables as { object: { metadata?: { name?: string } } };
-    const name = object?.metadata?.name ?? 'new-project';
-    return HttpResponse.json({ data: createProjectResult(name) });
-  }),
+  api.mutation('DeleteManagedControlPlaneV2', () => HttpResponse.json({ data: deleteControlPlaneV2Result })),
 
   // ── Kubeconfig ───────────────────────────────────────────────────────────
   api.query('GetKubeconfig', () => HttpResponse.json({ data: kubeconfigData })),

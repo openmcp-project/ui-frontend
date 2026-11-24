@@ -144,10 +144,7 @@ export const mcpV2Detail: GetMcPv2Query = {
   },
 };
 
-export function createManagedControlPlaneResult(
-  name: string,
-  namespace: string,
-): CreateManagedControlPlaneMutation {
+export function createManagedControlPlaneResult(name: string, namespace: string): CreateManagedControlPlaneMutation {
   return {
     core_openmcp_cloud: {
       v1alpha1: {
@@ -157,10 +154,7 @@ export function createManagedControlPlaneResult(
   };
 }
 
-export function updateManagedControlPlaneResult(
-  name: string,
-  namespace: string,
-): UpdateManagedControlPlaneMutation {
+export function updateManagedControlPlaneResult(name: string, namespace: string): UpdateManagedControlPlaneMutation {
   return {
     core_openmcp_cloud: {
       v1alpha1: {
@@ -174,10 +168,7 @@ export const deleteManagedControlPlaneResult: DeleteManagedControlPlaneMutation 
   core_openmcp_cloud: { v1alpha1: { deleteManagedControlPlane: true } },
 };
 
-export function getManagedControlPlaneForEdit(
-  name: string,
-  namespace: string,
-): GetManagedControlPlaneForEditQuery {
+export function getManagedControlPlaneForEdit(name: string, namespace: string): GetManagedControlPlaneForEditQuery {
   return {
     core_openmcp_cloud: {
       __typename: 'CoreOpenmcpCloudQuery',
@@ -239,24 +230,16 @@ export const kubeconfigData: GetKubeconfigQuery = {
     Secret: {
       data: {
         value: btoa(
-          [
-            'apiVersion: v1',
-            'kind: Config',
-            'clusters: []',
-            'contexts: []',
-            'users: []',
-            'current-context: ""',
-          ].join('\n'),
+          ['apiVersion: v1', 'kind: Config', 'clusters: []', 'contexts: []', 'users: []', 'current-context: ""'].join(
+            '\n',
+          ),
         ),
       },
     },
   },
 };
 
-export function createControlPlaneV2Result(
-  name: string,
-  namespace: string,
-): CreateManagedControlPlaneV2Mutation {
+export function createControlPlaneV2Result(name: string, namespace: string): CreateManagedControlPlaneV2Mutation {
   return {
     core_open_control_plane_io: {
       v2alpha1: {
@@ -269,10 +252,7 @@ export function createControlPlaneV2Result(
   };
 }
 
-export function updateControlPlaneV2Result(
-  name: string,
-  namespace: string,
-): UpdateManagedControlPlaneV2Mutation {
+export function updateControlPlaneV2Result(name: string, namespace: string): UpdateManagedControlPlaneV2Mutation {
   return {
     core_open_control_plane_io: {
       v2alpha1: {
