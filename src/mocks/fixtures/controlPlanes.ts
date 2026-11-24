@@ -103,46 +103,50 @@ export function createMcpsNames(workspaceNamespace: string): GetMcPsNamesQuery {
 }
 
 /** Detail payload for the V2 control-plane page (`GetMCPv2`). */
-export const mcpV2Detail: GetMcPv2Query = {
-  core_open_control_plane_io: {
-    v2alpha1: {
-      ControlPlane: {
-        kind: 'ControlPlane',
-        metadata: {
-          uid: 'cp-my-cp-uid',
-          name: 'my-cp',
-          namespace: 'project-foo--ws-demo',
-          annotations: {},
-          creationTimestamp: '2026-01-01T00:00:00Z',
-          deletionTimestamp: null,
-        },
-        spec: {
-          iam: {
-            oidc: {
-              defaultProvider: { roleBindings: [] },
-              extraProviders: [],
-            },
-            tokens: [],
+export function createMcpV2Detail(name: string, namespace: string): GetMcPv2Query {
+  return {
+    core_open_control_plane_io: {
+      v2alpha1: {
+        ControlPlane: {
+          kind: 'ControlPlane',
+          metadata: {
+            uid: `cp-${name}-uid`,
+            name,
+            namespace,
+            annotations: {},
+            creationTimestamp: '2026-01-01T00:00:00Z',
+            deletionTimestamp: null,
           },
-        },
-        status: {
-          phase: 'Ready',
-          access: null,
-          observedGeneration: 1,
-          conditions: [
-            {
-              type: 'Ready',
-              status: 'True',
-              reason: 'AllReady',
-              message: 'Control plane ready',
-              lastTransitionTime: '2026-01-01T00:00:00Z',
+          spec: {
+            iam: {
+              oidc: {
+                defaultProvider: { roleBindings: [] },
+                extraProviders: [],
+              },
+              tokens: [],
             },
-          ],
+          },
+          status: {
+            phase: 'Ready',
+            access: null,
+            observedGeneration: 1,
+            conditions: [
+              {
+                type: 'Ready',
+                status: 'True',
+                reason: 'AllReady',
+                message: 'Control plane ready',
+                lastTransitionTime: '2026-01-01T00:00:00Z',
+              },
+            ],
+          },
         },
       },
     },
-  },
-};
+  };
+}
+
+export const mcpV2Detail: GetMcPv2Query = createMcpV2Detail('my-cp', 'project-foo--ws-demo');
 
 export function createManagedControlPlaneResult(name: string, namespace: string): CreateManagedControlPlaneMutation {
   return {

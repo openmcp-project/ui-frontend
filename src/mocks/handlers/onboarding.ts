@@ -25,28 +25,31 @@ import { managedComponents } from '../fixtures/components';
 // Scope to the single GraphQL endpoint; every other request bypasses to the real BFF.
 const api = graphql.link('/api/graphql');
 
-// Cache the email after the first successful fetch so repeated GetWorkspaces
-// queries (from subscription refetches, StrictMode double-mounts, etc.) do not
-// flood /api/auth/onboarding/me and trigger BFF rate-limiting.
+// Cache the in-flight Promise so concurrent GetWorkspaces handler invocations
+// (React StrictMode double-mount, polling refetches) all share the same fetch
+// instead of each firing a separate request to /api/auth/onboarding/me.
+// In mock mode this call is intercepted by the authHandlers MSW handler and
+// returns { user: { email: 'mock@example.com' } } without hitting the network.
 // Limitation: the cache is never invalidated within a session. If you log out
 // and back in as a different user, reload the page — otherwise the old email
 // persists and the workspace member check may resolve incorrectly.
-let cachedUserEmail: string | null = null;
+let emailPromise: Promise<string> | null = null;
 
 async function resolveUserEmail(): Promise<string> {
-  if (cachedUserEmail !== null) return cachedUserEmail;
-  try {
-    const res = await fetch('/api/auth/onboarding/me');
-    if (res.ok) {
-      const body = (await res.json()) as { user?: { email?: string } };
-      cachedUserEmail = body?.user?.email ?? 'mock@example.com';
-    } else {
-      cachedUserEmail = 'mock@example.com';
+  if (emailPromise !== null) return emailPromise;
+  emailPromise = (async () => {
+    try {
+      const res = await fetch('/api/auth/onboarding/me');
+      if (res.ok) {
+        const body = (await res.json()) as { user?: { email?: string } };
+        return body?.user?.email ?? 'mock@example.com';
+      }
+      return 'mock@example.com';
+    } catch {
+      return 'mock@example.com';
     }
-  } catch {
-    cachedUserEmail = 'mock@example.com';
-  }
-  return cachedUserEmail;
+  })();
+  return emailPromise;
 }
 
 export const onboardingHandlers = [
