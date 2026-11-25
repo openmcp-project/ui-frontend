@@ -1,0 +1,25 @@
+# Mock environment for local development without a real backend.
+# Used by: npm run dev:mock  (tsx --env-file=src/mocks/mock-vars)
+# Intentionally committed — contains no real secrets, only placeholder values.
+MOCK_AUTH=true
+VITE_MOCK_GRAPHQL=true
+
+# Dummy secrets for local mock development only — never use in production.
+# COOKIE_SECRET must be a valid hex string; Buffer.from(val, 'hex') needs >= 64 hex chars (32 bytes).
+COOKIE_SECRET=deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
+SESSION_SECRET=mock-session-secret-dev-only-not-prod
+
+# Allow all frame-ancestors in mock mode (no production NGINX enforcing this).
+FRAME_ANCESTORS=*
+
+# Fake backend URLs — all browser calls are intercepted by MSW.
+API_BACKEND_URL=http://mock-backend.local
+GRAPHQL_BACKEND_URL=http://mock-backend.local/graphql
+
+# Fake OIDC config — OIDC discovery and auth routes are skipped in mock mode.
+OIDC_ISSUER=http://mock-oidc.local
+OIDC_CLIENT_ID=mock-client-id
+OIDC_CLIENT_ID_MCP=mock-client-id-mcp
+OIDC_SCOPES=openid email profile
+OIDC_REDIRECT_URI=http://localhost:5173
+POST_LOGIN_REDIRECT=http://localhost:5173

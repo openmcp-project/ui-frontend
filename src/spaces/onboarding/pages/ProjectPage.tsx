@@ -110,7 +110,6 @@ export default function ProjectPage() {
     },
     [search, telemetry],
   );
-
   if (isPending) {
     return <Loading />;
   }

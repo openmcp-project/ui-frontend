@@ -41,6 +41,9 @@ const schema = {
     DYNATRACE_OTLP_TOKEN: { type: 'string' },
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },
+    // Local mock mode — set to 'true' by npm run dev:mock.
+    // Skips OIDC discovery and returns hardcoded mock auth responses.
+    MOCK_AUTH: { type: 'string', enum: ['true', 'false'] },
   },
 };
 

@@ -2,6 +2,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// In mock mode, load mock-vars on top of .env with override:true so mock values
+// always win regardless of what tsx's auto-loader or the existing .env sets.
+if (process.env.MOCK_AUTH === 'true') {
+  dotenv.config({ path: 'mock-vars', override: true });
+}
+
 import { initializeOpenTelemetry } from './opentelemetry-config.js';
 
 const { DYNATRACE_OTLP_ENDPOINT, DYNATRACE_OTLP_TOKEN, NODE_ENV } = process.env;

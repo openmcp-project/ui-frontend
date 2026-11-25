@@ -11,6 +11,9 @@ const stateSessionKey = 'oauthStateMCP';
 
 // @ts-ignore
 async function authPlugin(fastify) {
+  // Routes and OIDC discovery are handled by auth-mock.ts in mock mode.
+  if (fastify.config.MOCK_AUTH === 'true') return;
+
   const { OIDC_ISSUER, OIDC_CLIENT_ID_MCP, OIDC_REDIRECT_URI, OIDC_SCOPES, POST_LOGIN_REDIRECT } = fastify.config;
 
   // Make MCP issuer configuration globally available
