@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { purposeColorScheme, purposeLabel, ResolvedSupportInfo } from '../../lib/supportInfo.ts';
 import { ProjectSupportInfoPopover } from '../Projects/ProjectSupportInfoPopover.tsx';
 import { HoverRevealTag } from '../Ui/HoverRevealTag/HoverRevealTag.tsx';
-import { Tooltip } from '../Ui/Tooltip/Tooltip.tsx';
 import styles from './SupportInfoTag.module.css';
 
 interface Props {
@@ -44,21 +43,21 @@ export function SupportInfoTag({ resolved, testId, renderEditDialog }: Props) {
 
   return (
     <>
-      <span className={inheritedFrom ? styles.tagWrapper : undefined}>
-        <Tag
-          id={openerId}
-          interactive
-          design="Set2"
-          colorScheme={purposeColorScheme(info.supportLandscape)}
-          className={inheritedFrom ? `${styles.tag} ${styles.inherited}` : styles.tag}
-          data-testid={testId}
-          data-inherited={inheritedFrom ? 'true' : undefined}
-          onClick={() => setPopoverOpen(true)}
-        >
-          {purposeLabel(t, info.supportLandscape)}
-        </Tag>
-        {inheritedTooltip && <Tooltip text={inheritedTooltip} />}
-      </span>
+      <Tag
+        id={openerId}
+        interactive
+        design="Set2"
+        colorScheme={purposeColorScheme(info.supportLandscape)}
+        className={inheritedFrom ? `${styles.tag} ${styles.inherited}` : styles.tag}
+        data-testid={testId}
+        data-inherited={inheritedFrom ? 'true' : undefined}
+        // Inherited values carry their source as a native hover tooltip on the
+        // badge itself; clicking opens the full popover (which also names it).
+        title={inheritedTooltip}
+        onClick={() => setPopoverOpen(true)}
+      >
+        {purposeLabel(t, info.supportLandscape)}
+      </Tag>
       {popoverOpen && (
         <ProjectSupportInfoPopover
           opener={openerId}

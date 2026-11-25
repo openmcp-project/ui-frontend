@@ -5,9 +5,3 @@
 .inherited {
   opacity: 0.7;
 }
-
-.tagWrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
