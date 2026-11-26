@@ -19,6 +19,7 @@ import {
 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import { ControlPlaneStatusPopoverButton } from '../../ControlPlane/ControlPlaneStatusPopoverButton.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
@@ -291,14 +292,28 @@ export const ControlPlaneCard = ({
                 )}
               />
             )}
-            <MCPHealthPopoverButton
-              mcpStatus={controlPlane.status}
-              projectName={projectName}
-              workspaceName={workspace.metadata.name ?? ''}
-              mcpName={controlPlane.metadata.name}
-              source="card"
-              creationTimestamp={controlPlane.metadata.creationTimestamp}
-            />
+            {isV2 ? (
+              <ControlPlaneStatusPopoverButton
+                phase={controlPlane.status?.phase}
+                conditions={controlPlane.status?.conditions}
+                deletionTimestamp={controlPlane.metadata.deletionTimestamp}
+                services={v2Components}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                mcpName={controlPlane.metadata.name}
+                source="card"
+                creationTimestamp={controlPlane.metadata.creationTimestamp}
+              />
+            ) : (
+              <MCPHealthPopoverButton
+                mcpStatus={controlPlane.status}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                mcpName={controlPlane.metadata.name}
+                source="card"
+                creationTimestamp={controlPlane.metadata.creationTimestamp}
+              />
+            )}
           </div>
         </div>
 
