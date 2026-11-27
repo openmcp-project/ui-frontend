@@ -59,6 +59,7 @@ jobs:
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build and push
+        id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -71,11 +72,30 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
+        with:
+          cosign-release: v3.1.4
+
+      - name: Sign image
+        run: cosign sign --yes "$IMAGE@$DIGEST"
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+
       - name: Build OCM component
         run: task build:ocm
         env:
           IMAGE_VERSION: "main"
           OCM_COMPONENT_VERSION: "v0.0.0-main"
 
+      - name: Sign OCM component
+        run: task sign:ocm
+        env:
+          OCM_COMPONENT_VERSION: "v0.0.0-main"
+
       - name: Publish OCM component
-        run: task publish:ocm OCM_TRANSFER_ARGS="--overwrite"
+        run: task publish:ocm
+        env:
+          OCM_COMPONENT_VERSION: "v0.0.0-main"
+          OVERWRITE_COMPONENTS: "true"

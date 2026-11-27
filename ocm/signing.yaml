@@ -1,0 +1,6 @@
+type: generic.config.ocm.software/v1
+configurations:
+  - type: signing.config.ocm.software/v1alpha1
+    signature: default
+    signer:
+      type: SigstoreSigningConfiguration/v1alpha1

@@ -14,6 +14,8 @@ vars:
   OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
   OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
   OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
+  OCM_SIGNING_CONFIG: '{{.ROOT_DIR}}/ocm/signing.yaml'
+  OCM_COMPONENT_REF: 'ctf::{{.OCM_OUTPUT_DIR}}//{{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}}'
 
   # Backend Image Version
   BACKEND_IMAGE_URL: ghcr.io/openmcp-project/mcp-ui-backend
@@ -48,6 +50,13 @@ tasks:
           --repository ctf::{{.OCM_OUTPUT_DIR}}
     vars:
       IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
+
+  sign:ocm:
+    desc: 'Signs the ocm component keyless with Sigstore. It must have been built before. Usage: task sign:ocm'
+    deps:
+      - install:ocm
+    cmds:
+      - '{{.OCM}} sign cv --config {{.OCM_SIGNING_CONFIG}} {{.OCM_COMPONENT_REF}}'
 
   publish:ocm:
     desc: 'Publishes the ocm component to the registry. Fails if the version exists, unless OVERWRITE_COMPONENTS is "true". Usage: task publish:ocm'

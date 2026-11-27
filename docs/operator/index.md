@@ -77,8 +77,46 @@ To build and publish the OCM component:
 
 ```bash
 task build:ocm OCM_COMPONENT_VERSION=v1.2.3
+task sign:ocm OCM_COMPONENT_VERSION=v1.2.3
 task publish:ocm OCM_COMPONENT_VERSION=v1.2.3
 ```
+
+`task publish:ocm` fails if the version already exists in the registry, unless `OVERWRITE_COMPONENTS=true` is set.
+
+## Verifying a Release
+
+The release image and the OCM component version are signed keyless with [Sigstore](https://www.sigstore.dev/) by the release workflow.
+
+Verify the image with [cosign](https://docs.sigstore.dev/cosign/system_config/installation/):
+
+```bash
+cosign verify \
+  --certificate-identity https://github.com/openmcp-project/ui-frontend/.github/workflows/on-release.yaml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  ghcr.io/openmcp-project/mcp-ui-frontend:<version>
+```
+
+Verify the component version with the [OCM CLI](https://ocm.software). The expected signer goes into an OCM configuration file:
+
+```yaml
+# verify.yaml
+type: generic.config.ocm.software/v1
+configurations:
+  - type: signing.config.ocm.software/v1alpha1
+    signature: default
+    verifier:
+      type: SigstoreVerificationConfiguration/v1alpha1
+      certificateIdentity: https://github.com/openmcp-project/ui-frontend/.github/workflows/on-release.yaml@refs/heads/main
+      certificateOIDCIssuer: https://token.actions.githubusercontent.com
+```
+
+```bash
+ocm verify cv --config verify.yaml ghcr.io/openmcp-project/components//github.com/openmcp-project/ui:<version>
+```
+
+Both commands fail if the artifact is unsigned or was signed by anything other than that workflow on the `main` branch.
+
+Artifacts built from `main` between releases (image tag `main`, component version `v0.0.0-main`) are signed by `.github/workflows/main.yaml` instead, replace the workflow file in the identity to verify those.
 
 ## Branding
 
