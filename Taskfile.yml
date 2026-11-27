@@ -14,6 +14,8 @@ vars:
   OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
   OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
   OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
+  OCM_SIGNING_CONFIG: '{{.ROOT_DIR}}/ocm/signing.yaml'
+  OCM_COMPONENT_REF: 'ctf::{{.OCM_OUTPUT_DIR}}//{{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}}'
 
   # Backend Image Version
   BACKEND_IMAGE_URL: ghcr.io/openmcp-project/mcp-ui-backend
@@ -33,30 +35,46 @@ tasks:
     desc: 'Builds the ocm component. Usage: task build:ocm'
     deps:
       - install:ocm
+    env:
+      VERSION: '{{.OCM_COMPONENT_VERSION}}'
+      IMAGE_VERSION: '{{.IMAGE_VERSION}}'
+      COMPONENT_NAME: '{{.OCM_COMPONENT_NAME}}'
+      PROVIDER: '{{.OCM_PROVIDER}}'
+      BACKEND_IMAGE_URL: '{{.BACKEND_IMAGE_URL}}'
+      BACKEND_IMAGE_VERSION: '{{.BACKEND_IMAGE_VERSION}}'
     cmds:
       - rm -rf {{.OCM_OUTPUT_DIR}}
       - |
-        {{.OCM}} add components --create \
-          --lookup {{.OCM_TARGET_REPO}} \
-          --file {{.OCM_OUTPUT_DIR}} \
-          {{.OCM_DESCRIPTOR}} -- \
-          VERSION={{.OCM_COMPONENT_VERSION}} \
-          IMAGE_VERSION={{.IMAGE_VERSION}} \
-          COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
-          PROVIDER={{.OCM_PROVIDER}} \
-          BACKEND_IMAGE_URL={{.BACKEND_IMAGE_URL}} \
-          BACKEND_IMAGE_VERSION={{.BACKEND_IMAGE_VERSION}}
+        {{.OCM}} add cv \
+          --constructor {{.OCM_DESCRIPTOR}} \
+          --repository ctf::{{.OCM_OUTPUT_DIR}}
     vars:
       IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
 
-  publish:ocm:
-    desc: 'Publishes the ocm component to the registry. Usage: task publish:ocm [OCM_TRANSFER_ARGS="--overwrite"]'
+  sign:ocm:
+    desc: 'Signs the ocm component keyless with Sigstore. It must have been built before. Usage: task sign:ocm'
     deps:
       - install:ocm
     cmds:
+      - '{{.OCM}} sign cv --config {{.OCM_SIGNING_CONFIG}} {{.OCM_COMPONENT_REF}}'
+
+  publish:ocm:
+    desc: 'Publishes the ocm component to the registry. Fails if the version exists, unless OVERWRITE_COMPONENTS is "true". Usage: task publish:ocm'
+    deps:
+      - install:ocm
+    env:
+      OCM_TARGET_REF: '{{.OCM_TARGET_REPO}}//{{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}}'
+    cmds:
+      # ocm replaces existing versions and has no flag to prevent it.
       - |
-        {{.OCM}} transfer ctf \
-          {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}} {{.OCM_TRANSFER_ARGS}}
+        if [ "${OVERWRITE_COMPONENTS:-false}" = "true" ]; then
+          exit 0
+        fi
+        if {{.OCM}} get cv "$OCM_TARGET_REF"; then
+          echo "$OCM_TARGET_REF already exists. Set OVERWRITE_COMPONENTS to 'true' to overwrite it." >&2
+          exit 1
+        fi
+      - '{{.OCM}} transfer cv {{.OCM_COMPONENT_REF}} {{.OCM_TARGET_REPO}}'
 
   build:image:local:
     desc: 'Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test'
@@ -102,12 +120,10 @@ tasks:
       - localbin
     status:
       - 'test -x "{{.OCM}}"'
-      - '"{{.OCM}}" --version | grep -q "{{.OCM_VERSION | trimPrefix "v"}}"'
+      - '"{{.OCM}}" version | grep -Fxq "  Version:  {{.OCM_VERSION | trimPrefix "v"}}"'
     vars:
-      # renovate: datasource=github-releases depName=ocm packageName=open-component-model/ocm
-      OCM_VERSION: '{{ env "OCM_VERSION" | default ( .OCM_VERSION | default "v0.30.0" ) }}'
-      tmpdir:
-        sh: 'mktemp -d'
+      # renovate: datasource=github-releases depName=ocm packageName=open-component-model/open-component-model
+      OCM_VERSION: '{{ env "OCM_VERSION" | default ( .OCM_VERSION | default "v0.25.0" ) }}'
     cmds:
-      - 'curl -sSfL https://ocm.software/install.sh | OCM_VERSION="{{.OCM_VERSION | trimPrefix "v"}}" bash -s "{{.tmpdir}}"'
-      - 'mv "{{.tmpdir}}/ocm" "{{.OCM}}"'
+      - 'curl -fsSL "https://github.com/open-component-model/open-component-model/releases/download/{{.OCM_VERSION}}/ocm-{{OS}}-{{ARCH}}" --output "{{.OCM}}"'
+      - 'chmod +x "{{.OCM}}"'
