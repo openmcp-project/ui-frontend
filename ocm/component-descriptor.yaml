@@ -9,11 +9,11 @@ resources:
     type: ociImage
     version: ${VERSION}
     access:
-      type: ociArtifact
+      type: OCIImage/v1
       imageReference: ghcr.io/openmcp-project/mcp-ui-frontend:${IMAGE_VERSION}
   - name: mcp-ui-backend-image
     type: ociImage
     version: ${BACKEND_IMAGE_VERSION}
     access:
-      type: ociArtifact
+      type: OCIImage/v1
       imageReference: ${BACKEND_IMAGE_URL}:${BACKEND_IMAGE_VERSION}
