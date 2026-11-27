@@ -19,7 +19,7 @@ vars:
 
   # Backend Image Version
   BACKEND_IMAGE_URL: ghcr.io/openmcp-project/mcp-ui-backend
-  BACKEND_IMAGE_VERSION: v0.7.1
+  BACKEND_IMAGE_VERSION: v0.7.6
 
   ROOT_DIR2: '{{.ROOT_DIR | trimSuffix "/common" | trimSuffix "/hack"}}'
   LOCALBIN: '{{ env "LOCALBIN" | default ( .LOCALBIN | default (print .ROOT_DIR2 "/.bin") ) }}'
