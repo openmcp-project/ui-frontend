@@ -71,7 +71,8 @@ jobs:
         env:
           CYPRESS_defaultCommandTimeout: '12000'
           NODE_OPTIONS: '--max-old-space-size=4096'
-        run: npm run test:cy -- --spec '${{ matrix.spec }}'
+        # Cypress 16.1.1 cannot connect to the runner's Chrome 158; Electron ships with Cypress.
+        run: npx cypress run --component --browser electron --spec '${{ matrix.spec }}'
 
       - name: Upload Cypress Screenshots
         if: always() # Run this step even if tests fail
